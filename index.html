@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SkillForge Digital • Portal</title>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9249731498223929" crossorigin="anonymous"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
@@ -44,7 +45,10 @@
           <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
           <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">System Online</span>
         </div>
-        <div id="counter" class="text-[10px] text-blue-500 font-mono mt-1">LIVE NODES: 0</div>
+        <div class="flex items-center gap-2 justify-end mt-1">
+          <div id="counter" class="text-[10px] text-blue-500 font-mono">LIVE NODES: 0</div>
+          <button onclick="goMainSite()" class="text-[10px] bg-white text-black px-3 py-1 rounded-lg font-bold uppercase tracking-widest">Main Site</button>
+        </div>
       </div>
     </header>
 
@@ -69,7 +73,7 @@
       <button onclick="goHome()" class="absolute top-8 right-8 text-slate-500 hover:text-white"><i data-lucide="x" class="w-6 h-6"></i></button>
       <div class="mb-10">
         <h2 class="text-3xl font-bold mb-2 tracking-tight">New Enrollment</h2>
-        <p class="text-slate-400 text-sm">Official 2026 Cohort Entry</p>
+        <p id="cohort-year" class="text-slate-400 text-sm">Official 2026 Cohort Entry</p>
       </div>
       <form id="reg-form" class="space-y-6">
         <div>
@@ -220,7 +224,7 @@
       <div class="flex items-center justify-between mb-6">
         <h2 class="text-2xl font-bold tracking-tight">Admin Panel</h2>
         <div class="flex gap-2">
-          <button onclick="goHome()" class="text-slate-500 hover:text-white"><i data-lucide="home" class="w-6 h-6"></i></button>
+          <button onclick="goMainSite()" class="text-slate-500 hover:text-white"><i data-lucide="home" class="w-6 h-6"></i></button>
         </div>
       </div>
       <div id="admin-auth" class="space-y-4">
@@ -236,6 +240,10 @@
           <div class="p-4 bg-white/5 border border-white/10 rounded-xl">
             <div class="text-xs font-bold uppercase text-blue-400 tracking-widest mb-3">Season Controls</div>
             <div class="space-y-3">
+              <div class="flex items-center gap-2">
+                <input id="admin-season" type="text" class="flex-1 rounded-xl p-3 text-sm" placeholder="Enter season (e.g., 2026)" />
+                <button id="btn-set-season" class="bg-white text-black px-4 py-2 rounded-lg text-[10px] font-bold uppercase">Set Season</button>
+              </div>
               <button id="btn-clear-season" class="bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase">Reset Live Counters to 0</button>
             </div>
           </div>
@@ -246,6 +254,30 @@
               <button id="btn-set-pin" class="bg-white text-black px-4 py-2 rounded-lg text-[10px] font-bold uppercase">Save</button>
             </div>
             <div class="text-[10px] text-slate-500 mt-2">PIN is stored hashed in settings.</div>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="p-4 bg-white/5 border border-white/10 rounded-xl">
+            <div class="text-xs font-bold uppercase text-blue-400 tracking-widest mb-3">Backend Config</div>
+            <div class="space-y-3">
+              <div class="flex items-center gap-2">
+                <input id="admin-main-site" type="text" class="flex-1 rounded-xl p-3 text-sm" placeholder="Main site URL (https://example.com)" />
+                <button id="btn-set-main-site" class="bg-white text-black px-4 py-2 rounded-lg text-[10px] font-bold uppercase">Set Main Site</button>
+              </div>
+              <textarea id="admin-firebase-config" class="w-full rounded-xl p-3 text-sm h-32" placeholder='Paste Firebase config JSON here'></textarea>
+              <div class="flex items-center gap-2">
+                <button id="btn-save-config" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase">Save Config</button>
+                <button id="btn-load-config" class="bg-white text-black px-4 py-2 rounded-lg text-[10px] font-bold uppercase">Load Current</button>
+                <button id="btn-clear-config" class="bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase">Clear Config</button>
+              </div>
+            </div>
+          </div>
+          <div class="p-4 bg-white/5 border border-white/10 rounded-xl">
+            <div class="text-xs font-bold uppercase text-blue-400 tracking-widest mb-3">Status</div>
+            <div class="text-sm">
+              <div>Season: <span id="admin-season-status"></span></div>
+              <div>Project: <span id="admin-project-status"></span></div>
+            </div>
           </div>
         </div>
         <div class="p-4 bg-white/5 border border-white/10 rounded-xl">
@@ -297,7 +329,7 @@
           <p class="text-sm font-bold uppercase tracking-[0.4em] text-gray-500">Official Student Registry • 2026</p>
         </div>
         <div class="text-right">
-          <div class="border-2 border-black px-4 py-2 text-2xl font-bold font-mono">2026</div>
+          <div id="slip-year-box" class="border-2 border-black px-4 py-2 text-2xl font-bold font-mono">2026</div>
         </div>
       </div>
       <div class="space-y-12">
@@ -365,24 +397,21 @@
     </div>
   </div>
   <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
-    import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
-    import { getFirestore, collection, addDoc, onSnapshot, doc, runTransaction, serverTimestamp, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js';
+    import { getAnalytics } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js';
+    import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js';
+    import { getFirestore, collection, addDoc, onSnapshot, doc, runTransaction, serverTimestamp, query, where, getDocs, deleteDoc } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js';
 
     const BRAND_NAME = 'SkillForge Digital';
     const LOGO_URL = 'https://i.postimg.cc/fRYD4HSw/Whats-App-Image-2026-01-16-at-1-20-06-PM.jpg';
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBUdigfl1lyCmZ0xrC0b0XgNoBl_XbgWVw",
-      authDomain: "skillforge-registry.firebaseapp.com",
-      projectId: "skillforge-registry",
-      storageBucket: "skillforge-registry.firebasestorage.app",
-      messagingSenderId: "778485483720",
-      appId: "1:778485483720:web:ea6b225ef7ee442df5fdfd",
-      measurementId: "G-NYNP1G2BWF"
-    };
+    const DEFAULT_CONFIG = {"apiKey":"AIzaSyAKawPq6ggYmMIyfmaOg_wKklIunc3GyS0","authDomain":"skillforge-digital-portal.firebaseapp.com","projectId":"skillforge-digital-portal","storageBucket":"skillforge-digital-portal.firebasestorage.app","messagingSenderId":"425765825033","appId":"1:425765825033:web:9f75cb46fe58e28acde6d8","measurementId":"G-NFC9TNEK7E"};
+    const firebaseConfig = (() => { const raw=localStorage.getItem('firebaseConfig'); try{ return raw?JSON.parse(raw):DEFAULT_CONFIG }catch{ return DEFAULT_CONFIG }})();
 
     const APP_ID = 'skillforgedigital-portal-2026';
+    let CURRENT_SEASON = localStorage.getItem('currentSeason') || '2026';
+    const MAIN_SITE_URL_DEFAULT = 'https://portal.skillforgedigital.com.ng';
+    function goMainSite(){ const u=localStorage.getItem('mainSiteUrl')||MAIN_SITE_URL_DEFAULT; location.href=u; }
     const TRACK_CODES = {
       "Forex Synthetic Indices":"FXS","Graphics Design":"GRD","Stock Market Trading":"STK",
       "Web Design & Development":"WDD","Forex Currency Pairs":"FXC","Discord Design & Development":"DDC",
@@ -405,12 +434,14 @@
     };
 
     const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
     let currentUser = null;
     let sessionData = {};
     let verification = JSON.parse(sessionStorage.getItem('verification') || '{"discord":false,"telegram":false,"whatsapp":false}');
+    let counterUnsub = null;
 
     class Sundust {
       constructor() {
@@ -500,6 +531,10 @@
       document.getElementById('brand-name').innerText = BRAND_NAME;
       document.getElementById('slip-brand').innerText = BRAND_NAME;
       document.getElementById('brand-logo').src = LOGO_URL;
+      document.getElementById('cohort-year').innerText = `Official ${CURRENT_SEASON} Cohort Entry`;
+      document.getElementById('slip-year-box').innerText = CURRENT_SEASON;
+      const slipYearText = document.getElementById('slip-brand').nextElementSibling;
+      if (slipYearText) slipYearText.innerText = `Official Student Registry • ${CURRENT_SEASON}`;
       new Sundust();
       await signInAnonymously(auth);
       onAuthStateChanged(auth,u=>{ currentUser=u; if(u) startSync() });
@@ -513,6 +548,16 @@
       document.getElementById('btn-set-pin').addEventListener('click',setAdminPin);
       document.getElementById('btn-refresh-list').addEventListener('click',loadAdminList);
       document.getElementById('btn-print-list').addEventListener('click',printAdminList);
+      const btnSetSeason = document.getElementById('btn-set-season');
+      if (btnSetSeason) btnSetSeason.addEventListener('click', setSeason);
+      const btnSetMainSite = document.getElementById('btn-set-main-site');
+      if (btnSetMainSite) btnSetMainSite.addEventListener('click', setMainSite);
+      const btnSaveCfg = document.getElementById('btn-save-config');
+      const btnLoadCfg = document.getElementById('btn-load-config');
+      const btnClearCfg = document.getElementById('btn-clear-config');
+      if (btnSaveCfg) btnSaveCfg.addEventListener('click', saveFirebaseConfig);
+      if (btnLoadCfg) btnLoadCfg.addEventListener('click', loadFirebaseConfig);
+      if (btnClearCfg) btnClearCfg.addEventListener('click', clearFirebaseConfig);
       if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
       try {
         history.replaceState({view:'landing'}, '', '#landing');
@@ -523,12 +568,19 @@
       } catch {}
       updateVerificationUI();
       if (location.hash === '#admin') routeTo('admin-view');
+      const msInput = document.getElementById('admin-main-site');
+      if (msInput) msInput.value = localStorage.getItem('mainSiteUrl') || MAIN_SITE_URL_DEFAULT;
+      const seasonStatus = document.getElementById('admin-season-status');
+      if (seasonStatus) seasonStatus.innerText = CURRENT_SEASON;
+      const projStatus = document.getElementById('admin-project-status');
+      if (projStatus) projStatus.innerText = firebaseConfig.projectId || 'unknown';
     }
 
     function startSync(){
-      const docRef = doc(db,'artifacts',APP_ID,'public','data','counters','tracks');
+      if (counterUnsub) { try { counterUnsub(); } catch {} counterUnsub = null; }
+      const docRef = doc(db,'seasons',CURRENT_SEASON,'artifacts',APP_ID,'public','data','counters','tracks');
       document.getElementById('counter').innerText = 'LIVE NODES: 0';
-      onSnapshot(docRef,(snap)=>{
+      counterUnsub = onSnapshot(docRef,(snap)=>{
         let total = 0;
         if(snap.exists()){
           const data=snap.data();
@@ -553,10 +605,10 @@
         const [fingerprint, ip] = await Promise.all([getDeviceFingerprint(), getPublicIp()]);
         const ipHash = ip ? await sha256(ip) : 'unknown';
         const sfid = await runTransaction(db, async (tx) => {
-          const ipRef = doc(db,'artifacts',APP_ID,'public','data','ip_index',ipHash);
-          const devRef = doc(db,'artifacts',APP_ID,'public','data','device_index',fingerprint);
-          const phoneRef = doc(db,'artifacts',APP_ID,'public','data','phone_index',phone);
-          const emailRef = doc(db,'artifacts',APP_ID,'public','data','email_index',email);
+          const ipRef = doc(db,'seasons',CURRENT_SEASON,'artifacts',APP_ID,'public','data','ip_index',ipHash);
+          const devRef = doc(db,'seasons',CURRENT_SEASON,'artifacts',APP_ID,'public','data','device_index',fingerprint);
+          const phoneRef = doc(db,'seasons',CURRENT_SEASON,'artifacts',APP_ID,'public','data','phone_index',phone);
+          const emailRef = doc(db,'seasons',CURRENT_SEASON,'artifacts',APP_ID,'public','data','email_index',email);
           const [ipSnap, devSnap, phoneSnap, emailSnap] = await Promise.all([tx.get(ipRef), tx.get(devRef), tx.get(phoneRef), tx.get(emailRef)]);
           if (name !== 'SKILLFORGE TEST') {
             if (ipSnap.exists()) throw new Error('IP_LOCKED');
@@ -564,14 +616,15 @@
             if (phoneSnap.exists()) throw new Error('PHONE_TAKEN');
             if (emailSnap.exists()) throw new Error('EMAIL_TAKEN');
           }
-          const counterRef = doc(db,'artifacts',APP_ID,'public','data','counters','tracks');
+          const counterRef = doc(db,'seasons',CURRENT_SEASON,'artifacts',APP_ID,'public','data','counters','tracks');
           const counterSnap = await tx.get(counterRef);
           let counts = counterSnap.exists() ? counterSnap.data() : {};
           let current = counts[track] || INITIAL_TRACK_COUNTS[track] || 0;
           let next = current + 1;
           const code = TRACK_CODES[track];
-          const newSFID = `SF26-${code}-${String(next).padStart(3,'0')}`;
-          const regRef = doc(collection(db,'artifacts',APP_ID,'public','data','registrations'));
+          const yearCode = String(CURRENT_SEASON).slice(-2);
+          const newSFID = `SF${yearCode}-${code}-${String(next).padStart(3,'0')}`;
+          const regRef = doc(collection(db,'seasons',CURRENT_SEASON,'artifacts',APP_ID,'public','data','registrations'));
           tx.set(regRef,{ sfid:newSFID,name,phone,email,track,challenge, ip_hash:ipHash,device_hash:fingerprint, created_at:serverTimestamp(), status:'active', uid:currentUser.uid });
           if (name !== 'SKILLFORGE TEST') {
             tx.set(ipRef,{locked:true,at:serverTimestamp()});
@@ -602,7 +655,7 @@
     }
 
     async function findRegistration(input){
-      const regs = collection(db,'artifacts',APP_ID,'public','data','registrations');
+      const regs = collection(db,'seasons',CURRENT_SEASON,'artifacts',APP_ID,'public','data','registrations');
       let q;
       if (/^SF\d{2}-[A-Z]{3}-\d{3}$/i.test(input)) q=query(regs,where('sfid','==',input.toUpperCase()));
       else if (input.includes('@')) q=query(regs,where('email','==',input.toLowerCase()));
@@ -641,19 +694,20 @@
       const challenge=document.getElementById('new-challenge').value;
       try{
         const newSFID = await runTransaction(db, async (tx) => {
-          const oldRef = doc(db,'artifacts',APP_ID,'public','data','registrations',docId);
+          const oldRef = doc(db,'seasons',CURRENT_SEASON,'artifacts',APP_ID,'public','data','registrations',docId);
           const oldSnap = await tx.get(oldRef);
           if (!oldSnap.exists()) throw new Error('DOC_NOT_FOUND');
           const oldData = oldSnap.data();
           tx.update(oldRef,{status:'void',voided_at:serverTimestamp()});
-          const counterRef = doc(db,'artifacts',APP_ID,'public','data','counters','tracks');
+          const counterRef = doc(db,'seasons',CURRENT_SEASON,'artifacts',APP_ID,'public','data','counters','tracks');
           const counterSnap = await tx.get(counterRef);
           let counts = counterSnap.exists()?counterSnap.data():{};
           let current = counts[newTrack] || INITIAL_TRACK_COUNTS[newTrack] || 0;
           let next = current + 1;
           const code = TRACK_CODES[newTrack];
-          const sfid = `SF26-${code}-${String(next).padStart(3,'0')}`;
-          const newRegRef = doc(collection(db,'artifacts',APP_ID,'public','data','registrations'));
+          const yearCode = String(CURRENT_SEASON).slice(-2);
+          const sfid = `SF${yearCode}-${code}-${String(next).padStart(3,'0')}`;
+          const newRegRef = doc(collection(db,'seasons',CURRENT_SEASON,'artifacts',APP_ID,'public','data','registrations'));
           tx.set(newRegRef,{ sfid,name:newName,phone:newPhone,email:newEmail,track:newTrack,challenge, previous_sfid:oldData.sfid,correction_of:docId, ip_hash:oldData.ip_hash,device_hash:oldData.device_hash, created_at:serverTimestamp(),status:'active',uid:currentUser.uid });
           tx.set(counterRef,{[newTrack]:next},{merge:true});
           return sfid;
@@ -687,6 +741,7 @@
       document.getElementById('slip-track').innerText=sessionData.track;
       document.getElementById('slip-challenge').innerText=sessionData.challenge==='Yes'?'ENROLLED':'FOUNDATION ONLY';
       document.getElementById('slip-date').innerText=sessionData.date;
+      document.getElementById('slip-year-box').innerText = CURRENT_SEASON;
     };
     
     let adminUnlocked = false;
@@ -694,8 +749,8 @@
       const pin = document.getElementById('admin-pin').value.trim();
       const enteredHash = await sha256(pin);
       try {
-        const settingsRef = doc(db,'artifacts',APP_ID,'public','config','settings');
-        const settingsSnap = await getDocs(query(collection(db,'artifacts',APP_ID,'public','config')));
+        const settingsRef = doc(db,'seasons',CURRENT_SEASON,'artifacts',APP_ID,'public','config','settings');
+        const settingsSnap = await getDocs(query(collection(db,'seasons',CURRENT_SEASON,'artifacts',APP_ID,'public','config')));
         let storedHash = null;
         // naive fetch for admin_pin_hash if exists in any config doc
         settingsSnap.forEach(d=>{ const data=d.data(); if (data.admin_pin_hash) storedHash = data.admin_pin_hash; });
@@ -716,7 +771,7 @@
       if (!newPin) return;
       const hash = await sha256(newPin);
       try {
-        const ref = doc(db,'artifacts',APP_ID,'public','config','settings');
+        const ref = doc(db,'seasons',CURRENT_SEASON,'artifacts',APP_ID,'public','config','settings');
         await runTransaction(db, async (tx) => {
           tx.set(ref, { admin_pin_hash: hash }, { merge: true });
         });
@@ -725,18 +780,67 @@
         UI.showError('Failed to update PIN.');
       }
     }
+    function setMainSite(){
+      if (!adminUnlocked) { UI.showError('Unlock admin first.'); return; }
+      const val = document.getElementById('admin-main-site').value.trim();
+      if (!val) return;
+      localStorage.setItem('mainSiteUrl', val);
+      UI.showError('Main site updated.');
+    }
+    function saveFirebaseConfig(){
+      if (!adminUnlocked) { UI.showError('Unlock admin first.'); return; }
+      const raw = document.getElementById('admin-firebase-config').value.trim();
+      if (!raw) return;
+      try { const cfg = JSON.parse(raw); localStorage.setItem('firebaseConfig', JSON.stringify(cfg)); location.reload(); } catch { UI.showError('Invalid JSON config.'); }
+    }
+    function loadFirebaseConfig(){
+      const ta = document.getElementById('admin-firebase-config');
+      if (!ta) return;
+      ta.value = JSON.stringify(firebaseConfig, null, 2);
+    }
+    function clearFirebaseConfig(){
+      if (!adminUnlocked) { UI.showError('Unlock admin first.'); return; }
+      localStorage.removeItem('firebaseConfig');
+      location.reload();
+    }
+    async function setSeason(){
+      if (!adminUnlocked) { UI.showError('Unlock admin first.'); return; }
+      const input = document.getElementById('admin-season');
+      if (!input) return;
+      const val = input.value.trim();
+      if (!val) return;
+      CURRENT_SEASON = val;
+      localStorage.setItem('currentSeason', CURRENT_SEASON);
+      document.getElementById('cohort-year').innerText = `Official ${CURRENT_SEASON} Cohort Entry`;
+      document.getElementById('slip-year-box').innerText = CURRENT_SEASON;
+      const slipYearText = document.getElementById('slip-brand').nextElementSibling;
+      if (slipYearText) slipYearText.innerText = `Official Student Registry • ${CURRENT_SEASON}`;
+      startSync();
+      UI.showError('Season updated.');
+    }
     async function resetCounters(){
       if (!adminUnlocked) { UI.showError('Unlock admin first.'); return; }
       try {
-        const counterRef = doc(db,'artifacts',APP_ID,'public','data','counters','tracks');
+        const counterRef = doc(db,'seasons',CURRENT_SEASON,'artifacts',APP_ID,'public','data','counters','tracks');
         await runTransaction(db, async (tx) => { tx.set(counterRef, {}, { merge: false }); });
-        UI.showError('Live counters reset to 0.');
+        const ipCol = collection(db,'seasons',CURRENT_SEASON,'artifacts',APP_ID,'public','data','ip_index');
+        const devCol = collection(db,'seasons',CURRENT_SEASON,'artifacts',APP_ID,'public','data','device_index');
+        const phoneCol = collection(db,'seasons',CURRENT_SEASON,'artifacts',APP_ID,'public','data','phone_index');
+        const emailCol = collection(db,'seasons',CURRENT_SEASON,'artifacts',APP_ID,'public','data','email_index');
+        const [ipSnap,devSnap,phoneSnap,emailSnap] = await Promise.all([getDocs(ipCol),getDocs(devCol),getDocs(phoneCol),getDocs(emailCol)]);
+        const deletes = [];
+        ipSnap.forEach(d=>deletes.push(deleteDoc(d.ref)));
+        devSnap.forEach(d=>deletes.push(deleteDoc(d.ref)));
+        phoneSnap.forEach(d=>deletes.push(deleteDoc(d.ref)));
+        emailSnap.forEach(d=>deletes.push(deleteDoc(d.ref)));
+        await Promise.all(deletes);
+        UI.showError('Live counters and locks reset to 0 for current season.');
       } catch { UI.showError('Failed to reset counters.'); }
     }
     async function loadAdminList(){
       const tbody = document.getElementById('admin-table-body');
       tbody.innerHTML = '';
-      const regsCol = collection(db,'artifacts',APP_ID,'public','data','registrations');
+      const regsCol = collection(db,'seasons',CURRENT_SEASON,'artifacts',APP_ID,'public','data','registrations');
       const regsSnap = await getDocs(regsCol);
       const rows = [];
       regsSnap.forEach(d => { const r=d.data(); if (r.status!=='void') rows.push(r); });
