@@ -39,7 +39,7 @@
           <h1 id="brand-name" class="text-xl font-bold tracking-tight uppercase">SkillForge Digital</h1>
           <p class="text-[10px] text-slate-400 uppercase tracking-[0.2em] font-bold">Secure Digital Registry</p>
         </div>
-        <button id="btn-home" class="ml-auto text-[10px] bg-white text-black px-3 py-1 rounded-lg font-bold uppercase tracking-widest">Home</button>
+        <a id="link-home" href="https://skillforgedigital.com.ng/" class="ml-auto text-[10px] bg-white text-black px-3 py-1 rounded-lg font-bold uppercase tracking-widest">Home</a>
       </div>
       <div class="text-right">
         <div class="flex items-center gap-2 justify-end">
@@ -51,8 +51,8 @@
         </div>
       </div>
 
-    <div id="landing" class="glass-panel rounded-[32px] p-12 text-center animate-zoom-in">
-      <h2 class="text-4xl font-bold mb-4 tracking-tight">Portal Access</h2>
+    <div id="landing" class="glass-panel rounded-[32px] p-6 md:p-12 text-center animate-zoom-in">
+      <h2 class="text-2xl md:text-4xl font-bold mb-4 tracking-tight">Portal Access</h2>
       <p class="text-slate-400 mb-12 uppercase text-xs tracking-widest">Select Operation Mode</p>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-xl mx-auto">
         <button id="mode-register" class="group relative overflow-hidden bg-blue-600/10 hover:bg-blue-600/20 border border-blue-600/30 p-8 rounded-2xl transition-all hover:scale-105">
@@ -68,10 +68,10 @@
       </div>
     </div>
 
-    <div id="register-view" class="hidden glass-panel rounded-[32px] p-8 md:p-12 animate-slide-up relative">
+    <div id="register-view" class="hidden glass-panel rounded-[32px] p-6 md:p-12 animate-slide-up relative">
       <button onclick="goHome()" class="absolute top-8 right-8 text-slate-500 hover:text-white"><i data-lucide="x" class="w-6 h-6"></i></button>
       <div class="mb-10">
-        <h2 class="text-3xl font-bold mb-2 tracking-tight">New Enrollment</h2>
+        <h2 class="text-2xl md:text-3xl font-bold mb-2 tracking-tight">New Enrollment</h2>
         <p id="cohort-year" class="text-slate-400 text-sm">Official 2026 Cohort Entry</p>
       </div>
       <form id="reg-form" class="space-y-6">
@@ -122,7 +122,7 @@
       </form>
     </div>
 
-    <div id="correction-view" class="hidden glass-panel rounded-[32px] p-8 md:p-12 animate-slide-up relative">
+    <div id="correction-view" class="hidden glass-panel rounded-[32px] p-6 md:p-12 animate-slide-up relative">
       <button onclick="goHome()" class="absolute top-8 right-8 text-slate-500 hover:text-white"><i data-lucide="x" class="w-6 h-6"></i></button>
       <div class="mb-8">
         <h2 class="text-2xl font-bold mb-2 tracking-tight">Data Correction</h2>
@@ -169,11 +169,11 @@
       </div>
     </div>
 
-    <div id="onboarding-view" class="hidden glass-panel rounded-[32px] p-8 md:p-12 animate-zoom-in text-center">
+    <div id="onboarding-view" class="hidden glass-panel rounded-[32px] p-6 md:p-12 animate-zoom-in text-center">
       <div class="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-6 text-blue-500">
         <i data-lucide="shield-check" class="w-8 h-8"></i>
       </div>
-      <h2 class="text-3xl font-bold mb-2">Registration Secured</h2>
+      <h2 class="text-2xl md:text-3xl font-bold mb-2">Registration Secured</h2>
       <p class="text-slate-400 text-sm mb-8 uppercase tracking-widest">Complete mandatory verification</p>
       <div class="space-y-3 max-w-md mx-auto text-left">
         <div class="p-4 bg-white/5 border border-white/10 rounded-xl flex justify-between items-center">
@@ -212,18 +212,18 @@
       </button>
     </div>
 
-    <div id="success-view" class="hidden glass-panel rounded-[32px] p-12 text-center animate-zoom-in">
+    <div id="success-view" class="hidden glass-panel rounded-[32px] p-6 md:p-12 text-center animate-zoom-in">
       <i data-lucide="check-circle" class="w-16 h-16 text-green-500 mx-auto mb-6"></i>
-      <h2 class="text-3xl font-bold mb-4">You are Set!</h2>
+      <h2 class="text-2xl md:text-3xl font-bold mb-4">You are Set!</h2>
       <p class="text-slate-400 text-sm mb-8">Please print your slip and bring it to the venue.</p>
       <button onclick="window.print()" class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold uppercase text-xs tracking-widest hover:bg-blue-500">Print Slip Now</button>
     </div>
     
-    <div id="admin-view" class="hidden glass-panel rounded-[32px] p-8 md:p-12 animate-slide-up">
+    <div id="admin-view" class="hidden glass-panel rounded-[32px] p-6 md:p-12 animate-slide-up">
       <div class="flex items-center justify-between mb-6">
         <h2 class="text-2xl font-bold tracking-tight">Admin Panel</h2>
         <div class="flex gap-2">
-          <button id="btn-home-admin" class="text-slate-500 hover:text-white"><i data-lucide="home" class="w-6 h-6"></i></button>
+          <a id="link-home-admin" href="https://skillforgedigital.com.ng/" class="text-slate-500 hover:text-white"><i data-lucide="home" class="w-6 h-6"></i></a>
         </div>
       </div>
       <div id="admin-auth" class="space-y-4">
@@ -411,7 +411,6 @@
     let CURRENT_SEASON = localStorage.getItem('currentSeason') || '2026';
     const MAIN_SITE_URL_DEFAULT = 'https://skillforgedigital.com.ng/';
     function goMainSite(){ const u=localStorage.getItem('mainSiteUrl')||MAIN_SITE_URL_DEFAULT; location.href=u; }
-    window.goMainSite = goMainSite;
     const TRACK_CODES = {
       "Forex Synthetic Indices":"FXS","Graphics Design":"GRD","Stock Market Trading":"STK",
       "Web Design & Development":"WDD","Forex Currency Pairs":"FXC","Discord Design & Development":"DDC",
@@ -543,10 +542,11 @@
       document.getElementById('mode-correct').addEventListener('click',()=>routeTo('correction-view'));
       document.getElementById('correct-search-btn').addEventListener('click',handleCorrectionSearch);
       document.getElementById('correct-form').addEventListener('submit',handleCorrectionSubmit);
-      const btnHome = document.getElementById('btn-home');
-      if (btnHome) btnHome.addEventListener('click', () => goMainSite());
-      const btnHomeAdmin = document.getElementById('btn-home-admin');
-      if (btnHomeAdmin) btnHomeAdmin.addEventListener('click', () => goMainSite());
+      const homeUrl = localStorage.getItem('mainSiteUrl') || MAIN_SITE_URL_DEFAULT;
+      const linkHome = document.getElementById('link-home');
+      const linkHomeAdmin = document.getElementById('link-home-admin');
+      if (linkHome) linkHome.href = homeUrl;
+      if (linkHomeAdmin) linkHomeAdmin.href = homeUrl;
       document.getElementById('admin-login').addEventListener('click',adminLogin);
       document.getElementById('btn-clear-season').addEventListener('click',resetCounters);
       document.getElementById('btn-set-pin').addEventListener('click',setAdminPin);
