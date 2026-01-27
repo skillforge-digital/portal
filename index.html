@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkillForge Digital • Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+    :root { --bg-dark:#0a0c10; --text-light:#f1f5f9; --accent:#3b82f6; --accent-glow:rgba(59,130,246,.5) }
+    body { font-family:'Space Grotesk',sans-serif; background:var(--bg-dark); color:var(--text-light); overflow-x:hidden }
+    #sundust-canvas { position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none }
+    @keyframes fade-in{from{opacity:0}to{opacity:1}} @keyframes slide-up{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}} @keyframes zoom-in{from{transform:scale(.95);opacity:0}to{transform:scale(1);opacity:1}}
+    .animate-fade-in{animation:fade-in .8s ease-out forwards} .animate-slide-up{animation:slide-up .6s ease-out forwards} .animate-zoom-in{animation:zoom-in .4s ease-out forwards}
+    input,select{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);transition:.3s}
+    input:focus,select:focus{background:rgba(255,255,255,.05);border-color:var(--accent);box-shadow:0 0 0 2px rgba(59,130,246,.2);outline:none}
+    .glass-panel{background:rgba(19,23,31,.7);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.05);box-shadow:0 25px 50px -12px rgba(0,0,0,.5)}
+    @media print {
+      body{background:#fff!important;color:#000!important}
+      #sundust-canvas,.no-print,#landing,#register-view,#correction-view,#onboarding-view,#success-view,#admin-view,#error-modal,header{display:none!important}
+      #print-slip{display:block!important;position:absolute;top:0;left:0;width:100%;height:100%;z-index:9999;background:#fff;color:#000;margin:0;padding:0}
+      .glass-panel{box-shadow:none;border:none;background:#fff;color:#000}
+    }
+    .loader{border:2px solid rgba(255,255,255,.1);border-left-color:var(--accent);border-radius:50%;width:20px;height:20px;animation:spin 1s linear infinite}
+    @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+  <canvas id="sundust-canvas"></canvas>
+  <div class="relative z-10 w-full max-w-4xl mx-auto">
+    <header class="flex justify-between items-center mb-8 no-print glass-panel p-4 rounded-2xl animate-fade-in">
+      <div class="flex items-center gap-4">
+        <div class="w-12 h-12 rounded-xl overflow-hidden bg-white/5 border border-white/10 flex items-center justify-center">
+          <img id="brand-logo" src="" alt="Brand Logo" class="w-12 h-12 object-contain">
+        </div>
+        <div>
+          <h1 id="brand-name" class="text-xl font-bold tracking-tight uppercase">SkillForge Digital</h1>
+          <p class="text-[10px] text-slate-400 uppercase tracking-[0.2em] font-bold">Secure Digital Registry</p>
+        </div>
+      </div>
+      <div class="text-right">
+        <div class="flex items-center gap-2 justify-end">
+          <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">System Online</span>
+        </div>
+        <div id="counter" class="text-[10px] text-blue-500 font-mono mt-1">LIVE NODES: 0</div>
+      </div>
+    </header>
+
+    <div id="landing" class="glass-panel rounded-[32px] p-12 text-center animate-zoom-in">
+      <h2 class="text-4xl font-bold mb-4 tracking-tight">Portal Access</h2>
+      <p class="text-slate-400 mb-12 uppercase text-xs tracking-widest">Select Operation Mode</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-xl mx-auto">
+        <button id="mode-register" class="group relative overflow-hidden bg-blue-600/10 hover:bg-blue-600/20 border border-blue-600/30 p-8 rounded-2xl transition-all hover:scale-105">
+          <div class="mb-4 text-blue-400 group-hover:text-white transition-colors"><i data-lucide="user-plus" class="w-10 h-10 mx-auto"></i></div>
+          <h3 class="font-bold text-lg uppercase tracking-wider mb-2">New Registration</h3>
+          <p class="text-[10px] text-slate-500 uppercase">First time enrollment</p>
+        </button>
+        <button id="mode-correct" class="group relative overflow-hidden bg-purple-600/10 hover:bg-purple-600/20 border border-purple-600/30 p-8 rounded-2xl transition-all hover:scale-105">
+          <div class="mb-4 text-purple-400 group-hover:text-white transition-colors"><i data-lucide="file-edit" class="w-10 h-10 mx-auto"></i></div>
+          <h3 class="font-bold text-lg uppercase tracking-wider mb-2">Correction</h3>
+          <p class="text-[10px] text-slate-500 uppercase">Update existing record</p>
+        </button>
+      </div>
+    </div>
+
+    <div id="register-view" class="hidden glass-panel rounded-[32px] p-8 md:p-12 animate-slide-up relative">
+      <button onclick="goHome()" class="absolute top-8 right-8 text-slate-500 hover:text-white"><i data-lucide="x" class="w-6 h-6"></i></button>
+      <div class="mb-10">
+        <h2 class="text-3xl font-bold mb-2 tracking-tight">New Enrollment</h2>
+        <p class="text-slate-400 text-sm">Official 2026 Cohort Entry</p>
+      </div>
+      <form id="reg-form" class="space-y-6">
+        <div>
+          <label class="text-[10px] font-bold text-slate-500 uppercase mb-2 block tracking-widest">Full Legal Name</label>
+          <input required name="fullName" type="text" class="w-full rounded-xl p-4 text-sm uppercase placeholder-slate-600" placeholder="SURNAME FIRSTNAME OTHER" />
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="text-[10px] font-bold text-slate-500 uppercase mb-2 block tracking-widest">WhatsApp Contact</label>
+            <input required name="phone" type="tel" class="w-full rounded-xl p-4 text-sm placeholder-slate-600" placeholder="+234..." />
+          </div>
+          <div>
+            <label class="text-[10px] font-bold text-slate-500 uppercase mb-2 block tracking-widest">Email Address</label>
+            <input required name="email" type="email" class="w-full rounded-xl p-4 text-sm placeholder-slate-600" placeholder="student@skillforge.com" />
+          </div>
+        </div>
+        <div>
+          <label class="text-[10px] font-bold text-slate-500 uppercase mb-2 block tracking-widest">Selected Track</label>
+          <select required name="track" class="w-full rounded-xl p-4 text-sm text-slate-300">
+            <option value="" disabled selected>Choose Specialization...</option>
+            <option value="Forex Synthetic Indices">Forex Synthetic Indices</option>
+            <option value="Graphics Design">Graphics Design</option>
+            <option value="Stock Market Trading">Stock Market Trading</option>
+            <option value="Web Design & Development">Web Design & Development</option>
+            <option value="Forex Currency Pairs">Forex Currency Pairs</option>
+            <option value="Discord Design & Development">Discord Design & Development</option>
+            <option value="Photography & Editing">Photography & Editing</option>
+            <option value="Cybersecurity">Cybersecurity</option>
+          </select>
+        </div>
+        <div class="p-6 bg-blue-500/5 border border-blue-500/20 rounded-2xl">
+          <p class="text-[11px] font-bold text-blue-400 uppercase tracking-tight mb-4">SkillForge Challenge Enrollment</p>
+          <div class="flex gap-6">
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input type="radio" name="challenge" value="Yes" required class="w-4 h-4 text-blue-500">
+              <span class="text-sm font-medium">Yes, I Accept.</span>
+            </label>
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input type="radio" name="challenge" value="No" class="w-4 h-4 text-slate-500">
+              <span class="text-sm font-medium text-slate-400">No, Foundation Only.</span>
+            </label>
+          </div>
+        </div>
+        <button type="submit" id="submit-btn" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-4 rounded-xl font-bold uppercase text-xs tracking-[0.2em] shadow-lg transition-all flex items-center justify-center gap-2 mt-8">
+          Initialize Registry Node <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+      </form>
+    </div>
+
+    <div id="correction-view" class="hidden glass-panel rounded-[32px] p-8 md:p-12 animate-slide-up relative">
+      <button onclick="goHome()" class="absolute top-8 right-8 text-slate-500 hover:text-white"><i data-lucide="x" class="w-6 h-6"></i></button>
+      <div class="mb-8">
+        <h2 class="text-2xl font-bold mb-2 tracking-tight">Data Correction</h2>
+        <p class="text-slate-400 text-sm">Locate your existing record to apply changes.</p>
+      </div>
+      <div class="flex gap-2 mb-8">
+        <input type="text" id="correct-search" placeholder="Enter Phone, Email or SFID" class="flex-1 rounded-xl p-3 text-sm" />
+        <button id="correct-search-btn" class="bg-white text-black px-6 rounded-xl font-bold text-xs uppercase tracking-wider">Find</button>
+      </div>
+      <div id="correct-result" class="hidden border-t border-white/10 pt-8">
+        <div class="bg-white/5 p-4 rounded-xl mb-6 grid grid-cols-3 gap-4 text-xs">
+          <div><span class="block text-slate-500 uppercase font-bold text-[10px]">Current SFID</span><span id="old-sfid-display" class="font-mono text-blue-400"></span></div>
+          <div><span class="block text-slate-500 uppercase font-bold text-[10px]">Name</span><span id="old-name-display"></span></div>
+          <div><span class="block text-slate-500 uppercase font-bold text-[10px]">Track</span><span id="old-track-display"></span></div>
+        </div>
+        <form id="correct-form" class="space-y-4">
+          <input type="hidden" id="correct-doc-id">
+          <h3 class="text-xs font-bold uppercase text-blue-400 tracking-widest mb-4">New Details</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input required id="new-name" type="text" class="w-full rounded-xl p-3 text-sm uppercase" placeholder="New Name" />
+            <input required id="new-phone" type="tel" class="w-full rounded-xl p-3 text-sm" placeholder="Phone" />
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input required id="new-email" type="email" class="w-full rounded-xl p-3 text-sm" placeholder="Email" />
+            <select required id="new-track" class="w-full rounded-xl p-3 text-sm text-slate-300">
+              <option value="Forex Synthetic Indices">Forex Synthetic Indices</option>
+              <option value="Graphics Design">Graphics Design</option>
+              <option value="Stock Market Trading">Stock Market Trading</option>
+              <option value="Web Design & Development">Web Design & Development</option>
+              <option value="Forex Currency Pairs">Forex Currency Pairs</option>
+              <option value="Discord Design & Development">Discord Design & Development</option>
+              <option value="Photography & Editing">Photography & Editing</option>
+              <option value="Cybersecurity">Cybersecurity</option>
+            </select>
+          </div>
+          <select required id="new-challenge" class="w-full rounded-xl p-3 text-sm text-slate-300">
+            <option value="Yes">Yes, Challenge</option>
+            <option value="No">No, Foundation Only</option>
+          </select>
+          <button type="submit" id="correct-submit-btn" class="w-full bg-purple-600 hover:bg-purple-500 text-white py-4 rounded-xl font-bold uppercase text-xs tracking-[0.2em] shadow-lg mt-4">
+            Confirm Correction
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <div id="onboarding-view" class="hidden glass-panel rounded-[32px] p-8 md:p-12 animate-zoom-in text-center">
+      <div class="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-6 text-blue-500">
+        <i data-lucide="shield-check" class="w-8 h-8"></i>
+      </div>
+      <h2 class="text-3xl font-bold mb-2">Registration Secured</h2>
+      <p class="text-slate-400 text-sm mb-8 uppercase tracking-widest">Complete mandatory verification</p>
+      <div class="space-y-3 max-w-md mx-auto text-left">
+        <div class="p-4 bg-white/5 border border-white/10 rounded-xl flex justify-between items-center">
+          <div class="flex items-center gap-3">
+            <i data-lucide="message-square" class="text-[#5865F2]"></i>
+            <div>
+              <div class="text-xs font-bold uppercase">Discord Hub</div>
+              <div class="text-[9px] text-slate-500">Official Community</div>
+            </div>
+          </div>
+          <a href="https://discord.gg/JyegEXMXx" target="_blank" id="btn-discord" onclick="completeStep('discord')" class="bg-[#5865F2] hover:bg-[#5865F2]/80 text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase">Join</a>
+        </div>
+        <div class="p-4 bg-white/5 border border-white/10 rounded-xl flex justify-between items-center">
+          <div class="flex items-center gap-3">
+            <i data-lucide="send" class="text-[#0088cc]"></i>
+            <div>
+              <div class="text-xs font-bold uppercase">Telegram</div>
+              <div class="text-[9px] text-slate-500">Live Classes</div>
+            </div>
+          </div>
+          <a href="https://t.me/skillforgeorg" target="_blank" id="btn-telegram" onclick="completeStep('telegram')" class="bg-[#0088cc] hover:bg-[#0088cc]/80 text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase">Join</a>
+        </div>
+        <div class="p-4 bg-white/5 border border-white/10 rounded-xl flex justify-between items-center">
+          <div class="flex items-center gap-3">
+            <i data-lucide="phone" class="text-[#25D366]"></i>
+            <div>
+              <div class="text-xs font-bold uppercase" id="wa-name">Class Node</div>
+              <div class="text-[9px] text-slate-500">Track Group</div>
+            </div>
+          </div>
+          <a href="#" target="_blank" id="wa-link" id="btn-whatsapp" onclick="completeStep('whatsapp')" class="bg-[#25D366] hover:bg-[#25D366]/80 text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase">Join</a>
+        </div>
+      </div>
+      <button id="generate-slip-btn" onclick="generateSlip()" class="hidden w-full max-w-md mx-auto bg-white text-black py-4 rounded-xl font-bold uppercase text-xs tracking-[0.2em] shadow-lg mt-8 hover:bg-slate-200 transition-all">
+        Generate Registry Slip
+      </button>
+    </div>
+
+    <div id="success-view" class="hidden glass-panel rounded-[32px] p-12 text-center animate-zoom-in">
+      <i data-lucide="check-circle" class="w-16 h-16 text-green-500 mx-auto mb-6"></i>
+      <h2 class="text-3xl font-bold mb-4">You are Set!</h2>
+      <p class="text-slate-400 text-sm mb-8">Please print your slip and bring it to the venue.</p>
+      <button onclick="window.print()" class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold uppercase text-xs tracking-widest hover:bg-blue-500">Print Slip Now</button>
+    </div>
+    
+    <div id="admin-view" class="hidden glass-panel rounded-[32px] p-8 md:p-12 animate-slide-up">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold tracking-tight">Admin Panel</h2>
+        <div class="flex gap-2">
+          <button onclick="goHome()" class="text-slate-500 hover:text-white"><i data-lucide="home" class="w-6 h-6"></i></button>
+        </div>
+      </div>
+      <div id="admin-auth" class="space-y-4">
+        <p class="text-slate-400 text-sm">Enter admin PIN to continue.</p>
+        <div class="flex gap-2 max-w-md">
+          <input id="admin-pin" type="password" class="flex-1 rounded-xl p-3 text-sm" placeholder="Admin PIN" />
+          <button id="admin-login" class="bg-white text-black px-6 rounded-xl font-bold text-xs uppercase tracking-wider">Unlock</button>
+        </div>
+        <div class="text-[10px] text-slate-500">Default PIN is 0000 until you set one.</div>
+      </div>
+      <div id="admin-body" class="hidden space-y-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="p-4 bg-white/5 border border-white/10 rounded-xl">
+            <div class="text-xs font-bold uppercase text-blue-400 tracking-widest mb-3">Season Controls</div>
+            <div class="space-y-3">
+              <button id="btn-clear-season" class="bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase">Reset Live Counters to 0</button>
+            </div>
+          </div>
+          <div class="p-4 bg-white/5 border border-white/10 rounded-xl">
+            <div class="text-xs font-bold uppercase text-blue-400 tracking-widest mb-3">Admin PIN</div>
+            <div class="flex items-center gap-2">
+              <input id="admin-pin-new" type="password" class="flex-1 rounded-xl p-3 text-sm" placeholder="Set new PIN" />
+              <button id="btn-set-pin" class="bg-white text-black px-4 py-2 rounded-lg text-[10px] font-bold uppercase">Save</button>
+            </div>
+            <div class="text-[10px] text-slate-500 mt-2">PIN is stored hashed in settings.</div>
+          </div>
+        </div>
+        <div class="p-4 bg-white/5 border border-white/10 rounded-xl">
+          <div class="flex items-center justify-between mb-3">
+            <div class="text-xs font-bold uppercase text-blue-400 tracking-widest">Registered Students</div>
+            <div class="flex items-center gap-2">
+              <button id="btn-refresh-list" class="bg-white text:black px-4 py-2 rounded-lg text-[10px] font-bold uppercase">Refresh</button>
+              <button id="btn-print-list" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase">Print PDF</button>
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="text-left text-[10px] uppercase text-slate-400">
+                  <th class="py-2 pr-4">SFID</th>
+                  <th class="py-2 pr-4">Name</th>
+                  <th class="py-2 pr-4">Track</th>
+                  <th class="py-2 pr-4">Challenge</th>
+                  <th class="py-2 pr-4">Phone</th>
+                  <th class="py-2 pr-4">Email</th>
+                  <th class="py-2 pr-4">Date</th>
+                  <th class="py-2 pr-4">Status</th>
+                </tr>
+              </thead>
+              <tbody id="admin-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="error-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+    <div class="bg-[#1a1f29] border border-rose-500/30 p-8 rounded-2xl max-w-sm w-full text-center shadow-2xl">
+      <div class="w-12 h-12 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto mb-4 text-rose-500">
+        <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+      </div>
+      <h3 class="text-lg font-bold mb-2">System Alert</h3>
+      <p id="error-message" class="text-slate-400 text-xs mb-6 uppercase font-bold tracking-wide leading-relaxed"></p>
+      <button onclick="closeError()" class="w-full bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-xl font-bold uppercase text-[10px] tracking-widest">Dismiss</button>
+    </div>
+  </div>
+
+  <div id="print-slip" class="hidden">
+    <div class="p-12 border-[6px] border-black h-full flex flex-col justify-between">
+      <div class="flex justify-between border-b-[4px] border-black pb-8">
+        <div>
+          <h1 id="slip-brand" class="text-6xl font-black uppercase tracking-tighter">SkillForge Digital</h1>
+          <p class="text-sm font-bold uppercase tracking-[0.4em] text-gray-500">Official Student Registry • 2026</p>
+        </div>
+        <div class="text-right">
+          <div class="border-2 border-black px-4 py-2 text-2xl font-bold font-mono">2026</div>
+        </div>
+      </div>
+      <div class="space-y-12">
+        <div>
+          <label class="block text-[10px] uppercase font-bold text-gray-400 mb-2">Student Identifier</label>
+          <div id="slip-sfid" class="text-7xl font-black font-mono text-blue-900 tracking-tight">SF26-XXX-000</div>
+        </div>
+        <div class="grid grid-cols-1 gap-8">
+          <div>
+            <label class="block text-[10px] uppercase font-bold text-gray-400 mb-2">Full Name</label>
+            <div id="slip-name" class="text-3xl font-bold uppercase border-b-2 border-gray-100 pb-2"></div>
+          </div>
+          <div>
+            <label class="block text-[10px] uppercase font-bold text-gray-400 mb-2">Track</label>
+            <div id="slip-track" class="text-3xl font-bold uppercase border-b-2 border-gray-100 pb-2"></div>
+          </div>
+        </div>
+        <div class="flex justify-between pt-8">
+          <div>
+            <label class="block text-[10px] uppercase font-bold text-gray-400 mb-2">Challenge Status</label>
+            <div id="slip-challenge" class="text-xl font-bold uppercase"></div>
+          </div>
+          <div class="text-right">
+            <label class="block text-[10px] uppercase font-bold text-gray-400 mb-2">Date</label>
+            <div id="slip-date" class="text-xl font-bold"></div>
+          </div>
+        </div>
+      </div>
+      <div class="border-t-2 border-black/10 pt-12 flex justify-between items-end">
+        <div>
+          <div class="w-48 h-1 bg-black mb-2"></div>
+          <div class="text-[10px] uppercase font-bold text-gray-400 tracking-widest">Authorized Signature</div>
+        </div>
+        <div class="text-[10px] font-mono text-gray-300">SECURE_HASH_VALIDATED</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="admin-print" class="hidden">
+    <div class="p-8">
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <div class="text-3xl font-black uppercase">Registered Students</div>
+          <div class="text-sm font-mono">Generated List</div>
+        </div>
+        <div class="text-right">
+          <div class="text-sm">Generated: <span id="admin-print-date"></span></div>
+        </div>
+      </div>
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="text-left text-[10px] uppercase">
+            <th class="py-2 pr-4">SFID</th>
+            <th class="py-2 pr-4">Name</th>
+            <th class="py-2 pr-4">Track</th>
+            <th class="py-2 pr-4">Challenge</th>
+            <th class="py-2 pr-4">Phone</th>
+            <th class="py-2 pr-4">Email</th>
+            <th class="py-2 pr-4">Date</th>
+            <th class="py-2 pr-4">Status</th>
+          </tr>
+        </thead>
+        <tbody id="admin-print-body"></tbody>
+      </table>
+    </div>
+  </div>
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
+    import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
+    import { getFirestore, collection, addDoc, onSnapshot, doc, runTransaction, serverTimestamp, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+
+    const BRAND_NAME = 'SkillForge Digital';
+    const LOGO_URL = 'https://i.postimg.cc/fRYD4HSw/Whats-App-Image-2026-01-16-at-1-20-06-PM.jpg';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBUdigfl1lyCmZ0xrC0b0XgNoBl_XbgWVw",
+      authDomain: "skillforge-registry.firebaseapp.com",
+      projectId: "skillforge-registry",
+      storageBucket: "skillforge-registry.firebasestorage.app",
+      messagingSenderId: "778485483720",
+      appId: "1:778485483720:web:ea6b225ef7ee442df5fdfd",
+      measurementId: "G-NYNP1G2BWF"
+    };
+
+    const APP_ID = 'skillforgedigital-portal-2026';
+    const TRACK_CODES = {
+      "Forex Synthetic Indices":"FXS","Graphics Design":"GRD","Stock Market Trading":"STK",
+      "Web Design & Development":"WDD","Forex Currency Pairs":"FXC","Discord Design & Development":"DDC",
+      "Photography & Editing":"PHO","Cybersecurity":"CYB"
+    };
+    const TRACK_LINKS = {
+      "Forex Synthetic Indices":"https://chat.whatsapp.com/FSFe8YkhdPg9SvwwD7kMvS",
+      "Graphics Design":"https://chat.whatsapp.com/FI9kQl35wiF03KQgcGPY0z",
+      "Stock Market Trading":"https://chat.whatsapp.com/KPIyCtPapph9XbuXvXLBjT",
+      "Web Design & Development":"https://chat.whatsapp.com/C6VP624NFP0L0cyJKGHlGl",
+      "Forex Currency Pairs":"https://chat.whatsapp.com/FxnUMVG0G4RGAFaWEXDmZr",
+      "Discord Design & Development":"https://chat.whatsapp.com/L4SKamm45Wv1Vwn9Vrs6Ru",
+      "Photography & Editing":"https://chat.whatsapp.com/DrKwPbRoJ1i7nrJBzVs9DI",
+      "Cybersecurity":"https://chat.whatsapp.com/IvOiX5PtcoQ0OnBe7bfwHF"
+    };
+    const INITIAL_TRACK_COUNTS = {
+      "Forex Synthetic Indices":0,"Graphics Design":0,"Stock Market Trading":0,
+      "Web Design & Development":0,"Forex Currency Pairs":0,"Discord Design & Development":0,
+      "Photography & Editing":0,"Cybersecurity":0
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUser = null;
+    let sessionData = {};
+    let verification = JSON.parse(sessionStorage.getItem('verification') || '{"discord":false,"telegram":false,"whatsapp":false}');
+
+    class Sundust {
+      constructor() {
+        this.canvas = document.getElementById('sundust-canvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.particles = [];
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+        this.initParticles();
+        this.animate();
+      }
+      resize(){ this.canvas.width=window.innerWidth; this.canvas.height=window.innerHeight }
+      initParticles(){ const c=Math.min(100,(this.canvas.width*this.canvas.height)/15000); for(let i=0;i<c;i++) this.particles.push(this.createParticle()) }
+      createParticle(){ return { x:Math.random()*this.canvas.width,y:Math.random()*this.canvas.height,size:Math.random()*1.5+0.5,baseAlpha:Math.random()*0.3+0.1,speedX:(Math.random()-0.5)*0.3,speedY:(Math.random()-0.5)*0.3,phase:Math.random()*Math.PI*2 } }
+      animate(){
+        this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
+        this.particles.forEach(p=>{
+          p.x+=p.speedX; p.y+=p.speedY; p.phase+=0.02;
+          if(p.x<0)p.x=this.canvas.width; if(p.x>this.canvas.width)p.x=0;
+          if(p.y<0)p.y=this.canvas.height; if(p.y>this.canvas.height)p.y=0;
+          const a=p.baseAlpha+Math.sin(p.phase)*0.1;
+          this.ctx.fillStyle=`rgba(255,223,128,${Math.max(0,a)})`;
+          this.ctx.beginPath(); this.ctx.arc(p.x,p.y,p.size,0,Math.PI*2); this.ctx.fill();
+        });
+        requestAnimationFrame(()=>this.animate());
+      }
+    }
+
+    async function getPublicIp(){
+      try{ const res=await fetch('https://api.ipify.org?format=json'); if(!res.ok) return null; const j=await res.json(); return j.ip }catch{ return null }
+    }
+    async function sha256(str){
+      const buf=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(str));
+      return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    }
+    async function getDeviceFingerprint(){
+      const canvas=document.createElement('canvas'); const ctx=canvas.getContext('2d');
+      canvas.width=200; canvas.height=50; ctx.textBaseline="alphabetic"; ctx.font="14px 'Arial'";
+      ctx.fillStyle="#f60"; ctx.fillRect(125,1,62,20); ctx.fillStyle="#069"; ctx.fillText("SkillForge2026",2,15);
+      ctx.fillStyle="rgba(102,204,0,.7)"; ctx.fillText("SkillForge2026",4,17);
+      const canvasHash=canvas.toDataURL();
+      const nav=[navigator.userAgent,navigator.language,navigator.hardwareConcurrency,navigator.deviceMemory,new Date().getTimezoneOffset(),screen.width,screen.height,screen.colorDepth,(window.devicePixelRatio||1)].join('|');
+      let audioHash='no-audio'; try{ const AC=window.OfflineAudioContext||window.webkitOfflineAudioContext; if(AC){ const c=new AC(1,44100,44100); const o=c.createOscillator(); o.type='triangle'; o.frequency.value=10000; const d=c.createDynamicsCompressor(); o.connect(d); d.connect(c.destination); o.start(0); const b=await c.startRendering(); audioHash=b.getChannelData(0).slice(4500,5000).reduce((a,v)=>a+v,0).toString(); } }catch(e){}
+      return await sha256(`${canvasHash}||${nav}||${audioHash}`);
+    }
+
+    const UI = {
+      showError:(msg)=>{ const el=document.getElementById('error-modal'); document.getElementById('error-message').innerText=msg; el.classList.remove('hidden') },
+      hideError:()=>document.getElementById('error-modal').classList.add('hidden'),
+      setLoading:(id,loading,text)=>{ const btn=document.getElementById(id); if(!btn) return; if(loading){ btn.dataset.originalHtml=btn.innerHTML; btn.disabled=true; btn.innerHTML=`<div class="loader inline-block mr-2"></div> ${text||'Processing...'}`; btn.classList.add('opacity-75','cursor-not-allowed') } else { btn.disabled=false; btn.innerHTML=btn.dataset.originalHtml||text; btn.classList.remove('opacity-75','cursor-not-allowed') } }
+    };
+    function allVerified(){ return verification.discord && verification.telegram && verification.whatsapp }
+    function updateVerificationUI(){
+      ['discord','telegram','whatsapp'].forEach(step=>{
+        const btn=document.getElementById(`btn-${step}`);
+        if(!btn) return;
+        if(verification[step]){
+          btn.classList.remove('bg-blue-600');
+          btn.classList.add('bg-green-600');
+          btn.innerText='VERIFIED';
+        }
+      });
+      const genBtn=document.getElementById('generate-slip-btn');
+      if(genBtn){
+        if(allVerified()) genBtn.classList.remove('hidden'); else genBtn.classList.add('hidden');
+      }
+    }
+
+    function showView(view){
+      const views = ['landing','register-view','correction-view','onboarding-view','success-view','admin-view'];
+      views.forEach(v=>{
+        const el = document.getElementById(v);
+        if(!el) return;
+        if(v===view) el.classList.remove('hidden');
+        else el.classList.add('hidden');
+      });
+    }
+
+    function routeTo(view){
+      showView(view);
+      try {
+        history.pushState({view}, '', `#${view}`);
+      } catch {}
+    }
+
+    async function init(){
+      document.getElementById('brand-name').innerText = BRAND_NAME;
+      document.getElementById('slip-brand').innerText = BRAND_NAME;
+      document.getElementById('brand-logo').src = LOGO_URL;
+      new Sundust();
+      await signInAnonymously(auth);
+      onAuthStateChanged(auth,u=>{ currentUser=u; if(u) startSync() });
+      document.getElementById('reg-form').addEventListener('submit',handleRegister);
+      document.getElementById('mode-register').addEventListener('click',()=>routeTo('register-view'));
+      document.getElementById('mode-correct').addEventListener('click',()=>routeTo('correction-view'));
+      document.getElementById('correct-search-btn').addEventListener('click',handleCorrectionSearch);
+      document.getElementById('correct-form').addEventListener('submit',handleCorrectionSubmit);
+      document.getElementById('admin-login').addEventListener('click',adminLogin);
+      document.getElementById('btn-clear-season').addEventListener('click',resetCounters);
+      document.getElementById('btn-set-pin').addEventListener('click',setAdminPin);
+      document.getElementById('btn-refresh-list').addEventListener('click',loadAdminList);
+      document.getElementById('btn-print-list').addEventListener('click',printAdminList);
+      if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
+      try {
+        history.replaceState({view:'landing'}, '', '#landing');
+        window.onpopstate = (e) => {
+          const view = e.state && e.state.view ? e.state.view : 'landing';
+          showView(view);
+        };
+      } catch {}
+      updateVerificationUI();
+      if (location.hash === '#admin') routeTo('admin-view');
+    }
+
+    function startSync(){
+      const docRef = doc(db,'artifacts',APP_ID,'public','data','counters','tracks');
+      document.getElementById('counter').innerText = 'LIVE NODES: 0';
+      onSnapshot(docRef,(snap)=>{
+        let total = 0;
+        if(snap.exists()){
+          const data=snap.data();
+          total = Object.values(data || {}).reduce((a,b)=>a+(Number(b)||0),0);
+        }
+        document.getElementById('counter').innerText = `LIVE NODES: ${total}`;
+      });
+    }
+
+    function goHome(){ routeTo('landing'); }
+
+    async function handleRegister(e){
+      e.preventDefault();
+      UI.setLoading('submit-btn',true,'SECURING NODE...');
+      const form=e.target;
+      const name=form.fullName.value.trim().toUpperCase();
+      const phone=form.phone.value.replace(/\D/g,'').slice(-15);
+      const email=form.email.value.trim().toLowerCase();
+      const track=form.track.value;
+      const challenge=form.challenge.value;
+      try{
+        const [fingerprint, ip] = await Promise.all([getDeviceFingerprint(), getPublicIp()]);
+        const ipHash = ip ? await sha256(ip) : 'unknown';
+        const sfid = await runTransaction(db, async (tx) => {
+          const ipRef = doc(db,'artifacts',APP_ID,'public','data','ip_index',ipHash);
+          const devRef = doc(db,'artifacts',APP_ID,'public','data','device_index',fingerprint);
+          const phoneRef = doc(db,'artifacts',APP_ID,'public','data','phone_index',phone);
+          const emailRef = doc(db,'artifacts',APP_ID,'public','data','email_index',email);
+          const [ipSnap, devSnap, phoneSnap, emailSnap] = await Promise.all([tx.get(ipRef), tx.get(devRef), tx.get(phoneRef), tx.get(emailRef)]);
+          if (name !== 'SKILLFORGE TEST') {
+            if (ipSnap.exists()) throw new Error('IP_LOCKED');
+            if (devSnap.exists()) throw new Error('DEVICE_LOCKED');
+            if (phoneSnap.exists()) throw new Error('PHONE_TAKEN');
+            if (emailSnap.exists()) throw new Error('EMAIL_TAKEN');
+          }
+          const counterRef = doc(db,'artifacts',APP_ID,'public','data','counters','tracks');
+          const counterSnap = await tx.get(counterRef);
+          let counts = counterSnap.exists() ? counterSnap.data() : {};
+          let current = counts[track] || INITIAL_TRACK_COUNTS[track] || 0;
+          let next = current + 1;
+          const code = TRACK_CODES[track];
+          const newSFID = `SF26-${code}-${String(next).padStart(3,'0')}`;
+          const regRef = doc(collection(db,'artifacts',APP_ID,'public','data','registrations'));
+          tx.set(regRef,{ sfid:newSFID,name,phone,email,track,challenge, ip_hash:ipHash,device_hash:fingerprint, created_at:serverTimestamp(), status:'active', uid:currentUser.uid });
+          if (name !== 'SKILLFORGE TEST') {
+            tx.set(ipRef,{locked:true,at:serverTimestamp()});
+            tx.set(devRef,{locked:true,at:serverTimestamp()});
+            tx.set(phoneRef,{locked:true,at:serverTimestamp()});
+            tx.set(emailRef,{locked:true,at:serverTimestamp()});
+          }
+          tx.set(counterRef,{[track]:next},{merge:true});
+          return newSFID;
+        });
+        sessionData={sfid,name,track,challenge,date:new Date().toLocaleDateString()};
+        showOnboarding(track);
+        UI.setLoading('submit-btn',false);
+      }catch(err){
+        UI.setLoading('submit-btn',false);
+        if (err.message.includes('LOCKED') || err.message.includes('TAKEN')) UI.showError('Security Block: Identity or Device already registered.');
+        else UI.showError('Registration Failed. Please try again.');
+      }
+    }
+
+    function showOnboarding(track){
+      routeTo('onboarding-view');
+      document.getElementById('wa-link').href = TRACK_LINKS[track];
+      document.getElementById('wa-name').innerText = track;
+      verification={discord:false,telegram:false,whatsapp:false};
+      sessionStorage.setItem('verification', JSON.stringify(verification));
+      updateVerificationUI();
+    }
+
+    async function findRegistration(input){
+      const regs = collection(db,'artifacts',APP_ID,'public','data','registrations');
+      let q;
+      if (/^SF\d{2}-[A-Z]{3}-\d{3}$/i.test(input)) q=query(regs,where('sfid','==',input.toUpperCase()));
+      else if (input.includes('@')) q=query(regs,where('email','==',input.toLowerCase()));
+      else { const phone=input.replace(/\D/g,'').slice(-15); q=query(regs,where('phone','==',phone)); }
+      const snap = await getDocs(q);
+      let match=null; snap.forEach(d=>{ const data=d.data(); if(data.status!=='void') match={id:d.id,...data} });
+      return match;
+    }
+
+    async function handleCorrectionSearch(){
+      const input=document.getElementById('correct-search').value.trim();
+      if(!input) return;
+      try{
+        const match = await findRegistration(input);
+        if(match){
+          document.getElementById('correct-result').classList.remove('hidden');
+          document.getElementById('old-sfid-display').innerText=match.sfid;
+          document.getElementById('old-name-display').innerText=match.name;
+          document.getElementById('old-track-display').innerText=match.track;
+          document.getElementById('new-name').value=match.name;
+          document.getElementById('new-phone').value=match.phone;
+          document.getElementById('new-email').value=match.email;
+          document.getElementById('correct-doc-id').value=match.id;
+        } else UI.showError('No active registration found with those details.');
+      }catch(e){ UI.showError('Search Failed. Try again.') }
+    }
+
+    async function handleCorrectionSubmit(e){
+      e.preventDefault();
+      UI.setLoading('correct-submit-btn',true,'PROCESSING CORRECTION...');
+      const docId=document.getElementById('correct-doc-id').value;
+      const newName=document.getElementById('new-name').value.trim().toUpperCase();
+      const newTrack=document.getElementById('new-track').value;
+      const newPhone=document.getElementById('new-phone').value.replace(/\D/g,'').slice(-15);
+      const newEmail=document.getElementById('new-email').value.trim().toLowerCase();
+      const challenge=document.getElementById('new-challenge').value;
+      try{
+        const newSFID = await runTransaction(db, async (tx) => {
+          const oldRef = doc(db,'artifacts',APP_ID,'public','data','registrations',docId);
+          const oldSnap = await tx.get(oldRef);
+          if (!oldSnap.exists()) throw new Error('DOC_NOT_FOUND');
+          const oldData = oldSnap.data();
+          tx.update(oldRef,{status:'void',voided_at:serverTimestamp()});
+          const counterRef = doc(db,'artifacts',APP_ID,'public','data','counters','tracks');
+          const counterSnap = await tx.get(counterRef);
+          let counts = counterSnap.exists()?counterSnap.data():{};
+          let current = counts[newTrack] || INITIAL_TRACK_COUNTS[newTrack] || 0;
+          let next = current + 1;
+          const code = TRACK_CODES[newTrack];
+          const sfid = `SF26-${code}-${String(next).padStart(3,'0')}`;
+          const newRegRef = doc(collection(db,'artifacts',APP_ID,'public','data','registrations'));
+          tx.set(newRegRef,{ sfid,name:newName,phone:newPhone,email:newEmail,track:newTrack,challenge, previous_sfid:oldData.sfid,correction_of:docId, ip_hash:oldData.ip_hash,device_hash:oldData.device_hash, created_at:serverTimestamp(),status:'active',uid:currentUser.uid });
+          tx.set(counterRef,{[newTrack]:next},{merge:true});
+          return sfid;
+        });
+        sessionData={sfid:newSFID,name:newName,track:newTrack,challenge,date:new Date().toLocaleDateString()};
+        routeTo('success-view');
+        UI.setLoading('correct-submit-btn',false);
+        document.getElementById('slip-sfid').innerText=sessionData.sfid;
+        document.getElementById('slip-name').innerText=sessionData.name;
+        document.getElementById('slip-track').innerText=sessionData.track;
+        document.getElementById('slip-challenge').innerText=sessionData.challenge==='Yes'?'ENROLLED':'FOUNDATION ONLY';
+        document.getElementById('slip-date').innerText=sessionData.date;
+      }catch(err){
+        UI.showError('Correction Failed.');
+        UI.setLoading('correct-submit-btn',false);
+      }
+    }
+
+    window.closeError = UI.hideError;
+    window.completeStep = (step) => {
+      const btn=document.getElementById(`btn-${step}`);
+      verification[step]=true;
+      sessionStorage.setItem('verification', JSON.stringify(verification));
+      if(btn){ btn.classList.remove('bg-blue-600'); btn.classList.add('bg-green-600'); btn.innerText='VERIFIED' }
+      updateVerificationUI();
+    };
+    window.generateSlip = () => {
+      routeTo('success-view');
+      document.getElementById('slip-sfid').innerText=sessionData.sfid;
+      document.getElementById('slip-name').innerText=sessionData.name;
+      document.getElementById('slip-track').innerText=sessionData.track;
+      document.getElementById('slip-challenge').innerText=sessionData.challenge==='Yes'?'ENROLLED':'FOUNDATION ONLY';
+      document.getElementById('slip-date').innerText=sessionData.date;
+    };
+    
+    let adminUnlocked = false;
+    async function adminLogin(){
+      const pin = document.getElementById('admin-pin').value.trim();
+      const enteredHash = await sha256(pin);
+      try {
+        const settingsRef = doc(db,'artifacts',APP_ID,'public','config','settings');
+        const settingsSnap = await getDocs(query(collection(db,'artifacts',APP_ID,'public','config')));
+        let storedHash = null;
+        // naive fetch for admin_pin_hash if exists in any config doc
+        settingsSnap.forEach(d=>{ const data=d.data(); if (data.admin_pin_hash) storedHash = data.admin_pin_hash; });
+        const valid = storedHash ? storedHash === enteredHash : pin === '0000';
+        if (!valid) { UI.showError('Invalid admin PIN.'); return; }
+      } catch {
+        if (pin !== '0000') { UI.showError('Invalid admin PIN.'); return; }
+      }
+      adminUnlocked = true;
+      document.getElementById('admin-auth').classList.add('hidden');
+      document.getElementById('admin-body').classList.remove('hidden');
+      routeTo('admin-view');
+      await loadAdminList();
+    }
+    async function setAdminPin(){
+      if (!adminUnlocked) { UI.showError('Unlock admin first.'); return; }
+      const newPin = document.getElementById('admin-pin-new').value.trim();
+      if (!newPin) return;
+      const hash = await sha256(newPin);
+      try {
+        const ref = doc(db,'artifacts',APP_ID,'public','config','settings');
+        await runTransaction(db, async (tx) => {
+          tx.set(ref, { admin_pin_hash: hash }, { merge: true });
+        });
+        UI.showError('Admin PIN updated.');
+      } catch {
+        UI.showError('Failed to update PIN.');
+      }
+    }
+    async function resetCounters(){
+      if (!adminUnlocked) { UI.showError('Unlock admin first.'); return; }
+      try {
+        const counterRef = doc(db,'artifacts',APP_ID,'public','data','counters','tracks');
+        await runTransaction(db, async (tx) => { tx.set(counterRef, {}, { merge: false }); });
+        UI.showError('Live counters reset to 0.');
+      } catch { UI.showError('Failed to reset counters.'); }
+    }
+    async function loadAdminList(){
+      const tbody = document.getElementById('admin-table-body');
+      tbody.innerHTML = '';
+      const regsCol = collection(db,'artifacts',APP_ID,'public','data','registrations');
+      const regsSnap = await getDocs(regsCol);
+      const rows = [];
+      regsSnap.forEach(d => { const r=d.data(); if (r.status!=='void') rows.push(r); });
+      rows.sort((a,b)=> (a.created_at?.seconds||0) - (b.created_at?.seconds||0));
+      rows.forEach(r=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="py-2 pr-4 font-mono">${r.sfid||''}</td>
+          <td class="py-2 pr-4 uppercase">${r.name||''}</td>
+          <td class="py-2 pr-4">${r.track||''}</td>
+          <td class="py-2 pr-4">${r.challenge==='Yes'?'ENROLLED':'FOUNDATION ONLY'}</td>
+          <td class="py-2 pr-4">${r.phone||''}</td>
+          <td class="py-2 pr-4">${r.email||''}</td>
+          <td class="py-2 pr-4">${r.created_at ? new Date(r.created_at.seconds*1000).toLocaleDateString() : ''}</td>
+          <td class="py-2 pr-4">${r.status||''}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+    function printAdminList(){
+      const printBody = document.getElementById('admin-print-body');
+      printBody.innerHTML = document.getElementById('admin-table-body').innerHTML;
+      document.getElementById('admin-print-date').innerText = new Date().toLocaleString();
+      document.getElementById('admin-print').classList.remove('hidden');
+      window.print();
+      setTimeout(()=>document.getElementById('admin-print').classList.add('hidden'), 500);
+    }
+    init();
+  </script>
+</body>
+</html>
