@@ -99,15 +99,34 @@ tailwind.config = {
   .glow-mode .glass { box-shadow: 0 0 20px rgba(var(--accent-color-rgb), 0.2) !important; }
 </style>
 </head>
-<body class="text-white min-h-screen flex">
+<body class="text-white min-h-screen flex flex-col md:flex-row">
 
-<aside class="w-72 glass-strong border-r border-white/5 flex flex-col fixed inset-y-0 z-50">
-  <div class="p-8 flex-1">
+<!-- Mobile Header -->
+<div class="md:hidden h-20 px-6 flex items-center justify-between glass sticky top-0 z-[100] border-b border-white/5 no-print">
+  <div class="flex items-center gap-3">
+    <div class="w-8 h-8 rounded-lg bg-black flex items-center justify-center border border-gold-500/30 overflow-hidden">
+      <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" alt="SF" class="w-full h-full object-cover">
+    </div>
+    <div class="flex flex-col leading-none">
+      <span class="font-black text-sm tracking-tighter uppercase">SkillForge</span>
+      <span class="text-[6px] text-gold-400 font-bold tracking-[0.2em] uppercase">Digital & Co. Ltd</span>
+    </div>
+  </div>
+  <button onclick="toggleSidebar()" class="p-2 text-white/50 hover:text-white transition-all">
+    <i class="fa-solid fa-bars-staggered text-xl"></i>
+  </button>
+</div>
+
+<aside id="main-sidebar" class="w-72 glass-strong border-r border-white/5 flex flex-col fixed inset-y-0 z-50 no-print transition-all duration-500 -translate-x-full md:translate-x-0">
+  <div class="p-8 flex-1 custom-scrollbar overflow-y-auto">
     <div class="flex items-center gap-3 mb-10">
       <div class="w-10 h-10 rounded-xl bg-black flex items-center justify-center border border-gold-500/30 overflow-hidden">
         <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" alt="SF" class="w-full h-full object-cover">
       </div>
-      <div><h1 class="font-bold text-sm uppercase tracking-tighter">SkillForge</h1><p class="text-[8px] text-white/40 font-bold uppercase tracking-widest">Mastery Hub</p></div>
+      <div class="flex flex-col leading-none">
+        <span class="font-black text-sm tracking-tighter uppercase">SkillForge</span>
+        <span class="text-[7px] text-gold-400 font-bold tracking-[0.2em] uppercase">Digital & Co. Ltd</span>
+      </div>
     </div>
     <nav class="space-y-1">
       <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Command Nodes</p>
@@ -141,14 +160,14 @@ tailwind.config = {
   </div>
 </aside>
 
-<main class="flex-1 ml-72 p-10 pt-20">
+<main class="flex-1 md:ml-72 p-6 md:p-10 pt-24 md:pt-20">
   <div class="max-w-7xl mx-auto space-y-12">
-    <header class="flex justify-between items-end">
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
       <div>
         <p class="text-gold-400 text-sm font-medium tracking-widest uppercase">System Flux</p>
-        <h1 class="text-5xl font-black mt-1">Registry <span class="text-white/40">Customize</span></h1>
+        <h1 class="text-3xl md:text-5xl font-black mt-1">Registry <span class="text-white/40">Customize</span></h1>
       </div>
-      <div id="save-status" class="px-6 py-3 glass rounded-2xl flex items-center gap-3 opacity-0 transition-all">
+      <div id="save-status" class="w-full md:w-auto px-6 py-3 glass rounded-2xl flex items-center gap-3 opacity-0 transition-all">
         <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
         <span class="text-[10px] font-black uppercase tracking-widest text-white/40">Registry Synced</span>
       </div>
@@ -485,7 +504,7 @@ async function init() {
   const traineeSnap = await getDoc(doc(db, 'trainees', uid));
   if (traineeSnap.exists()) {
     const traineeData = traineeSnap.data();
-    const tgLink = TELEGRAM_NODES[traineeData.track] || 'https://t.me/+skillforge_official';
+    const tgLink = TELEGRAM_NODES[traineeData.track] || 'https://t.me/skillforgeorg';
     document.querySelectorAll('.telegram-join-target').forEach(el => {
       el.href = tgLink;
       el.classList.remove('opacity-20', 'pointer-events-none');
@@ -541,6 +560,11 @@ async function init() {
   }
   updateToggleUI();
 }
+
+window.toggleSidebar = () => {
+  const sidebar = document.getElementById('main-sidebar');
+  sidebar.classList.toggle('-translate-x-full');
+};
 
 let dashboardTemplates = {};
 

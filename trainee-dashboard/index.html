@@ -115,36 +115,57 @@ tailwind.config = {
   .glow-mode .glass { box-shadow: 0 0 20px rgba(var(--accent-color-rgb), 0.2) !important; }
 </style>
 </head>
-<body class="noise-bg text-white overflow-x-hidden min-h-screen flex">
+<body class="noise-bg text-white overflow-x-hidden min-h-screen flex flex-col md:flex-row">
+
+<!-- Mobile Header -->
+<div class="md:hidden h-20 px-6 flex items-center justify-between glass sticky top-0 z-[100] border-b border-white/5 no-print">
+  <div class="flex items-center gap-3">
+    <div class="w-8 h-8 rounded-lg bg-black flex items-center justify-center border border-gold-500/30 overflow-hidden">
+      <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" alt="SF" class="w-full h-full object-cover">
+    </div>
+    <div class="flex flex-col leading-none">
+      <span class="font-black text-sm tracking-tighter uppercase">SkillForge</span>
+      <span class="text-[6px] text-gold-400 font-bold tracking-[0.2em] uppercase">Digital & Co. Ltd</span>
+    </div>
+  </div>
+  <button onclick="toggleSidebar()" class="p-2 text-white/50 hover:text-white transition-all">
+    <i class="fa-solid fa-bars-staggered text-xl"></i>
+  </button>
+</div>
 
 <!-- Particle Background Canvas -->
 <canvas id="particle-canvas" class="fixed inset-0 pointer-events-none z-0 opacity-30"></canvas>
 
-<!-- Floating Layout Switcher (from index (1).html) -->
-<div class="fixed top-4 left-1/2 -translate-x-1/2 z-[60] glass-strong rounded-2xl px-3 py-2 flex items-center gap-2 flex-wrap justify-center no-print shadow-2xl border border-white/10" id="layout-switcher">
+<!-- Floating Layout Switcher -->
+<div class="fixed top-24 md:top-4 left-1/2 -translate-x-1/2 z-[60] glass-strong rounded-2xl px-3 py-2 flex items-center gap-2 flex-wrap justify-center no-print shadow-2xl border border-white/10" id="layout-switcher">
   <span class="text-gold-400 text-[10px] font-black mr-2 tracking-widest uppercase hidden sm:inline">Architecture</span>
-  <button onclick="showLayout(1)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all" data-l="1">1. Bento</button>
-  <button onclick="showLayout(2)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all" data-l="2">2. Dock</button>
-  <button onclick="showLayout(3)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all" data-l="3">3. Nav</button>
-  <button onclick="showLayout(4)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all" data-l="4">4. Side</button>
-  <button onclick="showLayout(5)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all" data-l="5">5. Split</button>
-  <button onclick="showLayout(6)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all" data-l="6">6. Stack</button>
-  <button onclick="showLayout(7)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all" data-l="7">7. Orbit</button>
-  <button onclick="showLayout(8)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all" data-l="8">8. Console</button>
-  <button onclick="showLayout(9)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all" data-l="9">9. Mag</button>
-  <button onclick="showLayout(10)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all" data-l="10">10. Kanban</button>
+  <div class="flex items-center gap-2 overflow-x-auto max-w-[85vw] no-scrollbar">
+    <button onclick="showLayout(1)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="1">1. Bento</button>
+    <button onclick="showLayout(2)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="2">2. Dock</button>
+    <button onclick="showLayout(3)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="3">3. Nav</button>
+    <button onclick="showLayout(4)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="4">4. Side</button>
+    <button onclick="showLayout(5)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="5">5. Split</button>
+    <button onclick="showLayout(6)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="6">6. Stack</button>
+    <button onclick="showLayout(7)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="7">7. Orbit</button>
+    <button onclick="showLayout(8)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="8">8. Console</button>
+    <button onclick="showLayout(9)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="9">9. Mag</button>
+    <button onclick="showLayout(10)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="10">10. Kanban</button>
+  </div>
 </div>
 
 <div class="ambient-blob w-96 h-96 bg-gold-500/5 top-0 left-0"></div>
 <div class="ambient-blob w-80 h-80 bg-navy-600/30 bottom-0 right-0"></div>
 
-<aside class="w-72 glass-strong border-r border-white/5 flex flex-col fixed inset-y-0 z-50 no-print">
-  <div class="p-8 flex-1">
+<aside id="main-sidebar" class="w-72 glass-strong border-r border-white/5 flex flex-col fixed inset-y-0 z-50 no-print transition-all duration-500 -translate-x-full md:translate-x-0">
+  <div class="p-8 flex-1 custom-scrollbar overflow-y-auto">
     <div class="flex items-center gap-3 mb-10">
       <div class="w-10 h-10 rounded-xl bg-black flex items-center justify-center border border-gold-500/30 overflow-hidden">
         <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" alt="SF" class="w-full h-full object-cover">
       </div>
-      <div><h1 class="font-bold text-sm uppercase tracking-tighter">SkillForge</h1><p class="text-[8px] text-white/40 font-bold uppercase tracking-widest">Command Center</p></div>
+      <div class="flex flex-col leading-none">
+        <span class="font-black text-sm tracking-tighter uppercase">SkillForge</span>
+        <span class="text-[7px] text-gold-400 font-bold tracking-[0.2em] uppercase">Digital & Co. Ltd</span>
+      </div>
     </div>
     <nav class="space-y-1">
       <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Command Nodes</p>
@@ -178,26 +199,32 @@ tailwind.config = {
   </div>
 </aside>
 
-<main class="flex-1 ml-72 min-h-screen relative z-10">
+<main class="flex-1 md:ml-72 min-h-screen relative z-10">
   <!-- Template Sections (T1-T10) -->
   
   <!-- T1: Bento Box Grid -->
-  <section id="t1" class="template-section active-template p-10 pt-20">
+  <section id="t1" class="template-section active-template p-6 md:p-10 pt-24 md:pt-20">
     <div class="max-w-7xl mx-auto space-y-10">
-      <header class="flex justify-between items-end fade-in-1">
-        <div><p class="text-gold-400 text-sm font-medium tracking-widest uppercase">Mastery Journey</p><h1 class="text-4xl sm:text-5xl font-bold mt-1" id="greeting-target">Welcome back, <span class="user-name-target text-glow-gold">Human</span></h1></div>
-        <div class="glass rounded-3xl p-5 pin-reveal cursor-pointer text-right group"><p class="text-white/40 text-[10px] uppercase tracking-wider mb-1"><i class="fa-solid fa-key text-gold-500/60 mr-1"></i> Access Key</p><div class="flex items-center gap-3 justify-end"><span class="access-pin-target text-3xl font-bold tracking-[0.3em] pin-blur text-gold-300">0000</span></div></div>
+      <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 fade-in-1">
+        <div><p class="text-gold-400 text-sm font-medium tracking-widest uppercase">Mastery Journey</p><h1 class="text-3xl md:text-5xl font-bold mt-1" id="greeting-target">Welcome back, <span class="user-name-target text-glow-gold">Human</span></h1></div>
+        <div class="w-full md:w-auto glass rounded-3xl p-5 pin-reveal cursor-pointer text-right group"><p class="text-white/40 text-[10px] uppercase tracking-wider mb-1"><i class="fa-solid fa-key text-gold-500/60 mr-1"></i> Access Key</p><div class="flex items-center gap-3 justify-end"><span class="access-pin-target text-2xl md:text-3xl font-bold tracking-[0.3em] pin-blur text-gold-300">0000</span></div></div>
       </header>
       <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 auto-rows-[140px] md:auto-rows-[160px]">
-        <div class="glass rounded-[40px] p-8 col-span-2 row-span-2 flex flex-col justify-between glow-gold fade-in-1 relative overflow-hidden group">
+        <div class="glass rounded-[40px] p-6 md:p-8 col-span-2 row-span-2 flex flex-col justify-between glow-gold fade-in-1 relative overflow-hidden group">
           <div class="absolute top-0 right-0 w-32 h-32 bg-gold-500/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
           <div>
-            <div class="w-16 h-16 rounded-2xl bg-black flex items-center justify-center text-navy-950 font-bold text-2xl relative pulse-ring shadow-xl profile-initials-target overflow-hidden border border-gold-500/30"><img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" alt="SF" class="w-full h-full object-cover"></div>
-            <h2 class="text-2xl font-bold mt-4 profile-name-target">Loading...</h2>
-            <p class="text-white/50 text-sm profile-track-target">Academy Trainee</p>
-            <div class="flex items-center gap-2 mt-2"><span class="px-2 py-0.5 rounded-full bg-gold-500/10 text-[9px] font-bold text-gold-400 uppercase tracking-widest tier-target">Novice</span></div>
+            <div class="w-16 h-16 rounded-2xl bg-black flex items-center justify-center text-navy-950 font-bold text-2xl relative pulse-ring shadow-xl profile-initials-target overflow-hidden border border-gold-500/30">
+              <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=1" id="profile-avatar-target" class="w-full h-full object-contain">
+            </div>
+            <h2 class="text-xl md:text-2xl font-bold mt-4 profile-name-target">Loading...</h2>
+            <p class="text-white/50 text-xs md:text-sm profile-track-target">Academy Trainee</p>
+            <div class="flex items-center gap-2 mt-2"><span class="px-2 py-0.5 rounded-full bg-gold-500/10 text-[8px] md:text-[9px] font-bold text-gold-400 uppercase tracking-widest tier-target">Novice</span></div>
           </div>
           <div>
+            <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.3em] mb-2">Registry ID</p>
+            <p class="text-xs font-bold text-gold-300 font-mono sfid-display-target">SFID-26-XXX-000</p>
+          </div>
+        </div>
             <div class="flex items-center justify-between mb-2">
               <div class="flex items-center gap-2"><span class="text-gold-400 text-xs font-semibold">Mastery XP</span><span class="text-white/30 text-xs">•</span><span class="text-white/50 text-xs xp-text-target">0 / 1,000</span></div>
               <span class="text-[10px] font-bold text-white/40 uppercase level-target">Lvl 1</span>
@@ -354,11 +381,24 @@ function updateDynamicUI() {
   document.querySelectorAll('.access-pin-target').forEach(el => el.innerText = traineeData.pin || '000000');
   
   // Update Telegram Join Link
-  const tgLink = TELEGRAM_NODES[traineeData.track] || 'https://t.me/+skillforge_official';
+  const tgLink = TELEGRAM_NODES[traineeData.track] || 'https://t.me/skillforgeorg';
   document.querySelectorAll('.telegram-join-target').forEach(el => {
     el.href = tgLink;
     el.classList.remove('opacity-20', 'pointer-events-none');
   });
+
+  // Update SFID
+  document.querySelectorAll('.sfid-display-target').forEach(el => el.innerText = traineeData.sfid || 'SFID-26-XXX-000');
+
+  // Update Avatar
+  const avatarUrl = traineeData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${traineeData.name}`;
+  const avatarImg = document.getElementById('profile-avatar-target');
+  if (avatarImg) avatarImg.src = avatarUrl;
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('main-sidebar');
+  sidebar.classList.toggle('-translate-x-full');
 }
 
 function startRealtimePresence() {

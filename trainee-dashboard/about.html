@@ -46,15 +46,37 @@ tailwind.config = {
   .sidebar-link.active { background: rgba(var(--accent-color-rgb), 0.1) !important; color: var(--accent-color) !important; border-right-color: var(--accent-color) !important; }
 </style>
 </head>
-<body class="text-white min-h-screen flex">
+<body class="noise-bg text-white overflow-x-hidden min-h-screen flex flex-col md:flex-row">
 
-<aside class="w-72 glass-strong border-r border-white/5 flex flex-col fixed inset-y-0 z-50">
-  <div class="p-8 flex-1">
+<!-- Mobile Header -->
+<div class="md:hidden h-20 px-6 flex items-center justify-between glass sticky top-0 z-[100] border-b border-white/5 no-print">
+  <div class="flex items-center gap-3">
+    <div class="w-8 h-8 rounded-lg bg-black flex items-center justify-center border border-gold-500/30 overflow-hidden">
+      <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" alt="SF" class="w-full h-full object-cover">
+    </div>
+    <div class="flex flex-col leading-none">
+      <span class="font-black text-sm tracking-tighter uppercase">SkillForge</span>
+      <span class="text-[6px] text-gold-400 font-bold tracking-[0.2em] uppercase">Digital & Co. Ltd</span>
+    </div>
+  </div>
+  <button onclick="toggleSidebar()" class="p-2 text-white/50 hover:text-white transition-all">
+    <i class="fa-solid fa-bars-staggered text-xl"></i>
+  </button>
+</div>
+
+<div class="ambient-blob w-96 h-96 bg-gold-500/5 top-0 left-0"></div>
+<div class="ambient-blob w-80 h-80 bg-navy-600/30 bottom-0 right-0"></div>
+
+<aside id="main-sidebar" class="w-72 glass-strong border-r border-white/5 flex flex-col fixed inset-y-0 z-50 no-print transition-all duration-500 -translate-x-full md:translate-x-0">
+  <div class="p-8 flex-1 custom-scrollbar overflow-y-auto">
     <div class="flex items-center gap-3 mb-10">
       <div class="w-10 h-10 rounded-xl bg-black flex items-center justify-center border border-gold-500/30 overflow-hidden">
         <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" alt="SF" class="w-full h-full object-cover">
       </div>
-      <div><h1 class="font-bold text-sm uppercase tracking-tighter">SkillForge</h1><p class="text-[8px] text-white/40 font-bold uppercase tracking-widest">Mastery Hub</p></div>
+      <div class="flex flex-col leading-none">
+        <span class="font-black text-sm tracking-tighter uppercase">SkillForge</span>
+        <span class="text-[7px] text-gold-400 font-bold tracking-[0.2em] uppercase">Digital & Co. Ltd</span>
+      </div>
     </div>
     <nav class="space-y-1">
       <a href="index.html" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-layer-group w-4"></i> Overview</a>
@@ -87,9 +109,12 @@ tailwind.config = {
   </div>
 </aside>
 
-<main class="flex-1 ml-72 p-10 pt-20">
-  <div class="max-w-4xl mx-auto space-y-12">
-    <header><p class="text-gold-400 text-sm font-medium tracking-widest uppercase">The Vision</p><h1 class="text-5xl font-bold mt-1">About the Forge</h1></header>
+<main class="flex-1 md:ml-72 p-6 md:p-10 pt-24 md:pt-20">
+  <div class="max-w-7xl mx-auto space-y-12">
+    <header>
+      <p class="text-gold-400 text-sm font-medium tracking-widest uppercase">The Vision</p>
+      <h1 class="text-3xl md:text-5xl font-black mt-1">About the <span class="text-white/40">Forge</span></h1>
+    </header>
     
     <section class="glass p-12 rounded-[40px] space-y-8 relative overflow-hidden">
       <div class="absolute top-0 right-0 p-12 opacity-5"><i class="fa-solid fa-fire text-9xl"></i></div>
@@ -161,7 +186,7 @@ const TELEGRAM_NODES = {
     const snap = await getDoc(doc(db, 'trainees', uid));
     if (snap.exists()) {
       const data = snap.data();
-      const tgLink = TELEGRAM_NODES[data.track] || 'https://t.me/+skillforge_official';
+      const tgLink = TELEGRAM_NODES[data.track] || 'https://t.me/skillforgeorg';
       document.querySelectorAll('.telegram-join-target').forEach(el => {
         el.href = tgLink;
         el.classList.remove('opacity-20', 'pointer-events-none');
@@ -169,6 +194,11 @@ const TELEGRAM_NODES = {
     }
   }
 })();
+
+window.toggleSidebar = () => {
+  const sidebar = document.getElementById('main-sidebar');
+  sidebar.classList.toggle('-translate-x-full');
+};
 
 window.logout = async () => {
   const auth = getAuth(app);

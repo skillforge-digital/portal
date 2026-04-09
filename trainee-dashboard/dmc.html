@@ -63,15 +63,34 @@ tailwind.config = {
   .glow-mode .glass { box-shadow: 0 0 20px rgba(var(--accent-color-rgb), 0.2) !important; }
 </style>
 </head>
-<body class="text-white min-h-screen flex">
+<body class="text-white min-h-screen flex flex-col md:flex-row">
 
-<aside class="w-72 glass-strong border-r border-white/5 flex flex-col fixed inset-y-0 z-50">
-  <div class="p-8 flex-1">
+<!-- Mobile Header -->
+<div class="md:hidden h-20 px-6 flex items-center justify-between glass sticky top-0 z-[100] border-b border-white/5 no-print">
+  <div class="flex items-center gap-3">
+    <div class="w-8 h-8 rounded-lg bg-black flex items-center justify-center border border-gold-500/30 overflow-hidden">
+      <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" alt="SF" class="w-full h-full object-cover">
+    </div>
+    <div class="flex flex-col leading-none">
+      <span class="font-black text-sm tracking-tighter uppercase">SkillForge</span>
+      <span class="text-[6px] text-gold-400 font-bold tracking-[0.2em] uppercase">Digital & Co. Ltd</span>
+    </div>
+  </div>
+  <button onclick="toggleSidebar()" class="p-2 text-white/50 hover:text-white transition-all">
+    <i class="fa-solid fa-bars-staggered text-xl"></i>
+  </button>
+</div>
+
+<aside id="main-sidebar" class="w-72 glass-strong border-r border-white/5 flex flex-col fixed inset-y-0 z-50 no-print transition-all duration-500 -translate-x-full md:translate-x-0">
+  <div class="p-8 flex-1 custom-scrollbar overflow-y-auto">
     <div class="flex items-center gap-3 mb-10">
       <div class="w-10 h-10 rounded-xl bg-black flex items-center justify-center border border-gold-500/30 overflow-hidden">
         <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" alt="SF" class="w-full h-full object-cover">
       </div>
-      <div><h1 class="font-bold text-sm uppercase tracking-tighter">SkillForge</h1><p class="text-[8px] text-white/40 font-bold uppercase tracking-widest">Mastery Hub</p></div>
+      <div class="flex flex-col leading-none">
+        <span class="font-black text-sm tracking-tighter uppercase">SkillForge</span>
+        <span class="text-[7px] text-gold-400 font-bold tracking-[0.2em] uppercase">Digital & Co. Ltd</span>
+      </div>
     </div>
     <nav class="space-y-1">
       <a href="index.html" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-layer-group w-4"></i> Overview</a>
@@ -104,15 +123,15 @@ tailwind.config = {
   </div>
 </aside>
 
-<main class="flex-1 ml-72 p-10 pt-20">
+<main class="flex-1 md:ml-72 p-6 md:p-10 pt-24 md:pt-20">
   <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">
     <div class="space-y-10">
       <header>
         <p class="text-gold-400 text-sm font-medium tracking-widest uppercase">Identity Node</p>
-        <h1 class="text-5xl font-bold mt-1">Digital Membership</h1>
+        <h1 class="text-3xl md:text-5xl font-bold mt-1">Digital Membership</h1>
       </header>
       
-      <div class="glass p-10 rounded-[40px] space-y-8">
+      <div class="glass p-6 md:p-10 rounded-[40px] space-y-8">
         <div class="flex items-center justify-between">
           <h3 class="text-xs font-bold text-white/40 uppercase tracking-[0.4em]">Gradient Customization</h3>
           <span id="save-status" class="text-[8px] font-black uppercase tracking-widest text-green-400 opacity-0 transition-opacity">Changes Saved</span>
@@ -186,9 +205,11 @@ tailwind.config = {
           </div>
           
           <div class="space-y-4">
-            <div class="w-24 h-24 rounded-3xl bg-black/40 backdrop-blur-md border border-white/20 flex items-center justify-center text-4xl font-black text-white overflow-hidden shadow-2xl profile-initials-target">HT</div>
+            <div class="w-24 h-24 rounded-3xl bg-black/40 backdrop-blur-md border border-white/20 flex items-center justify-center text-4xl font-black text-white overflow-hidden shadow-2xl profile-initials-target">
+              <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=1" id="dmc-avatar-target" class="w-full h-full object-contain">
+            </div>
             <div>
-              <h2 class="text-3xl font-black tracking-tighter profile-name-target">HUMAN TRAINEE</h2>
+              <h2 class="text-3xl font-black tracking-tighter profile-name-target uppercase">HUMAN TRAINEE</h2>
               <p class="text-gold-400 text-xs font-bold uppercase tracking-[0.4em] mt-1 profile-track-target">Web Development</p>
             </div>
           </div>
@@ -341,6 +362,11 @@ function updateUI() {
   document.querySelectorAll('.profile-sfid-target').forEach(el => el.innerText = traineeData.sfid || 'SF-2026-NODE');
   document.querySelectorAll('.tier-target').forEach(el => el.innerText = traineeData.tier || 'Novice');
   
+  // Update Avatar
+  const avatarUrl = traineeData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`;
+  const avatarImg = document.getElementById('dmc-avatar-target');
+  if (avatarImg) avatarImg.src = avatarUrl;
+
   // Update Telegram Join Link
   const tgLink = TELEGRAM_NODES[traineeData.track] || 'https://t.me/+skillforge_official';
   document.querySelectorAll('.telegram-join-target').forEach(el => {
@@ -348,6 +374,11 @@ function updateUI() {
     el.classList.remove('opacity-20', 'pointer-events-none');
   });
 }
+
+window.toggleSidebar = () => {
+  const sidebar = document.getElementById('main-sidebar');
+  sidebar.classList.toggle('-translate-x-full');
+};
 
 window.logout = () => {
   localStorage.removeItem('skillforge_mock_uid');

@@ -54,22 +54,25 @@
   
   <div class="relative z-10">
     <!-- Navigation -->
-    <nav class="h-24 px-8 md:px-20 flex items-center justify-between border-b border-white/5 glass sticky top-0">
+    <nav class="h-24 px-6 md:px-20 flex items-center justify-between border-b border-white/5 glass sticky top-0">
         <div class="flex items-center gap-3">
             <img src="https://i.postimg.cc/fRYD4HSw/Whats-App-Image-2026-01-16-at-1-20-06-PM.jpg" class="w-10 h-10 rounded-xl border border-gold/30">
-            <span class="font-black text-xl tracking-tighter uppercase">SkillForge</span>
+            <div class="flex flex-col leading-none">
+                <span class="font-black text-lg md:text-xl tracking-tighter uppercase">SkillForge</span>
+                <span class="text-[7px] md:text-[8px] text-gold font-bold tracking-[0.2em] uppercase">Digital & Co. Ltd</span>
+            </div>
         </div>
-        <div class="hidden md:flex items-center gap-8">
+        <div class="hidden lg:flex items-center gap-8">
             <a href="trainee-registration/index.html" class="text-[10px] font-black uppercase tracking-widest text-gold hover:text-white transition-all">Academy Registry</a>
             <a href="trainee-login/index.html" class="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-all">Trainee Command Center</a>
             <a href="trainee-correction/index.html" class="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-all">Mastery Update</a>
         </div>
-        <div class="flex items-center gap-4">
-            <button onclick="toggleTheme()" class="p-3 glass rounded-xl hover:text-gold transition-all" title="Toggle Theme">
-                <i data-lucide="sun" id="theme-icon-sun" class="w-5 h-5 hidden"></i>
-                <i data-lucide="moon" id="theme-icon-moon" class="w-5 h-5"></i>
+        <div class="flex items-center gap-3 md:gap-4">
+            <button onclick="toggleTheme()" class="p-2.5 md:p-3 glass rounded-xl hover:text-gold transition-all" title="Toggle Theme">
+                <i data-lucide="sun" id="theme-icon-sun" class="w-4 h-4 md:w-5 md:h-5 hidden"></i>
+                <i data-lucide="moon" id="theme-icon-moon" class="w-4 h-4 md:w-5 md:h-5"></i>
             </button>
-            <a href="trainee-registration/index.html" class="bg-gold text-navy px-8 py-3 rounded-full font-black text-[10px] uppercase tracking-widest hover:bg-white transition-all">Enroll Now</a>
+            <a href="trainee-registration/index.html" class="bg-gold text-navy px-5 md:px-8 py-2.5 md:py-3 rounded-full font-black text-[9px] md:text-[10px] uppercase tracking-widest hover:bg-white transition-all whitespace-nowrap">Enroll</a>
         </div>
     </nav>
 
@@ -81,12 +84,12 @@
                     <span class="w-2 h-2 bg-gold rounded-full animate-pulse"></span>
                     <span class="text-[10px] font-black text-gold uppercase tracking-[0.2em]">2026 Virtual Mastery Season</span>
                 </div>
-                <h1 class="text-6xl md:text-8xl font-black text-white leading-tight tracking-tighter uppercase">Forge Your <br><span class="text-gold">Digital</span> Legacy.</h1>
-                <p class="text-slate-400 text-lg md:text-xl font-medium leading-relaxed max-w-xl">Welcome to the future of high-end digital education. A 3-week immersive journey designed to transform your passion into mastery.</p>
+                <h1 class="text-5xl md:text-8xl font-black text-white leading-tight tracking-tighter uppercase">Forge Your <br><span class="text-gold">Digital</span> Legacy.</h1>
+                <p class="text-slate-400 text-base md:text-xl font-medium leading-relaxed max-w-xl">Welcome to Skillforge Digital & Co. Ltd. A 3-week immersive journey designed to transform your passion into mastery.</p>
                 
                 <div class="flex flex-wrap gap-4">
-                    <a href="trainee-registration/index.html" class="bg-gold text-navy px-12 py-5 rounded-2xl font-black uppercase text-xs tracking-widest shadow-2xl shadow-gold/20 hover:scale-105 transition-all">Start Your Journey</a>
-                    <a href="#schedule" class="glass px-12 py-5 rounded-2xl font-black uppercase text-xs tracking-widest border border-white/10 hover:bg-white/5 transition-all">Mastery Schedule</a>
+                    <a href="trainee-registration/index.html" class="flex-1 md:flex-none text-center bg-gold text-navy px-8 md:px-12 py-4 md:py-5 rounded-2xl font-black uppercase text-[10px] md:text-xs tracking-widest shadow-2xl shadow-gold/20 hover:scale-105 transition-all">Start Your Journey</a>
+                    <a href="#schedule" class="flex-1 md:flex-none text-center glass px-8 md:px-12 py-4 md:py-5 rounded-2xl font-black uppercase text-[10px] md:text-xs tracking-widest border border-white/10 hover:bg-white/5 transition-all">Mastery Schedule</a>
                 </div>
             </div>
 
@@ -119,23 +122,23 @@
 
         <!-- App Store Nodes -->
         <section class="mt-40 grid grid-cols-1 md:grid-cols-3 gap-8">
-            <a href="https://discord.com/download" target="_blank" class="glass p-10 rounded-[40px] border-white/5 group hover:border-gold/30 transition-all">
+            <a href="https://discord.gg/M8Ng7jh4K" target="_blank" class="glass p-8 md:p-10 rounded-[40px] border-white/5 group hover:border-gold/30 transition-all">
                 <div class="w-16 h-16 bg-[#5865F2]/10 rounded-2xl flex items-center justify-center text-[#5865F2] mb-6 group-hover:scale-110 transition-transform">
-                    <i data-lucide="message-square" class="w-8 h-8"></i>
+                    <i class="fa-brands fa-discord text-3xl"></i>
                 </div>
                 <h3 class="text-xl font-black text-white uppercase tracking-tight mb-2">Discord Hub</h3>
                 <p class="text-xs text-slate-500 font-bold uppercase tracking-widest">Global Mastery Community</p>
             </a>
-            <a href="https://telegram.org/" target="_blank" class="glass p-10 rounded-[40px] border-white/5 group hover:border-[#0088cc]/30 transition-all">
+            <a href="https://t.me/skillforgeorg" target="_blank" class="glass p-8 md:p-10 rounded-[40px] border-white/5 group hover:border-[#0088cc]/30 transition-all">
                 <div class="w-16 h-16 bg-[#0088cc]/10 rounded-2xl flex items-center justify-center text-[#0088cc] mb-6 group-hover:scale-110 transition-transform">
-                    <i data-lucide="send" class="w-8 h-8"></i>
+                    <i class="fa-brands fa-telegram text-3xl"></i>
                 </div>
                 <h3 class="text-xl font-black text-white uppercase tracking-tight mb-2">Telegram Mastery</h3>
                 <p class="text-xs text-slate-500 font-bold uppercase tracking-widest">Live Mastery Sessions</p>
             </a>
-            <a href="https://www.whatsapp.com/download" target="_blank" class="glass p-10 rounded-[40px] border-white/5 group hover:border-green-500/30 transition-all">
+            <a href="https://wa.me/2349015185711" target="_blank" class="glass p-8 md:p-10 rounded-[40px] border-white/5 group hover:border-green-500/30 transition-all">
                 <div class="w-16 h-16 bg-green-500/10 rounded-2xl flex items-center justify-center text-green-500 mb-6 group-hover:scale-110 transition-transform">
-                    <i data-lucide="phone" class="w-8 h-8"></i>
+                    <i class="fa-brands fa-whatsapp text-3xl"></i>
                 </div>
                 <h3 class="text-xl font-black text-white uppercase tracking-tight mb-2">WhatsApp Connect</h3>
                 <p class="text-xs text-slate-500 font-bold uppercase tracking-widest">Instant Mentorship Updates</p>
@@ -223,23 +226,23 @@
                 <p class="text-slate-500 text-xs font-black uppercase tracking-[0.4em]">Human-Centric Mentorship Channels</p>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <a href="https://wa.me/2348022140329" target="_blank" class="p-8 bg-[#25D366]/5 rounded-3xl border border-[#25D366]/10 hover:border-[#25D366]/30 transition-all group flex flex-col items-center">
-                    <i class="fa-brands fa-whatsapp text-4xl text-[#25D366] mb-6 group-hover:scale-110 transition-transform"></i>
-                    <p class="text-[10px] font-black text-slate-500 uppercase mb-4 tracking-widest text-center">Lead Mentor Support</p>
-                    <p class="text-lg font-black text-white group-hover:text-[#25D366]">0802 214 0329</p>
-                </a>
-                <a href="https://t.me/+vEJTv3fBRl43Yjlk" target="_blank" class="p-8 bg-[#229ED9]/5 rounded-3xl border border-[#229ED9]/10 hover:border-[#229ED9]/30 transition-all group flex flex-col items-center">
-                    <i class="fa-brands fa-telegram text-4xl text-[#229ED9] mb-6 group-hover:scale-110 transition-transform"></i>
-                    <p class="text-[10px] font-black text-slate-500 uppercase mb-4 tracking-widest text-center">Official Telegram Node</p>
-                    <p class="text-lg font-black text-white group-hover:text-[#229ED9]">Join Group</p>
-                </a>
-                <a href="https://discord.gg/skillforge" target="_blank" class="p-8 bg-[#5865F2]/5 rounded-3xl border border-[#5865F2]/10 hover:border-[#5865F2]/30 transition-all group flex flex-col items-center">
-                    <i class="fa-brands fa-discord text-4xl text-[#5865F2] mb-6 group-hover:scale-110 transition-transform"></i>
-                    <p class="text-[10px] font-black text-slate-500 uppercase mb-4 tracking-widest text-center">Global Discord Server</p>
-                    <p class="text-lg font-black text-white group-hover:text-[#5865F2]">Access Hub</p>
-                </a>
-            </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <a href="https://wa.me/2349015185711" target="_blank" class="p-8 bg-[#25D366]/5 rounded-3xl border border-[#25D366]/10 hover:border-[#25D366]/30 transition-all group flex flex-col items-center">
+                <i class="fa-brands fa-whatsapp text-4xl text-[#25D366] mb-6 group-hover:scale-110 transition-transform"></i>
+                <p class="text-[10px] font-black text-slate-500 uppercase mb-4 tracking-widest text-center">Lead Mentor Support</p>
+                <p class="text-lg font-black text-white group-hover:text-[#25D366]">WhatsApp Support</p>
+            </a>
+            <a href="https://t.me/skillforgeorg" target="_blank" class="p-8 bg-[#229ED9]/5 rounded-3xl border border-[#229ED9]/10 hover:border-[#229ED9]/30 transition-all group flex flex-col items-center">
+                <i class="fa-brands fa-telegram text-4xl text-[#229ED9] mb-6 group-hover:scale-110 transition-transform"></i>
+                <p class="text-[10px] font-black text-slate-500 uppercase mb-4 tracking-widest text-center">Official Telegram Node</p>
+                <p class="text-lg font-black text-white group-hover:text-[#229ED9]">Join Group</p>
+            </a>
+            <a href="https://discord.gg/M8Ng7jh4K" target="_blank" class="p-8 bg-[#5865F2]/5 rounded-3xl border border-[#5865F2]/10 hover:border-[#5865F2]/30 transition-all group flex flex-col items-center">
+                <i class="fa-brands fa-discord text-4xl text-[#5865F2] mb-6 group-hover:scale-110 transition-transform"></i>
+                <p class="text-[10px] font-black text-slate-500 uppercase mb-4 tracking-widest text-center">Global Discord Server</p>
+                <p class="text-lg font-black text-white group-hover:text-[#5865F2]">Access Hub</p>
+            </a>
+        </div>
 
             <div class="pt-12 border-t border-white/5">
                 <p class="text-[10px] font-black text-slate-500 uppercase mb-4 tracking-widest">Official Mastery Email</p>
@@ -248,8 +251,40 @@
         </section>
     </main>
 
-    <footer class="py-20 px-8 text-center border-t border-white/5 glass">
-        <p class="text-[10px] font-black text-slate-600 uppercase tracking-[0.5em]">SkillForge Digital • Secure Mastery Registry v1.4</p>
+    <footer class="py-20 px-8 border-t border-white/5 glass">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-12 mb-20">
+                <div class="flex flex-col gap-6">
+                    <div class="flex items-center gap-3">
+                        <img src="https://i.postimg.cc/fRYD4HSw/Whats-App-Image-2026-01-16-at-1-20-06-PM.jpg" class="w-12 h-12 rounded-xl border border-gold/30">
+                        <div class="flex flex-col leading-none">
+                            <span class="font-black text-2xl tracking-tighter uppercase">SkillForge</span>
+                            <span class="text-[8px] text-gold font-bold tracking-[0.2em] uppercase">Digital & Co. Ltd</span>
+                        </div>
+                    </div>
+                    <p class="text-slate-500 text-sm max-w-sm leading-relaxed">Forging the next generation of digital masters through immersive, elite education and community collaboration.</p>
+                </div>
+                <div class="flex flex-wrap gap-12">
+                    <div class="flex flex-col gap-4">
+                        <p class="text-[10px] font-black text-white uppercase tracking-widest">Mastery Hub</p>
+                        <a href="trainee-registration/index.html" class="text-slate-500 hover:text-gold transition-all text-xs font-bold uppercase tracking-widest">Academy Registry</a>
+                        <a href="trainee-login/index.html" class="text-slate-500 hover:text-gold transition-all text-xs font-bold uppercase tracking-widest">Command Center</a>
+                    </div>
+                    <div class="flex flex-col gap-4">
+                        <p class="text-[10px] font-black text-white uppercase tracking-widest">Nexus Nodes</p>
+                        <div class="flex gap-4">
+                            <a href="https://x.com/Skillforgeorg" target="_blank" class="p-3 bg-white/5 rounded-xl hover:text-gold transition-all"><i class="fa-brands fa-x-twitter text-lg"></i></a>
+                            <a href="https://instagram.com/skillforgeco.digital" target="_blank" class="p-3 bg-white/5 rounded-xl hover:text-gold transition-all"><i class="fa-brands fa-instagram text-lg"></i></a>
+                            <a href="https://facebook.com/skillforgeco.digital" target="_blank" class="p-3 bg-white/5 rounded-xl hover:text-gold transition-all"><i class="fa-brands fa-facebook text-lg"></i></a>
+                            <a href="https://tiktok.com/@skillforge.co.ltd" target="_blank" class="p-3 bg-white/5 rounded-xl hover:text-gold transition-all"><i class="fa-brands fa-tiktok text-lg"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pt-12 border-t border-white/5 text-center">
+                <p class="text-[10px] font-black text-slate-600 uppercase tracking-[0.5em]">SkillForge Digital • Secure Mastery Registry v1.4</p>
+            </div>
+        </div>
     </footer>
   </div>
 
