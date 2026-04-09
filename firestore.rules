@@ -12,20 +12,20 @@ service cloud.firestore {
       return request.auth.uid == userId;
     }
 
-    // Trainees collection: stores user preferences, theme, wallpaper, etc.
+    // Trainees collection: allow registration and login queries
     match /trainees/{userId} {
-      allow read, write: if isAuthenticated() && isOwner(userId);
+      allow read, write: if true; 
     }
 
     // Audit logs: for tracking changes
     match /audit_logs/{logId} {
-      allow create: if isAuthenticated();
+      allow create: if true;
       allow read: if isAuthenticated() && isOwner(resource.data.userId);
     }
 
     // Presence: for real-time study time and XP
     match /presence/{userId} {
-      allow read, write: if isAuthenticated() && isOwner(userId);
+      allow read, write: if true;
     }
 
     // Broad rules for registration counters and artifacts
