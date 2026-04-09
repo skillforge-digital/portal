@@ -1,0 +1,31 @@
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper function to check if the user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper function to check if the user is accessing their own data
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    // Trainees collection: stores user preferences, theme, wallpaper, etc.
+    match /trainees/{userId} {
+      allow read, write: if isAuthenticated() && isOwner(userId);
+    }
+
+    // Audit logs: for tracking changes
+    match /audit_logs/{logId} {
+      allow create: if isAuthenticated();
+      allow read: if isAuthenticated() && isOwner(resource.data.userId);
+    }
+
+    // Presence: for real-time study time and XP
+    match /presence/{userId} {
+      allow read, write: if isAuthenticated() && isOwner(userId);
+    }
+  }
+}

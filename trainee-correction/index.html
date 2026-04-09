@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Correction • SkillForge Digital</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: '#0A1931',
+            gold: '#C9A84C',
+            orange: '#E87722',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+    body { font-family:'Plus Jakarta Sans',sans-serif; background:#0A1931; color:#f1f5f9; overflow-x:hidden; }
+    #sundust-canvas { position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none }
+    .glass { background: rgba(255,255,255,0.02); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
+    input, select { background: rgba(255,255,255,0.03) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; }
+    input:focus, select:focus { border-color: #E87722 !important; outline: none !important; background: rgba(255,255,255,0.05) !important; }
+    @keyframes slide-up { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .animate-slide-up { animation: slide-up 0.6s ease-out forwards; }
+  </style>
+</head>
+<body class="min-h-screen py-20 px-6">
+  <canvas id="sundust-canvas"></canvas>
+
+  <div class="relative z-10 max-w-2xl mx-auto">
+    <header class="text-center mb-16 space-y-4">
+        <a href="../index.html" class="inline-flex items-center gap-2 text-gold font-black text-[10px] uppercase tracking-[0.3em] mb-8 hover:text-white transition-all">
+            <i data-lucide="arrow-left" class="w-3 h-3"></i> Back to Academy Hub
+        </a>
+        <h1 class="text-4xl font-black text-white uppercase tracking-tighter">Mastery Update Center</h1>
+        <p class="text-slate-500 text-xs font-black uppercase tracking-[0.4em]">Secure Profile Integrity Protocol</p>
+    </header>
+
+    <main class="space-y-8">
+        <!-- Search Section -->
+        <section id="search-section" class="glass p-10 rounded-[40px] border-white/10 animate-slide-up">
+            <div class="space-y-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-orange/10 rounded-2xl flex items-center justify-center text-orange border border-orange/20">
+                        <i data-lucide="search" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-black text-white uppercase tracking-tight">Locate Mastery Profile</h2>
+                        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">SFID, Phone, or Email</p>
+                    </div>
+                </div>
+                <div class="flex gap-4">
+                    <input type="text" id="search-input" placeholder="ENTER IDENTIFIER..." class="flex-1 p-4 rounded-2xl text-sm uppercase">
+                    <button onclick="findRecord()" id="search-btn" class="bg-white text-navy px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-gold transition-all">Locate Profile</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Result/Edit Section -->
+        <section id="edit-section" class="hidden glass p-10 rounded-[40px] border-orange/20 animate-slide-up">
+            <form id="edit-form" class="space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Full Legal Name</label>
+                        <input required name="name" type="text" class="w-full p-4 rounded-2xl text-sm uppercase">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">WhatsApp Number</label>
+                        <input required name="phone" type="tel" class="w-full p-4 rounded-2xl text-sm">
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Mastery Track</label>
+                    <select required name="track" class="w-full p-4 rounded-2xl text-sm appearance-none cursor-pointer">
+                        <option value="Forex Synthetic Indices">Forex Synthetic Indices</option>
+                        <option value="Forex Currency Pairs">Forex Currency Pairs</option>
+                        <option value="AI Content Creation">AI Content Creation</option>
+                        <option value="Photography & Editing">Photography & Editing</option>
+                        <option value="Graphic Design">Graphic Design</option>
+                        <option value="Digital Marketing">Digital Marketing</option>
+                        <option value="Mobile Cinematography">Mobile Cinematography</option>
+                        <option value="Discord Development">Discord Development</option>
+                        <option value="Web Development">Web Development</option>
+                        <option value="Cyber Security">Cyber Security</option>
+                    </select>
+                </div>
+                <button type="submit" id="update-btn" class="w-full bg-orange text-navy py-5 rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] shadow-2xl hover:bg-white transition-all flex items-center justify-center gap-2">
+                    Update Mastery Profile <i data-lucide="save" class="w-4 h-4"></i>
+                </button>
+            </form>
+        </section>
+
+        <!-- Success Message -->
+        <section id="success-section" class="hidden glass p-12 rounded-[40px] text-center space-y-6 animate-slide-up">
+            <div class="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mx-auto text-green-500 border border-green-500/20">
+                <i data-lucide="check-circle-2" class="w-10 h-10"></i>
+            </div>
+            <h2 class="text-3xl font-black text-white uppercase tracking-tighter">Profile Successfully Updated</h2>
+            <p class="text-slate-500 text-[10px] font-black uppercase tracking-[0.4em]">Mastery Registry Synchronized</p>
+            <a href="../index.html" class="inline-block bg-white text-navy px-12 py-5 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-gold transition-all">Return to Academy Hub</a>
+        </section>
+    </main>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js';
+    import { getFirestore, collection, query, where, getDocs, doc, updateDoc } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js';
+
+    const firebaseConfig = {"apiKey":"AIzaSyAKawPq6ggYmMIyfmaOg_wKklIunc3GyS0","authDomain":"skillforge-digital-portal.firebaseapp.com","projectId":"skillforge-digital-portal","storageBucket":"skillforge-digital-portal.firebasestorage.app","messagingSenderId":"425765825033","appId":"1:425765825033:web:9f75cb46fe58e28acde6d8","measurementId":"G-NFC9TNEK7E"};
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let currentDocId = null;
+
+    window.findRecord = async () => {
+        const input = document.getElementById('search-input').value.trim();
+        if(!input) return;
+        
+        const btn = document.getElementById('search-btn');
+        btn.disabled = true; btn.innerText = "Searching...";
+
+        try {
+            const traineeRef = collection(db, 'trainees');
+            let q = query(traineeRef, where('sfid', '==', input.toUpperCase()));
+            let snap = await getDocs(q);
+            
+            if(snap.empty) {
+                q = query(traineeRef, where('phone', '==', input));
+                snap = await getDocs(q);
+            }
+            if(snap.empty) {
+                q = query(traineeRef, where('email', '==', input.toLowerCase()));
+                snap = await getDocs(q);
+            }
+
+            if(!snap.empty) {
+                const data = snap.docs[0].data();
+                currentDocId = snap.docs[0].id;
+                
+                const form = document.getElementById('edit-form');
+                form.name.value = data.name;
+                form.phone.value = data.phone;
+                form.track.value = data.track;
+                
+                document.getElementById('search-section').classList.add('hidden');
+                document.getElementById('edit-section').classList.remove('hidden');
+            } else {
+                alert("Registry node not found.");
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Search failed.");
+        } finally {
+            btn.disabled = false; btn.innerText = "Search";
+        }
+    };
+
+    document.getElementById('edit-form').onsubmit = async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('update-btn');
+        btn.disabled = true; btn.innerHTML = "Syncing Node...";
+
+        const formData = new FormData(e.target);
+        const data = Object.fromEntries(formData.entries());
+        data.name = data.name.toUpperCase();
+
+        try {
+            await updateDoc(doc(db, 'trainees', currentDocId), data);
+            document.getElementById('edit-section').classList.add('hidden');
+            document.getElementById('success-section').classList.remove('hidden');
+        } catch (err) {
+            console.error(err);
+            alert("Update failed.");
+        } finally {
+            btn.disabled = false; btn.innerHTML = "Apply Registry Update";
+        }
+    };
+
+    // Sundust Background
+    class Sundust {
+      constructor() {
+        this.canvas = document.getElementById('sundust-canvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.particles = [];
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+        this.initParticles();
+        this.animate();
+      }
+      resize(){ this.canvas.width=window.innerWidth; this.canvas.height=window.innerHeight }
+      initParticles(){ for(let i=0;i<60;i++) this.particles.push(this.createParticle()) }
+      createParticle(){ return { x:Math.random()*this.canvas.width,y:Math.random()*this.canvas.height,size:Math.random()*1.5+0.5,alpha:Math.random()*0.3+0.1,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,p:Math.random()*Math.PI*2 } }
+      animate(){
+        this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
+        this.particles.forEach(p=>{
+          p.x+=p.vx; p.y+=p.vy; p.p+=0.02;
+          if(p.x<0)p.x=this.canvas.width; if(p.x>this.canvas.width)p.x=0;
+          if(p.y<0)p.y=this.canvas.height; if(p.y>this.canvas.height)p.y=0;
+          this.ctx.fillStyle=`rgba(201,168,76,${p.alpha+Math.sin(p.p)*0.1})`;
+          this.ctx.beginPath(); this.ctx.arc(p.x,p.y,p.size,0,Math.PI*2); this.ctx.fill();
+        });
+        requestAnimationFrame(()=>this.animate());
+      }
+    }
+    new Sundust();
+    if (window.lucide) window.lucide.createIcons();
+  </script>
+</body>
+</html>

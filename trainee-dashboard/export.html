@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkillForge — Registry Export</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { 
+        grotesk: ['Space Grotesk', 'sans-serif'],
+        serif: ['Instrument Serif', 'serif']
+      },
+      colors: {
+        navy: { 950:'#040810', 900:'#070d1a', 800:'#0c1829', 700:'#112240', 600:'#1a3358' },
+        gold: { 300:'#fcd34d', 400:'#fbbf24', 500:'#f59e0b', 600:'#d97706', 700:'#b45309' },
+      }
+    }
+  }
+}
+</script>
+<style>
+  :root { --font-main: 'Space Grotesk', sans-serif; }
+  * { font-family: var(--font-main); transition: font-family 0.3s ease; }
+  body { background: #040810; transition: background 0.5s ease; }
+  .glass { background: rgba(12, 24, 50, 0.55); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
+  .glass-strong { background: rgba(12, 24, 50, 0.75); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.1); }
+  .sidebar-link.active { background: rgba(245, 158, 11, 0.1); color: #fbbf24; border-right: 3px solid #fbbf24; }
+</style>
+</head>
+<body class="text-white min-h-screen flex">
+
+<aside class="w-72 glass-strong border-r border-white/5 flex flex-col fixed inset-y-0 z-50">
+  <div class="p-8 flex-1">
+    <div class="flex items-center gap-3 mb-10">
+      <div class="w-10 h-10 rounded-xl bg-black flex items-center justify-center border border-gold-500/30 overflow-hidden">
+        <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" alt="SF" class="w-full h-full object-cover">
+      </div>
+      <div><h1 class="font-bold text-sm uppercase tracking-tighter">SkillForge</h1><p class="text-[8px] text-white/40 font-bold uppercase tracking-widest">Registry Export</p></div>
+    </div>
+    <nav class="space-y-1">
+      <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Command Nodes</p>
+      <a href="index.html" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-layer-group w-4"></i> Overview</a>
+      <a href="dmc.html" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-id-card w-4"></i> Membership Card</a>
+      <a href="leaderboard.html" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-ranking-star w-4"></i> Hall of Fame</a>
+      <a href="vault.html" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-vault w-4"></i> The Vault</a>
+      <a href="customize.html" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-wand-magic-sparkles w-4"></i> Customize</a>
+      <a href="export.html" class="sidebar-link active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest"><i class="fa-solid fa-download w-4"></i> Export</a>
+      <a href="about.html" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-circle-info w-4"></i> About</a>
+    </nav>
+  </div>
+  <div class="p-8 border-t border-white/5">
+    <button onclick="logout()" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-red-400/70 hover:text-red-400 hover:bg-red-400/10 transition-all">
+      <i class="fa-solid fa-right-from-bracket w-4"></i> Sign Out
+    </button>
+  </div>
+</aside>
+
+<main class="flex-1 ml-72 p-10 pt-20">
+  <div class="max-w-4xl mx-auto space-y-10">
+    <header><p class="text-gold-400 text-sm font-medium tracking-widest uppercase">Data Forge</p><h1 class="text-5xl font-bold mt-1">Export Identity</h1></header>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div class="glass p-10 rounded-[40px] space-y-6">
+        <h3 class="text-xs font-bold text-white/40 uppercase tracking-[0.4em]">JSON Snapshot</h3>
+        <p class="text-white/60 text-sm">Download your complete mastery registry as a machine-readable JSON file.</p>
+        <button onclick="exportJSON()" class="w-full bg-white/5 py-4 rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] border border-white/10 hover:bg-gold-500 hover:text-navy-950 transition-all">Download .json</button>
+      </div>
+      <div class="glass p-10 rounded-[40px] space-y-6">
+        <h3 class="text-xs font-bold text-white/40 uppercase tracking-[0.4em]">Visual Registry</h3>
+        <p class="text-white/60 text-sm">Generate a 4K visual representation of your Academy Identity card.</p>
+        <button onclick="exportVisual()" class="w-full bg-gold-500 text-navy-950 py-4 rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] shadow-lg hover:bg-white transition-all">Generate PNG</button>
+      </div>
+    </div>
+    <div class="glass p-10 rounded-[40px] space-y-6">
+      <h3 class="text-xs font-bold text-white/40 uppercase tracking-[0.4em]">Active CSS Variables</h3>
+      <div class="bg-black/40 p-8 rounded-3xl border border-white/5">
+        <pre id="css-preview" class="text-gold-400 font-mono text-xs leading-relaxed">--accent-color: #f59e0b;
+--bg-primary: #040810;
+--font-family: 'Space Grotesk';</pre>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js';
+import { getAuth, signOut } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js';
+import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js';
+
+const firebaseConfig = {"apiKey":"AIzaSyAKawPq6ggYmMIyfmaOg_wKklIunc3GyS0","authDomain":"skillforge-digital-portal.firebaseapp.com","projectId":"skillforge-digital-portal","storageBucket":"skillforge-digital-portal.firebasestorage.app","messagingSenderId":"425765825033","appId":"1:425765825033:web:9f75cb46fe58e28acde6d8","measurementId":"G-NFC9TNEK7E"};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.exportJSON = async () => {
+  const uid = localStorage.getItem('skillforge_mock_uid') || 'test_trainee_123';
+  const snap = await getDoc(doc(db, 'trainees', uid));
+  const data = snap.exists() ? snap.data() : { error: 'No data found' };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `skillforge_registry_${uid}.json`;
+  a.click();
+};
+
+window.exportVisual = () => {
+  alert('Visual generation initiated. Syncing with high-res renderer...');
+};
+
+window.logout = async () => {
+  const auth = getAuth(app);
+  await signOut(auth);
+  localStorage.removeItem('skillforge_mock_uid');
+  window.location.href = '../trainee-login/index.html';
+};
+
+async function updateCSSPreview() {
+  const uid = localStorage.getItem('skillforge_mock_uid') || 'test_trainee_123';
+  const snap = await getDoc(doc(db, 'trainees', uid));
+  if (snap.exists()) {
+    const data = snap.data();
+    const preview = document.getElementById('css-preview');
+    preview.innerText = `--accent-color: ${data.theme?.color || '#f59e0b'};\n--bg-primary: ${data.theme?.secondary || '#040810'};\n--font-family: ${data.fontMode || 'sans'};\n--glow-mode: ${data.controls?.glow ? 'active' : 'inactive'};`;
+  }
+}
+
+updateCSSPreview();
+</script>
+</body>
+</html>

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkillForge — Digital Membership Card (DMC)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { 
+        grotesk: ['Space Grotesk', 'sans-serif'],
+        serif: ['Instrument Serif', 'serif'],
+        mono: ['JetBrains Mono', 'monospace']
+      },
+      colors: {
+        navy: { 950:'#040810', 900:'#070d1a', 800:'#0c1829', 700:'#112240', 600:'#1a3358' },
+        gold: { 300:'#fcd34d', 400:'#fbbf24', 500:'#f59e0b', 600:'#d97706', 700:'#b45309' },
+      }
+    }
+  }
+}
+</script>
+<style>
+  :root { 
+    --font-main: 'Space Grotesk', sans-serif; 
+    --dmc-grad: linear-gradient(135deg, #f59e0b, #d97706);
+    --accent-color: #f59e0b;
+  }
+  * { font-family: var(--font-main); transition: all 0.3s ease; }
+  body { background: #040810; transition: background 0.5s ease; overflow-x: hidden; }
+  .glass { background: rgba(12, 24, 50, 0.55); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
+  .glass-strong { background: rgba(12, 24, 50, 0.75); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.1); }
+  .sidebar-link.active { background: rgba(245, 158, 11, 0.1); color: #fbbf24; border-right: 3px solid #fbbf24; }
+  
+  /* DMC Specific Styles */
+  #dmc-card { width: 400px; height: 560px; background: var(--accent-gradient, var(--dmc-grad)); border-radius: 40px; position: relative; overflow: hidden; box-shadow: 0 40px 100px rgba(0,0,0,0.5); transform-style: preserve-3d; }
+  .dmc-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 100%); }
+  .dmc-noise { position: absolute; inset: 0; opacity: 0.1; mix-blend-mode: overlay; pointer-events: none; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  .glow-mode .glass { box-shadow: 0 0 20px var(--accent-color, rgba(245, 158, 11, 0.2)); }
+  .light body { background: #f8fafc; color: #0f172a; }
+  .light .glass { background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(15, 23, 42, 0.08); }
+
+  /* Global Accent Color Overrides */
+  :root {
+    --accent-color: #f59e0b;
+    --accent-color-rgb: 245, 158, 11;
+    --accent-color-secondary: #d97706;
+    --accent-gradient: linear-gradient(135deg, var(--accent-color), var(--accent-color-secondary));
+  }
+
+  .text-gold-400 { color: var(--accent-color) !important; }
+  .bg-gold-500 { background-color: var(--accent-color) !important; }
+  .bg-gold-500\/10 { background-color: rgba(var(--accent-color-rgb), 0.1) !important; }
+  .bg-gold-500\/20 { background-color: rgba(var(--accent-color-rgb), 0.2) !important; }
+  .border-gold-500\/30 { border-color: rgba(var(--accent-color-rgb), 0.3) !important; }
+  .border-gold-500\/10 { border-color: rgba(var(--accent-color-rgb), 0.1) !important; }
+  .sidebar-link.active { background: rgba(var(--accent-color-rgb), 0.1) !important; color: var(--accent-color) !important; border-right-color: var(--accent-color) !important; }
+  .glow-mode .glass { box-shadow: 0 0 20px rgba(var(--accent-color-rgb), 0.2) !important; }
+</style>
+</head>
+<body class="text-white min-h-screen flex">
+
+<aside class="w-72 glass-strong border-r border-white/5 flex flex-col fixed inset-y-0 z-50">
+  <div class="p-8 flex-1">
+    <div class="flex items-center gap-3 mb-10">
+      <div class="w-10 h-10 rounded-xl bg-black flex items-center justify-center border border-gold-500/30 overflow-hidden">
+        <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" alt="SF" class="w-full h-full object-cover">
+      </div>
+      <div><h1 class="font-bold text-sm uppercase tracking-tighter">SkillForge</h1><p class="text-[8px] text-white/40 font-bold uppercase tracking-widest">Mastery Hub</p></div>
+    </div>
+    <nav class="space-y-1">
+      <a href="index.html" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-layer-group w-4"></i> Overview</a>
+      <a href="dmc.html" class="sidebar-link active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest"><i class="fa-solid fa-id-card w-4"></i> Membership Card</a>
+      <a href="leaderboard.html" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-ranking-star w-4"></i> Hall of Fame</a>
+      <a href="vault.html" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-vault w-4"></i> The Vault</a>
+      <a href="customize.html" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-wand-magic-sparkles w-4"></i> Customize</a>
+    </nav>
+  </div>
+  <div class="p-8 border-t border-white/5">
+    <button onclick="logout()" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-red-400/70 hover:text-red-400 hover:bg-red-400/10 transition-all">
+      <i class="fa-solid fa-right-from-bracket w-4"></i> Sign Out
+    </button>
+  </div>
+</aside>
+
+<main class="flex-1 ml-72 p-10 pt-20">
+  <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">
+    <div class="space-y-10">
+      <header>
+        <p class="text-gold-400 text-sm font-medium tracking-widest uppercase">Identity Node</p>
+        <h1 class="text-5xl font-bold mt-1">Digital Membership</h1>
+      </header>
+      
+      <div class="glass p-10 rounded-[40px] space-y-8">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs font-bold text-white/40 uppercase tracking-[0.4em]">Gradient Customization</h3>
+          <span id="save-status" class="text-[8px] font-black uppercase tracking-widest text-green-400 opacity-0 transition-opacity">Changes Saved</span>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <label class="text-[10px] font-black uppercase tracking-widest text-white/30 block">Color One (Primary)</label>
+            <div class="relative group">
+              <input type="color" id="grad-1" value="#f59e0b" class="w-full h-14 rounded-2xl bg-white/5 border border-white/10 p-1 cursor-pointer hover:border-gold-500/50 transition-all" oninput="updateDMCPreview()">
+              <div class="absolute inset-0 rounded-2xl pointer-events-none border border-white/5 group-hover:border-white/20 transition-all"></div>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <label class="text-[10px] font-black uppercase tracking-widest text-white/30 block">Color Two (Secondary)</label>
+            <div class="relative group">
+              <input type="color" id="grad-2" value="#d97706" class="w-full h-14 rounded-2xl bg-white/5 border border-white/10 p-1 cursor-pointer hover:border-gold-500/50 transition-all" oninput="updateDMCPreview()">
+              <div class="absolute inset-0 rounded-2xl pointer-events-none border border-white/5 group-hover:border-white/20 transition-all"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-4 pt-4">
+          <div class="flex items-center gap-4">
+            <button onclick="handleExplicitSave()" class="flex-[2] bg-gold-500 text-navy-950 py-4 rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] shadow-lg hover:bg-white hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+              <i class="fa-solid fa-cloud-arrow-up"></i> Save & Propagate Globally
+            </button>
+            <button onclick="exportDMC()" class="flex-1 glass py-4 rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] hover:bg-white/10 transition-all flex items-center justify-center gap-2">
+              <i class="fa-solid fa-download"></i> Export 4K
+            </button>
+          </div>
+          <div class="p-4 rounded-2xl bg-gold-500/5 border border-gold-500/10">
+            <p class="text-[9px] text-gold-400/60 uppercase text-center leading-relaxed">
+              <i class="fa-solid fa-circle-info mr-1"></i> 
+              Saving will immediately update your identity across all studio pages and dashboard modules.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Confirmation Dialog (Custom) -->
+      <div id="confirm-modal" class="fixed inset-0 z-[100] flex items-center justify-center p-6 opacity-0 pointer-events-none transition-all duration-300">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+        <div class="relative glass-strong p-10 rounded-[40px] max-w-md w-full border border-white/10 shadow-4K scale-90 transition-all duration-300 modal-content">
+          <div class="w-16 h-16 rounded-full bg-gold-500/20 flex items-center justify-center mx-auto mb-6">
+            <i class="fa-solid fa-triangle-exclamation text-gold-500 text-2xl"></i>
+          </div>
+          <h2 class="text-2xl font-bold text-center mb-2">Global Propagation</h2>
+          <p class="text-white/50 text-center text-sm mb-8 leading-relaxed">Are you sure you want to apply these gradient changes globally? This will affect every page in your registry.</p>
+          <div class="flex flex-col gap-3">
+            <button id="confirm-save-btn" class="w-full bg-gold-500 text-navy-950 py-4 rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] hover:bg-white transition-all">Confirm Update</button>
+            <button onclick="closeConfirmModal()" class="w-full py-4 rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] text-white/40 hover:text-white transition-all">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-center py-10">
+      <div id="dmc-card" class="font-grotesk">
+        <div class="dmc-noise"></div>
+        <div class="dmc-overlay"></div>
+        <div class="relative z-10 p-10 h-full flex flex-col justify-between">
+          <div class="flex justify-between items-start">
+            <div class="w-12 h-12 rounded-xl bg-black flex items-center justify-center border border-white/20 shadow-2xl">
+              <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" alt="SF" class="w-full h-full object-cover rounded-xl">
+            </div>
+            <div class="text-right">
+              <p class="text-[10px] font-black uppercase tracking-[0.3em] text-white/50">Mastery Registry</p>
+              <p class="text-xs font-bold text-white tracking-widest mt-1 profile-sfid-target">SF-2026-NODE</p>
+            </div>
+          </div>
+          
+          <div class="space-y-4">
+            <div class="w-24 h-24 rounded-3xl bg-black/40 backdrop-blur-md border border-white/20 flex items-center justify-center text-4xl font-black text-white overflow-hidden shadow-2xl profile-initials-target">HT</div>
+            <div>
+              <h2 class="text-3xl font-black tracking-tighter profile-name-target">HUMAN TRAINEE</h2>
+              <p class="text-gold-400 text-xs font-bold uppercase tracking-[0.4em] mt-1 profile-track-target">Web Development</p>
+            </div>
+          </div>
+
+          <div class="pt-6 border-t border-white/10 flex flex-col gap-4">
+            <div class="flex justify-between items-end">
+              <div>
+                <p class="text-[8px] font-black uppercase tracking-widest text-white/30">Tier Status</p>
+                <p class="text-xs font-black text-gold-400 uppercase tracking-widest tier-target">Novice</p>
+              </div>
+            </div>
+            
+            <div class="flex justify-between items-center pt-4 border-t border-white/5">
+              <a href="https://skillforgedigital.com.ng" target="_blank" class="text-[7px] font-black uppercase tracking-[0.2em] text-white/20 hover:text-gold-400 transition-colors">skillforgedigital.com.ng</a>
+              <a href="https://portal.skillforgedigital.com.ng" target="_blank" class="text-[7px] font-black uppercase tracking-[0.2em] text-white/20 hover:text-gold-400 transition-colors">portal.skillforgedigital.com.ng</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script type="module">
+import { themeManager } from '../assets/theme-manager.js';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js';
+import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js';
+
+const firebaseConfig = {"apiKey":"AIzaSyAKawPq6ggYmMIyfmaOg_wKklIunc3GyS0","authDomain":"skillforge-digital-portal.firebaseapp.com","projectId":"skillforge-digital-portal","storageBucket":"skillforge-digital-portal.firebasestorage.app","messagingSenderId":"425765825033","appId":"1:425765825033:web:9f75cb46fe58e28acde6d8","measurementId":"G-NFC9TNEK7E"};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+let traineeData = null;
+
+window.updateDMCPreview = () => {
+  const c1 = document.getElementById('grad-1').value;
+  const c2 = document.getElementById('grad-2').value;
+  document.getElementById('dmc-card').style.setProperty('--dmc-grad', `linear-gradient(135deg, ${c1}, ${c2})`);
+};
+
+window.handleExplicitSave = () => {
+  const modal = document.getElementById('confirm-modal');
+  modal.classList.remove('opacity-0', 'pointer-events-none');
+  modal.querySelector('.modal-content').classList.remove('scale-90');
+  
+  document.getElementById('confirm-save-btn').onclick = async () => {
+    await saveDMCGradient();
+    closeConfirmModal();
+  };
+};
+
+window.closeConfirmModal = () => {
+  const modal = document.getElementById('confirm-modal');
+  modal.classList.add('opacity-0', 'pointer-events-none');
+  modal.querySelector('.modal-content').classList.add('scale-90');
+};
+
+async function saveDMCGradient() {
+  const c1 = document.getElementById('grad-1').value;
+  const c2 = document.getElementById('grad-2').value;
+  
+  const theme = {
+    type: 'solid-pair',
+    primary: c1,
+    secondary: c2,
+    layout: themeManager.currentTheme?.layout || 1,
+    updatedAt: new Date().toISOString()
+  };
+
+  const success = await themeManager.saveTheme(theme, 'DMC_DESIGNER');
+  
+  if (success) {
+    const status = document.getElementById('save-status');
+    status.classList.remove('opacity-0');
+    setTimeout(() => status.classList.add('opacity-0'), 3000);
+    
+    // Immediate visual feedback
+    document.documentElement.style.setProperty('--accent-color', c1);
+    document.documentElement.style.setProperty('--dmc-grad', `linear-gradient(135deg, ${c1}, ${c2})`);
+  } else {
+    alert('Failed to propagate changes to the global registry.');
+  }
+}
+
+window.exportDMC = () => {
+  const card = document.getElementById('dmc-card');
+  const btn = event.currentTarget;
+  const originalHtml = btn.innerHTML;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Rendering...';
+  
+  html2canvas(card, { 
+    scale: 3, 
+    useCORS: true,
+    backgroundColor: null,
+    logging: false
+  }).then(canvas => {
+    const link = document.createElement('a');
+    link.download = `SkillForge_DMC_${traineeData?.sfid || 'TRAINEE'}.png`;
+    link.href = canvas.toDataURL('image/png', 1.0);
+    link.click();
+    btn.innerHTML = originalHtml;
+  });
+};
+
+async function initDMC() {
+  const uid = themeManager.uid;
+  const snap = await getDoc(doc(db, 'trainees', uid));
+  if (snap.exists()) {
+    traineeData = snap.data();
+    updateUI();
+    if (traineeData.theme?.type === 'gradient') {
+      document.getElementById('grad-1').value = traineeData.theme.c1;
+      document.getElementById('grad-2').value = traineeData.theme.c2;
+      updateDMCPreview();
+    }
+  }
+}
+
+function updateUI() {
+  if (!traineeData) return;
+  const name = traineeData.name || 'HUMAN TRAINEE';
+  const nameParts = name.trim().split(/\s+/);
+  const initials = nameParts.length > 1 ? (nameParts[0][0] + nameParts[nameParts.length-1][0]).toUpperCase() : name.substring(0, 2).toUpperCase();
+  
+  document.querySelectorAll('.profile-name-target').forEach(el => el.innerText = name);
+  document.querySelectorAll('.profile-track-target').forEach(el => el.innerText = traineeData.track || 'Academy Trainee');
+  document.querySelectorAll('.profile-initials-target').forEach(el => el.innerText = initials);
+  document.querySelectorAll('.access-pin-target').forEach(el => el.innerText = traineeData.pin || '000000');
+  document.querySelectorAll('.profile-sfid-target').forEach(el => el.innerText = traineeData.sfid || 'SF-2026-NODE');
+  document.querySelectorAll('.tier-target').forEach(el => el.innerText = traineeData.tier || 'Novice');
+}
+
+window.logout = () => {
+  localStorage.removeItem('skillforge_mock_uid');
+  window.location.href = '../trainee-login/index.html';
+};
+
+initDMC();
+</script>
+  <script src="../assets/error-reporter.js"></script>
+</body>
+</html>

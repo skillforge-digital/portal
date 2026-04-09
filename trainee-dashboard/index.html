@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkillForge Digital — Command Center</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;700&family=Caveat:wght@400;700&family=Unbounded:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { 
+        grotesk: ['Space Grotesk', 'sans-serif'],
+        serif: ['Instrument Serif', 'serif']
+      },
+      colors: {
+        navy: { 950:'#040810', 900:'#070d1a', 800:'#0c1829', 700:'#112240', 600:'#1a3358' },
+        gold: { 300:'#fcd34d', 400:'#fbbf24', 500:'#f59e0b', 600:'#d97706', 700:'#b45309' },
+      }
+    }
+  }
+}
+</script>
+<style>
+  :root { --font-main: 'Space Grotesk', sans-serif; }
+  * { font-family: var(--font-main); transition: font-family 0.3s ease; }
+  .font-serif-mode { --font-main: 'Instrument Serif', serif; }
+  .font-mono-mode { --font-main: 'JetBrains Mono', monospace; }
+  .font-handwriting-mode { --font-main: 'Caveat', cursive; }
+  .font-display-mode { --font-main: 'Unbounded', sans-serif; }
+  
+  .glow-mode .glass { box-shadow: 0 0 20px var(--accent-color, rgba(245, 158, 11, 0.2)); }
+  .glow-mode .glass-strong { box-shadow: 0 0 30px var(--accent-color, rgba(245, 158, 11, 0.3)); }
+  
+  /* Custom Scrollbar */
+  .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(245,158,11,0.3); border-radius: 10px; }
+  
+  body { background: #040810; transition: background 0.5s ease, color 0.5s ease; background-size: cover; background-position: center; background-attachment: fixed; }
+  .glass { background: rgba(12, 24, 50, 0.55); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
+  .glass-strong { background: rgba(12, 24, 50, 0.75); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.1); }
+  .glass-gold { background: rgba(245, 158, 11, 0.08); backdrop-filter: blur(20px); border: 1px solid rgba(245, 158, 11, 0.2); }
+  .glow-gold { box-shadow: 0 0 30px rgba(245, 158, 11, 0.15), 0 0 60px rgba(245, 158, 11, 0.05); }
+  .glow-gold-sm { box-shadow: 0 0 15px rgba(245, 158, 11, 0.12); }
+  .text-glow-gold { text-shadow: 0 0 20px rgba(245, 158, 11, 0.4); }
+  .pin-blur { filter: blur(6px); transition: filter 0.5s cubic-bezier(0.4,0,0.2,1); }
+  .pin-reveal:hover .pin-blur { filter: blur(0); }
+  .progress-fill { transition: width 1.2s cubic-bezier(0.4,0,0.2,1); }
+  
+  .template-section { display: none; }
+  .template-section.active-template { display: block; }
+
+  /* Template Animations & Specifics */
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+  .float-anim { animation: float 4s ease-in-out infinite; }
+  .float-anim-delay { animation: float 4s ease-in-out 1s infinite; }
+  @keyframes pulseRing { 0%{transform:scale(1);opacity:0.6} 100%{transform:scale(1.8);opacity:0} }
+  .pulse-ring::after { content:''; position:absolute; inset:-4px; border-radius:50%; border:2px solid #f59e0b; animation: pulseRing 2s ease-out infinite; }
+  .dock-item { transition: transform 0.2s ease, margin 0.2s ease; }
+  .dock-item:hover { transform: translateY(-12px) scale(1.3); margin: 0 6px; }
+  @keyframes orbit1 { 0%{transform:rotate(0deg) translateX(180px) rotate(0deg)} 100%{transform:rotate(360deg) translateX(180px) rotate(-360deg)} }
+  @keyframes orbit2 { 0%{transform:rotate(120deg) translateX(180px) rotate(-120deg)} 100%{transform:rotate(480deg) translateX(180px) rotate(-480deg)} }
+  @keyframes orbit3 { 0%{transform:rotate(240deg) translateX(180px) rotate(-240deg)} 100%{transform:rotate(600deg) translateX(180px) rotate(-600deg)} }
+  .orbit-1 { animation: orbit1 20s linear infinite; }
+  .orbit-2 { animation: orbit2 25s linear infinite; }
+  .orbit-3 { animation: orbit3 30s linear infinite; }
+  @keyframes blink { 0%,50%{opacity:1} 51%,100%{opacity:0} }
+  .cursor-blink { animation: blink 1s step-end infinite; }
+  @keyframes fadeInUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+  .fade-in-1 { animation: fadeInUp 0.6s 0.1s both; }
+  .fade-in-2 { animation: fadeInUp 0.6s 0.2s both; }
+  .fade-in-3 { animation: fadeInUp 0.6s 0.3s both; }
+  .noise-bg::before { content:''; position:fixed; inset:0; opacity:0.03; z-index:0; pointer-events:none; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  .ambient-blob { position:fixed; border-radius:50%; filter:blur(100px); pointer-events:none; z-index:0; }
+  
+  .sidebar-link { transition: all 0.3s ease; }
+  .sidebar-link.active { background: rgba(245, 158, 11, 0.1); color: #fbbf24; border-right: 3px solid #fbbf24; }
+  
+  .light body { background: #f8fafc; color: #0f172a; }
+  .light .glass { background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(15, 23, 42, 0.08); }
+  .light .text-white { color: #0f172a !important; }
+  .light .text-white\/50 { color: rgba(15, 23, 42, 0.6) !important; }
+  .light .text-white\/40 { color: rgba(15, 23, 42, 0.5) !important; }
+  .light .text-white\/30 { color: rgba(15, 23, 42, 0.4) !important; }
+  .light .text-white\/20 { color: rgba(15, 23, 42, 0.3) !important; }
+  .light .glass-strong { background: rgba(255, 255, 255, 0.9); }
+
+  /* Global Accent Color Overrides */
+  :root {
+    --accent-color: #f59e0b;
+    --accent-color-rgb: 245, 158, 11;
+    --accent-color-secondary: #d97706;
+    --accent-gradient: linear-gradient(135deg, var(--accent-color), var(--accent-color-secondary));
+  }
+
+  .text-gold-400 { color: var(--accent-color) !important; }
+  .text-gold-300 { color: var(--accent-color) !important; }
+  .text-glow-gold { text-shadow: 0 0 20px rgba(var(--accent-color-rgb), 0.4) !important; }
+  .bg-gold-500 { background-color: var(--accent-color) !important; }
+  .bg-gold-500\/10 { background-color: rgba(var(--accent-color-rgb), 0.1) !important; }
+  .bg-gold-500\/15 { background-color: rgba(var(--accent-color-rgb), 0.15) !important; }
+  .bg-gold-500\/20 { background-color: rgba(var(--accent-color-rgb), 0.2) !important; }
+  .bg-gold-950\/40 { background-color: rgba(var(--accent-color-rgb), 0.05) !important; }
+  .border-gold-500\/30 { border-color: rgba(var(--accent-color-rgb), 0.3) !important; }
+  .border-gold-500\/20 { border-color: rgba(var(--accent-color-rgb), 0.2) !important; }
+  .border-gold-400 { border-color: var(--accent-color) !important; }
+  .from-gold-600 { --tw-gradient-from: var(--accent-color-secondary) !important; }
+  .to-gold-400 { --tw-gradient-to: var(--accent-color) !important; }
+  .pulse-ring::after { border-color: var(--accent-color) !important; }
+  .sidebar-link.active { background: rgba(var(--accent-color-rgb), 0.1) !important; color: var(--accent-color) !important; border-right-color: var(--accent-color) !important; }
+  .glow-mode .glass { box-shadow: 0 0 20px rgba(var(--accent-color-rgb), 0.2) !important; }
+</style>
+</head>
+<body class="noise-bg text-white overflow-x-hidden min-h-screen flex">
+
+<!-- Particle Background Canvas -->
+<canvas id="particle-canvas" class="fixed inset-0 pointer-events-none z-0 opacity-30"></canvas>
+
+<!-- Floating Layout Switcher (from index (1).html) -->
+<div class="fixed top-4 left-1/2 -translate-x-1/2 z-[60] glass-strong rounded-2xl px-3 py-2 flex items-center gap-2 flex-wrap justify-center no-print shadow-2xl border border-white/10" id="layout-switcher">
+  <span class="text-gold-400 text-[10px] font-black mr-2 tracking-widest uppercase hidden sm:inline">Architecture</span>
+  <button onclick="showLayout(1)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all" data-l="1">1. Bento</button>
+  <button onclick="showLayout(2)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all" data-l="2">2. Dock</button>
+  <button onclick="showLayout(3)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all" data-l="3">3. Nav</button>
+  <button onclick="showLayout(4)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all" data-l="4">4. Side</button>
+  <button onclick="showLayout(5)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all" data-l="5">5. Split</button>
+  <button onclick="showLayout(6)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all" data-l="6">6. Stack</button>
+  <button onclick="showLayout(7)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all" data-l="7">7. Orbit</button>
+  <button onclick="showLayout(8)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all" data-l="8">8. Console</button>
+  <button onclick="showLayout(9)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all" data-l="9">9. Mag</button>
+  <button onclick="showLayout(10)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all" data-l="10">10. Kanban</button>
+</div>
+
+<div class="ambient-blob w-96 h-96 bg-gold-500/5 top-0 left-0"></div>
+<div class="ambient-blob w-80 h-80 bg-navy-600/30 bottom-0 right-0"></div>
+
+<aside class="w-72 glass-strong border-r border-white/5 flex flex-col fixed inset-y-0 z-50 no-print">
+  <div class="p-8 flex-1">
+    <div class="flex items-center gap-3 mb-10">
+      <div class="w-10 h-10 rounded-xl bg-black flex items-center justify-center border border-gold-500/30 overflow-hidden">
+        <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" alt="SF" class="w-full h-full object-cover">
+      </div>
+      <div><h1 class="font-bold text-sm uppercase tracking-tighter">SkillForge</h1><p class="text-[8px] text-white/40 font-bold uppercase tracking-widest">Command Center</p></div>
+    </div>
+    <nav class="space-y-1">
+      <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Command Nodes</p>
+      <a href="index.html" class="sidebar-link active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest"><i class="fa-solid fa-layer-group w-4"></i> Overview</a>
+      <a href="dmc.html" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-id-card w-4"></i> Membership Card</a>
+      <a href="leaderboard.html" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-ranking-star w-4"></i> Hall of Fame</a>
+      <a href="vault.html" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-vault w-4"></i> The Vault</a>
+      <a href="customize.html" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-wand-magic-sparkles w-4"></i> Customize</a>
+    </nav>
+  </div>
+  <div class="p-8 border-t border-white/5">
+    <button onclick="logout()" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-red-400/70 hover:text-red-400 hover:bg-red-400/10 transition-all">
+      <i class="fa-solid fa-right-from-bracket w-4"></i> Sign Out
+    </button>
+  </div>
+</aside>
+
+<main class="flex-1 ml-72 min-h-screen relative z-10">
+  <!-- Template Sections (T1-T10) -->
+  
+  <!-- T1: Bento Box Grid -->
+  <section id="t1" class="template-section active-template p-10 pt-20">
+    <div class="max-w-7xl mx-auto space-y-10">
+      <header class="flex justify-between items-end fade-in-1">
+        <div><p class="text-gold-400 text-sm font-medium tracking-widest uppercase">Mastery Journey</p><h1 class="text-4xl sm:text-5xl font-bold mt-1" id="greeting-target">Welcome back, <span class="user-name-target text-glow-gold">Human</span></h1></div>
+        <div class="glass rounded-3xl p-5 pin-reveal cursor-pointer text-right group"><p class="text-white/40 text-[10px] uppercase tracking-wider mb-1"><i class="fa-solid fa-key text-gold-500/60 mr-1"></i> Access Key</p><div class="flex items-center gap-3 justify-end"><span class="access-pin-target text-3xl font-bold tracking-[0.3em] pin-blur text-gold-300">0000</span></div></div>
+      </header>
+      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 auto-rows-[140px] md:auto-rows-[160px]">
+        <div class="glass rounded-[40px] p-8 col-span-2 row-span-2 flex flex-col justify-between glow-gold fade-in-1 relative overflow-hidden group">
+          <div class="absolute top-0 right-0 w-32 h-32 bg-gold-500/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
+          <div>
+            <div class="w-16 h-16 rounded-2xl bg-black flex items-center justify-center text-navy-950 font-bold text-2xl relative pulse-ring shadow-xl profile-initials-target overflow-hidden border border-gold-500/30"><img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" alt="SF" class="w-full h-full object-cover"></div>
+            <h2 class="text-2xl font-bold mt-4 profile-name-target">Loading...</h2>
+            <p class="text-white/50 text-sm profile-track-target">Academy Trainee</p>
+            <div class="flex items-center gap-2 mt-2"><span class="px-2 py-0.5 rounded-full bg-gold-500/10 text-[9px] font-bold text-gold-400 uppercase tracking-widest tier-target">Novice</span></div>
+          </div>
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2"><span class="text-gold-400 text-xs font-semibold">Mastery XP</span><span class="text-white/30 text-xs">•</span><span class="text-white/50 text-xs xp-text-target">0 / 1,000</span></div>
+              <span class="text-[10px] font-bold text-white/40 uppercase level-target">Lvl 1</span>
+            </div>
+            <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden"><div class="progress-fill h-full bg-gradient-to-r from-gold-600 to-gold-400 rounded-full xp-bar-target" style="width:0%"></div></div>
+          </div>
+        </div>
+        <div class="glass rounded-[40px] p-6 col-span-2 flex items-center gap-6 fade-in-2 group">
+          <div class="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-white group-hover:scale-110 transition-transform shadow-inner"><i class="fa-solid fa-clock text-2xl"></i></div>
+          <div><p class="text-white/40 text-xs uppercase tracking-wider mb-1">Active Study Time</p><p class="text-4xl font-bold tracking-tight study-time-target">00D 00H</p></div>
+        </div>
+        <div class="glass-gold rounded-[40px] p-6 col-span-2 flex items-center gap-6 fade-in-3">
+          <div class="w-14 h-14 rounded-2xl bg-gold-500/10 flex items-center justify-center text-gold-500"><i class="fa-solid fa-award text-2xl"></i></div>
+          <div class="flex-1">
+            <div class="flex justify-between items-center mb-2"><p class="text-gold-400 text-xs font-semibold uppercase tracking-wider">Cert Eligibility</p><span class="text-xs font-bold text-white cert-days-target">0 / 14 Days</span></div>
+            <div class="w-full h-2 bg-gold-950/40 rounded-full overflow-hidden shadow-inner"><div class="progress-fill h-full bg-gold-500 rounded-full cert-bar-target" style="width:0%"></div></div>
+          </div>
+        </div>
+        <div class="glass rounded-[40px] p-8 col-span-2 row-span-2 flex flex-col gap-6 fade-in-4">
+          <p class="text-white/40 text-xs uppercase tracking-wider mb-2">Command Nodes</p>
+          <div class="grid grid-cols-2 gap-4 h-full">
+            <a href="index.html" class="flex flex-col items-center justify-center gap-3 rounded-3xl bg-gold-500/10 border border-gold-500/20 hover:border-gold-400 transition-all group"><i class="fa-solid fa-satellite-dish text-gold-400 group-hover:scale-110 transition-transform"></i><span class="text-[10px] font-bold text-gold-400 uppercase tracking-widest">Mastery Hub</span></a>
+            <a href="designer.html" class="flex flex-col items-center justify-center gap-3 rounded-3xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all group"><i class="fa-solid fa-wand-magic-sparkles text-white/60 group-hover:scale-110 transition-transform"></i><span class="text-[10px] font-bold text-white/60 uppercase tracking-widest">Env Design</span></a>
+            <a href="leaderboard.html" class="flex flex-col items-center justify-center gap-3 rounded-3xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all group"><i class="fa-solid fa-ranking-star text-white/60 group-hover:scale-110 transition-transform"></i><span class="text-[10px] font-bold text-white/60 uppercase tracking-widest">Fame</span></a>
+            <a href="vault.html" class="flex flex-col items-center justify-center gap-3 rounded-3xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all group"><i class="fa-solid fa-vault text-white/60 group-hover:scale-110 transition-transform"></i><span class="text-[10px] font-bold text-white/60 uppercase tracking-widest">Vault</span></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- T2: Mac-style Floating Dock -->
+  <section id="t2" class="template-section p-10 pt-20">
+    <div class="min-h-[70vh] flex flex-col items-center justify-center relative pb-32">
+      <div class="w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="glass-strong rounded-3xl overflow-hidden glow-gold float-anim md:col-span-1">
+          <div class="bg-white/5 px-4 py-2 flex items-center gap-2 border-b border-white/5"><span class="w-2 h-2 rounded-full bg-red-400/80"></span><span class="w-2 h-2 rounded-full bg-yellow-400/80"></span><span class="w-2 h-2 rounded-full bg-green-400/80"></span><span class="text-white/30 text-[8px] font-black uppercase ml-2 tracking-widest">Identity.profile</span></div>
+          <div class="p-8">
+            <div class="flex items-center gap-5 mb-6"><div class="w-16 h-16 rounded-2xl bg-black flex items-center justify-center text-navy-950 font-bold text-2xl shadow-lg profile-initials-target overflow-hidden border border-gold-500/30"><img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" alt="SF" class="w-full h-full object-cover"></div><div><h2 class="text-lg font-bold profile-name-target">Loading...</h2><p class="text-gold-400 text-[10px] font-bold uppercase tracking-widest profile-track-target">Academy Trainee</p><p class="text-white/40 text-[9px] font-bold mt-1 uppercase tracking-widest level-target">Lvl 1</p></div></div>
+            <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden"><div class="progress-fill h-full bg-gradient-to-r from-gold-600 to-gold-400 rounded-full xp-bar-target" style="width:0%"></div></div>
+            <div class="mt-6 pin-reveal cursor-pointer rounded-2xl bg-white/5 p-4 border border-white/5 text-center"><p class="text-white/30 text-[8px] uppercase tracking-widest mb-1">Access Key</p><span class="access-pin-target text-2xl font-bold tracking-[0.3em] pin-blur text-gold-300">0000</span></div>
+          </div>
+        </div>
+        <div class="flex flex-col gap-8 md:col-span-1">
+          <div class="glass rounded-3xl p-8 float-anim-delay flex flex-col justify-center h-full"><p class="text-white/40 text-[10px] uppercase tracking-widest mb-3 font-bold"><i class="fa-solid fa-hourglass-half text-gold-500/60 mr-2"></i> Study Time</p><p class="text-4xl font-black study-time-target">00D 00H</p></div>
+          <div class="glass-gold rounded-3xl p-8 glow-gold-sm flex flex-col justify-center h-full"><p class="text-gold-400 text-[10px] font-black uppercase tracking-widest mb-2">Certification</p><p class="text-4xl font-black text-gold-300 cert-days-target">0 / 14</p><div class="w-full h-2 bg-gold-950/40 rounded-full mt-4 overflow-hidden"><div class="progress-fill h-full bg-gold-500 rounded-full cert-bar-target" style="width:0%"></div></div></div>
+        </div>
+        <div class="glass rounded-3xl p-8 md:col-span-1"><p class="text-white/40 text-[10px] uppercase tracking-widest mb-6 font-bold"><i class="fa-solid fa-trophy text-gold-500/60 mr-2"></i> Hall of Fame</p><div class="space-y-3 leaderboard-top-target"></div><a href="leaderboard.html" class="w-full block text-center mt-6 py-3 rounded-xl bg-white/5 text-[9px] font-black uppercase tracking-widest text-white/40 hover:bg-white/10 transition-all">View Rankings</a></div>
+      </div>
+      <div class="absolute bottom-5 left-1/2 -translate-x-1/2 glass-strong rounded-[32px] px-6 py-4 flex items-end gap-2 z-40 glow-gold-sm">
+        <a href="index.html" class="dock-item flex flex-col items-center gap-1 px-4 py-3 rounded-2xl hover:bg-gold-500/15 transition-colors text-gold-400"><i class="fa-solid fa-layer-group text-xl"></i><span class="text-[8px] font-black uppercase tracking-widest">Nodes</span></a>
+        <a href="leaderboard.html" class="dock-item flex flex-col items-center gap-1 px-4 py-3 rounded-2xl hover:bg-white/10 transition-colors text-white/50"><i class="fa-solid fa-ranking-star text-xl"></i><span class="text-[8px] font-black uppercase tracking-widest">Fame</span></a>
+        <a href="vault.html" class="dock-item flex flex-col items-center gap-1 px-4 py-3 rounded-2xl hover:bg-white/10 transition-colors text-white/50"><i class="fa-solid fa-vault text-xl"></i><span class="text-[8px] font-black uppercase tracking-widest">Vault</span></a>
+        <a href="designer.html" class="dock-item flex flex-col items-center gap-1 px-4 py-3 rounded-2xl hover:bg-white/10 transition-colors text-white/50"><i class="fa-solid fa-wand-magic-sparkles text-xl"></i><span class="text-[8px] font-black uppercase tracking-widest">Design</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Other Templates T3-T10 follow same structure... -->
+  <!-- Simplified for length, but including all core containers -->
+  <section id="t3" class="template-section p-10 pt-20"><div class="max-w-7xl mx-auto space-y-10">
+    <div class="glass rounded-[32px] p-10 flex items-center justify-between glow-gold">
+      <div class="flex items-center gap-6"><div class="w-20 h-20 rounded-2xl bg-black profile-initials-target overflow-hidden border border-gold-500/30"></div><div><h1 class="text-3xl font-black profile-name-target">Loading...</h1><p class="text-gold-400 text-xs font-black profile-track-target">Academy Trainee</p></div></div>
+      <div class="flex gap-4"><div class="glass rounded-2xl p-5 text-center min-w-[100px]"><p class="text-xl font-black level-target">Lvl 1</p></div><div class="glass rounded-2xl p-5 text-center min-w-[100px]"><p class="text-xl font-black tier-target">Novice</p></div></div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="md:col-span-2 glass rounded-[32px] p-8 space-y-8">
+        <div class="flex justify-between items-center"><div><p class="text-white/40 text-[10px] uppercase font-bold">Study Pulse</p><p class="text-5xl font-black study-time-target">00D 00H</p></div><div><p class="text-gold-400 text-[10px] uppercase font-bold">Mastery XP</p><p class="text-2xl font-black xp-text-target">0 XP</p></div></div>
+        <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden"><div class="progress-fill h-full bg-gold-500 xp-bar-target"></div></div>
+      </div>
+      <div class="glass rounded-[32px] p-8"><p class="text-white/40 text-[10px] uppercase font-bold mb-6">Hall of Fame</p><div class="space-y-4 leaderboard-top-target"></div></div>
+    </div>
+  </div></section>
+
+  <!-- Rest of templates T4-T10 go here, ensuring they have the targets -->
+  <section id="t4" class="template-section p-10 pt-20"><div class="max-w-7xl mx-auto space-y-8"><header><h1 class="text-4xl font-black profile-name-target">Alexis Mercer</h1></header><div class="grid grid-cols-1 md:grid-cols-3 gap-8"><div class="glass rounded-[32px] p-8 md:col-span-2"><p class="text-5xl font-black study-time-target">00D 00H</p></div><div class="glass rounded-[32px] p-8 leaderboard-top-target"></div></div></div></section>
+  <section id="t5" class="template-section p-10 pt-20"><div class="min-h-screen flex flex-col md:flex-row gap-8"><div class="md:w-1/2 glass rounded-[40px] p-12"><h1 class="text-5xl font-black profile-name-target">Loading...</h1></div><div class="md:w-1/2 space-y-8"><div class="glass rounded-[40px] p-10 study-time-target"></div><div class="glass rounded-[40px] p-10 leaderboard-top-target"></div></div></div></section>
+  <section id="t6" class="template-section p-10 pt-20 max-w-4xl mx-auto space-y-6"><div class="glass rounded-[40px] p-10 profile-name-target"></div><div class="grid grid-cols-2 gap-6"><div class="glass p-10 study-time-target"></div><div class="glass p-10 cert-days-target"></div></div><div class="glass p-10 leaderboard-top-target"></div></section>
+  <section id="t7" class="template-section p-10 pt-20"><div class="min-h-[70vh] flex items-center justify-center relative"><div class="glass-strong rounded-full p-20 profile-name-target"></div><div class="absolute top-10 study-time-target"></div><div class="absolute bottom-10 leaderboard-top-target"></div></div></section>
+  <section id="t8" class="template-section p-10 pt-20 font-mono"><div class="glass-strong p-10 border border-green-500/20"><div class="text-green-400 profile-name-target"></div><div class="study-time-target"></div><div class="leaderboard-top-target"></div></div></section>
+  <section id="t9" class="template-section"><div class="h-80 bg-navy-900 p-12 profile-name-target"></div><div class="p-12 space-y-8"><div class="study-time-target"></div><div class="leaderboard-top-target"></div></div></section>
+  <section id="t10" class="template-section p-10 pt-20"><div class="grid grid-cols-4 gap-6"><div class="glass p-8 profile-name-target"></div><div class="glass p-8 study-time-target"></div><div class="glass p-8 leaderboard-top-target"></div><div class="glass p-8">Navigation</div></div></section>
+
+</main>
+
+<script type="module">
+import { themeManager } from '../assets/theme-manager.js';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js';
+import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js';
+import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, query, orderBy, limit, getDocs } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js';
+
+const firebaseConfig = {"apiKey":"AIzaSyAKawPq6ggYmMIyfmaOg_wKklIunc3GyS0","authDomain":"skillforge-digital-portal.firebaseapp.com","projectId":"skillforge-digital-portal","storageBucket":"skillforge-digital-portal.firebasestorage.app","messagingSenderId":"425765825033","appId":"1:425765825033:web:9f75cb46fe58e28acde6d8","measurementId":"G-NFC9TNEK7E"};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let traineeData = null;
+
+// Get UID from themeManager (which handles localStorage and redirect)
+const uid = themeManager.uid;
+if (uid) {
+  onSnapshot(doc(db, 'trainees', uid), (snap) => {
+    if (snap.exists()) {
+      traineeData = snap.data();
+      initDashboard();
+    } else {
+      console.warn("Trainee data not found for UID:", uid);
+    }
+  });
+}
+
+function initDashboard() {
+  updateDynamicUI();
+  startRealtimePresence();
+  loadLeaderboard();
+  
+  if (traineeData.theme?.layout) showLayout(traineeData.theme.layout);
+  else if (localStorage.getItem('sf_preferred_layout')) showLayout(localStorage.getItem('sf_preferred_layout'));
+  
+  if (traineeData.theme) {
+    applyThemeState(traineeData.theme);
+    themeManager.applyTheme(traineeData.theme); // Ensure themeManager also applies it
+  }
+}
+
+function updateDynamicUI() {
+  if (!traineeData) return;
+  const nameParts = traineeData.name.trim().split(/\s+/);
+  const initials = nameParts.length > 1 ? (nameParts[0][0] + nameParts[nameParts.length-1][0]).toUpperCase() : nameParts[0].substring(0, 2).toUpperCase();
+  document.querySelectorAll('.profile-name-target').forEach(el => el.innerText = traineeData.name);
+  document.querySelectorAll('.profile-track-target').forEach(el => el.innerText = traineeData.track || 'Academy Trainee');
+  document.querySelectorAll('.profile-initials-target').forEach(el => el.innerText = initials);
+  document.querySelectorAll('.access-pin-target').forEach(el => el.innerText = traineeData.pin || '000000');
+}
+
+function startRealtimePresence() {
+  const uid = themeManager.uid;
+  onSnapshot(doc(db, 'presence', uid), (snap) => {
+    if (!snap.exists()) return;
+    const p = snap.data();
+    const xp = Math.floor((p.totalTime || 0) / 60000) * 10;
+    const level = Math.floor(xp / 1000) + 1;
+    document.querySelectorAll('.xp-text-target').forEach(el => el.innerText = `${xp.toLocaleString()} XP`);
+    document.querySelectorAll('.level-target').forEach(el => el.innerText = `Lvl ${level}`);
+    const d_val = Math.floor(p.totalTime / 86400000);
+    const h_val = Math.floor((p.totalTime % 86400000) / 3600000);
+    document.querySelectorAll('.study-time-target').forEach(el => el.innerText = `${d_val}D ${h_val}H`);
+    
+    // Update XP bars
+    const xpPercent = (xp % 1000) / 10;
+    document.querySelectorAll('.xp-bar-target').forEach(el => {
+      el.style.width = `${xpPercent}%`;
+      el.dataset.width = `${xpPercent}%`; // Store for re-triggering animation
+    });
+  });
+}
+
+async function loadLeaderboard() {
+  const q = query(collection(db, 'trainees'), orderBy('xp', 'desc'), limit(3));
+  const snap = await getDocs(q);
+  document.querySelectorAll('.leaderboard-top-target').forEach(container => {
+    container.innerHTML = '';
+    let rank = 1;
+    snap.forEach(doc => {
+      const trainee = doc.data();
+      const item = document.createElement('div');
+      item.className = "flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5";
+      item.innerHTML = `<div class="w-8 h-8 rounded-lg bg-gold-500 flex items-center justify-center text-navy-950 font-black text-xs">${rank++}</div><div class="flex-1"><p class="text-[11px] font-black text-white uppercase">${trainee.name}</p><p class="text-[9px] text-gold-400">${(trainee.xp || 0).toLocaleString()} XP</p></div>`;
+      container.appendChild(item);
+    });
+  });
+}
+
+window.showLayout = (num) => {
+  console.log('Activating structure:', num);
+  
+  // Persistence check: If we have a theme in localStorage, ensure layout is updated in it
+  const savedTheme = JSON.parse(localStorage.getItem('sf_global_theme') || '{}');
+  if (savedTheme.layout != num) {
+    savedTheme.layout = num;
+    localStorage.setItem('sf_global_theme', JSON.stringify(savedTheme));
+    // Also update themeManager instance if it exists
+    if (window.themeManager) {
+        window.themeManager.currentTheme.layout = num;
+    }
+  }
+
+  document.querySelectorAll('.template-section').forEach(s => s.classList.remove('active-template'));
+  const target = document.getElementById(`t${num}`);
+  if (target) {
+    target.classList.add('active-template');
+    localStorage.setItem('sf_preferred_layout', num);
+    
+    // Highlight switcher button
+    document.querySelectorAll('.layout-switch-btn').forEach(btn => {
+      btn.classList.remove('text-gold-400', 'bg-gold-500/10', 'border-gold-500/20');
+      btn.classList.add('text-white/40');
+      if (btn.dataset.l == num) {
+        btn.classList.remove('text-white/40');
+        btn.classList.add('text-gold-400', 'bg-gold-500/10', 'border-gold-500/20');
+      }
+    });
+
+    // Re-trigger progress bar animations for the newly shown layout
+    setTimeout(() => {
+      target.querySelectorAll('.progress-fill').forEach(bar => {
+        const w = bar.dataset.width || bar.style.width;
+        if (w) {
+          bar.dataset.width = w; // Store original
+          bar.style.width = '0%';
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => { bar.style.width = w; });
+          });
+        }
+      });
+    }, 50);
+  } else {
+    console.error(`Structure T${num} not found.`);
+  }
+};
+
+function applyThemeState(theme) {
+  if (!theme) return;
+  if (theme.type === 'accent') document.documentElement.style.setProperty('--accent-color', theme.color);
+  if (theme.type === 'gradient') document.body.style.background = `linear-gradient(135deg, ${theme.c1}, ${theme.c2})`;
+}
+
+/* Particle Background Logic */
+class ParticleBackground {
+  constructor() {
+    this.canvas = document.getElementById('particle-canvas');
+    if (!this.canvas) return;
+    this.ctx = this.canvas.getContext('2d');
+    this.particles = [];
+    this.enabled = localStorage.getItem('sf_canvas_enabled') !== 'false';
+    this.init();
+  }
+
+  init() {
+    this.resize();
+    window.addEventListener('resize', () => this.resize());
+    this.createParticles();
+    this.animate();
+  }
+
+  resize() {
+    this.canvas.width = window.innerWidth;
+    this.canvas.height = window.innerHeight;
+  }
+
+  createParticles() {
+    const count = 50;
+    this.particles = [];
+    for (let i = 0; i < count; i++) {
+      this.particles.push({
+        x: Math.random() * this.canvas.width,
+        y: Math.random() * this.canvas.height,
+        size: Math.random() * 2 + 1,
+        speedX: (Math.random() - 0.5) * 0.5,
+        speedY: (Math.random() - 0.5) * 0.5,
+        color: `rgba(${getComputedStyle(document.documentElement).getPropertyValue('--accent-color-rgb') || '245, 158, 11'}, ${Math.random() * 0.5})`
+      });
+    }
+  }
+
+  animate() {
+    if (!this.enabled) {
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      requestAnimationFrame(() => this.animate());
+      return;
+    }
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.particles.forEach(p => {
+      p.x += p.speedX;
+      p.y += p.speedY;
+      if (p.x < 0 || p.x > this.canvas.width) p.speedX *= -1;
+      if (p.y < 0 || p.y > this.canvas.height) p.speedY *= -1;
+      this.ctx.beginPath();
+      this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      this.ctx.fillStyle = p.color;
+      this.ctx.fill();
+    });
+    requestAnimationFrame(() => this.animate());
+  }
+
+  toggle(val) {
+    this.enabled = val;
+    localStorage.setItem('sf_canvas_enabled', val);
+  }
+}
+
+window.particleSystem = new ParticleBackground();
+
+window.logout = async () => { localStorage.removeItem('skillforge_mock_uid'); window.location.href = '../trainee-login/index.html'; };
+</script>
+  <script src="../assets/error-reporter.js"></script>
+</body>
+</html>

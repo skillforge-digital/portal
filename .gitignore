@@ -1,0 +1,30 @@
+# Local IDE/Environment
+.trae/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+venv/
+ENV/
+
+# Temporary files
+*.log
+*.tmp
+*.csv
+index (1).html
+test_report.md
+generate_colors.py
+rebuild_dashboard.py
+skill forge site/test.html
+
+# Firebase (if needed)
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
