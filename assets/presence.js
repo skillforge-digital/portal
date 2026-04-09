@@ -8,7 +8,15 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.8.0/firebas
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js';
 import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js';
 
-const firebaseConfig = {"apiKey":"AIzaSyAKawPq6ggYmMIyfmaOg_wKklIunc3GyS0","authDomain":"skillforge-digital-portal.firebaseapp.com","projectId":"skillforge-digital-portal","storageBucket":"skillforge-digital-portal.firebasestorage.app","messagingSenderId":"425765825033","appId":"1:425765825033:web:9f75cb46fe58e28acde6d8","measurementId":"G-NFC9TNEK7E"};
+const firebaseConfig = { 
+  apiKey: "AIzaSyAODtfZDqeR8DH7YRaiDlRwPOBlxxMfFnY", 
+  authDomain: "skillfoge-ecosystem.firebaseapp.com", 
+  projectId: "skillfoge-ecosystem", 
+  storageBucket: "skillfoge-ecosystem.firebasestorage.app", 
+  messagingSenderId: "279055501952", 
+  appId: "1:279055501952:web:e812364a6f8bcb5998f465", 
+  measurementId: "G-L669WT5FZS" 
+};
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);

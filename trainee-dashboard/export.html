@@ -51,6 +51,22 @@ tailwind.config = {
       <a href="customize.html" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-wand-magic-sparkles w-4"></i> Customize</a>
       <a href="export.html" class="sidebar-link active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest"><i class="fa-solid fa-download w-4"></i> Export</a>
       <a href="about.html" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-circle-info w-4"></i> About</a>
+
+      <div class="mt-8 pt-8 border-t border-white/5 space-y-4">
+        <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Nexus Nodes</p>
+        <a href="#" target="_blank" class="telegram-join-target w-full flex items-center justify-between px-6 py-4 rounded-2xl bg-[#229ED9]/10 text-[#229ED9] hover:bg-[#229ED9]/20 transition-all group opacity-20 pointer-events-none">
+          <span class="font-bold text-[10px] uppercase tracking-widest">Join Telegram</span>
+          <i class="fa-brands fa-telegram text-lg group-hover:scale-110 transition-transform"></i>
+        </a>
+        <a href="https://wa.me/2349015185711" target="_blank" class="w-full flex items-center justify-between px-6 py-4 rounded-2xl bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366]/20 transition-all group">
+          <span class="font-bold text-[10px] uppercase tracking-widest">WhatsApp Support</span>
+          <i class="fa-brands fa-whatsapp text-lg group-hover:scale-110 transition-transform"></i>
+        </a>
+        <a href="https://discord.gg/skillforge" target="_blank" class="w-full flex items-center justify-between px-6 py-4 rounded-2xl bg-[#5865F2]/10 text-[#5865F2] hover:bg-[#5865F2]/20 transition-all group">
+          <span class="font-bold text-[10px] uppercase tracking-widest">Discord Node</span>
+          <i class="fa-brands fa-discord text-lg group-hover:scale-110 transition-transform"></i>
+        </a>
+      </div>
     </nav>
   </div>
   <div class="p-8 border-t border-white/5">
@@ -91,12 +107,34 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.8.0/firebas
 import { getAuth, signOut } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js';
 import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js';
 
-const firebaseConfig = {"apiKey":"AIzaSyAKawPq6ggYmMIyfmaOg_wKklIunc3GyS0","authDomain":"skillforge-digital-portal.firebaseapp.com","projectId":"skillforge-digital-portal","storageBucket":"skillforge-digital-portal.firebasestorage.app","messagingSenderId":"425765825033","appId":"1:425765825033:web:9f75cb46fe58e28acde6d8","measurementId":"G-NFC9TNEK7E"};
+const firebaseConfig = { 
+  apiKey: "AIzaSyAODtfZDqeR8DH7YRaiDlRwPOBlxxMfFnY", 
+  authDomain: "skillfoge-ecosystem.firebaseapp.com", 
+  projectId: "skillfoge-ecosystem", 
+  storageBucket: "skillfoge-ecosystem.firebasestorage.app", 
+  messagingSenderId: "279055501952", 
+  appId: "1:279055501952:web:e812364a6f8bcb5998f465", 
+  measurementId: "G-L669WT5FZS" 
+};
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+const TELEGRAM_NODES = {
+  "Forex Synthetic Indices": "https://t.me/+KWyN-sKQNMExZjg8",
+  "Forex Currency Pairs": "https://t.me/+9cAdAp2Pw_FjNmJk",
+  "AI Content Creation": "https://t.me/+I5vUYuIuaMw4N2Rk",
+  "Photography & Editing": "https://t.me/+mkRAltkqJd41YTE0",
+  "Graphic Design": "https://t.me/+PTJq2zoyz0M3ZDZk",
+  "Digital Marketing": "https://t.me/+uIkOfw5x2MpmNjI0",
+  "Mobile Cinematography": "https://t.me/+un1weOJ0HcsyZDdk",
+  "Discord Development": "https://t.me/+Y5wcP_PIQf1kMzlk",
+  "Web Development": "https://t.me/+vEJTv3fBRl43Yjlk",
+  "Cyber Security": "https://t.me/+M4ZYMfz5tiYzZWVk"
+};
+
 window.exportJSON = async () => {
-  const uid = localStorage.getItem('skillforge_mock_uid') || 'test_trainee_123';
+  const uid = localStorage.getItem('skillforge_mock_uid');
+  if (!uid) return;
   const snap = await getDoc(doc(db, 'trainees', uid));
   const data = snap.exists() ? snap.data() : { error: 'No data found' };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -118,17 +156,28 @@ window.logout = async () => {
   window.location.href = '../trainee-login/index.html';
 };
 
-async function updateCSSPreview() {
-  const uid = localStorage.getItem('skillforge_mock_uid') || 'test_trainee_123';
+async function initPage() {
+  const uid = localStorage.getItem('skillforge_mock_uid');
+  if (!uid) return;
+  
   const snap = await getDoc(doc(db, 'trainees', uid));
   if (snap.exists()) {
     const data = snap.data();
+    
+    // Update Telegram Join Link
+    const tgLink = TELEGRAM_NODES[data.track] || 'https://t.me/+skillforge_official';
+    document.querySelectorAll('.telegram-join-target').forEach(el => {
+      el.href = tgLink;
+      el.classList.remove('opacity-20', 'pointer-events-none');
+    });
+
+    // Update CSS Preview
     const preview = document.getElementById('css-preview');
     preview.innerText = `--accent-color: ${data.theme?.color || '#f59e0b'};\n--bg-primary: ${data.theme?.secondary || '#040810'};\n--font-family: ${data.fontMode || 'sans'};\n--glow-mode: ${data.controls?.glow ? 'active' : 'inactive'};`;
   }
 }
 
-updateCSSPreview();
+initPage();
 </script>
 </body>
 </html>
