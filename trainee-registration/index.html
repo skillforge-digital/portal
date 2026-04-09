@@ -249,7 +249,7 @@
                     snap = await tx.get(counterRef); 
                 } catch(e) { 
                     console.warn("Counter node init needed", e); 
-                    // If we can't even get the counter, we might need to set it first or the path is wrong
+                    // Let's not fail the whole registration if the counter document doesn't exist yet
                 }
                 
                 const counts = (snap && snap.exists()) ? snap.data() : {};
@@ -263,7 +263,8 @@
                     sfid: newSFID, 
                     pin, 
                     uid: user.uid, 
-                    created_at: serverTimestamp()
+                    created_at: serverTimestamp(),
+                    theme: { layout: 1, color: '#f59e0b', secondary: '#040810' } // Default theme
                 }, { merge: true });
                 
                 tx.set(counterRef, { [traineeData.track]: next }, { merge: true });

@@ -27,5 +27,10 @@ service cloud.firestore {
     match /presence/{userId} {
       allow read, write: if isAuthenticated() && isOwner(userId);
     }
+
+    // Broad rules for registration counters and artifacts
+    match /seasons/{seasonId}/{allPaths=**} {
+      allow read, write: if isAuthenticated();
+    }
   }
 }
