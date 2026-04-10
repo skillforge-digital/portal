@@ -30,6 +30,7 @@
     .step-active { border-color: #C9A84C; background: rgba(201,168,76,0.1); opacity: 1 !important; pointer-events: auto !important; }
     .avatar-option { border: 2px solid transparent; transition: all 0.3s ease; cursor: pointer; }
     .avatar-option.selected { border-color: #C9A84C; transform: scale(1.1); background: rgba(201,168,76,0.1); }
+    .structure-card.active-structure { border-color: #C9A84C; background: rgba(201,168,76,0.1); }
     @keyframes slide-up { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     .animate-slide-up { animation: slide-up 0.8s ease-out forwards; }
   </style>
@@ -136,6 +137,31 @@
                         <!-- Avatars will be injected here -->
                     </div>
                     <input type="hidden" name="avatar" id="selected-avatar" value="https://api.dicebear.com/7.x/avataaars/svg?seed=1">
+                </div>
+
+                <div class="space-y-6 pt-4 border-t border-white/5">
+                    <div class="flex items-center justify-between">
+                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Dashboard Architecture</label>
+                        <span class="text-[8px] font-bold text-gold/40 uppercase tracking-widest">Select Core Structure</span>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-3" id="structure-grid">
+                        <div class="structure-card glass p-3 rounded-xl border border-white/5 cursor-pointer hover:border-gold/30 transition-all text-center active-structure" data-id="1">
+                            <p class="text-[8px] font-black uppercase tracking-widest">Bento</p>
+                        </div>
+                        <div class="structure-card glass p-3 rounded-xl border border-white/5 cursor-pointer hover:border-gold/30 transition-all text-center" data-id="2">
+                            <p class="text-[8px] font-black uppercase tracking-widest">Dock</p>
+                        </div>
+                        <div class="structure-card glass p-3 rounded-xl border border-white/5 cursor-pointer hover:border-gold/30 transition-all text-center" data-id="3">
+                            <p class="text-[8px] font-black uppercase tracking-widest">Nav</p>
+                        </div>
+                        <div class="structure-card glass p-3 rounded-xl border border-white/5 cursor-pointer hover:border-gold/30 transition-all text-center" data-id="4">
+                            <p class="text-[8px] font-black uppercase tracking-widest">Side</p>
+                        </div>
+                        <div class="structure-card glass p-3 rounded-xl border border-white/5 cursor-pointer hover:border-gold/30 transition-all text-center" data-id="5">
+                            <p class="text-[8px] font-black uppercase tracking-widest">Split</p>
+                        </div>
+                    </div>
+                    <input type="hidden" name="layout" id="selected-layout" value="1">
                 </div>
 
                 <button type="submit" id="reg-btn" class="w-full bg-gold text-navy py-5 rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] shadow-2xl hover:bg-white transition-all flex items-center justify-center gap-2">
@@ -288,6 +314,18 @@
         avatarGrid.appendChild(div);
     }
 
+    // Structure Selection
+    const structureGrid = document.getElementById('structure-grid');
+    const selectedLayoutInput = document.getElementById('selected-layout');
+    
+    document.querySelectorAll('.structure-card').forEach(card => {
+        card.onclick = () => {
+            document.querySelectorAll('.structure-card').forEach(c => c.classList.remove('active-structure'));
+            card.classList.add('active-structure');
+            selectedLayoutInput.value = card.dataset.id;
+        };
+    });
+
     const TRACK_CODES = {
       "Forex Synthetic Indices": "SYN",
       "Forex Currency Pairs": "CUR",
@@ -356,7 +394,7 @@
                     pin, 
                     uid: user.uid, 
                     created_at: serverTimestamp(),
-                    theme: { layout: 1, color: '#f59e0b', secondary: '#040810' } // Default theme
+                    theme: { layout: parseInt(traineeData.layout) || 1, color: '#f59e0b', secondary: '#040810' } // Use selected layout
                 }, { merge: true });
                 
                 tx.set(counterRef, { [traineeData.track]: next }, { merge: true });

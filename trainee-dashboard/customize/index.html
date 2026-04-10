@@ -101,6 +101,9 @@ tailwind.config = {
 <canvas id="gold-dust" class="fixed inset-0 pointer-events-none z-0"></canvas>
 <div class="md:hidden h-20 px-6 flex items-center justify-between glass sticky top-0 z-[100] border-b border-white/5 no-print">
   <div class="flex items-center gap-3">
+    <button onclick="window.history.back()" class="p-2 text-white/50 hover:text-white transition-all" title="Go Back">
+      <i class="fa-solid fa-arrow-left text-lg"></i>
+    </button>
     <div class="w-8 h-8 rounded-lg bg-black flex items-center justify-center border border-gold-500/30 overflow-hidden">
       <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" alt="SF" class="w-full h-full object-cover">
     </div>
@@ -134,7 +137,6 @@ tailwind.config = {
       <a href="../customize/" class="sidebar-link active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest"><i class="fa-solid fa-wand-magic-sparkles w-4"></i> Customize</a>
       
       <div class="mt-8 pt-8 border-t border-white/5 space-y-4">
-        <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Nexus Nodes</p>
         <a href="#" target="_blank" class="telegram-join-target w-full flex items-center justify-between px-6 py-4 rounded-2xl bg-[#229ED9]/10 text-[#229ED9] hover:bg-[#229ED9]/20 transition-all group opacity-20 pointer-events-none">
           <span class="font-bold text-[10px] uppercase tracking-widest">Join Telegram</span>
           <i class="fa-brands fa-telegram text-lg group-hover:scale-110 transition-transform"></i>
@@ -144,7 +146,7 @@ tailwind.config = {
           <i class="fa-brands fa-whatsapp text-lg group-hover:scale-110 transition-transform"></i>
         </a>
         <a href="https://discord.gg/skillforge" target="_blank" class="w-full flex items-center justify-between px-6 py-4 rounded-2xl bg-[#5865F2]/10 text-[#5865F2] hover:bg-[#5865F2]/20 transition-all group">
-          <span class="font-bold text-[10px] uppercase tracking-widest">Discord Node</span>
+          <span class="font-bold text-[10px] uppercase tracking-widest">Discord Support</span>
           <i class="fa-brands fa-discord text-lg group-hover:scale-110 transition-transform"></i>
         </a>
       </div>

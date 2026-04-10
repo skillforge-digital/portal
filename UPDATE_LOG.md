@@ -2,6 +2,24 @@
 
 This log tracks all architectural changes, feature implementations, and system updates for the SkillForge Digital Portal.
 
+## [2026-04-10] - Unified Navigation & Architecture Pre-Selection (v1.7.0)
+
+### 🗺️ Consolidated Navigation Architecture
+- **Single Global Hamburger**: Implemented a "Single Hamburger" policy across all 10 dashboard architectures. Redundant, structure-specific menus have been eliminated in favor of a unified mobile header.
+- **Global Back Navigation**: Added a persistent "Back" button to the mobile headers of all sub-nodes (Membership Card, Vault, Customize, Leaderboard) for intuitive history-based traversal.
+- **Enhanced Exit Logic**: Standardized sidebar and menu exit behaviors to ensure a seamless "close" experience on mobile devices.
+
+### 📝 Refined Communication & UX
+- **Human-Centric Language**: Replaced technical jargon with user-friendly terminology across the entire portal:
+  - "Secure Your Node Now" ➔ **"Secure Your Registration Now"**
+  - "Login Node" ➔ **"Login Page"**
+  - Removed all instances of **"Nexus Nodes"** from sidebars and footers.
+- **Social Support Clarity**: Updated social links with clear, action-oriented labels like "WhatsApp Support" and "Official Telegram Channel".
+
+### 🏗️ Registration Hub Enhancements
+- **Early Architecture Selection**: Integrated the dashboard structure selection grid directly into the [Academy Registry](file:///c:/Users/USER/Documents/trae_projects - Copy/Portal/trainee-registration/index.html).
+- **Persistent Interface Choice**: Trainees now choose their core interface (Bento, Dock, etc.) during enrollment, which is automatically applied upon their first login to the Command Center.
+
 ## [2026-04-10] - Mobile Optimization & Firebase Storage Integration (v1.6.0)
 
 ### 📱 Mobile-First UX Overhaul
