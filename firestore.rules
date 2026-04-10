@@ -38,6 +38,12 @@ service cloud.firestore {
       allow read, write: if isAuthenticated() && isOwner(userId);
     }
 
+    // Seasons and counters for trainee IDs
+    match /seasons/{seasonId}/{documents=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated(); // Needed for incrementing counters during registration
+    }
+
     // Global assets and configuration (e.g., registry counters)
     match /global_config/{docId} {
       allow read: if isAuthenticated();

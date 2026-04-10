@@ -28,7 +28,9 @@ tailwind.config = {
 <style>
   :root { 
     --font-main: 'Space Grotesk', sans-serif; 
-    --dmc-grad: linear-gradient(135deg, #f59e0b, #d97706);
+    --dmc-grad-primary: #f59e0b;
+    --dmc-grad-secondary: #d97706;
+    --dmc-grad: linear-gradient(135deg, var(--dmc-grad-primary), var(--dmc-grad-secondary));
     --accent-color: #f59e0b;
     --accent-color-rgb: 245, 158, 11;
   }
@@ -39,7 +41,7 @@ tailwind.config = {
   .sidebar-link.active { background: rgba(var(--accent-color-rgb), 0.1); color: var(--accent-color); border-right: 3px solid var(--accent-color); }
   
   /* DMC Specific Styles */
-  #dmc-card { width: 400px; height: 560px; background: var(--accent-gradient, var(--dmc-grad)); border-radius: 40px; position: relative; overflow: hidden; box-shadow: 0 40px 100px rgba(0,0,0,0.5); transform-style: preserve-3d; }
+  #dmc-card { width: 400px; height: 560px; background: var(--dmc-grad); border-radius: 40px; position: relative; overflow: hidden; box-shadow: 0 40px 100px rgba(0,0,0,0.5); transform-style: preserve-3d; }
   .dmc-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 100%); }
   .dmc-noise { position: absolute; inset: 0; opacity: 0.1; mix-blend-mode: overlay; pointer-events: none; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
   
@@ -233,7 +235,9 @@ let traineeData = null;
 window.updateDMCPreview = () => {
   const c1 = document.getElementById('grad-1').value;
   const c2 = document.getElementById('grad-2').value;
-  document.getElementById('dmc-card').style.setProperty('--dmc-grad', `linear-gradient(135deg, ${c1}, ${c2})`);
+  const card = document.getElementById('dmc-card');
+  card.style.setProperty('--dmc-grad-primary', c1);
+  card.style.setProperty('--dmc-grad-secondary', c2);
 };
 
 window.handleExplicitSave = () => {
@@ -241,8 +245,8 @@ window.handleExplicitSave = () => {
   document.getElementById('confirm-save-btn').onclick = async () => {
     const c1 = document.getElementById('grad-1').value;
     const c2 = document.getElementById('grad-2').value;
-    const theme = { ...themeManager.currentTheme, primary: c1, secondary: c2, type: 'gradient' };
-    await themeManager.saveTheme(theme, 'DMC_DESIGNER');
+    const cardTheme = { primary: c1, secondary: c2 };
+    await themeManager.saveCardTheme(cardTheme, 'DMC_DESIGNER');
     closeConfirmModal();
     const status = document.getElementById('save-status');
     status.classList.remove('opacity-0');
@@ -279,9 +283,9 @@ onSnapshot(doc(db, 'trainees', themeManager.uid), (snap) => {
   if (snap.exists()) {
     traineeData = snap.data();
     updateUI();
-    if (traineeData.theme?.primary) {
-      document.getElementById('grad-1').value = traineeData.theme.primary;
-      document.getElementById('grad-2').value = traineeData.theme.secondary;
+    if (traineeData.cardTheme?.primary) {
+      document.getElementById('grad-1').value = traineeData.cardTheme.primary;
+      document.getElementById('grad-2').value = traineeData.cardTheme.secondary;
       updateDMCPreview();
     }
   }

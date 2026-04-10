@@ -136,19 +136,26 @@ tailwind.config = {
 <canvas id="gold-dust" class="fixed inset-0 pointer-events-none z-0"></canvas>
 
 <!-- Floating Layout Switcher -->
-<div class="fixed top-24 md:top-4 left-1/2 -translate-x-1/2 z-[60] glass-strong rounded-2xl px-3 py-2 flex items-center gap-2 flex-wrap justify-center no-print shadow-2xl border border-white/10" id="layout-switcher">
-  <span class="text-gold-400 text-[10px] font-black mr-2 tracking-widest uppercase hidden sm:inline">Architecture</span>
-  <div class="flex items-center gap-2 overflow-x-auto max-w-[85vw] no-scrollbar">
-    <button onclick="showLayout(1)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="1">1. Bento</button>
-    <button onclick="showLayout(2)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="2">2. Dock</button>
-    <button onclick="showLayout(3)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="3">3. Nav</button>
-    <button onclick="showLayout(4)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="4">4. Side</button>
-    <button onclick="showLayout(5)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="5">5. Split</button>
-    <button onclick="showLayout(6)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="6">6. Stack</button>
-    <button onclick="showLayout(7)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="7">7. Orbit</button>
-    <button onclick="showLayout(8)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="8">8. Console</button>
-    <button onclick="showLayout(9)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="9">9. Mag</button>
-    <button onclick="showLayout(10)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="10">10. Kanban</button>
+<div class="fixed top-24 md:top-4 left-1/2 -translate-x-1/2 z-[60] no-print" id="layout-switcher-container">
+  <div class="glass-strong rounded-2xl p-1 flex flex-col md:flex-row items-center gap-2 shadow-2xl border border-white/10">
+    <button onclick="toggleLayoutSwitcher()" class="md:hidden w-full px-4 py-2 flex items-center justify-between gap-4 text-gold-400 font-black text-[10px] uppercase tracking-widest">
+      <span>Architecture Select</span>
+      <i class="fa-solid fa-chevron-down" id="switcher-icon" class="w-4 h-4 transition-transform"></i>
+    </button>
+    
+    <div id="layout-buttons" class="hidden md:flex items-center gap-2 px-2 py-1 overflow-x-auto max-w-[85vw] no-scrollbar">
+      <span class="text-gold-400 text-[10px] font-black mr-2 tracking-widest uppercase hidden md:inline">Architecture</span>
+      <button onclick="showLayout(1)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="1">1. Bento</button>
+      <button onclick="showLayout(2)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="2">2. Dock</button>
+      <button onclick="showLayout(3)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="3">3. Nav</button>
+      <button onclick="showLayout(4)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="4">4. Side</button>
+      <button onclick="showLayout(5)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="5">5. Split</button>
+      <button onclick="showLayout(6)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="6">6. Stack</button>
+      <button onclick="showLayout(7)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="7">7. Orbit</button>
+      <button onclick="showLayout(8)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="8">8. Console</button>
+      <button onclick="showLayout(9)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="9">9. Mag</button>
+      <button onclick="showLayout(10)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="10">10. Kanban</button>
+    </div>
   </div>
 </div>
 
@@ -202,10 +209,15 @@ tailwind.config = {
   <!-- Template Sections (T1-T10) -->
   
   <!-- T1: Bento Box Grid -->
-  <section id="t1" class="template-section active-template p-6 md:p-10 pt-24 md:pt-20">
+  <section id="t1" class="template-section p-6 md:p-10 pt-24 md:pt-20">
     <div class="max-w-7xl mx-auto space-y-10">
       <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 fade-in-1">
-        <div><p class="text-gold-400 text-sm font-medium tracking-widest uppercase">Mastery Journey</p><h1 class="text-3xl md:text-5xl font-bold mt-1" id="greeting-target">Welcome back, <span class="user-name-target text-glow-gold">Human</span></h1></div>
+        <div class="flex items-center gap-4">
+          <button onclick="toggleSidebar()" class="md:hidden p-3 glass rounded-2xl text-gold-400 hover:text-white transition-all">
+            <i class="fa-solid fa-bars-staggered text-xl"></i>
+          </button>
+          <div><p class="text-gold-400 text-sm font-medium tracking-widest uppercase truncate">Mastery Journey</p><h1 class="text-3xl md:text-5xl font-bold mt-1 truncate" id="greeting-target">Welcome back, <span class="user-name-target text-glow-gold truncate">Human</span></h1></div>
+        </div>
         <div class="w-full md:w-auto glass rounded-3xl p-5 pin-reveal cursor-pointer text-right group"><p class="text-white/40 text-[10px] uppercase tracking-wider mb-1"><i class="fa-solid fa-key text-gold-500/60 mr-1"></i> Access Key</p><div class="flex items-center gap-3 justify-end"><span class="access-pin-target text-2xl md:text-3xl font-bold tracking-[0.3em] pin-blur text-gold-300">0000</span></div></div>
       </header>
       <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 auto-rows-[140px] md:auto-rows-[160px]">
@@ -215,13 +227,13 @@ tailwind.config = {
             <div class="w-16 h-16 rounded-2xl bg-black flex items-center justify-center text-navy-950 font-bold text-2xl relative pulse-ring shadow-xl profile-initials-target overflow-hidden border border-gold-500/30">
               <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=1" id="profile-avatar-target" class="w-full h-full object-contain">
             </div>
-            <h2 class="text-xl md:text-2xl font-bold mt-4 profile-name-target">Loading...</h2>
-            <p class="text-white/50 text-xs md:text-sm profile-track-target">Academy Trainee</p>
+            <h2 class="text-xl md:text-2xl font-bold mt-4 profile-name-target truncate w-full">Loading...</h2>
+            <p class="text-white/50 text-xs md:text-sm profile-track-target truncate w-full">Academy Trainee</p>
             <div class="flex items-center gap-2 mt-2"><span class="px-2 py-0.5 rounded-full bg-gold-500/10 text-[8px] md:text-[9px] font-bold text-gold-400 uppercase tracking-widest tier-target">Novice</span></div>
           </div>
           <div>
             <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.3em] mb-2">Registry ID</p>
-            <p class="text-xs font-bold text-gold-300 font-mono sfid-display-target">SFID-26-XXX-000</p>
+            <p class="text-xs font-bold text-gold-300 font-mono sfid-display-target truncate w-full">SFID-26-XXX-000</p>
           </div>
         </div>
             <div class="flex items-center justify-between mb-2">
@@ -257,12 +269,20 @@ tailwind.config = {
 
   <!-- T2: Mac-style Floating Dock -->
   <section id="t2" class="template-section p-10 pt-20">
+    <div class="md:hidden mb-8 flex justify-between items-center">
+      <button onclick="toggleSidebar()" class="p-4 glass rounded-3xl text-gold-400">
+        <i class="fa-solid fa-bars-staggered text-2xl"></i>
+      </button>
+      <div class="text-right">
+        <p class="text-gold-400 text-[10px] font-black uppercase tracking-widest">Mastery Dock</p>
+      </div>
+    </div>
     <div class="min-h-[70vh] flex flex-col items-center justify-center relative pb-32">
       <div class="w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-8">
         <div class="glass-strong rounded-3xl overflow-hidden glow-gold float-anim md:col-span-1">
           <div class="bg-white/5 px-4 py-2 flex items-center gap-2 border-b border-white/5"><span class="w-2 h-2 rounded-full bg-red-400/80"></span><span class="w-2 h-2 rounded-full bg-yellow-400/80"></span><span class="w-2 h-2 rounded-full bg-green-400/80"></span><span class="text-white/30 text-[8px] font-black uppercase ml-2 tracking-widest">Identity.profile</span></div>
           <div class="p-8">
-            <div class="flex items-center gap-5 mb-6"><div class="w-16 h-16 rounded-2xl bg-black flex items-center justify-center text-navy-950 font-bold text-2xl shadow-lg profile-initials-target overflow-hidden border border-gold-500/30"><img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" alt="SF" class="w-full h-full object-cover"></div><div><h2 class="text-lg font-bold profile-name-target">Loading...</h2><p class="text-gold-400 text-[10px] font-bold uppercase tracking-widest profile-track-target">Academy Trainee</p><p class="text-white/40 text-[9px] font-bold mt-1 uppercase tracking-widest level-target">Lvl 1</p></div></div>
+            <div class="flex items-center gap-5 mb-6"><div class="w-16 h-16 rounded-2xl bg-black flex items-center justify-center text-navy-950 font-bold text-2xl shadow-lg profile-initials-target overflow-hidden border border-gold-500/30"><img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" alt="SF" class="w-full h-full object-cover"></div><div class="min-w-0"><h2 class="text-lg font-bold profile-name-target truncate">Loading...</h2><p class="text-gold-400 text-[10px] font-bold uppercase tracking-widest profile-track-target truncate">Academy Trainee</p><p class="text-white/40 text-[9px] font-bold mt-1 uppercase tracking-widest level-target truncate">Lvl 1</p></div></div>
             <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden"><div class="progress-fill h-full bg-gradient-to-r from-gold-600 to-gold-400 rounded-full xp-bar-target" style="width:0%"></div></div>
             <div class="mt-6 pin-reveal cursor-pointer rounded-2xl bg-white/5 p-4 border border-white/5 text-center"><p class="text-white/30 text-[8px] uppercase tracking-widest mb-1">Access Key</p><span class="access-pin-target text-2xl font-bold tracking-[0.3em] pin-blur text-gold-300">0000</span></div>
           </div>
@@ -284,6 +304,12 @@ tailwind.config = {
 
   <!-- T3: Minimalist Card Flow -->
   <section id="t3" class="template-section p-6 md:p-10 pt-24 md:pt-20">
+    <div class="md:hidden mb-6 flex items-center gap-4">
+      <button onclick="toggleSidebar()" class="p-3 glass rounded-2xl text-gold-400">
+        <i class="fa-solid fa-bars-staggered text-xl"></i>
+      </button>
+      <p class="text-[10px] font-black uppercase tracking-widest text-white/40">Minimalist Registry</p>
+    </div>
     <div class="max-w-7xl mx-auto space-y-8">
       <div class="glass rounded-[32px] p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8 glow-gold overflow-hidden">
         <div class="flex flex-col md:flex-row items-center gap-8 text-center md:text-left">
@@ -291,10 +317,10 @@ tailwind.config = {
             <img src="" class="profile-avatar-target w-full h-full object-cover absolute inset-0 opacity-0 transition-opacity duration-500" onload="this.classList.remove('opacity-0')">
           </div>
           <div>
-            <h1 class="text-3xl md:text-5xl font-black profile-name-target truncate max-w-[300px] md:max-w-md">Loading...</h1>
+            <h1 class="text-3xl md:text-5xl font-black profile-name-target truncate max-w-[280px] md:max-w-md">Loading...</h1>
             <div class="flex items-center gap-3 mt-2 justify-center md:justify-start">
-              <span class="text-gold-400 text-[10px] font-black uppercase tracking-[0.2em] profile-track-target">Academy Trainee</span>
-              <span class="gender-target text-[10px] text-white/40 uppercase font-bold tracking-widest bg-white/5 px-2 py-0.5 rounded-full"></span>
+              <span class="text-gold-400 text-[10px] font-black uppercase tracking-[0.2em] profile-track-target truncate max-w-[150px]">Academy Trainee</span>
+              <span class="gender-target text-[10px] text-white/40 uppercase font-bold tracking-widest bg-white/5 px-2 py-0.5 rounded-full whitespace-nowrap"></span>
             </div>
           </div>
         </div>
@@ -346,12 +372,12 @@ tailwind.config = {
           <div class="w-32 h-32 rounded-[40px] bg-black mx-auto mb-6 profile-initials-target overflow-hidden border border-gold-500/30 flex items-center justify-center text-4xl font-black shadow-2xl">
             <img src="" class="profile-avatar-target w-full h-full object-cover">
           </div>
-          <h1 class="text-3xl font-black profile-name-target truncate">Alexis Mercer</h1>
-          <p class="text-gold-400 text-[10px] font-black uppercase tracking-widest mt-2 profile-track-target">Academy Trainee</p>
+          <h1 class="text-3xl font-black profile-name-target truncate w-full">Alexis Mercer</h1>
+          <p class="text-gold-400 text-[10px] font-black uppercase tracking-widest mt-2 profile-track-target truncate w-full">Academy Trainee</p>
           <div class="mt-8 p-6 rounded-3xl bg-white/5 border border-white/5 text-left space-y-4">
-            <div class="flex justify-between items-center"><span class="text-[9px] font-black text-white/30 uppercase">Registry ID</span><span class="text-[10px] font-mono font-bold text-gold-400 sfid-display-target">SFID-26-XXX</span></div>
-            <div class="flex justify-between items-center"><span class="text-[9px] font-black text-white/30 uppercase">Status</span><span class="text-[10px] font-bold text-green-400 uppercase tracking-widest">Active</span></div>
-            <div class="flex justify-between items-center"><span class="text-[9px] font-black text-white/30 uppercase">Gender</span><span class="text-[10px] font-bold text-white/60 uppercase tracking-widest gender-target">Unset</span></div>
+            <div class="flex justify-between items-center gap-2"><span class="text-[9px] font-black text-white/30 uppercase">Registry ID</span><span class="text-[10px] font-mono font-bold text-gold-400 sfid-display-target truncate">SFID-26-XXX</span></div>
+            <div class="flex justify-between items-center gap-2"><span class="text-[9px] font-black text-white/30 uppercase">Status</span><span class="text-[10px] font-bold text-green-400 uppercase tracking-widest">Active</span></div>
+            <div class="flex justify-between items-center gap-2"><span class="text-[9px] font-black text-white/30 uppercase">Gender</span><span class="text-[10px] font-bold text-white/60 uppercase tracking-widest gender-target truncate">Unset</span></div>
           </div>
         </div>
         <div class="glass rounded-[40px] p-8 space-y-4">
@@ -372,6 +398,11 @@ tailwind.config = {
 
   <!-- T5: Split Screen Layout -->
   <section id="t5" class="template-section">
+    <div class="md:hidden fixed top-24 left-6 z-50">
+      <button onclick="toggleSidebar()" class="p-4 glass rounded-3xl text-gold-400">
+        <i class="fa-solid fa-bars-staggered text-2xl"></i>
+      </button>
+    </div>
     <div class="min-h-screen flex flex-col lg:flex-row">
       <div class="lg:w-1/2 p-10 lg:p-20 flex flex-col justify-center bg-black/20 backdrop-blur-md relative overflow-hidden">
         <div class="absolute inset-0 bg-gradient-to-br from-gold-500/10 to-transparent opacity-30"></div>
@@ -391,10 +422,10 @@ tailwind.config = {
   <!-- T6: Stack Layout -->
   <section id="t6" class="template-section p-6 md:p-10 pt-24 md:pt-20">
     <div class="max-w-4xl mx-auto space-y-8">
-      <div class="glass rounded-[48px] p-12 text-center space-y-6 glow-gold">
+      <div class="glass rounded-[48px] p-12 text-center space-y-6 glow-gold overflow-hidden">
         <div class="w-20 h-20 rounded-3xl bg-white/5 mx-auto flex items-center justify-center text-gold-500 border border-white/10"><i class="fa-solid fa-user-astronaut text-3xl"></i></div>
-        <h1 class="text-4xl md:text-6xl font-black profile-name-target truncate">Alexis Mercer</h1>
-        <div class="flex justify-center gap-4"><span class="px-4 py-1.5 rounded-full bg-gold-500/10 text-gold-400 text-[10px] font-black uppercase tracking-widest tier-target">Novice</span><span class="px-4 py-1.5 rounded-full bg-white/5 text-white/40 text-[10px] font-black uppercase tracking-widest gender-target"></span></div>
+        <h1 class="text-4xl md:text-6xl font-black profile-name-target truncate w-full">Alexis Mercer</h1>
+        <div class="flex justify-center gap-4 flex-wrap"><span class="px-4 py-1.5 rounded-full bg-gold-500/10 text-gold-400 text-[10px] font-black uppercase tracking-widest tier-target">Novice</span><span class="px-4 py-1.5 rounded-full bg-white/5 text-white/40 text-[10px] font-black uppercase tracking-widest gender-target whitespace-nowrap"></span></div>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div class="glass rounded-[40px] p-10 text-center"><p class="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] mb-4">Presence</p><p class="text-5xl font-black study-time-target">00D 00H</p></div>
@@ -406,6 +437,11 @@ tailwind.config = {
 
   <!-- T7: Orbit Layout -->
   <section id="t7" class="template-section min-h-screen flex items-center justify-center relative p-10 overflow-hidden">
+    <div class="md:hidden fixed top-24 left-6 z-50">
+      <button onclick="toggleSidebar()" class="p-4 glass rounded-3xl text-gold-400">
+        <i class="fa-solid fa-bars-staggered text-2xl"></i>
+      </button>
+    </div>
     <div class="absolute inset-0 bg-radial from-gold-500/5 to-transparent opacity-50"></div>
     <div class="relative z-10 w-full max-w-4xl aspect-square flex items-center justify-center">
       <div class="absolute inset-0 border border-white/5 rounded-full animate-spin-slow"></div>
@@ -428,15 +464,15 @@ tailwind.config = {
         <div class="w-3 h-3 rounded-full bg-red-500"></div><div class="w-3 h-3 rounded-full bg-yellow-500"></div><div class="w-3 h-3 rounded-full bg-green-500"></div>
         <span class="text-[10px] text-white/20 uppercase tracking-[0.5em] ml-4">SkillForge Registry OS v4.0.1</span>
       </div>
-      <div class="space-y-10">
+      <div class="space-y-10 overflow-hidden">
         <div class="flex flex-col md:flex-row gap-10">
-          <div class="space-y-2">
+          <div class="space-y-2 min-w-0 flex-1">
             <p class="text-green-500 text-[10px] uppercase tracking-widest">&gt; TRAINEE_IDENTITY</p>
-            <h1 class="text-4xl font-black profile-name-target uppercase text-white">Loading...</h1>
+            <h1 class="text-4xl font-black profile-name-target uppercase text-white truncate">Loading...</h1>
           </div>
-          <div class="space-y-2">
+          <div class="space-y-2 min-w-0 flex-1">
             <p class="text-green-500 text-[10px] uppercase tracking-widest">&gt; ACADEMY_TRACK</p>
-            <p class="text-xl font-bold profile-track-target text-white/60">Academy Trainee</p>
+            <p class="text-xl font-bold profile-track-target text-white/60 truncate">Academy Trainee</p>
           </div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-10 border-t border-white/5 pt-10">
@@ -458,7 +494,7 @@ tailwind.config = {
     <div class="max-w-6xl mx-auto bg-white text-navy-950 min-h-screen">
       <div class="h-96 bg-navy-950 p-12 lg:p-20 flex flex-col justify-end relative overflow-hidden">
         <div class="absolute top-10 right-10 text-white/20 font-serif italic text-4xl">SkillForge</div>
-        <h1 class="text-6xl lg:text-9xl font-black text-white leading-none profile-name-target uppercase tracking-tighter">Loading...</h1>
+        <h1 class="text-6xl lg:text-9xl font-black text-white leading-none profile-name-target uppercase tracking-tighter truncate w-full">Loading...</h1>
       </div>
       <div class="p-12 lg:p-20 grid grid-cols-1 lg:grid-cols-12 gap-12">
         <div class="lg:col-span-8 space-y-12">
@@ -484,10 +520,10 @@ tailwind.config = {
     <div class="flex gap-8 min-w-[1200px] h-full">
       <div class="w-80 flex flex-col gap-6">
         <p class="text-[10px] font-black text-white/30 uppercase tracking-[0.4em] px-4">Identity</p>
-        <div class="glass rounded-3xl p-8 space-y-6">
+        <div class="glass rounded-3xl p-8 space-y-6 overflow-hidden">
           <div class="w-16 h-16 rounded-2xl bg-gold-500 profile-initials-target flex items-center justify-center text-navy-950 font-black text-xl"></div>
-          <h1 class="text-xl font-black profile-name-target">Loading...</h1>
-          <p class="text-[9px] font-bold text-white/40 uppercase tracking-widest profile-track-target">Academy Trainee</p>
+          <h1 class="text-xl font-black profile-name-target truncate w-full">Loading...</h1>
+          <p class="text-[9px] font-bold text-white/40 uppercase tracking-widest profile-track-target truncate w-full">Academy Trainee</p>
         </div>
       </div>
       <div class="w-80 flex flex-col gap-6">
@@ -554,6 +590,7 @@ function initDashboard() {
   
   if (traineeData.theme?.layout) showLayout(traineeData.theme.layout);
   else if (localStorage.getItem('sf_preferred_layout')) showLayout(localStorage.getItem('sf_preferred_layout'));
+  else showLayout(1); // Default to Bento Grid if no preference is found
   
   if (traineeData.theme) {
     applyThemeState(traineeData.theme);
@@ -607,10 +644,10 @@ function updateDynamicUI() {
   });
 }
 
-function toggleSidebar() {
+window.toggleSidebar = () => {
   const sidebar = document.getElementById('main-sidebar');
   sidebar.classList.toggle('-translate-x-full');
-}
+};
 
 function startRealtimePresence() {
   const uid = themeManager.uid;
@@ -703,6 +740,13 @@ function applyThemeState(theme) {
   if (theme.type === 'accent') document.documentElement.style.setProperty('--accent-color', theme.color);
   if (theme.type === 'gradient') document.body.style.background = `linear-gradient(135deg, ${theme.c1}, ${theme.c2})`;
 }
+
+window.toggleLayoutSwitcher = () => {
+  const container = document.getElementById('layout-buttons');
+  const icon = document.getElementById('switcher-icon');
+  container.classList.toggle('hidden');
+  icon.style.transform = container.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+};
 
 window.logout = async () => { localStorage.removeItem('skillforge_mock_uid'); window.location.href = '../trainee-login/index.html'; };
 </script>

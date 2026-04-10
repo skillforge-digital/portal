@@ -1,5 +1,6 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
 import { getFirestore, doc, getDoc, setDoc, addDoc, collection, serverTimestamp, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js';
 
 const firebaseConfig = { 
   apiKey: "AIzaSyAODtfZDqeR8DH7YRaiDlRwPOBlxxMfFnY", 
@@ -12,6 +13,7 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
 class ThemeManager {
     constructor() {
@@ -200,6 +202,17 @@ class ThemeManager {
         }
     }
 
+    async saveCardTheme(cardTheme, source = 'DMC_DESIGNER') {
+        try {
+            await setDoc(doc(db, 'trainees', this.uid), { cardTheme }, { merge: true });
+            await this.logChange('CARD_THEME_UPDATE', { source, cardTheme });
+            return true;
+        } catch (err) {
+            console.error('Card Theme Save Failed:', err);
+            return false;
+        }
+    }
+
     async saveControls(controls, source = 'SETTINGS') {
         try {
             const update = { 'controls.glow': controls.glow, isLightMode: controls.light, performanceMode: controls.performance };
@@ -226,14 +239,20 @@ class ThemeManager {
         }
     }
 
-    async saveWallpaper(url, source = 'CUSTOMIZE', isPublic = false) {
+    async saveWallpaper(fileOrUrl, source = 'CUSTOMIZE', isPublic = false) {
         try {
+            let url = fileOrUrl;
+            if (fileOrUrl instanceof File || fileOrUrl instanceof Blob) {
+                const fileRef = ref(storage, `wallpapers/${this.uid}/${Date.now()}_${fileOrUrl.name || 'wallpaper'}`);
+                await uploadBytes(fileRef, fileOrUrl);
+                url = await getDownloadURL(fileRef);
+            }
             const update = { wallpaper: url };
             if (isPublic) update.isPublicWallpaper = true;
             await setDoc(doc(db, 'trainees', this.uid), update, { merge: true });
             await this.logChange('WALLPAPER_UPDATE', { source, url, isPublic });
             this.applyWallpaper(url);
-            return true;
+            return url;
         } catch (err) {
             console.error('Wallpaper Save Failed:', err);
             return false;
@@ -242,8 +261,15 @@ class ThemeManager {
 
     async saveProfileData(profileData, source = 'REGISTRATION') {
         try {
-            await setDoc(doc(db, 'trainees', this.uid), profileData, { merge: true });
-            await this.logChange('PROFILE_UPDATE', { source, profileData });
+            const dataToSave = { ...profileData };
+            // If avatar is a File, upload it first
+            if (profileData.avatar instanceof File || profileData.avatar instanceof Blob) {
+                const fileRef = ref(storage, `avatars/${this.uid}_${Date.now()}`);
+                await uploadBytes(fileRef, profileData.avatar);
+                dataToSave.avatar = await getDownloadURL(fileRef);
+            }
+            await setDoc(doc(db, 'trainees', this.uid), dataToSave, { merge: true });
+            await this.logChange('PROFILE_UPDATE', { source, profileData: dataToSave });
             return true;
         } catch (err) {
             console.error('Profile Update Failed:', err);

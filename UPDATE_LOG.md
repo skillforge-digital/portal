@@ -2,6 +2,31 @@
 
 This log tracks all architectural changes, feature implementations, and system updates for the SkillForge Digital Portal.
 
+## [2026-04-10] - Mobile Optimization & Firebase Storage Integration (v1.6.0)
+
+### 📱 Mobile-First UX Overhaul
+- **Collapsible Architecture Select**: Implemented a responsive layout switcher that collapses into a compact menu on mobile, keeping the dashboard clean.
+- **Adaptive Avatar Grid**: Registration avatar grid now dynamically scales from 10 to 4 columns on mobile for better touch targets.
+- **Global Text Truncation**: Added smart overflow handling across all 10 dashboard architectures to prevent layout breaks on small screens.
+- **Enhanced Mobile Nav**: Verified and fixed all hamburger menu toggles across the Landing, Dashboard, and Customization pages.
+
+### 🖼️ Firebase Storage & Asset Management
+- **Integrated Storage Node**: Activated Firebase Storage for high-speed, secure asset management.
+- **Mastery Avatar Uploads**: Registration hub now supports direct-to-cloud profile picture uploads.
+- **Custom Wallpapers**: Enabled full file upload support for personalized dashboard backgrounds with private/public visibility toggles.
+- **Theme Manager Sync**: Updated the core `ThemeManager` to handle permanent download URLs for all uploaded assets.
+
+### 🛡️ Security & Integrity
+- **Storage Security Rules**: Implemented granular bucket rules to ensure user privacy for private wallpapers while allowing public avatar reads.
+- **Isolated Card Themes**: Decoupled membership card customization from global dashboard colors, preventing theme "leaks".
+- **Neural Diagnostic Suite**: Added a Python-based integrity scanner (`integrity_check.py`) to monitor 404s and broken links.
+- **Firestore Transaction Fix**: Optimized the enrollment counter logic to handle concurrent season registrations more robustly.
+
+### 🛠️ Core Fixes
+- **Dashboard Structure Lock**: Fixed an issue where multiple dashboard layouts would attempt to render simultaneously.
+- **Default Architecture Fallback**: Ensured Bento Grid (T1) serves as the reliable fallback if no layout is selected.
+- **Global Hamburger Sync**: Standardized hamburger menu IDs to ensure consistent performance across all MPA nodes.
+
 ## [2026-04-07] - Full Audit & UI/UX Remediation (v1.5.0)
 
 ### 🛠️ Core Fixes & Root-Cause Remediation

@@ -487,9 +487,8 @@ async function init() {
     const file = e.target.files[0];
     if (file) {
       const isGlobal = confirm("Would you like to add this to the GLOBAL gallery for everyone to use?\n\nClick OK for GLOBAL, Cancel for PRIVATE.");
-      const tempUrl = URL.createObjectURL(file);
-      selectedWallpaper = tempUrl;
-      themeManager.applyWallpaper(tempUrl);
+      selectedWallpaper = file; // Store the actual file object
+      themeManager.applyWallpaper(URL.createObjectURL(file)); // Apply temporary preview
       
       const status = document.getElementById('save-status');
       status.innerHTML = `<div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div><span class="text-[10px] font-black uppercase tracking-widest text-white/40">Ready to Commit (${isGlobal ? 'Global' : 'Private'})</span>`;

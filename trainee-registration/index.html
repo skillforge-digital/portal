@@ -132,7 +132,7 @@
 
                 <div class="space-y-4">
                     <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 text-center block">Initialize Your Mastery Avatar</label>
-                    <div class="grid grid-cols-5 md:grid-cols-10 gap-4" id="avatar-grid">
+                    <div class="grid grid-cols-4 md:grid-cols-10 gap-4" id="avatar-grid">
                         <!-- Avatars will be injected here -->
                     </div>
                     <input type="hidden" name="avatar" id="selected-avatar" value="https://api.dicebear.com/7.x/avataaars/svg?seed=1">
@@ -224,6 +224,7 @@
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js';
     import { getFirestore, doc, setDoc, runTransaction, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js';
     import { getAuth, signInAnonymously } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js';
+    import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-storage.js';
 
     const firebaseConfig = { 
       apiKey: "AIzaSyAODtfZDqeR8DH7YRaiDlRwPOBlxxMfFnY", 
@@ -238,6 +239,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
+    const storage = getStorage(app);
 
     window.togglePassword = (id) => {
         const input = document.getElementById(id);
@@ -254,14 +256,13 @@
 
     const profileUpload = document.getElementById('profile-upload');
     const fileNameLabel = document.getElementById('file-name-label');
-    let uploadedProfileUrl = null;
+    let uploadedProfileFile = null;
 
     profileUpload?.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) {
             fileNameLabel.innerText = file.name;
-            uploadedProfileUrl = URL.createObjectURL(file); // Temporary local URL
-            document.getElementById('selected-avatar').value = uploadedProfileUrl;
+            uploadedProfileFile = file;
             // Deselect other avatars
             document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('selected'));
         }
@@ -329,19 +330,20 @@
             const user = IS_TESTING ? { uid: 'test_trainee_' + Math.random().toString(36).substr(2, 9) } : (await signInAnonymously(auth)).user;
             if (IS_TESTING) localStorage.setItem('skillforge_mock_uid', user.uid);
 
+            // Handle Profile Image Upload
+            let avatarUrl = traineeData.avatar;
+            if (uploadedProfileFile) {
+                const fileRef = ref(storage, `avatars/${user.uid}_${Date.now()}`);
+                await uploadBytes(fileRef, uploadedProfileFile);
+                avatarUrl = await getDownloadURL(fileRef);
+            }
+
             const result = await runTransaction(db, async (tx) => {
                 const counterRef = doc(db, 'seasons', '2026', 'artifacts', 'trainees', 'counters', 'tracks');
                 const traineeRef = doc(db, 'trainees', user.uid);
                 
-                let snap;
-                try { 
-                    snap = await tx.get(counterRef); 
-                } catch(e) { 
-                    console.warn("Counter node init needed", e); 
-                    // Let's not fail the whole registration if the counter document doesn't exist yet
-                }
-                
-                const counts = (snap && snap.exists()) ? snap.data() : {};
+                const snap = await tx.get(counterRef);
+                const counts = snap.exists() ? snap.data() : {};
                 const next = (counts[traineeData.track] || 0) + 1;
                 const trackCode = TRACK_CODES[traineeData.track] || 'SFD';
                 const newSFID = `SFID-26-${trackCode}-${String(next).padStart(3, '0')}`;
@@ -349,6 +351,7 @@
                 
                 tx.set(traineeRef, {
                     ...traineeData, 
+                    avatar: avatarUrl,
                     sfid: newSFID, 
                     pin, 
                     uid: user.uid, 

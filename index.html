@@ -44,9 +44,15 @@
     body { font-family:'Plus Jakarta Sans',sans-serif; background: var(--bg-color); color: var(--text-color); overflow-x:hidden; transition: background 0.5s ease, color 0.5s ease; }
     #sundust-canvas { position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none }
     .glass { background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); }
+    .glass-strong { background: rgba(10, 25, 49, 0.8); backdrop-filter: blur(40px); border: 1px solid rgba(255,255,255,0.1); }
     .hero-gradient { background: radial-gradient(circle at top right, rgba(201,168,76,0.15), transparent); }
     .animate-float { animation: float 6s ease-in-out infinite; }
     @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+    @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+    .animate-marquee { animation: marquee 40s linear infinite; }
+    .animate-marquee:hover { animation-play-state: paused; }
+    @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+    .animate-fade-in { animation: fade-in 0.3s ease-out forwards; }
   </style>
 </head>
 <body class="min-h-screen">
@@ -54,7 +60,7 @@
   
   <div class="relative z-10">
     <!-- Navigation -->
-    <nav class="h-24 px-6 md:px-20 flex items-center justify-between border-b border-white/5 glass sticky top-0">
+    <nav class="h-24 px-6 md:px-20 flex items-center justify-between border-b border-white/5 glass sticky top-0 z-[100]">
         <div class="flex items-center gap-3">
             <img src="https://i.postimg.cc/fRYD4HSw/Whats-App-Image-2026-01-16-at-1-20-06-PM.jpg" class="w-10 h-10 rounded-xl border border-gold/30">
             <div class="flex flex-col leading-none">
@@ -72,9 +78,46 @@
                 <i data-lucide="sun" id="theme-icon-sun" class="w-4 h-4 md:w-5 md:h-5 hidden"></i>
                 <i data-lucide="moon" id="theme-icon-moon" class="w-4 h-4 md:w-5 md:h-5"></i>
             </button>
-            <a href="trainee-registration/index.html" class="bg-gold text-navy px-5 md:px-8 py-2.5 md:py-3 rounded-full font-black text-[9px] md:text-[10px] uppercase tracking-widest hover:bg-white transition-all whitespace-nowrap">Enroll</a>
+            <button onclick="toggleMobileMenu()" class="lg:hidden p-2.5 glass rounded-xl text-slate-400 hover:text-gold transition-all">
+                <i data-lucide="menu" class="w-5 h-5"></i>
+            </button>
+            <a href="trainee-registration/index.html" class="hidden sm:block bg-gold text-navy px-5 md:px-8 py-2.5 md:py-3 rounded-full font-black text-[9px] md:text-[10px] uppercase tracking-widest hover:bg-white transition-all whitespace-nowrap">Enroll</a>
         </div>
     </nav>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="fixed inset-0 z-[90] glass-strong hidden flex flex-col items-center justify-center gap-8 lg:hidden animate-fade-in backdrop-blur-3xl">
+        <button onclick="toggleMobileMenu()" class="absolute top-8 right-8 p-3 glass rounded-2xl text-gold">
+            <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+        <a href="trainee-registration/index.html" class="text-xl font-black uppercase tracking-[0.2em] text-gold">Academy Registry</a>
+        <a href="trainee-login/index.html" class="text-xl font-black uppercase tracking-[0.2em] text-white">Academy Center</a>
+        <a href="trainee-correction/index.html" class="text-xl font-black uppercase tracking-[0.2em] text-white">Mastery Update</a>
+        <a href="trainee-registration/index.html" class="bg-gold text-navy px-12 py-4 rounded-2xl font-black uppercase text-xs tracking-widest">Enroll Now</a>
+    </div>
+
+    <!-- Info Update Marquee -->
+    <div class="bg-gold/10 border-b border-gold/20 py-3 overflow-hidden no-print">
+        <div class="flex whitespace-nowrap animate-marquee items-center gap-12">
+            <div class="flex items-center gap-4">
+                <span class="w-1.5 h-1.5 bg-gold rounded-full animate-pulse"></span>
+                <p class="text-[9px] font-black text-gold uppercase tracking-[0.3em]">Registry Alert: 2026 Mastery Season Enrollment Opens April 13th • Secure Your Node Now</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <span class="w-1.5 h-1.5 bg-gold rounded-full animate-pulse"></span>
+                <p class="text-[9px] font-black text-gold uppercase tracking-[0.3em]">Academy Center Access: Trainees can now synchronize their mastery cards via the Login Node</p>
+            </div>
+            <!-- Repeat for continuous effect -->
+            <div class="flex items-center gap-4">
+                <span class="w-1.5 h-1.5 bg-gold rounded-full animate-pulse"></span>
+                <p class="text-[9px] font-black text-gold uppercase tracking-[0.3em]">Registry Alert: 2026 Mastery Season Enrollment Opens April 13th • Secure Your Node Now</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <span class="w-1.5 h-1.5 bg-gold rounded-full animate-pulse"></span>
+                <p class="text-[9px] font-black text-gold uppercase tracking-[0.3em]">Academy Center Access: Trainees can now synchronize their mastery cards via the Login Node</p>
+            </div>
+        </div>
+    </div>
 
     <!-- Hero Section -->
     <main class="max-w-7xl mx-auto px-8 py-20">
@@ -95,14 +138,54 @@
 
             <div class="relative">
                 <div class="absolute -inset-20 bg-gold/10 blur-[100px] rounded-full"></div>
-                <div class="glass p-12 rounded-[48px] border-white/5 space-y-10 group hover:border-gold/20 transition-all">
-                    <div class="space-y-4">
-                        <p class="text-[10px] font-black uppercase tracking-[0.5em] text-gold/40 mb-2">Trainee Access Node</p>
-                        <h3 class="text-3xl font-black text-white uppercase tracking-tighter mb-6">Academy Center</h3>
-                        <p class="text-slate-500 text-sm leading-relaxed mb-8">Access your personalized mastery dashboard, track your progression, and manage your neural certification journey.</p>
-                        <a href="trainee-login/index.html" class="inline-flex items-center gap-4 bg-gold text-navy px-10 py-5 rounded-3xl font-black uppercase text-[10px] tracking-[0.2em] shadow-2xl shadow-gold/20 hover:bg-white transition-all">
-                            Enter Academy <i data-lucide="shield-check" class="w-4 h-4"></i>
-                        </a>
+                <div class="glass p-10 rounded-[48px] border-white/10 animate-float space-y-8">
+                    <div class="space-y-6">
+                        <div class="flex justify-between items-center pb-6 border-b border-white/5">
+                            <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Academy Entrance Hub</span>
+                            <span class="text-[10px] font-black text-gold uppercase tracking-widest">Active Enrollment</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-8">
+                            <div>
+                                <p class="text-[10px] font-black text-slate-500 uppercase mb-2 tracking-widest">Enrollment Opens</p>
+                                <p class="text-2xl font-black text-white uppercase">April 13th</p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-black text-slate-500 uppercase mb-2 tracking-widest">Enrollment Closes</p>
+                                <p class="text-2xl font-black text-white uppercase">May 1st</p>
+                            </div>
+                        </div>
+                        <div class="p-8 bg-gold/5 border border-gold/20 rounded-3xl">
+                            <p class="text-[10px] font-black text-gold uppercase mb-2 tracking-widest text-center">Mastery Structure</p>
+                            <p class="text-3xl font-black text-white text-center uppercase tracking-tighter">3 Weeks • 3 Days / Wk</p>
+                        </div>
+                    </div>
+                    
+                    <div class="pt-8 border-t border-white/5 space-y-6">
+                        <div class="flex flex-col gap-2">
+                            <p class="text-[10px] font-black uppercase tracking-[0.5em] text-gold/40">Trainee Access Node</p>
+                            <h3 class="text-3xl font-black text-white uppercase tracking-tighter">Academy Center</h3>
+                            <p class="text-slate-500 text-sm leading-relaxed">Access your personalized mastery dashboard and certification journey.</p>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <a href="trainee-login/index.html" class="flex items-center justify-center gap-3 bg-gold text-navy py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl shadow-gold/10 hover:bg-white transition-all">
+                                Enter Academy <i data-lucide="shield-check" class="w-4 h-4"></i>
+                            </a>
+                            <a href="trainee-registration/index.html" class="flex items-center justify-center gap-3 glass border border-gold/20 text-gold py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-gold/10 transition-all">
+                                Register Now <i data-lucide="user-plus" class="w-4 h-4"></i>
+                            </a>
+                        </div>
+
+                        <div class="p-6 bg-gold/5 border border-gold/10 rounded-2xl space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest">Enrollment Opens</span>
+                                <span class="text-xs font-black text-white uppercase">April 13th</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest">Enrollment Closes</span>
+                                <span class="text-xs font-black text-white uppercase">May 1st</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -277,6 +360,12 @@
   </div>
 
   <script>
+    function toggleMobileMenu() {
+        const menu = document.getElementById('mobile-menu');
+        menu.classList.toggle('hidden');
+        document.body.style.overflow = menu.classList.contains('hidden') ? 'auto' : 'hidden';
+    }
+
     function toggleTheme() {
         document.documentElement.classList.toggle('light');
         const isLight = document.documentElement.classList.contains('light');
