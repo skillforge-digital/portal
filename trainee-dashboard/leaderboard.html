@@ -61,6 +61,7 @@ tailwind.config = {
 </style>
 </head>
 <body class="noise-bg text-white overflow-x-hidden min-h-screen flex flex-col md:flex-row">
+<canvas id="gold-dust" class="fixed inset-0 pointer-events-none z-0"></canvas>
 
 <!-- Mobile Header -->
 <div class="md:hidden h-20 px-6 flex items-center justify-between glass sticky top-0 z-[100] border-b border-white/5 no-print">
@@ -94,11 +95,11 @@ tailwind.config = {
     </div>
     <nav class="space-y-1">
       <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Command Nodes</p>
-      <a href="index.html" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-layer-group w-4"></i> Overview</a>
-      <a href="dmc.html" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-id-card w-4"></i> Membership Card</a>
-      <a href="leaderboard.html" class="sidebar-link active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest"><i class="fa-solid fa-ranking-star w-4"></i> Hall of Fame</a>
-      <a href="vault.html" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-vault w-4"></i> The Vault</a>
-      <a href="customize.html" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-wand-magic-sparkles w-4"></i> Customize</a>
+      <a href="./" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-layer-group w-4"></i> Overview</a>
+      <a href="dmc/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-id-card w-4"></i> Membership Card</a>
+      <a href="leaderboard/" class="sidebar-link active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest"><i class="fa-solid fa-ranking-star w-4"></i> Hall of Fame</a>
+      <a href="vault/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-vault w-4"></i> The Vault</a>
+      <a href="customize/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-wand-magic-sparkles w-4"></i> Customize</a>
       
       <div class="mt-8 pt-8 border-t border-white/5 space-y-4">
         <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Nexus Nodes</p>
@@ -301,6 +302,7 @@ window.filterLeaderboard = (unit) => {
 
 window.logout = async () => { if (!IS_TESTING) await signOut(auth); localStorage.removeItem('skillforge_mock_uid'); window.location.href = '../trainee-login/index.html'; };
 </script>
+<script type="module" src="../assets/canvas-daily.js"></script>
   <script src="../assets/error-reporter.js"></script>
 </body>
 </html>

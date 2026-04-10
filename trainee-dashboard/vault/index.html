@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkillForge — Academy Vault</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;700&family=Caveat:wght@400;700&family=Unbounded:wght@400;700&family=Inter:wght@400;700&family=Playfair+Display:wght@400;700&family=Outfit:wght@400;700&family=Syne:wght@400;700&family=Lexend:wght@400;700&family=Plus+Jakarta+Sans:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { 
+        grotesk: ['Space Grotesk', 'sans-serif'],
+        serif: ['Instrument Serif', 'serif']
+      },
+      colors: {
+        navy: { 950:'#040810', 900:'#070d1a', 800:'#0c1829', 700:'#112240', 600:'#1a3358' },
+        gold: { 300:'#fcd34d', 400:'#fbbf24', 500:'#f59e0b', 600:'#d97706', 700:'#b45309' },
+      }
+    }
+  }
+}
+</script>
+<style>
+  :root { 
+    --font-main: 'Space Grotesk', sans-serif;
+    --accent-color: #f59e0b;
+    --accent-color-rgb: 245, 158, 11;
+    --accent-gradient: linear-gradient(135deg, #f59e0b, #d97706);
+    --global-bg: #040810;
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.6);
+  }
+  
+  * { font-family: var(--font-main); transition: font-family 0.3s ease; }
+  body { 
+    background: var(--global-bg); 
+    color: var(--text-primary);
+    transition: background 0.5s ease, color 0.5s ease; 
+    background-size: cover; 
+    background-position: center; 
+    background-attachment: fixed; 
+    min-h-screen;
+  }
+
+  .glass { background: rgba(12, 24, 50, 0.55); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
+  .glass-strong { background: rgba(12, 24, 50, 0.75); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.1); }
+  
+  /* Text Visibility Overrides */
+  .auto-contrast { color: var(--text-primary) !important; }
+  .auto-contrast-muted { color: var(--text-secondary) !important; }
+  
+  .sidebar-link { transition: all 0.3s ease; color: var(--text-secondary); }
+  .sidebar-link.active { background: rgba(var(--accent-color-rgb), 0.1); color: var(--accent-color); border-right: 3px solid var(--accent-color); }
+  
+  .text-gold-400 { color: var(--accent-color) !important; }
+  .bg-gold-500 { background-color: var(--accent-color) !important; }
+  
+  .noise-bg::before { content:''; position:fixed; inset:0; opacity:0.03; z-index:0; pointer-events:none; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  .fade-in { animation: fadeUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+</style>
+</head>
+<body class="noise-bg overflow-x-hidden flex flex-col md:flex-row">
+<canvas id="atmospheric-glow" class="fixed inset-0 pointer-events-none z-0"></canvas>
+
+<!-- Mobile Header -->
+<div class="md:hidden h-20 px-6 flex items-center justify-between glass sticky top-0 z-[100] border-b border-white/5 no-print">
+  <div class="flex items-center gap-3">
+    <div class="w-8 h-8 rounded-lg bg-black flex items-center justify-center border border-gold-500/30 overflow-hidden">
+      <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" alt="SF" class="w-full h-full object-cover">
+    </div>
+    <div class="flex flex-col leading-none">
+      <span class="font-black text-sm tracking-tighter uppercase auto-contrast">SkillForge</span>
+      <span class="text-[6px] text-gold-400 font-bold tracking-[0.2em] uppercase">Digital & Co. Ltd</span>
+    </div>
+  </div>
+  <button onclick="toggleSidebar()" class="p-2 auto-contrast-muted hover:auto-contrast transition-all">
+    <i class="fa-solid fa-bars-staggered text-xl"></i>
+  </button>
+</div>
+
+<aside id="main-sidebar" class="w-72 glass-strong border-r border-white/5 flex flex-col fixed inset-y-0 z-50 no-print transition-all duration-500 -translate-x-full md:translate-x-0">
+  <div class="p-8 flex-1 custom-scrollbar overflow-y-auto">
+    <div class="flex items-center gap-3 mb-10">
+      <div class="w-10 h-10 rounded-xl bg-black flex items-center justify-center text-navy-950 font-bold text-lg shadow-lg overflow-hidden border border-gold-500/30">
+        <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" alt="SF" class="w-full h-full object-cover">
+      </div>
+      <div class="flex flex-col leading-none">
+        <span class="font-black text-sm tracking-tighter uppercase auto-contrast">SkillForge</span>
+        <span class="text-[7px] text-gold-400 font-bold tracking-[0.2em] uppercase">Digital & Co. Ltd</span>
+      </div>
+    </div>
+    
+    <div class="mb-8 p-4 rounded-2xl bg-white/5 border border-white/5">
+      <p class="text-[8px] font-black auto-contrast-muted uppercase tracking-[0.4em] mb-1">Trainee Node</p>
+      <p class="text-xs font-bold auto-contrast truncate" id="user-name-target">Syncing...</p>
+    </div>
+
+    <nav class="space-y-1">
+      <p class="text-[8px] font-black auto-contrast-muted uppercase tracking-[0.4em] mb-4">Academy Nodes</p>
+      <a href="../" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest hover:bg-white/5"><i class="fa-solid fa-layer-group w-4"></i> Overview</a>
+      <a href="../dmc/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest hover:bg-white/5"><i class="fa-solid fa-id-card w-4"></i> Membership Card</a>
+      <a href="../leaderboard/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest hover:bg-white/5"><i class="fa-solid fa-ranking-star w-4"></i> Hall of Fame</a>
+      <a href="./" class="sidebar-link active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest"><i class="fa-solid fa-vault w-4"></i> The Vault</a>
+      <a href="../customize/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest hover:bg-white/5"><i class="fa-solid fa-wand-magic-sparkles w-4"></i> Customize</a>
+      
+      <div class="mt-8 pt-8 border-t border-white/5 space-y-4">
+        <p class="text-[8px] font-black auto-contrast-muted uppercase tracking-[0.4em] mb-4">Nexus Nodes</p>
+        <a href="#" target="_blank" class="telegram-join-target w-full flex items-center justify-between px-6 py-4 rounded-2xl bg-[#229ED9]/10 text-[#229ED9] hover:bg-[#229ED9]/20 transition-all group">
+          <span class="font-bold text-[10px] uppercase tracking-widest">Join Telegram</span>
+          <i class="fa-brands fa-telegram text-lg group-hover:scale-110 transition-transform"></i>
+        </a>
+      </div>
+    </nav>
+  </div>
+  <div class="p-8 border-t border-white/5">
+    <button onclick="logout()" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-red-400/70 hover:text-red-400 hover:bg-red-400/10 transition-all">
+      <i class="fa-solid fa-right-from-bracket w-4"></i> Sign Out
+    </button>
+  </div>
+</aside>
+
+<main class="flex-1 md:ml-72 min-h-screen relative z-10 p-6 md:p-10 pt-24 md:pt-20">
+  <div class="max-w-7xl mx-auto space-y-12">
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 fade-in" style="animation-delay: 0.1s">
+      <div>
+        <p class="text-gold-400 text-sm font-medium tracking-widest uppercase">Registry Archives</p>
+        <h1 class="text-3xl md:text-5xl font-black mt-1 auto-contrast">The <span class="auto-contrast-muted">Vault</span></h1>
+      </div>
+      <div class="flex items-center gap-4 w-full md:w-auto">
+        <div class="flex-1 md:flex-none glass px-6 py-3 rounded-2xl border border-white/5 flex items-center gap-3">
+          <i class="fa-solid fa-box-archive text-gold-500/50"></i>
+          <div><p class="text-[8px] font-black auto-contrast-muted uppercase">Stored Items</p><p class="text-xs font-bold auto-contrast" id="vault-items-count">0</p></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 fade-in" style="animation-delay: 0.2s" id="vault-grid">
+      <div class="glass p-10 rounded-[40px] flex flex-col items-center justify-center text-center space-y-4 border-dashed border-white/10 border-2 hover:border-gold-500 transition-all cursor-pointer group" onclick="window.location.href='../customize/'">
+        <i class="fa-solid fa-plus text-3xl text-white/20 group-hover:text-gold-500 transition-colors"></i>
+        <p class="text-[10px] font-bold auto-contrast-muted uppercase tracking-[0.2em]">New Mastery Node</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script type="module">
+import { themeManager } from '../../assets/theme-manager.js';
+import { DailyAtmosphere } from '../../assets/canvas-daily.js';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js';
+import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js';
+import { getFirestore, doc, onSnapshot } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js';
+
+const firebaseConfig = { 
+  apiKey: "AIzaSyAODtfZDqeR8DH7YRaiDlRwPOBlxxMfFnY", 
+  authDomain: "skillfoge-ecosystem.firebaseapp.com", 
+  projectId: "skillfoge-ecosystem", 
+  storageBucket: "skillfoge-ecosystem.firebasestorage.app", 
+  messagingSenderId: "279055501952", 
+  appId: "1:279055501952:web:e812364a6f8bcb5998f465", 
+  measurementId: "G-L669WT5FZS" 
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const atmosphere = new DailyAtmosphere('atmospheric-glow');
+
+const TELEGRAM_NODES = {
+  "Forex Synthetic Indices": "https://t.me/+KWyN-sKQNMExZjg8",
+  "Forex Currency Pairs": "https://t.me/+9cAdAp2Pw_FjNmJk",
+  "AI Content Creation": "https://t.me/+I5vUYuIuaMw4N2Rk",
+  "Photography & Editing": "https://t.me/+mkRAltkqJd41YTE0",
+  "Graphic Design": "https://t.me/+PTJq2zoyz0M3ZDZk",
+  "Digital Marketing": "https://t.me/+uIkOfw5x2MpmNjI0",
+  "Mobile Cinematography": "https://t.me/+un1weOJ0HcsyZDdk",
+  "Discord Development": "https://t.me/+Y5wcP_PIQf1kMzlk",
+  "Web Development": "https://t.me/+vEJTv3fBRl43Yjlk",
+  "Cyber Security": "https://t.me/+M4ZYMfz5tiYzZWVk"
+};
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    onSnapshot(doc(db, 'trainees', user.uid), (snap) => {
+      if (snap.exists()) {
+        const data = snap.data();
+        const firstName = data.name ? data.name.split(' ')[0] : 'Trainee';
+        document.getElementById('user-name-target').innerText = firstName;
+        
+        // Update Telegram link
+        const tgLink = TELEGRAM_NODES[data.track] || 'https://t.me/skillforgeorg';
+        document.querySelectorAll('.telegram-join-target').forEach(el => el.href = tgLink);
+        
+        themeManager.sync(data);
+        if (data.controls?.canvasAtmosphere) {
+          atmosphere.start();
+        } else {
+          atmosphere.stop();
+        }
+        
+        loadVault(data);
+      }
+    });
+  } else {
+    window.location.href = '/login.html';
+  }
+});
+
+function loadVault(data) {
+  const grid = document.getElementById('vault-grid');
+  const countEl = document.getElementById('vault-items-count');
+  const items = data.vault || [];
+  countEl.innerText = items.length;
+  
+  // Clear existing items but keep the "plus" button
+  const plusBtn = grid.firstElementChild;
+  grid.innerHTML = '';
+  grid.appendChild(plusBtn);
+  
+  items.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'glass p-8 rounded-[40px] flex flex-col space-y-6 fade-in';
+    card.innerHTML = `
+      <div class="flex justify-between items-start">
+        <div class="w-12 h-12 rounded-2xl bg-gold-500/10 flex items-center justify-center text-gold-500">
+          <i class="fa-solid fa-cube text-xl"></i>
+        </div>
+        <span class="px-3 py-1 rounded-full bg-white/5 text-[8px] font-black auto-contrast-muted uppercase tracking-widest">${item.type || 'ASSET'}</span>
+      </div>
+      <div>
+        <h3 class="text-lg font-black auto-contrast truncate">${item.name || 'Untitled Node'}</h3>
+        <p class="text-xs auto-contrast-muted line-clamp-2 mt-2">${item.desc || 'No description archived.'}</p>
+      </div>
+      <div class="pt-6 border-t border-white/5 flex items-center justify-between">
+        <span class="text-[8px] font-black auto-contrast-muted uppercase tracking-widest">${item.date || 'Unknown Date'}</span>
+        <button class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center auto-contrast-muted hover:auto-contrast hover:bg-white/10 transition-all">
+          <i class="fa-solid fa-arrow-right text-[10px]"></i>
+        </button>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+window.toggleSidebar = () => {
+  document.getElementById('main-sidebar').classList.toggle('-translate-x-full');
+};
+
+window.logout = () => {
+  signOut(auth).then(() => window.location.href = '/login.html');
+};
+</script>
+</body>
+</html>

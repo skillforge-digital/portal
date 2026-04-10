@@ -6,10 +6,12 @@
       "**/.*",
       "**/node_modules/**"
     ],
+    "cleanUrls": true,
+    "trailingSlash": true,
     "rewrites": [
       {
-        "source": "**",
-        "destination": "/index.html"
+        "source": "/trainee-dashboard/**",
+        "destination": "/trainee-dashboard/index.html"
       }
     ]
   },

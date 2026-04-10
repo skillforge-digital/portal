@@ -17,7 +17,8 @@ class ThemeManager {
     constructor() {
         this.uid = localStorage.getItem('skillforge_mock_uid');
         if (!this.uid && !window.location.pathname.includes('login') && !window.location.pathname.includes('registration')) {
-            window.location.href = '../trainee-login/index.html';
+            const base = window.location.pathname.split('/trainee-dashboard')[0] || '/';
+            window.location.href = `${base}/trainee-login/`;
         }
         this.currentTheme = JSON.parse(localStorage.getItem('sf_global_theme') || '{}');
         this.controls = {
@@ -25,6 +26,23 @@ class ThemeManager {
             light: localStorage.getItem('sf_light_mode') === 'true',
             performance: localStorage.getItem('sf_performance_mode') === 'true'
         };
+        this.fonts = [
+            { name: 'Space Grotesk', family: "'Space Grotesk', sans-serif" },
+            { name: 'Instrument Serif', family: "'Instrument Serif', serif" },
+            { name: 'JetBrains Mono', family: "'JetBrains Mono', monospace" },
+            { name: 'Unbounded', family: "'Unbounded', sans-serif" },
+            { name: 'Caveat', family: "'Caveat', cursive" },
+            { name: 'Inter', family: "'Inter', sans-serif" },
+            { name: 'Playfair Display', family: "'Playfair Display', serif" },
+            { name: 'Outfit', family: "'Outfit', sans-serif" },
+            { name: 'Syne', family: "'Syne', sans-serif" },
+            { name: 'Clash Display', family: "'Clash Display', sans-serif" },
+            { name: 'Lexend', family: "'Lexend', sans-serif" },
+            { name: 'Cabinet Grotesk', family: "'Cabinet Grotesk', sans-serif" },
+            { name: 'Satoshi', family: "'Satoshi', sans-serif" },
+            { name: 'General Sans', family: "'General Sans', sans-serif" },
+            { name: 'Plus Jakarta Sans', family: "'Plus Jakarta Sans', sans-serif" }
+        ];
         this.init();
     }
 
@@ -39,6 +57,9 @@ class ThemeManager {
                     this.currentTheme = data.theme;
                     localStorage.setItem('sf_global_theme', JSON.stringify(data.theme));
                     this.applyTheme(data.theme);
+                }
+                if (data.fontFamily) {
+                    this.applyFont(data.fontFamily);
                 }
                 if (data.controls || data.isLightMode !== undefined) {
                     this.controls = {
@@ -58,13 +79,31 @@ class ThemeManager {
         });
     }
 
+    applyFont(fontFamily) {
+        if (!fontFamily) return;
+        document.documentElement.style.setProperty('--font-main', fontFamily);
+        localStorage.setItem('sf_font_family', fontFamily);
+    }
+
     applyTheme(theme) {
         if (!theme) return;
         const root = document.documentElement;
+        const body = document.body;
 
         const hexToRgb = (hex) => {
             const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
             return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '245, 158, 11';
+        };
+        const hexToLum = (hex) => {
+            const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            if (!m) return 0.2;
+            const srgb = [parseInt(m[1],16)/255, parseInt(m[2],16)/255, parseInt(m[3],16)/255].map(v => v<=0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4));
+            return 0.2126*srgb[0]+0.7152*srgb[1]+0.0722*srgb[2];
+        };
+        const autoContrast = (bgHex) => {
+            if (this.controls.light) return;
+            const lum = hexToLum(bgHex);
+            if (lum > 0.6) body.classList.add('light'); else body.classList.remove('light');
         };
         
         if (theme.type === 'gradient') {
@@ -76,6 +115,7 @@ class ThemeManager {
             root.style.setProperty('--global-bg', grad);
             document.body.style.background = grad;
             document.body.style.backgroundAttachment = 'fixed';
+            autoContrast(theme.c1);
         } else if (theme.type === 'premium-gradient') {
             const grad = `linear-gradient(135deg, ${theme.colors.join(', ')})`;
             root.style.setProperty('--accent-gradient', grad);
@@ -85,6 +125,7 @@ class ThemeManager {
             root.style.setProperty('--global-bg', grad);
             document.body.style.background = grad;
             document.body.style.backgroundAttachment = 'fixed';
+            autoContrast(theme.colors[0]);
         } else if (theme.type === 'solid-pair' || theme.type === 'dual') {
             const primary = theme.primary || theme.color;
             const secondary = theme.secondary || primary;
@@ -94,12 +135,14 @@ class ThemeManager {
             root.style.setProperty('--accent-gradient', `linear-gradient(135deg, ${primary}, ${secondary})`);
             root.style.setProperty('--global-bg', '#040810');
             document.body.style.background = '#040810';
+            autoContrast(secondary);
         } else if (theme.type === 'accent') {
             root.style.setProperty('--accent-color', theme.color);
             root.style.setProperty('--accent-color-rgb', hexToRgb(theme.color));
             root.style.setProperty('--accent-gradient', `linear-gradient(135deg, ${theme.color}, ${theme.color})`);
             root.style.setProperty('--global-bg', '#040810');
             document.body.style.background = '#040810';
+            autoContrast(theme.color);
         }
 
         if (theme.layout && (window.location.pathname.endsWith('index.html') || window.location.pathname === '/')) {
@@ -125,6 +168,7 @@ class ThemeManager {
         document.body.style.backgroundSize = 'cover';
         document.body.style.backgroundPosition = 'center';
         document.body.style.backgroundAttachment = 'fixed';
+        if (!this.controls.light) document.body.classList.remove('light');
     }
 
     async saveLayout(layoutNum, source = 'LAYOUT_ENGINE') {
@@ -170,14 +214,39 @@ class ThemeManager {
         }
     }
 
-    async saveWallpaper(url, source = 'CUSTOMIZE') {
+    async saveFont(fontFamily, source = 'CUSTOMIZE') {
         try {
-            await setDoc(doc(db, 'trainees', this.uid), { wallpaper: url }, { merge: true });
-            await this.logChange('WALLPAPER_UPDATE', { source, url });
+            await setDoc(doc(db, 'trainees', this.uid), { fontFamily }, { merge: true });
+            await this.logChange('FONT_UPDATE', { source, fontFamily });
+            this.applyFont(fontFamily);
+            return true;
+        } catch (err) {
+            console.error('Font Save Failed:', err);
+            return false;
+        }
+    }
+
+    async saveWallpaper(url, source = 'CUSTOMIZE', isPublic = false) {
+        try {
+            const update = { wallpaper: url };
+            if (isPublic) update.isPublicWallpaper = true;
+            await setDoc(doc(db, 'trainees', this.uid), update, { merge: true });
+            await this.logChange('WALLPAPER_UPDATE', { source, url, isPublic });
             this.applyWallpaper(url);
             return true;
         } catch (err) {
             console.error('Wallpaper Save Failed:', err);
+            return false;
+        }
+    }
+
+    async saveProfileData(profileData, source = 'REGISTRATION') {
+        try {
+            await setDoc(doc(db, 'trainees', this.uid), profileData, { merge: true });
+            await this.logChange('PROFILE_UPDATE', { source, profileData });
+            return true;
+        } catch (err) {
+            console.error('Profile Update Failed:', err);
             return false;
         }
     }

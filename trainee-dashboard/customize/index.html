@@ -41,7 +41,6 @@ tailwind.config = {
   
   .preview-box { height: 100px; width: 100%; border-radius: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); position: relative; margin-bottom: 1rem; overflow: hidden; }
   
-  /* Layout Previews */
   .p1 .b1 { position: absolute; top: 10%; left: 10%; width: 35%; height: 80%; background: #fbbf24; opacity: 0.4; border-radius: 4px; }
   .p1 .b2 { position: absolute; top: 10%; left: 50%; width: 40%; height: 35%; background: white; opacity: 0.1; border-radius: 4px; }
   .p1 .b3 { position: absolute; top: 55%; left: 50%; width: 18%; height: 35%; background: white; opacity: 0.1; border-radius: 4px; }
@@ -81,7 +80,6 @@ tailwind.config = {
   .light body { background: #f8fafc; color: #0f172a; }
   .light .glass { background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(15, 23, 42, 0.08); }
 
-  /* Global Accent Color Overrides */
   :root {
     --accent-color: #f59e0b;
     --accent-color-rgb: 245, 158, 11;
@@ -100,8 +98,7 @@ tailwind.config = {
 </style>
 </head>
 <body class="text-white min-h-screen flex flex-col md:flex-row">
-
-<!-- Mobile Header -->
+<canvas id="gold-dust" class="fixed inset-0 pointer-events-none z-0"></canvas>
 <div class="md:hidden h-20 px-6 flex items-center justify-between glass sticky top-0 z-[100] border-b border-white/5 no-print">
   <div class="flex items-center gap-3">
     <div class="w-8 h-8 rounded-lg bg-black flex items-center justify-center border border-gold-500/30 overflow-hidden">
@@ -129,12 +126,12 @@ tailwind.config = {
       </div>
     </div>
     <nav class="space-y-1">
-      <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Command Nodes</p>
-      <a href="./" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-layer-group w-4"></i> Overview</a>
-      <a href="dmc/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-id-card w-4"></i> Membership Card</a>
-      <a href="leaderboard/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-ranking-star w-4"></i> Hall of Fame</a>
-      <a href="vault/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-vault w-4"></i> The Vault</a>
-      <a href="customize/" class="sidebar-link active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest"><i class="fa-solid fa-wand-magic-sparkles w-4"></i> Customize</a>
+      <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Academy Nodes</p>
+      <a href="../" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-layer-group w-4"></i> Overview</a>
+      <a href="../dmc/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-id-card w-4"></i> Membership Card</a>
+      <a href="../leaderboard/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-ranking-star w-4"></i> Hall of Fame</a>
+      <a href="../vault/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-vault w-4"></i> The Vault</a>
+      <a href="../customize/" class="sidebar-link active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest"><i class="fa-solid fa-wand-magic-sparkles w-4"></i> Customize</a>
       
       <div class="mt-8 pt-8 border-t border-white/5 space-y-4">
         <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Nexus Nodes</p>
@@ -158,7 +155,7 @@ tailwind.config = {
       <i class="fa-solid fa-right-from-bracket w-4"></i> Sign Out
     </button>
   </div>
-</aside>
+  </aside>
 
 <main class="flex-1 md:ml-72 p-6 md:p-10 pt-24 md:pt-20">
   <div class="max-w-7xl mx-auto space-y-12">
@@ -173,7 +170,6 @@ tailwind.config = {
       </div>
     </header>
 
-    <!-- Dashboard Live Preview -->
     <section class="space-y-8">
       <div class="flex items-center justify-between">
         <h2 class="text-2xl font-black uppercase tracking-tighter">Overview Live Preview</h2>
@@ -184,7 +180,6 @@ tailwind.config = {
           <p class="text-[10px] font-black uppercase tracking-[0.3em]">Interactive Preview</p>
         </div>
         <div id="dashboard-preview-container" class="w-full h-full scale-[0.4] origin-top-left overflow-hidden pointer-events-none" style="width: 250%; height: 250%;">
-          <!-- Dynamic dashboard content will be injected here -->
           <div class="flex items-center justify-center h-full">
             <p class="text-white/20 uppercase tracking-widest animate-pulse">Initializing Neural Interface...</p>
           </div>
@@ -192,7 +187,6 @@ tailwind.config = {
       </div>
     </section>
 
-    <!-- Layout Architecture -->
     <section class="space-y-8 relative z-20">
       <div class="flex items-center justify-between">
         <h2 class="text-2xl font-black uppercase tracking-tighter">Architecture Hub</h2>
@@ -254,7 +248,6 @@ tailwind.config = {
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
       <div class="lg:col-span-2 space-y-10">
-        <!-- Solid Color Mastery -->
         <div class="glass p-10 rounded-[40px] space-y-8 relative z-10">
           <h3 class="text-xs font-bold text-white/40 uppercase tracking-[0.4em]">Solid Color Mastery</h3>
           <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4" id="solid-pairs-grid">
@@ -264,90 +257,54 @@ tailwind.config = {
             <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#8b5cf6', secondary: '#7c3aed' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#8b5cf6"></div><div class="w-6 h-6 rounded-full" style="background:#7c3aed"></div></div><span class="text-[8px] font-black uppercase text-white/40">Deep Purple</span></button>
             <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#ef4444', secondary: '#dc2626' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#ef4444"></div><div class="w-6 h-6 rounded-full" style="background:#dc2626"></div></div><span class="text-[8px] font-black uppercase text-white/40">Crimson Red</span></button>
             <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#06b6d4', secondary: '#0891b2' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#06b6d4"></div><div class="w-6 h-6 rounded-full" style="background:#0891b2"></div></div><span class="text-[8px] font-black uppercase text-white/40">Cyber Cyan</span></button>
-            <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#f97316', secondary: '#ea580c' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#f97316"></div><div class="w-6 h-6 rounded-full" style="background:#ea580c"></div></div><span class="text-[8px] font-black uppercase text-white/40">Sunset Orange</span></button>
-            <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#475569', secondary: '#334155' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#475569"></div><div class="w-6 h-6 rounded-full" style="background:#334155"></div></div><span class="text-[8px] font-black uppercase text-white/40">Midnight Grey</span></button>
-            <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#ec4899', secondary: '#db2777' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#ec4899"></div><div class="w-6 h-6 rounded-full" style="background:#db2777"></div></div><span class="text-[8px] font-black uppercase text-white/40">Candy Pink</span></button>
-            <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#6366f1', secondary: '#4f46e5' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#6366f1"></div><div class="w-6 h-6 rounded-full" style="background:#4f46e5"></div></div><span class="text-[8px] font-black uppercase text-white/40">Deep Indigo</span></button>
-            <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#14b8a6', secondary: '#0d9488' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#14b8a6"></div><div class="w-6 h-6 rounded-full" style="background:#0d9488"></div></div><span class="text-[8px] font-black uppercase text-white/40">Tropical Teal</span></button>
-            <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#84cc16', secondary: '#65a30d' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#84cc16"></div><div class="w-6 h-6 rounded-full" style="background:#65a30d"></div></div><span class="text-[8px] font-black uppercase text-white/40">Acid Lime</span></button>
-            <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#fb7185', secondary: '#e11d48' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#fb7185"></div><div class="w-6 h-6 rounded-full" style="background:#e11d48"></div></div><span class="text-[8px] font-black uppercase text-white/40">Rose Gold</span></button>
-            <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#0ea5e9', secondary: '#0284c7' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#0ea5e9"></div><div class="w-6 h-6 rounded-full" style="background:#0284c7"></div></div><span class="text-[8px] font-black uppercase text-white/40">Sky Blue</span></button>
-            <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#fcd34d', secondary: '#f59e0b' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#fcd34d"></div><div class="w-6 h-6 rounded-full" style="background:#f59e0b"></div></div><span class="text-[8px] font-black uppercase text-white/40">Amber Glow</span></button>
-            <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#a855f7', secondary: '#9333ea' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#a855f7"></div><div class="w-6 h-6 rounded-full" style="background:#9333ea"></div></div><span class="text-[8px] font-black uppercase text-white/40">Violet Dream</span></button>
-            <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#34d399', secondary: '#10b981' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#34d399"></div><div class="w-6 h-6 rounded-full" style="background:#10b981"></div></div><span class="text-[8px] font-black uppercase text-white/40">Mint Fresh</span></button>
-            <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#d946ef', secondary: '#c026d3' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#d946ef"></div><div class="w-6 h-6 rounded-full" style="background:#c026d3"></div></div><span class="text-[8px] font-black uppercase text-white/40">Fuchsia Flash</span></button>
-            <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#b45309', secondary: '#92400e' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#b45309"></div><div class="w-6 h-6 rounded-full" style="background:#92400e"></div></div><span class="text-[8px] font-black uppercase text-white/40">Bronze Metal</span></button>
-            <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#64748b', secondary: '#475569' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#64748b"></div><div class="w-6 h-6 rounded-full" style="background:#475569"></div></div><span class="text-[8px] font-black uppercase text-white/40">Slate Blue</span></button>
-            <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#be123c', secondary: '#9f1239' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#be123c"></div><div class="w-6 h-6 rounded-full" style="background:#9f1239"></div></div><span class="text-[8px] font-black uppercase text-white/40">Ruby Shine</span></button>
-            <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#059669', secondary: '#047857' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#059669"></div><div class="w-6 h-6 rounded-full" style="background:#047857"></div></div><span class="text-[8px] font-black uppercase text-white/40">Jade Mist</span></button>
-            <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#78350f', secondary: '#451a03' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#78350f"></div><div class="w-6 h-6 rounded-full" style="background:#451a03"></div></div><span class="text-[8px] font-black uppercase text-white/40">Coffee Bean</span></button>
-            <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#1e40af', secondary: '#1e3a8a' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#1e40af"></div><div class="w-6 h-6 rounded-full" style="background:#1e3a8a"></div></div><span class="text-[8px] font-black uppercase text-white/40">Steel Blue</span></button>
-            <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#22c55e', secondary: '#16a34a' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#22c55e"></div><div class="w-6 h-6 rounded-full" style="background:#16a34a"></div></div><span class="text-[8px] font-black uppercase text-white/40">Neon Green</span></button>
-            <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#fb923c', secondary: '#f97316' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#fb923c"></div><div class="w-6 h-6 rounded-full" style="background:#f97316"></div></div><span class="text-[8px] font-black uppercase text-white/40">Hot Coral</span></button>
-            <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#f1f5f9', secondary: '#e2e8f0' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#f1f5f9"></div><div class="w-6 h-6 rounded-full" style="background:#e2e8f0"></div></div><span class="text-[8px] font-black uppercase text-white/40">Icy White</span></button>
-            <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#064e3b', secondary: '#022c22' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#064e3b"></div><div class="w-6 h-6 rounded-full" style="background:#022c22"></div></div><span class="text-[8px] font-black uppercase text-white/40">Dark Forest</span></button>
-            <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#6b21a8', secondary: '#581c87' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#6b21a8"></div><div class="w-6 h-6 rounded-full" style="background:#581c87"></div></div><span class="text-[8px] font-black uppercase text-white/40">Purple Haze</span></button>
-            <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#1e3a8a', secondary: '#172554' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#1e3a8a"></div><div class="w-6 h-6 rounded-full" style="background:#172554"></div></div><span class="text-[8px] font-black uppercase text-white/40">Ocean Deep</span></button>
-            <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#fbbf24', secondary: '#d97706' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#fbbf24"></div><div class="w-6 h-6 rounded-full" style="background:#d97706"></div></div><span class="text-[8px] font-black uppercase text-white/40">Golden Sand</span></button>
-            <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#94a3b8', secondary: '#64748b' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#94a3b8"></div><div class="w-6 h-6 rounded-full" style="background:#64748b"></div></div><span class="text-[8px] font-black uppercase text-white/40">Silver Fox</span></button>
-            <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#fca5a5', secondary: '#f87171' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#fca5a5"></div><div class="w-6 h-6 rounded-full" style="background:#f87171"></div></div><span class="text-[8px] font-black uppercase text-white/40">Peachy Keen</span></button>
-            <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#c084fc', secondary: '#a855f7' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#c084fc"></div><div class="w-6 h-6 rounded-full" style="background:#a855f7"></div></div><span class="text-[8px] font-black uppercase text-white/40">Lavender Sky</span></button>
-            <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#2dd4bf', secondary: '#14b8a6' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#2dd4bf"></div><div class="w-6 h-6 rounded-full" style="background:#14b8a6"></div></div><span class="text-[8px] font-black uppercase text-white/40">Teal Wave</span></button>
-            <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#fde047', secondary: '#facc15' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#fde047"></div><div class="w-6 h-6 rounded-full" style="background:#facc15"></div></div><span class="text-[8px] font-black uppercase text-white/40">Lemon Zest</span></button>
           </div>
         </div>
 
-        <!-- Premium Gradients -->
         <div class="glass p-10 rounded-[40px] space-y-8 relative z-10">
           <h3 class="text-xs font-bold text-white/40 uppercase tracking-[0.4em]">Premium Gradients</h3>
           <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4" id="premium-gradients-grid">
             <button class="h-24 rounded-2xl flex items-center justify-center hover:scale-105 transition-all border border-white/10 relative overflow-hidden group theme-grad-btn" style="background:linear-gradient(135deg, #040810, #1a3358, #3b82f6)" onclick="setTheme({ type: 'premium-gradient', colors: ['#040810', '#1a3358', '#3b82f6'] })"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[9px] font-black uppercase tracking-widest text-white">Hyper Space</span></div></button>
             <button class="h-24 rounded-2xl flex items-center justify-center hover:scale-105 transition-all border border-white/10 relative overflow-hidden group theme-grad-btn" style="background:linear-gradient(135deg, #f59e0b, #fbbf24, #fcd34d, #ffffff)" onclick="setTheme({ type: 'premium-gradient', colors: ['#f59e0b', '#fbbf24', '#fcd34d', '#ffffff'] })"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[9px] font-black uppercase tracking-widest text-white">Golden Hour</span></div></button>
-            <button class="h-24 rounded-2xl flex items-center justify-center hover:scale-105 transition-all border border-white/10 relative overflow-hidden group theme-grad-btn" style="background:linear-gradient(135deg, #0f172a, #581c87, #701a75, #9d174d)" onclick="setTheme({ type: 'premium-gradient', colors: ['#0f172a', '#581c87', '#701a75', '#9d174d'] })"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[9px] font-black uppercase tracking-widest text-white">Deep Nebula</span></div></button>
-            <button class="h-24 rounded-2xl flex items-center justify-center hover:scale-105 transition-all border border-white/10 relative overflow-hidden group theme-grad-btn" style="background:linear-gradient(135deg, #f8fafc, #e2e8f0, #94a3b8)" onclick="setTheme({ type: 'premium-gradient', colors: ['#f8fafc', '#e2e8f0', '#94a3b8'] })"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[9px] font-black uppercase tracking-widest text-white">Arctic Frost</span></div></button>
-            <button class="h-24 rounded-2xl flex items-center justify-center hover:scale-105 transition-all border border-white/10 relative overflow-hidden group theme-grad-btn" style="background:linear-gradient(135deg, #450a0a, #991b1b, #ef4444, #f59e0b)" onclick="setTheme({ type: 'premium-gradient', colors: ['#450a0a', '#991b1b', '#ef4444', '#f59e0b'] })"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[9px] font-black uppercase tracking-widest text-white">Lava Flow</span></div></button>
-            <button class="h-24 rounded-2xl flex items-center justify-center hover:scale-105 transition-all border border-white/10 relative overflow-hidden group theme-grad-btn" style="background:linear-gradient(135deg, #1e1b4b, #4c1d95, #701a75, #db2777)" onclick="setTheme({ type: 'premium-gradient', colors: ['#1e1b4b', '#4c1d95', '#701a75', '#db2777'] })"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[9px] font-black uppercase tracking-widest text-white">Cyber Punk</span></div></button>
-            <button class="h-24 rounded-2xl flex items-center justify-center hover:scale-105 transition-all border border-white/10 relative overflow-hidden group theme-grad-btn" style="background:linear-gradient(135deg, #0c1829, #1a3358, #2563eb, #3b82f6)" onclick="setTheme({ type: 'premium-gradient', colors: ['#0c1829', '#1a3358', '#2563eb', '#3b82f6'] })"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[9px] font-black uppercase tracking-widest text-white">Midnight Ocean</span></div></button>
-            <button class="h-24 rounded-2xl flex items-center justify-center hover:scale-105 transition-all border border-white/10 relative overflow-hidden group theme-grad-btn" style="background:linear-gradient(135deg, #450a0a, #7c2d12, #ea580c, #fbbf24)" onclick="setTheme({ type: 'premium-gradient', colors: ['#450a0a', '#7c2d12', '#ea580c', '#fbbf24'] })"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[9px] font-black uppercase tracking-widest text-white">Sunset Silk</span></div></button>
-            <button class="h-24 rounded-2xl flex items-center justify-center hover:scale-105 transition-all border border-white/10 relative overflow-hidden group theme-grad-btn" style="background:linear-gradient(135deg, #064e3b, #065f46, #059669, #10b981)" onclick="setTheme({ type: 'premium-gradient', colors: ['#064e3b', '#065f46', '#059669', '#10b981'] })"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[9px] font-black uppercase tracking-widest text-white">Emerald Forest</span></div></button>
-            <button class="h-24 rounded-2xl flex items-center justify-center hover:scale-105 transition-all border border-white/10 relative overflow-hidden group theme-grad-btn" style="background:linear-gradient(135deg, #4c1d95, #5b21b6, #7c3aed, #8b5cf6)" onclick="setTheme({ type: 'premium-gradient', colors: ['#4c1d95', '#5b21b6', '#7c3aed', '#8b5cf6'] })"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[9px] font-black uppercase tracking-widest text-white">Royal Velvet</span></div></button>
-            <button class="h-24 rounded-2xl flex items-center justify-center hover:scale-105 transition-all border border-white/10 relative overflow-hidden group theme-grad-btn" style="background:linear-gradient(135deg, #000000, #1e1b4b, #312e81, #4f46e5, #06b6d4)" onclick="setTheme({ type: 'premium-gradient', colors: ['#000000', '#1e1b4b', '#312e81', '#4f46e5', '#06b6d4'] })"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[9px] font-black uppercase tracking-widest text-white">Neon Dream</span></div></button>
-            <button class="h-24 rounded-2xl flex items-center justify-center hover:scale-105 transition-all border border-white/10 relative overflow-hidden group theme-grad-btn" style="background:linear-gradient(135deg, #111827, #1f2937, #374151, #4b5563)" onclick="setTheme({ type: 'premium-gradient', colors: ['#111827', '#1f2937', '#374151', '#4b5563'] })"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[9px] font-black uppercase tracking-widest text-white">Cosmic Dust</span></div></button>
-            <button class="h-24 rounded-2xl flex items-center justify-center hover:scale-105 transition-all border border-white/10 relative overflow-hidden group theme-grad-btn" style="background:linear-gradient(135deg, #451a03, #78350f, #92400e, #b45309, #d97706, #f59e0b)" onclick="setTheme({ type: 'premium-gradient', colors: ['#451a03', '#78350f', '#92400e', '#b45309', '#d97706', '#f59e0b'] })"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[9px] font-black uppercase tracking-widest text-white">Gold Rush</span></div></button>
-            <button class="h-24 rounded-2xl flex items-center justify-center hover:scale-105 transition-all border border-white/10 relative overflow-hidden group theme-grad-btn" style="background:linear-gradient(135deg, #172554, #1e3a8a, #1e40af, #1d4ed8, #2563eb, #3b82f6)" onclick="setTheme({ type: 'premium-gradient', colors: ['#172554', '#1e3a8a', '#1e40af', '#1d4ed8', '#2563eb', '#3b82f6'] })"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[9px] font-black uppercase tracking-widest text-white">Oceanic Deep</span></div></button>
-            <button class="h-24 rounded-2xl flex items-center justify-center hover:scale-105 transition-all border border-white/10 relative overflow-hidden group theme-grad-btn" style="background:linear-gradient(135deg, #ef4444, #f97316, #3b82f6, #0ea5e9)" onclick="setTheme({ type: 'premium-gradient', colors: ['#ef4444', '#f97316', '#3b82f6', '#0ea5e9'] })"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[9px] font-black uppercase tracking-widest text-white">Fire & Ice</span></div></button>
-            <button class="h-24 rounded-2xl flex items-center justify-center hover:scale-105 transition-all border border-white/10 relative overflow-hidden group theme-grad-btn" style="background:linear-gradient(135deg, #064e3b, #10b981, #84cc16, #fde047)" onclick="setTheme({ type: 'premium-gradient', colors: ['#064e3b', '#10b981', '#84cc16', '#fde047'] })"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[9px] font-black uppercase tracking-widest text-white">Vibrant Jungle</span></div></button>
-            <button class="h-24 rounded-2xl flex items-center justify-center hover:scale-105 transition-all border border-white/10 relative overflow-hidden group theme-grad-btn" style="background:linear-gradient(135deg, #fecaca, #fef08a, #bbf7d0, #bfdbfe, #ddd6fe)" onclick="setTheme({ type: 'premium-gradient', colors: ['#fecaca', '#fef08a', '#bbf7d0', '#bfdbfe', '#ddd6fe'] })"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[9px] font-black uppercase tracking-widest text-white">Pastel Paradise</span></div></button>
-            <button class="h-24 rounded-2xl flex items-center justify-center hover:scale-105 transition-all border border-white/10 relative overflow-hidden group theme-grad-btn" style="background:linear-gradient(135deg, #020617, #0f172a, #1e293b, #334155)" onclick="setTheme({ type: 'premium-gradient', colors: ['#020617', '#0f172a', '#1e293b', '#334155'] })"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[9px] font-black uppercase tracking-widest text-white">Shadow Realm</span></div></button>
-            <button class="h-24 rounded-2xl flex items-center justify-center hover:scale-105 transition-all border border-white/10 relative overflow-hidden group theme-grad-btn" style="background:linear-gradient(135deg, #000000, #451a03, #b45309, #f59e0b, #fbbf24)" onclick="setTheme({ type: 'premium-gradient', colors: ['#000000', '#451a03', '#b45309', '#f59e0b', '#fbbf24'] })"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[9px] font-black uppercase tracking-widest text-white">Golden Eclipse</span></div></button>
-            <button class="h-24 rounded-2xl flex items-center justify-center hover:scale-105 transition-all border border-white/10 relative overflow-hidden group theme-grad-btn" style="background:linear-gradient(135deg, #2e1065, #4c1d95, #6b21a8, #8b5cf6, #a855f7)" onclick="setTheme({ type: 'premium-gradient', colors: ['#2e1065', '#4c1d95', '#6b21a8', '#8b5cf6', '#a855f7'] })"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[9px] font-black uppercase tracking-widest text-white">Ultraviolet</span></div></button>
-            <button class="h-24 rounded-2xl flex items-center justify-center hover:scale-105 transition-all border border-white/10 relative overflow-hidden group theme-grad-btn" style="background:linear-gradient(135deg, #052e16, #14532d, #166534, #15803d, #16a34a, #22c55e, #4ade80, #86efac)" onclick="setTheme({ type: 'premium-gradient', colors: ['#052e16', '#14532d', '#166534', '#15803d', '#16a34a', '#22c55e', '#4ade80', '#86efac'] })"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[9px] font-black uppercase tracking-widest text-white">Toxic Waste</span></div></button>
-            <button class="h-24 rounded-2xl flex items-center justify-center hover:scale-105 transition-all border border-white/10 relative overflow-hidden group theme-grad-btn" style="background:linear-gradient(135deg, #3b0764, #581c87, #7e22ce, #a855f7, #c084fc)" onclick="setTheme({ type: 'premium-gradient', colors: ['#3b0764', '#581c87', '#7e22ce', '#a855f7', '#c084fc'] })"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[9px] font-black uppercase tracking-widest text-white">Electric Purple</span></div></button>
-            <button class="h-24 rounded-2xl flex items-center justify-center hover:scale-105 transition-all border border-white/10 relative overflow-hidden group theme-grad-btn" style="background:linear-gradient(135deg, #450a0a, #7f1d1d, #991b1b, #b91c1c, #dc2626, #ef4444, #f87171)" onclick="setTheme({ type: 'premium-gradient', colors: ['#450a0a', '#7f1d1d', '#991b1b', '#b91c1c', '#dc2626', '#ef4444', '#f87171'] })"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[9px] font-black uppercase tracking-widest text-white">Blood Orange</span></div></button>
-            <button class="h-24 rounded-2xl flex items-center justify-center hover:scale-105 transition-all border border-white/10 relative overflow-hidden group theme-grad-btn" style="background:linear-gradient(135deg, #042f2e, #0d9488, #10b981, #84cc16)" onclick="setTheme({ type: 'premium-gradient', colors: ['#042f2e', '#0d9488', '#10b981', '#84cc16'] })"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[9px] font-black uppercase tracking-widest text-white">Aurora Borealis</span></div></button>
           </div>
         </div>
 
-        <!-- Wallpaper Registry -->
+        <div class="glass p-10 rounded-[40px] space-y-8 relative z-10">
+          <h3 class="text-xs font-bold text-white/40 uppercase tracking-[0.4em]">Font Selection Registry</h3>
+          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4" id="font-grid">
+            <!-- Populated via script -->
+          </div>
+        </div>
+
         <div class="glass p-10 rounded-[40px] space-y-8 relative z-10">
           <div class="flex items-center justify-between">
             <h3 class="text-xs font-bold text-white/40 uppercase tracking-[0.4em]">Wallpaper Registry</h3>
-            <label class="px-6 py-2 glass rounded-xl text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-gold-500 hover:text-navy-950 transition-all active:scale-95">
-              <i class="fa-solid fa-cloud-arrow-up mr-2"></i> Custom Upload
-              <input type="file" id="wallpaper-upload" class="hidden" accept="image/*">
-            </label>
+            <div class="flex gap-4">
+                <label class="px-6 py-2 glass rounded-xl text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-gold-500 hover:text-navy-950 transition-all active:scale-95">
+                  <i class="fa-solid fa-cloud-arrow-up mr-2"></i> Custom Upload
+                  <input type="file" id="wallpaper-upload" class="hidden" accept="image/*">
+                </label>
+            </div>
           </div>
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="wallpaper-grid">
+            <!-- Premium curated selection -->
             <button class="aspect-video rounded-xl bg-cover bg-center border border-white/5 hover:border-gold-500 transition-all relative overflow-hidden group active:scale-95" style="background-image:url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072')" onclick="applyWallpaper('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072')"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[8px] font-black uppercase text-white">Neural Network</span></div></button>
             <button class="aspect-video rounded-xl bg-cover bg-center border border-white/5 hover:border-gold-500 transition-all relative overflow-hidden group active:scale-95" style="background-image:url('https://images.unsplash.com/photo-1477346611705-65d1883cee1e?q=80&w=2070')" onclick="applyWallpaper('https://images.unsplash.com/photo-1477346611705-65d1883cee1e?q=80&w=2070')"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[8px] font-black uppercase text-white">Mountain Peak</span></div></button>
             <button class="aspect-video rounded-xl bg-cover bg-center border border-white/5 hover:border-gold-500 transition-all relative overflow-hidden group active:scale-95" style="background-image:url('https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?q=80&w=2071')" onclick="applyWallpaper('https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?q=80&w=2071')"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[8px] font-black uppercase text-white">Cyber City</span></div></button>
             <button class="aspect-video rounded-xl bg-cover bg-center border border-white/5 hover:border-gold-500 transition-all relative overflow-hidden group active:scale-95" style="background-image:url('https://images.unsplash.com/photo-1502134249126-9f3755a50d78?q=80&w=2070')" onclick="applyWallpaper('https://images.unsplash.com/photo-1502134249126-9f3755a50d78?q=80&w=2070')"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[8px] font-black uppercase text-white">Deep Space</span></div></button>
+            <button class="aspect-video rounded-xl bg-cover bg-center border border-white/5 hover:border-gold-500 transition-all relative overflow-hidden group active:scale-95" style="background-image:url('https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=2070')" onclick="applyWallpaper('https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=2070')"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[8px] font-black uppercase text-white">Aurora Fluid</span></div></button>
+            <button class="aspect-video rounded-xl bg-cover bg-center border border-white/5 hover:border-gold-500 transition-all relative overflow-hidden group active:scale-95" style="background-image:url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1964')" onclick="applyWallpaper('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1964')"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[8px] font-black uppercase text-white">Abstract Wave</span></div></button>
+            <button class="aspect-video rounded-xl bg-cover bg-center border border-white/5 hover:border-gold-500 transition-all relative overflow-hidden group active:scale-95" style="background-image:url('https://images.unsplash.com/photo-1464802686167-b939a6910659?q=80&w=2070')" onclick="applyWallpaper('https://images.unsplash.com/photo-1464802686167-b939a6910659?q=80&w=2070')"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[8px] font-black uppercase text-white">Cosmic Dust</span></div></button>
+            <button class="aspect-video rounded-xl bg-cover bg-center border border-white/5 hover:border-gold-500 transition-all relative overflow-hidden group active:scale-95" style="background-image:url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070')" onclick="applyWallpaper('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070')"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[8px] font-black uppercase text-white">Vibrant Flow</span></div></button>
+          </div>
+          
+          <div id="private-wallpaper-section" class="hidden space-y-4 pt-6 border-t border-white/5">
+            <h4 class="text-[8px] font-black text-white/20 uppercase tracking-[0.3em]">Your Private Registry</h4>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="private-wallpaper-grid"></div>
           </div>
         </div>
       </div>
 
       <div class="space-y-10">
-        <!-- Control Hub -->
         <div class="glass p-10 rounded-[40px] space-y-8">
           <h3 class="text-xs font-bold text-white/40 uppercase tracking-[0.4em]">Control Hub</h3>
           <div class="space-y-6">
@@ -369,7 +326,6 @@ tailwind.config = {
           </button>
         </div>
 
-        <!-- Audit Trail -->
         <div class="glass p-8 rounded-[40px] space-y-6 flex flex-col h-[500px]">
           <h3 class="text-xs font-bold text-white/40 uppercase tracking-[0.4em]">Audit Trail</h3>
           <div id="audit-trail" class="space-y-3 flex-1 overflow-y-auto pr-2 custom-scrollbar">
@@ -380,7 +336,6 @@ tailwind.config = {
     </div>
   </div>
 
-  <!-- Global Shift Confirmation -->
   <div id="confirm-modal" class="fixed inset-0 z-[100] flex items-center justify-center p-6 opacity-0 pointer-events-none transition-all duration-300">
     <div class="absolute inset-0 bg-black/90 backdrop-blur-md"></div>
     <div class="relative glass-strong p-12 rounded-[48px] max-w-md w-full border border-white/10 shadow-4K scale-90 transition-all duration-300 modal-content text-center">
@@ -396,7 +351,7 @@ tailwind.config = {
 </main>
 
 <script type="module">
-import { themeManager } from '../assets/theme-manager.js';
+import { themeManager } from '../../assets/theme-manager.js';
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js';
 import { getFirestore, doc, getDoc, setDoc, collection, query, orderBy, limit, onSnapshot } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js';
 
@@ -414,19 +369,36 @@ const db = getFirestore(app);
 
 let pendingTheme = { ...themeManager.currentTheme };
 let selectedWallpaper = null;
+let selectedFont = localStorage.getItem('sf_font_family') || "'Space Grotesk', sans-serif";
 
-// Global accessible functions
+window.setFont = (fontFamily) => {
+    selectedFont = fontFamily;
+    themeManager.applyFont(fontFamily);
+    renderFonts();
+    const status = document.getElementById('save-status');
+    status.innerHTML = `<div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div><span class="text-[10px] font-black uppercase tracking-widest text-white/40">Font Previewing...</span>`;
+    status.classList.remove('opacity-0');
+    setTimeout(() => status.classList.add('opacity-0'), 2000);
+};
+
+function renderFonts() {
+    const grid = document.getElementById('font-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    themeManager.fonts.forEach(font => {
+        const btn = document.createElement('button');
+        const isActive = selectedFont === font.family;
+        btn.className = `p-4 glass rounded-2xl flex flex-col items-center gap-2 transition-all border ${isActive ? 'border-gold-500 bg-gold-500/10' : 'border-white/5'} hover:scale-105 active:scale-95`;
+        btn.onclick = () => setFont(font.family);
+        btn.innerHTML = `<span class="text-lg font-bold" style="font-family: ${font.family}">Aa</span><span class="text-[8px] font-black uppercase text-white/40">${font.name}</span>`;
+        grid.appendChild(btn);
+    });
+}
+
 window.setTheme = async (theme) => {
-  console.log('Setting pending theme:', theme);
   pendingTheme = { ...pendingTheme, ...theme };
-  
-  // Apply changes to the live preview and the current page immediately
   themeManager.applyTheme(pendingTheme);
-  
-  // Update UI button active states
   updateThemeButtonStates(theme);
-
-  // Instant visual feedback for color/gradient buttons
   const status = document.getElementById('save-status');
   status.innerHTML = `<div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div><span class="text-[10px] font-black uppercase tracking-widest text-white/40">Theme Previewing...</span>`;
   status.classList.remove('opacity-0');
@@ -438,26 +410,19 @@ function updateThemeButtonStates(theme) {
     btn.classList.remove('border-gold-500', 'bg-gold-500/10');
     btn.classList.add('border-white/5');
   });
-  
-  // Logic to find and highlight the selected button can be added here
 }
 
 window.setLayout = async (id) => {
-  console.log('Selecting layout:', id);
   pendingTheme.layout = id;
   document.querySelectorAll('.layout-card').forEach(c => c.classList.remove('active'));
   const card = document.getElementById(`layout-${id}`);
   if (card) {
     card.classList.add('active');
-    // Highlight the check dot
     card.querySelectorAll('.check-dot').forEach(dot => dot.classList.remove('opacity-0'));
   }
-  
-  // Update global themeManager and preview
   themeManager.currentTheme.layout = id;
   themeManager.applyTheme(pendingTheme);
   updateLivePreview(id);
-
   const status = document.getElementById('save-status');
   status.innerHTML = `<div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div><span class="text-[10px] font-black uppercase tracking-widest text-white/40">Layout Previewing...</span>`;
   status.classList.remove('opacity-0');
@@ -465,19 +430,13 @@ window.setLayout = async (id) => {
 };
 
 window.applyWallpaper = async (url) => {
-  console.log('Applying wallpaper:', url);
   selectedWallpaper = url;
   themeManager.applyWallpaper(url);
-  
-  // Update wallpaper grid active state
   document.querySelectorAll('#wallpaper-grid button').forEach(btn => {
     btn.classList.remove('border-gold-500');
     btn.classList.add('border-white/5');
-    if (btn.style.backgroundImage.includes(url)) {
-      btn.classList.add('border-gold-500');
-    }
+    if (btn.style.backgroundImage.includes(url)) btn.classList.add('border-gold-500');
   });
-
   const status = document.getElementById('save-status');
   status.innerHTML = `<div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div><span class="text-[10px] font-black uppercase tracking-widest text-white/40">Wallpaper Previewing...</span>`;
   status.classList.remove('opacity-0');
@@ -498,9 +457,8 @@ const TELEGRAM_NODES = {
 };
 
 async function init() {
+  renderFonts();
   const uid = themeManager.uid;
-  
-  // Update Telegram Join Link based on track from trainee profile
   const traineeSnap = await getDoc(doc(db, 'trainees', uid));
   if (traineeSnap.exists()) {
     const traineeData = traineeSnap.data();
@@ -509,35 +467,46 @@ async function init() {
       el.href = tgLink;
       el.classList.remove('opacity-20', 'pointer-events-none');
     });
+    
+    if (traineeData.privateWallpapers) {
+        const pGrid = document.getElementById('private-wallpaper-grid');
+        const pSection = document.getElementById('private-wallpaper-section');
+        pSection.classList.remove('hidden');
+        traineeData.privateWallpapers.forEach(url => {
+            const btn = document.createElement('button');
+            btn.className = "aspect-video rounded-xl bg-cover bg-center border border-white/5 hover:border-gold-500 transition-all active:scale-95";
+            btn.style.backgroundImage = `url('${url}')`;
+            btn.onclick = () => applyWallpaper(url);
+            pGrid.appendChild(btn);
+        });
+    }
   }
 
-  // 1. Wallpaper Custom Upload
   const uploadInput = document.getElementById('wallpaper-upload');
   uploadInput?.addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (file) {
+      const isGlobal = confirm("Would you like to add this to the GLOBAL gallery for everyone to use?\n\nClick OK for GLOBAL, Cancel for PRIVATE.");
       const tempUrl = URL.createObjectURL(file);
       selectedWallpaper = tempUrl;
       themeManager.applyWallpaper(tempUrl);
       
       const status = document.getElementById('save-status');
-      status.innerHTML = `<div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div><span class="text-[10px] font-black uppercase tracking-widest text-white/40">Ready for Cloudinary</span>`;
+      status.innerHTML = `<div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div><span class="text-[10px] font-black uppercase tracking-widest text-white/40">Ready to Commit (${isGlobal ? 'Global' : 'Private'})</span>`;
       status.classList.remove('opacity-0');
-      setTimeout(() => status.classList.add('opacity-0'), 3000);
+      
+      localStorage.setItem('sf_pending_upload_type', isGlobal ? 'global' : 'private');
     }
   });
 
-  // Fetch index.html to extract templates for preview
   await fetchTemplates();
-
-  // 2. Audit Trail
   const q = query(collection(db, 'audit_logs'), orderBy('timestamp', 'desc'), limit(20));
   onSnapshot(q, (snapshot) => {
     const trail = document.getElementById('audit-trail');
     if (!trail) return;
     trail.innerHTML = '';
-    snapshot.forEach(doc => {
-      const log = doc.data();
+    snapshot.forEach(docSnap => {
+      const log = docSnap.data();
       if (log.userId !== uid) return;
       const date = log.timestamp?.toDate().toLocaleString() || 'Just now';
       const item = document.createElement('div');
@@ -546,13 +515,13 @@ async function init() {
                      log.action === 'LAYOUT_UPDATE' ? `Switched to Layout ${log.modifications?.new || '?'}` : 
                      log.action === 'WALLPAPER_UPDATE' ? 'Updated Registry Wallpaper' : 
                      log.action === 'CONTROLS_UPDATE' ? 'Updated Atmosphere Settings' :
+                     log.action === 'FONT_UPDATE' ? `Updated Typography to ${log.modifications?.fontFamily?.split("'")[1] || 'New Font'}` :
                      'Registry Synchronized';
       item.innerHTML = `<div class="flex justify-between items-start mb-1"><p class="text-[8px] font-black uppercase text-gold-400">${log.action}</p><p class="text-[7px] text-white/20 font-mono">${date}</p></div><p class="text-[8px] text-white/40 uppercase tracking-tighter">${detail}</p>`;
       trail.appendChild(item);
     });
   });
 
-  // Initial State Sync
   if (themeManager.currentTheme.layout) {
     updateCheckDots(themeManager.currentTheme.layout);
     document.getElementById(`layout-${themeManager.currentTheme.layout}`)?.classList.add('active');
@@ -560,6 +529,43 @@ async function init() {
   }
   updateToggleUI();
 }
+
+window.handleExplicitSave = async () => {
+    const confirmBtn = document.getElementById('confirm-save-btn');
+    const modal = document.getElementById('confirm-modal');
+    modal.classList.remove('opacity-0', 'pointer-events-none');
+    
+    confirmBtn.onclick = async () => {
+        confirmBtn.disabled = true;
+        confirmBtn.innerText = "Syncing Neural Registry...";
+        
+        try {
+            if (selectedWallpaper) {
+                const isGlobal = localStorage.getItem('sf_pending_upload_type') === 'global';
+                await themeManager.saveWallpaper(selectedWallpaper, 'CUSTOMIZE', isGlobal);
+            }
+            if (selectedFont) {
+                await themeManager.saveFont(selectedFont);
+            }
+            await themeManager.saveTheme(pendingTheme);
+            
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            const status = document.getElementById('save-status');
+            status.innerHTML = `<div class="w-2 h-2 rounded-full bg-green-500"></div><span class="text-[10px] font-black uppercase tracking-widest text-white/40">Changes Committed</span>`;
+            status.classList.remove('opacity-0');
+            setTimeout(() => status.classList.add('opacity-0'), 3000);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            confirmBtn.disabled = false;
+            confirmBtn.innerText = "Confirm Commit";
+        }
+    };
+};
+
+window.closeModal = () => {
+    document.getElementById('confirm-modal').classList.add('opacity-0', 'pointer-events-none');
+};
 
 window.toggleSidebar = () => {
   const sidebar = document.getElementById('main-sidebar');
@@ -570,11 +576,10 @@ let dashboardTemplates = {};
 
 async function fetchTemplates() {
   try {
-    const response = await fetch('index.html');
+    const response = await fetch('../index.html');
     const html = await response.text();
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
-    
     for (let i = 1; i <= 10; i++) {
       const template = doc.getElementById(`t${i}`);
       if (template) {
@@ -591,77 +596,51 @@ function updateLivePreview(id) {
   if (!container) return;
   if (dashboardTemplates[id]) {
     container.innerHTML = dashboardTemplates[id];
-    const name = "HUMAN TRAINEE";
+    const name = "PREVIEW TRAINEE";
     container.querySelectorAll('.profile-name-target').forEach(el => el.innerText = name);
-    container.querySelectorAll('.user-name-target').forEach(el => el.innerText = name);
+    container.querySelectorAll('.user-name-target').forEach(el => el.innerText = "PREVIEW");
+    container.querySelectorAll('.profile-initials-target').forEach(el => el.innerText = "PT");
+    
+    container.style.fontFamily = selectedFont;
+    container.querySelectorAll('*').forEach(el => el.style.fontFamily = selectedFont);
   } else {
-    container.innerHTML = `<div class="flex items-center justify-center h-full"><p class="text-white/20 uppercase tracking-widest">Layout ${id} Structure (Fetching...)</p></div>`;
+    container.innerHTML = `<div class="flex items-center justify-center h-full text-white/20 uppercase tracking-widest">Structure T${id} Pending Registry Sync</div>`;
   }
 }
 
 function updateCheckDots(id) {
-  document.querySelectorAll('.check-dot').forEach(d => d.style.opacity = '0');
-  const dot = document.querySelector(`#layout-${id} .check-dot`);
-  if (dot) dot.style.opacity = '1';
+    document.querySelectorAll('.check-dot').forEach(dot => dot.classList.add('opacity-0'));
+    const card = document.getElementById(`layout-${id}`);
+    if (card) card.querySelector('.check-dot').classList.remove('opacity-0');
 }
 
 function updateToggleUI() {
-  const controls = themeManager.controls;
-  const glowBall = document.getElementById('glow-ball');
-  const lightBall = document.getElementById('light-ball');
-  const canvasBall = document.getElementById('canvas-ball');
-  if (glowBall) glowBall.className = `w-4 h-4 bg-white/40 rounded-full transition-all ${controls.glow ? 'translate-x-6 bg-gold-500' : ''}`;
-  if (lightBall) lightBall.className = `w-4 h-4 bg-white/40 rounded-full transition-all ${controls.light ? 'translate-x-6 bg-gold-500' : ''}`;
-  if (canvasBall) {
-    const isCanvas = localStorage.getItem('sf_canvas_enabled') !== 'false';
-    canvasBall.className = `w-4 h-4 bg-white/40 rounded-full transition-all ${isCanvas ? 'translate-x-6 bg-gold-500' : ''}`;
-  }
+    const controls = themeManager.controls;
+    document.getElementById('glow-ball').style.transform = controls.glow ? 'translateX(24px)' : 'translateX(0)';
+    document.getElementById('light-ball').style.transform = controls.light ? 'translateX(24px)' : 'translateX(0)';
+    document.getElementById('canvas-ball').style.transform = localStorage.getItem('sf_canvas_mode') === 'true' ? 'translateX(24px)' : 'translateX(0)';
 }
 
 window.toggleSetting = async (key) => {
-  if (key === 'canvas') {
-    const current = localStorage.getItem('sf_canvas_enabled') !== 'false';
-    localStorage.setItem('sf_canvas_enabled', !current);
+    const controls = { ...themeManager.controls };
+    if (key === 'glow') controls.glow = !controls.glow;
+    if (key === 'light') controls.light = !controls.light;
+    if (key === 'canvas') {
+        const mode = localStorage.getItem('sf_canvas_mode') === 'true';
+        localStorage.setItem('sf_canvas_mode', !mode);
+        updateToggleUI();
+        return;
+    }
+    await themeManager.saveControls(controls);
     updateToggleUI();
-    return;
-  }
-  const current = themeManager.controls;
-  const updated = { ...current, [key]: !current[key] };
-  await themeManager.saveControls(updated, 'CUSTOMIZE_HUB');
-  updateToggleUI();
 };
 
-window.handleExplicitSave = () => {
-  const modal = document.getElementById('confirm-modal');
-  modal.classList.remove('opacity-0', 'pointer-events-none');
-  modal.querySelector('.modal-content').classList.remove('scale-90');
-  
-  document.getElementById('confirm-save-btn').onclick = async () => {
-    if (pendingTheme.layout) await themeManager.saveLayout(pendingTheme.layout, 'CUSTOMIZE_HUB');
-    await themeManager.saveTheme(pendingTheme, 'CUSTOMIZE_HUB');
-    if (selectedWallpaper) await themeManager.saveWallpaper(selectedWallpaper, 'CUSTOMIZE_HUB');
-    
-    closeModal();
-    const status = document.getElementById('save-status');
-    status.classList.remove('opacity-0');
-    setTimeout(() => status.classList.add('opacity-0'), 3000);
-  };
-};
-
-window.closeModal = () => {
-  const modal = document.getElementById('confirm-modal');
-  modal.classList.add('opacity-0', 'pointer-events-none');
-  modal.querySelector('.modal-content').classList.add('scale-90');
-};
-
-window.logout = () => {
-  localStorage.removeItem('skillforge_mock_uid');
-  window.location.href = '../trainee-login/index.html';
-};
+window.logout = async () => { localStorage.removeItem('skillforge_mock_uid'); window.location.href = '../../trainee-login/index.html'; };
 
 init();
 </script>
-  <script type="module" src="../assets/canvas-daily.js"></script>
-  <script src="../assets/error-reporter.js"></script>
+<script type="module" src="../../assets/canvas-daily.js"></script>
+<script src="../../assets/error-reporter.js"></script>
 </body>
 </html>
+

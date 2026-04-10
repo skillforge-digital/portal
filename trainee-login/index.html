@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trainee Command Center Login • SkillForge Digital & Co. Ltd</title>
+  <title>Trainee Academy Center Login • SkillForge Digital & Co. Ltd</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -34,6 +34,8 @@
     .glass { background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); }
     .animate-slide-up { animation: slide-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     @keyframes slide-up { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    input { background: rgba(255,255,255,0.03) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; }
+    input:focus { border-color: #C9A84C !important; outline: none !important; background: rgba(255,255,255,0.05) !important; }
   </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-6">
@@ -51,7 +53,7 @@
                 <span class="text-[8px] text-gold font-bold tracking-[0.2em] uppercase">Digital & Co. Ltd</span>
             </div>
         </div>
-        <h1 class="text-3xl font-black text-white uppercase tracking-tighter">Command Center</h1>
+        <h1 class="text-3xl font-black text-white uppercase tracking-tighter">Academy Center</h1>
         <p class="text-slate-500 text-xs font-black uppercase tracking-[0.4em]">Secure Mastery Authentication</p>
     </div>
 
@@ -59,11 +61,16 @@
         <form id="login-form" class="space-y-6">
             <div class="space-y-2">
                 <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Email Address</label>
-                <input required id="email" type="email" placeholder="trainee@skillforgedigital.com.ng" class="w-full p-4 bg-white/5 border border-white/10 rounded-2xl text-white text-sm focus:border-gold outline-none transition-all">
+                <input required id="email" type="email" placeholder="trainee@skillforgedigital.com.ng" class="w-full p-4 rounded-2xl text-sm focus:border-gold outline-none transition-all">
             </div>
             <div class="space-y-2">
                 <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Mastery Password</label>
-                <input required id="password" type="password" placeholder="********" class="w-full p-4 bg-white/5 border border-white/10 rounded-2xl text-white text-sm focus:border-gold outline-none transition-all">
+                <div class="relative">
+                    <input required id="password" type="password" placeholder="********" class="w-full p-4 rounded-2xl text-sm focus:border-gold outline-none transition-all pr-12">
+                    <button type="button" onclick="togglePassword('password')" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-gold transition-colors">
+                        <i data-lucide="eye" class="w-4 h-4" id="eye-password"></i>
+                    </button>
+                </div>
             </div>
 
             <button type="submit" id="login-btn" class="w-full bg-gold text-navy py-5 rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] shadow-2xl hover:bg-white transition-all flex items-center justify-center gap-2">
@@ -106,6 +113,19 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
+
+    window.togglePassword = (id) => {
+        const input = document.getElementById(id);
+        const icon = document.getElementById(`eye-${id}`);
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.setAttribute('data-lucide', 'eye-off');
+        } else {
+            input.type = 'password';
+            icon.setAttribute('data-lucide', 'eye');
+        }
+        if (window.lucide) window.lucide.createIcons();
+    };
 
     document.getElementById('login-form').onsubmit = async (e) => {
         e.preventDefault();

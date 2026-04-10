@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Enrollment Hub • SkillForge Digital</title>
+  <title>Trainee Academy Center Registry • SkillForge Digital & Co. Ltd</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script>
@@ -76,9 +76,14 @@
                         <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Email Address</label>
                         <input required name="email" type="email" placeholder="trainee@skillforgedigital.com.ng" class="w-full p-4 rounded-2xl text-sm">
                     </div>
-                    <div class="space-y-2">
+                    <div class="space-y-2 relative">
                         <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Mastery Password</label>
-                        <input required name="password" type="password" placeholder="********" class="w-full p-4 rounded-2xl text-sm">
+                        <div class="relative">
+                            <input required id="reg-password" name="password" type="password" placeholder="********" class="w-full p-4 rounded-2xl text-sm pr-12">
+                            <button type="button" onclick="togglePassword('reg-password')" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-gold transition-colors">
+                                <i data-lucide="eye" class="w-4 h-4" id="eye-reg-password"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -87,6 +92,18 @@
                         <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Date of Birth (DD/MM)</label>
                         <input required name="dob" type="text" placeholder="e.g. 24/05" class="w-full p-4 rounded-2xl text-sm">
                     </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Gender</label>
+                        <select required name="gender" class="w-full p-4 rounded-2xl text-sm appearance-none cursor-pointer">
+                            <option value="" disabled selected>Select Your Gender...</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other / Prefer not to say</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="space-y-2">
                         <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Selected Mastery Track</label>
                         <select required name="track" class="w-full p-4 rounded-2xl text-sm appearance-none cursor-pointer">
@@ -102,6 +119,14 @@
                             <option value="Web Development">Web Development</option>
                             <option value="Cyber Security">Cyber Security</option>
                         </select>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Profile Registry Image</label>
+                        <label class="w-full p-4 rounded-2xl text-sm glass flex items-center justify-between cursor-pointer hover:bg-white/5 transition-all">
+                            <span id="file-name-label" class="text-slate-500">Upload Passport (JPG/PNG)</span>
+                            <i data-lucide="upload" class="w-4 h-4 text-gold"></i>
+                            <input type="file" id="profile-upload" class="hidden" accept="image/*">
+                        </label>
                     </div>
                 </div>
 
@@ -213,6 +238,34 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
+
+    window.togglePassword = (id) => {
+        const input = document.getElementById(id);
+        const icon = document.getElementById(`eye-${id}`);
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.setAttribute('data-lucide', 'eye-off');
+        } else {
+            input.type = 'password';
+            icon.setAttribute('data-lucide', 'eye');
+        }
+        if (window.lucide) window.lucide.createIcons();
+    };
+
+    const profileUpload = document.getElementById('profile-upload');
+    const fileNameLabel = document.getElementById('file-name-label');
+    let uploadedProfileUrl = null;
+
+    profileUpload?.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            fileNameLabel.innerText = file.name;
+            uploadedProfileUrl = URL.createObjectURL(file); // Temporary local URL
+            document.getElementById('selected-avatar').value = uploadedProfileUrl;
+            // Deselect other avatars
+            document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('selected'));
+        }
+    });
 
     // Initialize Avatars
     const avatarGrid = document.getElementById('avatar-grid');

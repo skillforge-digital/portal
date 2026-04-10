@@ -1,36 +1,54 @@
-
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Helper function to check if the user is authenticated
+    // Basic auth check
     function isAuthenticated() {
       return request.auth != null;
     }
 
-    // Helper function to check if the user is accessing their own data
+    // Ownership check
     function isOwner(userId) {
       return request.auth.uid == userId;
     }
 
-    // Trainees collection: allow registration and login queries
+    // Trainees collection: Essential for dashboard and leaderboard
     match /trainees/{userId} {
-      allow read, write: if true; 
+      // Allow individual read for dashboard sync
+      allow get: if isAuthenticated() && isOwner(userId);
+      
+      // Allow listing for the Hall of Fame (Leaderboard)
+      // Note: In production, consider a cloud function to strip sensitive data
+      allow list: if isAuthenticated();
+      
+      // Strict write permissions
+      allow create: if isAuthenticated() && isOwner(userId);
+      allow update: if isAuthenticated() && isOwner(userId);
+      allow delete: if false; // Prevent accidental account deletion from UI
     }
 
-    // Audit logs: for tracking changes
+    // Registry logs: for tracking mastery and XP changes
     match /audit_logs/{logId} {
-      allow create: if true;
-      allow read: if isAuthenticated() && isOwner(resource.data.userId);
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow update, delete: if false;
     }
 
-    // Presence: for real-time study time and XP
+    // Real-time presence and session tracking
     match /presence/{userId} {
-      allow read, write: if true;
+      allow read, write: if isAuthenticated() && isOwner(userId);
     }
 
-    // Broad rules for registration counters and artifacts
-    match /seasons/{seasonId}/{allPaths=**} {
-      allow read, write: if isAuthenticated();
+    // Global assets and configuration (e.g., registry counters)
+    match /global_config/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // System only
+    }
+
+    // Global Wallpapers: shared registry for all trainees
+    match /wallpapers/{wallpaperId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated(); // Allow any trainee to contribute to global gallery
+      allow update, delete: if false; // Prevent modification or deletion by other users
     }
   }
 }
