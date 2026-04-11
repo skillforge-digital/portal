@@ -116,6 +116,21 @@ tailwind.config = {
   .pulse-ring::after { border-color: var(--accent-color) !important; }
   .sidebar-link.active { background: rgba(var(--accent-color-rgb), 0.1) !important; color: var(--accent-color) !important; border-right-color: var(--accent-color) !important; }
   .glow-mode .glass { box-shadow: 0 0 20px rgba(var(--accent-color-rgb), 0.2) !important; }
+
+  /* Orbit Structure Scoping Fix */
+  .orbit-satellite {
+    position: absolute;
+    width: 150px;
+    padding: 24px;
+    border-radius: 24px;
+    text-align: center;
+    background: rgba(12, 24, 50, 0.55);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    pointer-events: auto;
+    z-index: 30;
+  }
 </style>
 </head>
 <body class="noise-bg text-white overflow-x-hidden min-h-screen flex flex-col md:flex-row">
@@ -467,44 +482,24 @@ tailwind.config = {
   <!-- T7: Orbit Layout -->
   <section id="t7" class="template-section min-h-screen flex items-center justify-center relative p-10 overflow-hidden">
     <div class="absolute inset-0 bg-radial from-gold-500/5 to-transparent opacity-50"></div>
-    <div class="relative z-10 w-full max-w-4xl aspect-square flex items-center justify-center pointer-events-none">
-      <div class="absolute inset-0 border border-white/5 rounded-full animate-spin-slow"></div>
-      <div class="absolute inset-[15%] border border-white/10 rounded-full animate-spin-reverse-slow"></div>
-      
+    <div class="relative z-10 w-full max-w-4xl aspect-square flex items-center justify-center pointer-events-none" id="orbit-stage">
       <!-- Central Body -->
-      <div class="glass-strong rounded-full p-16 md:p-24 text-center z-20 glow-gold border border-gold-500/20 max-w-[80vw] pointer-events-auto">
+      <div class="glass-strong rounded-full p-16 md:p-24 text-center z-20 glow-gold border border-gold-500/20 max-w-[80vw] pointer-events-auto shadow-4K">
         <h1 class="text-3xl md:text-5xl font-black profile-name-target truncate mb-2">Loading...</h1>
         <p class="text-gold-400 text-[10px] font-black uppercase tracking-[0.5em] profile-track-target">Academy Trainee</p>
         
-        <!-- Level & XP inside Orbit center -->
         <div class="mt-8 pt-8 border-t border-white/5 space-y-4">
           <div class="flex justify-between items-center px-4">
             <p class="text-[8px] font-black text-white/30 uppercase tracking-widest">Mastery XP</p>
             <p class="text-[10px] font-black text-gold-400 level-target">Lvl 1</p>
           </div>
-          <div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+          <div class="w-full h-2 bg-white/5 rounded-full overflow-hidden">
             <div class="progress-fill h-full bg-gold-500 xp-bar-target" style="width:0%"></div>
           </div>
           <p class="text-[10px] font-black text-white/60 xp-text-target">0 / 1,000 XP</p>
         </div>
       </div>
-
-      <!-- Orbiting Satellites -->
-      <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 glass p-6 rounded-3xl text-center min-w-[150px] orbit-1 pointer-events-auto shadow-2xl border-gold-500/20">
-          <p class="text-[8px] font-black text-white/30 uppercase mb-1">Study Time</p>
-          <p class="text-xl font-black study-time-target">00D 00H</p>
-      </div>
-      
-      <div class="absolute bottom-0 right-0 glass p-8 rounded-[40px] w-72 orbit-2 hidden md:block pointer-events-auto shadow-2xl border-white/5">
-          <p class="text-[8px] font-black text-white/30 uppercase mb-4 tracking-widest">Fame Registry</p>
-          <div class="space-y-3 leaderboard-top-target"></div>
-      </div>
-      
-      <div class="absolute bottom-10 left-0 glass p-6 rounded-3xl text-center min-w-[150px] orbit-3 pointer-events-auto shadow-2xl border-gold-500/20">
-          <p class="text-[8px] font-black text-gold-400 uppercase mb-1">Cert Progress</p>
-          <p class="text-xl font-black cert-days-target">0 / 14</p>
-          <div class="w-full h-1 bg-white/5 rounded-full mt-2 overflow-hidden"><div class="progress-fill h-full bg-gold-500 cert-bar-target"></div></div>
-      </div>
+      <!-- Satellites are dynamically injected here to prevent bleed -->
     </div>
   </section>
 
@@ -836,6 +831,9 @@ async function loadLeaderboard() {
 window.showLayout = (num) => {
   console.log('Activating structure:', num);
   
+  // Cleanup dynamic elements to prevent bleed
+  document.querySelectorAll('.orbit-satellite, .orbit-ring').forEach(el => el.remove());
+
   const savedTheme = JSON.parse(localStorage.getItem('sf_global_theme') || '{}');
   if (savedTheme.layout != num) {
     savedTheme.layout = num;
@@ -851,6 +849,34 @@ window.showLayout = (num) => {
     target.classList.add('active-template');
     localStorage.setItem('sf_preferred_layout', num);
     
+    // Inject Orbit Satellites only if T7 is active
+    if (num == 7) {
+      const stage = document.getElementById('orbit-stage');
+      if (stage) {
+        const ring1 = document.createElement('div'); ring1.className = 'orbit-ring absolute inset-0 border border-white/5 rounded-full animate-spin-slow';
+        const ring2 = document.createElement('div'); ring2.className = 'orbit-ring absolute inset-[15%] border border-white/10 rounded-full animate-spin-reverse-slow';
+        
+        const sat1 = document.createElement('div');
+        sat1.className = 'orbit-satellite orbit-1';
+        sat1.innerHTML = `<p class="text-[8px] font-black text-white/30 uppercase mb-1">Study Time</p><p class="text-xl font-black study-time-target">00D 00H</p>`;
+        
+        const sat2 = document.createElement('div');
+        sat2.className = 'orbit-satellite orbit-2 hidden md:block !w-72 !p-8 !rounded-[40px]';
+        sat2.innerHTML = `<p class="text-[8px] font-black text-white/30 uppercase mb-4 tracking-widest">Fame Registry</p><div class="space-y-3 leaderboard-top-target"></div>`;
+        
+        const sat3 = document.createElement('div');
+        sat3.className = 'orbit-satellite orbit-3';
+        sat3.innerHTML = `<p class="text-[8px] font-black text-gold-400 uppercase mb-1">Cert Progress</p><p class="text-xl font-black cert-days-target">0 / 14</p><div class="w-full h-1 bg-white/5 rounded-full mt-2 overflow-hidden"><div class="progress-fill h-full bg-gold-500 cert-bar-target"></div></div>`;
+        
+        stage.appendChild(ring1); stage.appendChild(ring2);
+        stage.appendChild(sat1); stage.appendChild(sat2); stage.appendChild(sat3);
+        
+        // Refresh dynamic content for newly injected elements
+        startRealtimePresence();
+        loadLeaderboard();
+      }
+    }
+
     document.querySelectorAll('.layout-switch-btn').forEach(btn => {
       btn.classList.remove('text-gold-400', 'bg-gold-500/10', 'border-gold-500/20');
       btn.classList.add('text-white/40');

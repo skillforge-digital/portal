@@ -3,18 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SkillForge — Customize Your Experience</title>
+<title>SkillForge — Design Studio</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;700&family=Caveat:wght@400;700&family=Unbounded:wght@400;700&family=Inter:wght@400;700&family=Playfair+Display:wght@400;700&family=Outfit:wght@400;700&family=Syne:wght@400;700&family=Lexend:wght@400;700&family=Plus+Jakarta+Sans:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;700&family=Caveat:wght@400;700&family=Unbounded:wght@400;700&family=Inter:wght@400;700&family=Playfair+Display:wght@400;700&family=Outfit:wght@400;700&family=Syne:wght@400;700&family=Lexend:wght@400;700&family=Plus+Jakarta+Sans:wght@400;700&family=Cinzel:wght@400;700&family=Montserrat:wght@400;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <script>
 tailwind.config = {
   theme: {
     extend: {
-      fontFamily: { 
-        grotesk: ['Space Grotesk', 'sans-serif'],
-        serif: ['Instrument Serif', 'serif']
-      },
       colors: {
         navy: { 950:'#040810', 900:'#070d1a', 800:'#0c1829', 700:'#112240', 600:'#1a3358' },
         gold: { 300:'#fcd34d', 400:'#fbbf24', 500:'#f59e0b', 600:'#d97706', 700:'#b45309' },
@@ -24,36 +20,47 @@ tailwind.config = {
 }
 </script>
 <style>
-  :root { 
-    --font-main: 'Space Grotesk', sans-serif;
-    --accent-color: #f59e0b;
-    --accent-color-rgb: 245, 158, 11;
-  }
-  * { font-family: var(--font-main); transition: font-family 0.3s ease; }
+  :root { --font-main: 'Space Grotesk', sans-serif; --accent-color: #f59e0b; --accent-color-rgb: 245, 158, 11; }
+  * { font-family: var(--font-main); transition: all 0.3s ease; }
   body { background: #040810; color: white; min-height: 100dvh; display: flex; flex-direction: column; overflow-x: hidden; }
   .glass { background: rgba(12, 24, 50, 0.55); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
   .glass-strong { background: rgba(12, 24, 50, 0.75); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.1); }
   .sidebar-link.active { background: rgba(var(--accent-color-rgb), 0.1); color: var(--accent-color); border-right: 3px solid var(--accent-color); }
   
-  .gradient-swatch { width: 100%; aspect-ratio: 1; border-radius: 20px; cursor: pointer; border: 2px solid transparent; transition: all 0.3s ease; }
-  .gradient-swatch:hover { transform: scale(1.05); }
-  .gradient-swatch.active { border-color: white; transform: scale(1.1); box-shadow: 0 0 20px rgba(255,255,255,0.2); }
+  .swatch { width: 100%; aspect-ratio: 1; border-radius: 20px; cursor: pointer; border: 2px solid transparent; position: relative; overflow: hidden; }
+  .swatch:hover { transform: scale(1.05); z-index: 10; }
+  .swatch.active { border-color: white; transform: scale(1.1); box-shadow: 0 0 25px rgba(var(--accent-color-rgb), 0.4); }
   
-  .font-card { cursor: pointer; border: 1px solid rgba(255,255,255,0.05); transition: all 0.3s ease; }
+  .dual-inner { position: absolute; inset: 0; display: flex; transform: rotate(45deg) scale(1.5); }
+  .dual-1 { flex: 1; }
+  .dual-2 { flex: 1; }
+
+  .wallpaper-swatch { width: 100%; aspect-ratio: 16/9; border-radius: 24px; cursor: pointer; border: 2px solid transparent; background-size: cover; background-position: center; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+  .wallpaper-swatch:hover { transform: translateY(-4px); }
+  .wallpaper-swatch.active { border-color: var(--accent-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+
+  .font-card { cursor: pointer; border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; padding: 24px; transition: all 0.3s ease; }
+  .font-card:hover { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.1); }
   .font-card.active { border-color: var(--accent-color); background: rgba(var(--accent-color-rgb), 0.1); }
   
-  #loading-screen { position: fixed; inset: 0; background: #040810; z-index: 1000; display: flex; items-center: center; justify-content: center; transition: opacity 0.5s ease; }
+  #loading-screen { position: fixed; inset: 0; background: #040810; z-index: 1000; display: flex; flex-direction: column; items-center: center; justify-content: center; transition: opacity 0.5s ease; }
+  
+  .tab-btn { padding: 14px 28px; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.2em; border-radius: 18px; transition: all 0.3s ease; color: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.05); }
+  .tab-btn.active { background: var(--accent-color); color: #040810; border-color: var(--accent-color); box-shadow: 0 0 20px rgba(var(--accent-color-rgb), 0.3); }
+
   .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-  .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
   .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--accent-color); border-radius: 10px; }
 </style>
 </head>
 <body class="flex flex-col md:flex-row">
 
 <div id="loading-screen">
-  <div class="flex flex-col items-center gap-4">
-    <div class="w-12 h-12 border-4 border-gold-500/20 border-t-gold-500 rounded-full animate-spin"></div>
-    <p class="text-[10px] font-black uppercase tracking-[0.4em] text-gold-400">Syncing Design Registry...</p>
+  <div class="flex flex-col items-center gap-6">
+    <div class="w-16 h-16 border-4 border-gold-500/20 border-t-gold-500 rounded-full animate-spin"></div>
+    <div class="text-center">
+      <p class="text-[10px] font-black uppercase tracking-[0.5em] text-gold-400">Synchronizing Atmosphere</p>
+      <p class="text-[8px] text-white/20 uppercase tracking-[0.3em] mt-2">Restoring Premium Assets</p>
+    </div>
   </div>
 </div>
 
@@ -92,72 +99,101 @@ tailwind.config = {
       <a href="./" class="sidebar-link active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest"><i class="fa-solid fa-wand-magic-sparkles w-4"></i> Customize</a>
     </nav>
   </div>
-  <div class="p-8 border-t border-white/5">
-    <button onclick="logout()" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-red-400/70 hover:text-red-400 hover:bg-red-400/10 transition-all">
-      <i class="fa-solid fa-right-from-bracket w-4"></i> Sign Out
-    </button>
-  </div>
 </aside>
 
 <main class="flex-1 md:ml-72 p-6 md:p-10 pt-24 md:pt-20">
   <div class="max-w-6xl mx-auto space-y-12">
-    <header>
-      <p class="text-gold-400 text-sm font-medium tracking-widest uppercase">Design Studio</p>
-      <h1 class="text-3xl md:text-5xl font-bold mt-1 uppercase tracking-tighter">Atmosphere Control</h1>
+    <header class="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8">
+      <div>
+        <p class="text-gold-400 text-sm font-medium tracking-widest uppercase">Atmosphere Control</p>
+        <h1 class="text-4xl md:text-6xl font-black mt-1 uppercase tracking-tighter">Design Studio</h1>
+      </div>
+      <div class="flex gap-2 p-1.5 glass rounded-[24px]">
+        <button onclick="setTab('colors')" id="tab-colors" class="tab-btn active">Colors</button>
+        <button onclick="setTab('wallpapers')" id="tab-wallpapers" class="tab-btn">Wallpapers</button>
+        <button onclick="setTab('fonts')" id="tab-fonts" class="tab-btn">Fonts</button>
+      </div>
     </header>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
-      <!-- Left Column: Theme Presets -->
-      <div class="lg:col-span-2 space-y-12">
-        <section class="space-y-6">
-          <div class="flex items-center justify-between">
-            <h2 class="text-[11px] font-black uppercase tracking-[0.4em] text-white/40">Premium Atmosphere Gradients</h2>
-            <span class="text-[8px] font-bold text-gold-500 uppercase px-2 py-0.5 rounded-full bg-gold-500/10">25 Presets</span>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+      <div class="lg:col-span-2 space-y-16">
+        <!-- Colors Tab -->
+        <section id="section-colors" class="space-y-12">
+          <div class="space-y-8">
+            <div class="flex items-center justify-between">
+              <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">35 Premium Dual Color Masters</h2>
+              <span class="text-[8px] font-bold text-gold-500 bg-gold-500/10 px-3 py-1 rounded-full uppercase">Solid Pairs</span>
+            </div>
+            <div class="grid grid-cols-4 md:grid-cols-7 gap-5" id="dual-grid"></div>
           </div>
-          <div class="grid grid-cols-3 md:grid-cols-5 gap-4" id="gradient-grid">
-            <!-- Gradients injected via script -->
+          <div class="space-y-8">
+            <div class="flex items-center justify-between">
+              <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">Atmospheric Neural Gradients</h2>
+              <span class="text-[8px] font-bold text-gold-500 bg-gold-500/10 px-3 py-1 rounded-full uppercase">Gradients</span>
+            </div>
+            <div class="grid grid-cols-3 md:grid-cols-5 gap-5" id="gradient-grid"></div>
           </div>
         </section>
 
-        <section class="space-y-6">
-          <h2 class="text-[11px] font-black uppercase tracking-[0.4em] text-white/40">Typography Matrix</h2>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="font-grid">
-            <!-- Fonts injected via script -->
+        <!-- Wallpapers Tab -->
+        <section id="section-wallpapers" class="hidden space-y-12">
+          <div class="space-y-8">
+            <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">20+ Premium Motion Atmosphere</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="wallpaper-grid"></div>
+          </div>
+        </section>
+
+        <!-- Fonts Tab -->
+        <section id="section-fonts" class="hidden space-y-12">
+          <div class="space-y-8">
+            <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">15 Premium Neural Typography</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="font-grid"></div>
           </div>
         </section>
       </div>
 
-      <!-- Right Column: Live Settings & Uploads -->
+      <!-- Settings Sidebar -->
       <div class="space-y-8">
-        <div class="glass p-8 rounded-[40px] space-y-8">
-          <h3 class="text-[11px] font-black uppercase tracking-[0.4em] text-white/40">Live Matrix</h3>
-          <div class="p-6 rounded-3xl bg-white/5 border border-white/5 space-y-4" id="preview-box">
-            <p class="text-gold-400 text-[10px] font-black uppercase tracking-widest">Active State</p>
-            <h4 class="text-2xl font-bold tracking-tight">Neural Command</h4>
-            <div class="w-full h-1 bg-white/10 rounded-full overflow-hidden"><div class="h-full bg-gold-500 w-2/3"></div></div>
-          </div>
+        <div class="glass p-10 rounded-[48px] sticky top-24 space-y-10">
+          <h3 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">Neural State</h3>
           
-          <div class="space-y-4 pt-4 border-t border-white/5">
-            <label class="w-full glass-strong p-5 rounded-3xl flex items-center justify-between cursor-pointer hover:bg-white/5 transition-all group">
-              <div class="flex flex-col">
-                <span class="text-[10px] font-black uppercase tracking-widest text-white/60">Upload Wallpaper</span>
-                <span class="text-[8px] font-bold text-white/20 uppercase">JPG/PNG Atmosphere</span>
+          <div class="p-8 rounded-[32px] bg-white/5 border border-white/5 space-y-6 overflow-hidden relative group" id="preview-box">
+            <div class="relative z-10">
+              <p class="text-gold-400 text-[10px] font-black uppercase tracking-widest mb-1">Matrix Preview</p>
+              <h4 class="text-3xl font-black tracking-tighter mb-6" id="preview-text">Academy Node</h4>
+              <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                <div class="h-full bg-gold-500 w-2/3" id="preview-bar"></div>
               </div>
-              <div class="w-10 h-10 rounded-xl bg-gold-500/10 flex items-center justify-center text-gold-500 group-hover:bg-gold-500 group-hover:text-navy-950 transition-all">
-                <i class="fa-solid fa-image"></i>
-              </div>
-              <input type="file" id="wallpaper-input" class="hidden" accept="image/*">
-            </label>
-            
-            <button onclick="resetTheme()" class="w-full p-5 rounded-3xl text-[10px] font-black uppercase tracking-widest text-red-400/50 hover:text-red-400 hover:bg-red-400/10 transition-all">
-              Reset Neural Atmosphere
-            </button>
+            </div>
           </div>
-        </div>
 
-        <button onclick="commitDesign()" id="save-btn" class="w-full bg-gold-500 text-navy-950 py-6 rounded-3xl font-black uppercase text-[11px] tracking-[0.3em] shadow-2xl hover:bg-white hover:scale-[1.02] active:scale-[0.98] transition-all">
-          Sync Design Matrix
-        </button>
+          <div class="space-y-5 pt-6 border-t border-white/5">
+            <div class="flex items-center justify-between p-5 rounded-3xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all">
+              <div class="flex flex-col">
+                <span class="text-[10px] font-black uppercase tracking-widest text-white/60">7-Day Canvas</span>
+                <span class="text-[8px] font-bold text-white/20 uppercase mt-1">Daily Atmosphere Change</span>
+              </div>
+              <button onclick="toggleCanvas()" id="canvas-toggle" class="w-14 h-7 rounded-full bg-white/10 relative transition-all">
+                <div class="absolute top-1 left-1 w-5 h-5 rounded-full bg-white transition-all shadow-lg"></div>
+              </button>
+            </div>
+
+            <label class="w-full glass-strong p-6 rounded-3xl flex items-center justify-between cursor-pointer hover:bg-white/10 transition-all group">
+              <div class="flex flex-col">
+                <span class="text-[10px] font-black uppercase tracking-widest text-white/60">Upload Custom</span>
+                <span class="text-[8px] font-bold text-white/20 uppercase mt-1">JPG / PNG / WEBP</span>
+              </div>
+              <div class="w-12 h-12 rounded-2xl bg-gold-500/10 flex items-center justify-center text-gold-500 group-hover:bg-gold-500 group-hover:text-navy-950 transition-all">
+                <i class="fa-solid fa-camera-retro text-xl"></i>
+              </div>
+              <input type="file" id="wallpaper-upload" class="hidden" accept="image/*">
+            </label>
+          </div>
+
+          <button onclick="commitDesign()" id="save-btn" class="w-full bg-gold-500 text-navy-950 py-7 rounded-[32px] font-black uppercase text-[11px] tracking-[0.4em] shadow-4K hover:bg-white hover:scale-[1.02] active:scale-[0.98] transition-all">
+            Commit Design Matrix
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -188,47 +224,93 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 const uid = themeManager.uid;
-let currentDesign = { type: 'gradient', c1: '#040810', c2: '#0c1829', font: 'Space Grotesk' };
-let pendingWallpaper = null;
+let currentDesign = { type: 'solid-pair', primary: '#040810', secondary: '#f59e0b', font: 'Space Grotesk' };
+let pendingFile = null;
+
+const dualColors = [
+  { p: '#040810', s: '#f59e0b' }, { p: '#070d1a', s: '#fbbf24' }, { p: '#0c1829', s: '#fcd34d' },
+  { p: '#112240', s: '#60a5fa' }, { p: '#1a3358', s: '#3b82f6' }, { p: '#1e1b4b', s: '#8b5cf6' },
+  { p: '#312e81', s: '#a78bfa' }, { p: '#4c1d95', s: '#c084fc' }, { p: '#581c87', s: '#d8b4fe' },
+  { p: '#701a75', s: '#f0abfc' }, { p: '#86198f', s: '#fae8ff' }, { p: '#9d174d', s: '#fbcfe8' },
+  { p: '#be123c', s: '#fda4af' }, { p: '#9f1239', s: '#fecdd3' }, { p: '#7f1d1d', s: '#fca5a5' },
+  { p: '#991b1b', s: '#fecaca' }, { p: '#b91c1c', s: '#fee2e2' }, { p: '#9a3412', s: '#fdba74' },
+  { p: '#c2410c', s: '#fed7aa' }, { p: '#ea580c', s: '#ffedd5' }, { p: '#d97706', s: '#fef3c7' },
+  { p: '#b45309', s: '#fffbeb' }, { p: '#854d0e', s: '#fef9c3' }, { p: '#713f12', s: '#fef08a' },
+  { p: '#3f6212', s: '#bef264' }, { p: '#4d7c0f', s: '#d9f99d' }, { p: '#166534', s: '#bbf7d0' },
+  { p: '#15803d', s: '#dcfce7' }, { p: '#14532d', s: '#f0fdf4' }, { p: '#065f46', s: '#99f6e4' },
+  { p: '#0f766e', s: '#ccfbf1' }, { p: '#115e59', s: '#2dd4bf' }, { p: '#134e4a', s: '#5eead4' },
+  { p: '#1e3a8a', s: '#bfdbfe' }, { p: '#1e40af', s: '#dbeafe' }
+];
 
 const gradients = [
   { c1: '#040810', c2: '#0c1829' }, { c1: '#0f172a', c2: '#1e293b' }, { c1: '#111827', c2: '#1f2937' },
   { c1: '#0c0a09', c2: '#1c1917' }, { c1: '#171717', c2: '#262626' }, { c1: '#020617', c2: '#0f172a' },
   { c1: '#050505', c2: '#1a1a1a' }, { c1: '#080c14', c2: '#141c2c' }, { c1: '#0a101d', c2: '#162231' },
   { c1: '#000000', c2: '#121212' }, { c1: '#1a365d', c2: '#2a4365' }, { c1: '#1c4532', c2: '#22543d' },
-  { c1: '#702459', c2: '#3b122d' }, { c1: '#2d3748', c2: '#1a202c' }, { c1: '#4a5568', c2: '#2d3748' },
-  { c1: '#1a202c', c2: '#000000' }, { c1: '#2c5282', c2: '#1a365d' }, { c1: '#276749', c2: '#1c4532' },
-  { c1: '#9b2c2c', c2: '#742a2a' }, { c1: '#2b6cb0', c2: '#2c5282' }, { c1: '#2f855a', c2: '#276749' },
-  { c1: '#c05621', c2: '#9c4221' }, { c1: '#805ad5', c2: '#6b46c1' }, { c1: '#d53f8c', c2: '#b83280' },
-  { c1: '#3182ce', c2: '#2b6cb0' }
+  { c1: '#702459', c2: '#3b122d' }, { c1: '#2d3748', c2: '#1a202c' }, { c1: '#4a5568', c2: '#2d3748' }
 ];
 
-const fonts = [
-  { name: 'Space Grotesk', class: 'font-grotesk' },
-  { name: 'Instrument Serif', class: 'font-serif' },
-  { name: 'JetBrains Mono', class: 'font-mono' },
-  { name: 'Plus Jakarta Sans', class: 'font-jakarta' }
+const wallpapers = [
+  "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=2574&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1635776062127-d379bfcba9f8?q=80&w=2532&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=2670&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2670&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2658&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=2670&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1506318137071-a8e063b4b477?q=80&w=2670&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?q=80&w=2671&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1477346611705-65d1883cee1e?q=80&w=2670&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=2670&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1439405326854-014607f694d7?q=80&w=2670&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=2670&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=2670&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=2674&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=2560&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1501854140801-50d01698950b?q=80&w=2560&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?q=80&w=2560&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1426604966848-d7adac402bff?q=80&w=2560&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?q=80&w=2560&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1505506819641-4ad459bfed01?q=80&w=2560&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=2560&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?q=80&w=2560&auto=format&fit=crop"
 ];
 
 async function init() {
-  const grid = document.getElementById('gradient-grid');
+  const dGrid = document.getElementById('dual-grid');
+  dualColors.forEach(d => {
+    const sw = document.createElement('div');
+    sw.className = 'swatch';
+    sw.innerHTML = `<div class="dual-inner"><div class="dual-1" style="background:${d.p}"></div><div class="dual-2" style="background:${d.s}"></div></div>`;
+    sw.onclick = () => { currentDesign.primary = d.p; currentDesign.secondary = d.s; currentDesign.type = 'solid-pair'; updatePreview(); };
+    dGrid.appendChild(sw);
+  });
+
+  const gGrid = document.getElementById('gradient-grid');
   gradients.forEach(g => {
     const sw = document.createElement('div');
-    sw.className = 'gradient-swatch';
+    sw.className = 'swatch';
     sw.style.background = `linear-gradient(135deg, ${g.c1}, ${g.c2})`;
-    sw.onclick = () => {
-      currentDesign.c1 = g.c1; currentDesign.c2 = g.c2; currentDesign.type = 'gradient';
-      updatePreview();
-    };
-    grid.appendChild(sw);
+    sw.onclick = () => { currentDesign.c1 = g.c1; currentDesign.c2 = g.c2; currentDesign.type = 'gradient'; updatePreview(); };
+    gGrid.appendChild(sw);
+  });
+
+  const wGrid = document.getElementById('wallpaper-grid');
+  wallpapers.forEach(w => {
+    const sw = document.createElement('div');
+    sw.className = 'wallpaper-swatch';
+    sw.style.backgroundImage = `url(${w})`;
+    sw.onclick = () => { currentDesign.wallpaper = w; currentDesign.type = 'wallpaper'; updatePreview(); };
+    wGrid.appendChild(sw);
   });
 
   const fGrid = document.getElementById('font-grid');
-  fonts.forEach(f => {
+  themeManager.fonts.forEach(f => {
     const card = document.createElement('div');
-    card.className = `font-card p-6 rounded-3xl ${f.class}`;
-    card.innerHTML = `<p class="text-[8px] font-black uppercase tracking-widest text-white/30 mb-2">${f.name}</p><p class="text-xl font-bold">Atmosphere Font</p>`;
-    card.onclick = () => { currentDesign.font = f.name; updatePreview(); };
+    card.className = `font-card`;
+    card.style.fontFamily = f.family;
+    card.innerHTML = `<p class="text-[8px] font-black uppercase tracking-widest text-white/30 mb-2">${f.name}</p><p class="text-xl font-bold">Neural Typography</p>`;
+    card.onclick = () => { currentDesign.fontFamily = f.family; currentDesign.fontName = f.name; updatePreview(); };
     fGrid.appendChild(card);
   });
 
@@ -237,27 +319,25 @@ async function init() {
       const snap = await getDoc(doc(db, 'trainees', uid));
       if (snap.exists()) {
         const data = snap.data();
-        if (data.theme) {
-            currentDesign = { ...currentDesign, ...data.theme };
-            updatePreview();
-        }
+        if (data.theme) currentDesign = { ...currentDesign, ...data.theme };
+        updatePreview();
+        applyControlUI(data.controls || {});
       }
       document.getElementById('loading-screen').style.opacity = '0';
       setTimeout(() => document.getElementById('loading-screen').classList.add('hidden'), 500);
-    } else {
-      window.location.href = '../../trainee-login/';
     }
   });
 
-  document.getElementById('wallpaper-input').onchange = (e) => {
+  document.getElementById('wallpaper-upload').onchange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      pendingWallpaper = file;
+      pendingFile = file;
       currentDesign.type = 'wallpaper';
       const reader = new FileReader();
       reader.onload = (ev) => {
-        document.getElementById('preview-box').style.backgroundImage = `url(${ev.target.result})`;
-        document.getElementById('preview-box').style.backgroundSize = 'cover';
+        const box = document.getElementById('preview-box');
+        box.style.background = `url(${ev.target.result})`;
+        box.style.backgroundSize = 'cover';
       };
       reader.readAsDataURL(file);
     }
@@ -266,54 +346,71 @@ async function init() {
 
 function updatePreview() {
   const box = document.getElementById('preview-box');
-  if (currentDesign.type === 'gradient') {
+  const text = document.getElementById('preview-text');
+  const bar = document.getElementById('preview-bar');
+  
+  if (currentDesign.type === 'solid-pair') {
+    box.style.background = currentDesign.primary;
+    bar.style.backgroundColor = currentDesign.secondary;
+    document.documentElement.style.setProperty('--accent-color', currentDesign.secondary);
+  } else if (currentDesign.type === 'gradient') {
     box.style.background = `linear-gradient(135deg, ${currentDesign.c1}, ${currentDesign.c2})`;
+    bar.style.backgroundColor = currentDesign.c1;
+    document.documentElement.style.setProperty('--accent-color', currentDesign.c1);
+  } else if (currentDesign.type === 'wallpaper') {
+    box.style.background = `url(${currentDesign.wallpaper})`;
+    box.style.backgroundSize = 'cover';
+    bar.style.backgroundColor = '#f59e0b';
   }
-  box.style.fontFamily = currentDesign.font;
   
-  document.querySelectorAll('.gradient-swatch').forEach(s => {
-    const grad = `linear-gradient(135deg, ${currentDesign.c1}, ${currentDesign.c2})`;
-    s.classList.toggle('active', s.style.background.replace(/\s/g, '') === grad.replace(/\s/g, ''));
+  text.style.fontFamily = currentDesign.fontFamily;
+  document.querySelectorAll('.swatch, .wallpaper-swatch, .font-card').forEach(el => el.classList.remove('active'));
+}
+
+window.setTab = (tab) => {
+  ['colors', 'wallpapers', 'fonts'].forEach(t => {
+    document.getElementById(`section-${t}`).classList.toggle('hidden', t !== tab);
+    document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
   });
-  
-  document.querySelectorAll('.font-card').forEach(c => {
-    c.classList.toggle('active', c.querySelector('.text-xl').parentElement.innerText.includes(currentDesign.font));
-  });
+};
+
+window.toggleCanvas = () => {
+  const isEnabled = localStorage.getItem('sf_canvas_daily') === 'true';
+  localStorage.setItem('sf_canvas_daily', !isEnabled);
+  applyControlUI({ canvasDaily: !isEnabled });
+};
+
+function applyControlUI(controls) {
+  const toggle = document.getElementById('canvas-toggle');
+  const isEnabled = localStorage.getItem('sf_canvas_daily') === 'true';
+  toggle.classList.toggle('bg-gold-500', isEnabled);
+  toggle.querySelector('div').style.left = isEnabled ? '1.75rem' : '0.25rem';
 }
 
 window.commitDesign = async () => {
   const btn = document.getElementById('save-btn');
-  btn.disabled = true; btn.innerText = "Syncing Design Matrix...";
+  btn.disabled = true; btn.innerText = "Syncing Neural Matrix...";
   
   try {
     const update = { theme: currentDesign };
-    if (pendingWallpaper) {
+    if (pendingFile) {
       const fileName = `${uid}_wp_${Date.now()}.jpg`;
-      const { error } = await supabase.storage.from('wallpapers').upload(fileName, pendingWallpaper);
+      const { error } = await supabase.storage.from('wallpapers').upload(fileName, pendingFile);
       if (error) throw error;
       const { data: { publicUrl } } = supabase.storage.from('wallpapers').getPublicUrl(fileName);
       update.theme.wallpaper = publicUrl;
       update.theme.type = 'wallpaper';
     }
-    
     await updateDoc(doc(db, 'trainees', uid), update);
-    alert("Design Matrix Synchronized Successfully.");
+    alert("Neural Assets Synchronized.");
     location.reload();
   } catch (err) {
     console.error(err);
-    alert("Sync Failed. Please check neural connection.");
+    alert("Sync Failed.");
   } finally {
-    btn.disabled = false; btn.innerText = "Sync Design Matrix";
+    btn.disabled = false; btn.innerText = "Commit Design Matrix";
   }
 };
-
-window.resetTheme = () => {
-  currentDesign = { type: 'gradient', c1: '#040810', c2: '#0c1829', font: 'Space Grotesk' };
-  updatePreview();
-};
-
-window.toggleSidebar = () => document.getElementById('main-sidebar').classList.toggle('-translate-x-full');
-window.logout = () => { localStorage.removeItem('skillforge_mock_uid'); window.location.href = '../../trainee-login/'; };
 
 init();
 </script>
