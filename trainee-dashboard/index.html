@@ -40,10 +40,10 @@ tailwind.config = {
   .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
   .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(245,158,11,0.3); border-radius: 10px; }
   
-  body { background: #040810; transition: background 0.5s ease, color 0.5s ease; background-size: cover; background-position: center; background-attachment: fixed; }
+  body { background: #040810; transition: background 0.5s ease, color 0.5s ease; background-size: cover; background-position: center; background-attachment: fixed; min-height: 100dvh; }
   .glass { background: rgba(12, 24, 50, 0.55); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
-  .glass-strong { background: rgba(12, 24, 50, 0.75); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.1); }
-  .glass-gold { background: rgba(245, 158, 11, 0.08); backdrop-filter: blur(20px); border: 1px solid rgba(245, 158, 11, 0.2); }
+  .glass-strong { background: rgba(12, 24, 50, 0.85); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.1); }
+  .glass-gold { background: rgba(245, 158, 11, 0.08); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(245, 158, 11, 0.2); }
   .glow-gold { box-shadow: 0 0 30px rgba(245, 158, 11, 0.15), 0 0 60px rgba(245, 158, 11, 0.05); }
   .glow-gold-sm { box-shadow: 0 0 15px rgba(245, 158, 11, 0.12); }
   .text-glow-gold { text-shadow: 0 0 20px rgba(245, 158, 11, 0.4); }
@@ -88,6 +88,12 @@ tailwind.config = {
   .light .text-white\/30 { color: rgba(15, 23, 42, 0.4) !important; }
   .light .text-white\/20 { color: rgba(15, 23, 42, 0.3) !important; }
   .light .glass-strong { background: rgba(255, 255, 255, 0.9); }
+
+  @media (max-width: 768px) {
+    .glass, .glass-strong { backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); }
+    .orbit-container { transform: scale(0.6); }
+    .dock-item:hover { transform: translateY(-4px) scale(1.1); }
+  }
 
   /* Global Accent Color Overrides */
   :root {
@@ -177,7 +183,7 @@ tailwind.config = {
       </div>
     </div>
     <nav class="space-y-1">
-      <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Academy Nodes</p>
+      <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Academy Pages</p>
       <a href="./" class="sidebar-link active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest"><i class="fa-solid fa-layer-group w-4"></i> Overview</a>
       <a href="dmc/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-id-card w-4"></i> Membership Card</a>
       <a href="leaderboard/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-ranking-star w-4"></i> Hall of Fame</a>
@@ -252,7 +258,7 @@ tailwind.config = {
           </div>
         </div>
         <div class="glass rounded-[40px] p-8 col-span-2 row-span-2 flex flex-col gap-6 fade-in-4">
-          <p class="text-white/40 text-xs uppercase tracking-wider mb-2">Command Nodes</p>
+          <p class="text-white/40 text-xs uppercase tracking-wider mb-2">Command Centers</p>
           <div class="grid grid-cols-2 gap-4 h-full">
             <a href="./" class="flex flex-col items-center justify-center gap-3 rounded-3xl bg-gold-500/10 border border-gold-500/20 hover:border-gold-400 transition-all group"><i class="fa-solid fa-satellite-dish text-gold-400 group-hover:scale-110 transition-transform"></i><span class="text-[10px] font-bold text-gold-400 uppercase tracking-widest">Mastery Hub</span></a>
             <a href="customize/" class="flex flex-col items-center justify-center gap-3 rounded-3xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all group"><i class="fa-solid fa-wand-magic-sparkles text-white/60 group-hover:scale-110 transition-transform"></i><span class="text-[10px] font-bold text-white/60 uppercase tracking-widest">Env Design</span></a>
@@ -283,7 +289,7 @@ tailwind.config = {
         <div class="glass rounded-3xl p-8 md:col-span-1"><p class="text-white/40 text-[10px] uppercase tracking-widest mb-6 font-bold"><i class="fa-solid fa-trophy text-gold-500/60 mr-2"></i> Hall of Fame</p><div class="space-y-3 leaderboard-top-target"></div><a href="leaderboard.html" class="w-full block text-center mt-6 py-3 rounded-xl bg-white/5 text-[9px] font-black uppercase tracking-widest text-white/40 hover:bg-white/10 transition-all">View Rankings</a></div>
       </div>
       <div class="absolute bottom-5 left-1/2 -translate-x-1/2 glass-strong rounded-[32px] px-6 py-4 flex items-end gap-2 z-40 glow-gold-sm">
-        <a href="./" class="dock-item flex flex-col items-center gap-1 px-4 py-3 rounded-2xl hover:bg-gold-500/15 transition-colors text-gold-400"><i class="fa-solid fa-layer-group text-xl"></i><span class="text-[8px] font-black uppercase tracking-widest">Nodes</span></a>
+        <a href="./" class="dock-item flex flex-col items-center gap-1 px-4 py-3 rounded-2xl hover:bg-gold-500/15 transition-colors text-gold-400"><i class="fa-solid fa-layer-group text-xl"></i><span class="text-[8px] font-black uppercase tracking-widest">Pages</span></a>
         <a href="leaderboard/" class="dock-item flex flex-col items-center gap-1 px-4 py-3 rounded-2xl hover:bg-white/10 transition-colors text-white/50"><i class="fa-solid fa-ranking-star text-xl"></i><span class="text-[8px] font-black uppercase tracking-widest">Fame</span></a>
         <a href="vault/" class="dock-item flex flex-col items-center gap-1 px-4 py-3 rounded-2xl hover:bg-white/10 transition-colors text-white/50"><i class="fa-solid fa-vault text-xl"></i><span class="text-[8px] font-black uppercase tracking-widest">Vault</span></a>
         <a href="customize/" class="dock-item flex flex-col items-center gap-1 px-4 py-3 rounded-2xl hover:bg-white/10 transition-colors text-white/50"><i class="fa-solid fa-wand-magic-sparkles text-xl"></i><span class="text-[8px] font-black uppercase tracking-widest">Design</span></a>
@@ -527,6 +533,11 @@ import { themeManager } from '../assets/theme-manager.js';
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js';
 import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js';
 import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, query, orderBy, limit, getDocs } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js';
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+const supabaseUrl = 'https://luxubaqztmbcpskyfgdp.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1eHViYXF6dG1iY3Bza3lmZ2RwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDYzNTcsImV4cCI6MjA5MTQyMjM1N30.Kmon8jh22u5KgWWpXf-7cdZ4qxlKXuUbVm6Mh-GHd8Q';
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 const firebaseConfig = { 
   apiKey: "AIzaSyAODtfZDqeR8DH7YRaiDlRwPOBlxxMfFnY", 
@@ -611,8 +622,16 @@ function updateDynamicUI() {
 
   // Update Avatar
   const avatarUrl = traineeData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${traineeData.name}&gender=${traineeData.gender === 'Female' ? 'female' : 'male'}`;
+  
+  // Use Cloudinary for optimized Supabase images if it's a Supabase URL
+  let optimizedAvatarUrl = avatarUrl;
+  if (avatarUrl.includes('supabase.co')) {
+    // Cloudinary Fetch URL optimization for user's cloud: db8pknwmz
+    optimizedAvatarUrl = `https://res.cloudinary.com/db8pknwmz/image/fetch/f_auto,q_auto,w_400/${encodeURIComponent(avatarUrl)}`;
+  }
+
   document.querySelectorAll('.profile-avatar-target').forEach(el => {
-    el.src = avatarUrl;
+    el.src = optimizedAvatarUrl;
     el.classList.remove('opacity-0');
   });
 }
@@ -721,7 +740,7 @@ window.toggleLayoutSwitcher = () => {
   icon.style.transform = container.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
 };
 
-window.logout = async () => { localStorage.removeItem('skillforge_mock_uid'); window.location.href = '../trainee-login/index.html'; };
+window.logout = async () => { localStorage.removeItem('skillforge_mock_uid'); window.location.href = '/trainee-login'; };
 </script>
 <script type="module" src="../assets/canvas-daily.js"></script>
   <script src="../assets/error-reporter.js"></script>

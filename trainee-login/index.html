@@ -29,57 +29,61 @@
       --glass-bg: rgba(255,255,255,0.02);
       --glass-border: rgba(255,255,255,0.05);
     }
-    body { font-family:'Plus Jakarta Sans',sans-serif; background: var(--bg-color); color: var(--text-color); overflow-x:hidden; transition: background 0.5s ease; }
-    #sundust-canvas { position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none }
-    .glass { background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); }
+    body { font-family:'Plus Jakarta Sans',sans-serif; background: var(--bg-color); color: var(--text-color); overflow-x:hidden; transition: background 0.5s ease; min-height: 100dvh; }
+    #sundust-canvas { position:fixed; inset:0; width:100%; height:100dvh; z-index:0; pointer-events:none }
+    .glass { background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--glass-border); }
     .animate-slide-up { animation: slide-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     @keyframes slide-up { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-    input { background: rgba(255,255,255,0.03) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; }
+    input { background: rgba(255,255,255,0.03) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; font-size: 16px !important; }
     input:focus { border-color: #C9A84C !important; outline: none !important; background: rgba(255,255,255,0.05) !important; }
+    @media (max-width: 640px) {
+        .glass { p-8 !important; }
+        h1 { font-size: 1.5rem !important; }
+    }
   </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-6">
+<body class="min-h-screen flex items-center justify-center p-4 md:p-6">
   <canvas id="sundust-canvas"></canvas>
   
   <div class="relative z-10 w-full max-w-md animate-slide-up">
-    <div class="text-center mb-12 space-y-4">
-        <a href="../index.html" class="inline-flex items-center gap-2 text-gold font-black text-[10px] uppercase tracking-[0.3em] mb-8 hover:text-white transition-all">
+    <div class="text-center mb-8 md:mb-12 space-y-4">
+        <a href="../" class="inline-flex items-center gap-2 text-gold font-black text-[10px] uppercase tracking-[0.3em] mb-6 md:mb-8 hover:text-white transition-all">
             <i data-lucide="arrow-left" class="w-3 h-3"></i> Back to Gateway
         </a>
-        <div class="flex items-center justify-center gap-3 mb-6">
-            <img src="https://i.postimg.cc/fRYD4HSw/Whats-App-Image-2026-01-16-at-1-20-06-PM.jpg" class="w-12 h-12 rounded-xl border border-gold/30">
+        <div class="flex items-center justify-center gap-3 mb-4 md:mb-6">
+            <img src="https://i.postimg.cc/fRYD4HSw/Whats-App-Image-2026-01-16-at-1-20-06-PM.jpg" class="w-10 h-10 md:w-12 md:h-12 rounded-xl border border-gold/30">
             <div class="flex flex-col text-left leading-none">
-                <span class="font-black text-2xl tracking-tighter uppercase text-white">SkillForge</span>
-                <span class="text-[8px] text-gold font-bold tracking-[0.2em] uppercase">Digital & Co. Ltd</span>
+                <span class="font-black text-xl md:text-2xl tracking-tighter uppercase text-white">SkillForge</span>
+                <span class="text-[7px] md:text-[8px] text-gold font-bold tracking-[0.2em] uppercase">Digital & Co. Ltd</span>
             </div>
         </div>
-        <h1 class="text-3xl font-black text-white uppercase tracking-tighter">Academy Center</h1>
-        <p class="text-slate-500 text-xs font-black uppercase tracking-[0.4em]">Secure Mastery Authentication</p>
+        <h1 class="text-2xl md:text-3xl font-black text-white uppercase tracking-tighter">Academy Center</h1>
+        <p class="text-slate-500 text-[10px] md:text-xs font-black uppercase tracking-[0.4em]">Secure Mastery Authentication</p>
     </div>
 
-    <main class="glass p-10 rounded-[40px] border-white/10">
+    <main class="glass p-8 md:p-10 rounded-[32px] md:rounded-[40px] border-white/10">
         <form id="login-form" class="space-y-6">
             <div class="space-y-2">
-                <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Email Address</label>
-                <input required id="email" type="email" placeholder="trainee@skillforgedigital.com.ng" class="w-full p-4 rounded-2xl text-sm focus:border-gold outline-none transition-all">
+                <label class="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Email Address</label>
+                <input required id="email" type="email" placeholder="trainee@skillforgedigital.com.ng" class="w-full p-3 md:p-4 rounded-xl md:rounded-2xl text-sm focus:border-gold outline-none transition-all">
             </div>
             <div class="space-y-2">
-                <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Mastery Password</label>
+                <label class="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Mastery Password</label>
                 <div class="relative">
-                    <input required id="password" type="password" placeholder="********" class="w-full p-4 rounded-2xl text-sm focus:border-gold outline-none transition-all pr-12">
+                    <input required id="password" type="password" placeholder="********" class="w-full p-3 md:p-4 rounded-xl md:rounded-2xl text-sm focus:border-gold outline-none transition-all pr-12">
                     <button type="button" onclick="togglePassword('password')" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-gold transition-colors">
                         <i data-lucide="eye" class="w-4 h-4" id="eye-password"></i>
                     </button>
                 </div>
             </div>
 
-            <button type="submit" id="login-btn" class="w-full bg-gold text-navy py-5 rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] shadow-2xl hover:bg-white transition-all flex items-center justify-center gap-2">
+            <button type="submit" id="login-btn" class="w-full bg-gold text-navy py-4 md:py-5 rounded-xl md:rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] shadow-2xl hover:bg-white transition-all flex items-center justify-center gap-2">
                 Access Hub <i data-lucide="shield-check" class="w-4 h-4"></i>
             </button>
         </form>
         
         <div class="mt-8 text-center">
-            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">New Trainee? <a href="../trainee-registration/index.html" class="text-gold hover:text-white transition-all">Academy Registry</a></p>
+            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">New Trainee? <a href="../trainee-registration/" class="text-gold hover:text-white transition-all">Academy Registry</a></p>
         </div>
     </main>
   </div>
@@ -145,13 +149,13 @@
             if (!querySnapshot.empty) {
                 const trainee = querySnapshot.docs[0].data();
                 localStorage.setItem('skillforge_mock_uid', trainee.uid);
-                window.location.href = "../trainee-dashboard/index.html";
+                window.location.href = "../trainee-dashboard/";
             } else {
                 alert("Invalid mastery credentials. Please verify your email and password.");
             }
         } catch (err) {
             console.error(err);
-            alert("Connection error. Our nodes are temporarily desynced.");
+            alert("Connection error. Our pages are temporarily desynced.");
         } finally {
             btn.disabled = false;
             btn.innerHTML = 'Access Hub <i data-lucide="shield-check" class="w-4 h-4"></i>';

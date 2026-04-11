@@ -86,12 +86,12 @@ tailwind.config = {
       </div>
     </div>
     <nav class="space-y-1">
-      <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Academy Nodes</p>
-      <a href="../" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-layer-group w-4"></i> Overview</a>
-      <a href="./" class="sidebar-link active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest"><i class="fa-solid fa-id-card w-4"></i> Membership Card</a>
-      <a href="../leaderboard/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-ranking-star w-4"></i> Hall of Fame</a>
-      <a href="../vault/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-vault w-4"></i> The Vault</a>
-      <a href="../customize/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-wand-magic-sparkles w-4"></i> Customize</a>
+      <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Academy Hub</p>
+      <a href="/trainee-dashboard/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-layer-group w-4"></i> Overview</a>
+      <a href="/trainee-dashboard/dmc/" class="sidebar-link active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest"><i class="fa-solid fa-id-card w-4"></i> Membership Card</a>
+      <a href="/trainee-dashboard/leaderboard/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-ranking-star w-4"></i> Hall of Fame</a>
+      <a href="/trainee-dashboard/vault/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-vault w-4"></i> The Vault</a>
+      <a href="/trainee-dashboard/customize/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-wand-magic-sparkles w-4"></i> Customize</a>
       
       <div class="mt-8 pt-8 border-t border-white/5 space-y-4">
         <a href="#" target="_blank" class="telegram-join-target w-full flex items-center justify-between px-6 py-4 rounded-2xl bg-[#229ED9]/10 text-[#229ED9] hover:bg-[#229ED9]/20 transition-all group opacity-20 pointer-events-none">
@@ -112,7 +112,7 @@ tailwind.config = {
   <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">
     <div class="space-y-10">
       <header>
-        <p class="text-gold-400 text-sm font-medium tracking-widest uppercase">Identity Node</p>
+        <p class="text-gold-400 text-sm font-medium tracking-widest uppercase">Identity Page</p>
         <h1 class="text-3xl md:text-5xl font-bold mt-1">Academy Membership</h1>
       </header>
       
@@ -161,7 +161,7 @@ tailwind.config = {
             </div>
             <div class="text-right">
               <p class="text-[10px] font-black uppercase tracking-[0.3em] text-white/50">Academy Registry</p>
-              <p class="text-xs font-bold text-white tracking-widest mt-1 profile-sfid-target">SF-2026-NODE</p>
+              <p class="text-xs font-bold text-white tracking-widest mt-1 profile-sfid-target">SF-2026-REG</p>
             </div>
           </div>
           
@@ -186,14 +186,14 @@ tailwind.config = {
                 <p class="text-xs font-black text-gold-400 uppercase tracking-widest tier-target">Novice</p>
               </div>
               <div class="text-right">
-                <p class="text-[8px] font-black uppercase tracking-widest text-white/30">Registry Node</p>
+                <p class="text-[8px] font-black uppercase tracking-widest text-white/30">Registry Center</p>
                 <p class="text-xs font-black text-white uppercase tracking-widest">Global</p>
               </div>
             </div>
             
             <div class="flex justify-between items-center pt-4 border-t border-white/5">
               <span class="text-[7px] font-black uppercase tracking-[0.2em] text-white/20">skillforgedigital.com.ng</span>
-              <span class="text-[7px] font-black uppercase tracking-[0.2em] text-white/20 italic">Validated Node</span>
+              <span class="text-[7px] font-black uppercase tracking-[0.2em] text-white/20 italic">Validated Registration</span>
             </div>
           </div>
         </div>
@@ -309,7 +309,13 @@ function updateUI() {
     el.style.color = traineeData.gender === 'Female' ? '#f472b6' : (traineeData.gender === 'Male' ? '#60a5fa' : 'inherit');
   });
   
-  const avatarUrl = traineeData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}&gender=${traineeData.gender === 'Female' ? 'female' : 'male'}`;
+  let avatarUrl = traineeData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}&gender=${traineeData.gender === 'Female' ? 'female' : 'male'}`;
+  
+  // Use Cloudinary for optimized Supabase images: db8pknwmz
+  if (avatarUrl.includes('supabase.co')) {
+    avatarUrl = `https://res.cloudinary.com/db8pknwmz/image/fetch/f_auto,q_auto,w_400/${encodeURIComponent(avatarUrl)}`;
+  }
+
   document.getElementById('dmc-avatar-target').src = avatarUrl;
 }
 
@@ -317,9 +323,14 @@ window.toggleSidebar = () => {
   document.getElementById('main-sidebar').classList.toggle('-translate-x-full');
 };
 
+window.toggleSidebar = () => {
+  const sidebar = document.getElementById('main-sidebar');
+  sidebar.classList.toggle('-translate-x-full');
+};
+
 window.logout = () => {
   localStorage.removeItem('skillforge_mock_uid');
-  window.location.href = '../../trainee-login/index.html';
+  window.location.href = '../../trainee-login/';
 };
 </script>
 </body>

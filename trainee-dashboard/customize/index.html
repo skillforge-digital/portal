@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SkillForge — Registry Customize</title>
+<title>SkillForge — Registration Customize</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;700&family=Caveat:wght@400;700&family=Unbounded:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -129,7 +129,7 @@ tailwind.config = {
       </div>
     </div>
     <nav class="space-y-1">
-      <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Academy Nodes</p>
+      <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Academy Pages</p>
       <a href="../" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-layer-group w-4"></i> Overview</a>
       <a href="../dmc/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-id-card w-4"></i> Membership Card</a>
       <a href="../leaderboard/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-ranking-star w-4"></i> Hall of Fame</a>
@@ -183,7 +183,7 @@ tailwind.config = {
         </div>
         <div id="dashboard-preview-container" class="w-full h-full scale-[0.4] origin-top-left overflow-hidden pointer-events-none" style="width: 250%; height: 250%;">
           <div class="flex items-center justify-center h-full">
-            <p class="text-white/20 uppercase tracking-widest animate-pulse">Initializing Neural Interface...</p>
+            <p class="text-white/20 uppercase tracking-widest animate-pulse">Initializing Page Interface...</p>
           </div>
         </div>
       </div>
@@ -636,7 +636,15 @@ window.toggleSetting = async (key) => {
     updateToggleUI();
 };
 
-window.logout = async () => { localStorage.removeItem('skillforge_mock_uid'); window.location.href = '../../trainee-login/index.html'; };
+window.toggleSidebar = () => {
+  const sidebar = document.getElementById('main-sidebar');
+  sidebar.classList.toggle('-translate-x-full');
+};
+
+window.logout = () => {
+  localStorage.removeItem('skillforge_mock_uid');
+  window.location.href = '../../trainee-login/';
+};
 
 init();
 </script>
