@@ -473,11 +473,11 @@
       initTheme();
       initDailyBackground();
 
-      // SkillForge Presence Tracking (v1.3.0)
-      const presenceScript = document.createElement('script');
-      presenceScript.type = 'module';
-      presenceScript.src = '/assets/presence_site.js';
-      document.body.appendChild(presenceScript);
+      // SkillForge Neural Core Tracking (v2.0.0)
+      const coreScript = document.createElement('script');
+      coreScript.type = 'module';
+      coreScript.src = '/assets/sf-core.js';
+      document.body.appendChild(coreScript);
 
       // Handle Feedback Form
       const feedbackForm = document.getElementById('feedback-form');

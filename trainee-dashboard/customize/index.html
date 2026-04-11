@@ -67,14 +67,15 @@ tailwind.config = {
 <!-- Mobile Header -->
 <div class="md:hidden h-20 px-6 flex items-center justify-between glass sticky top-0 z-[100] border-b border-white/5">
   <div class="flex items-center gap-3">
-    <button onclick="window.history.back()" class="p-2 text-white/50 hover:text-white transition-all"><i class="fa-solid fa-arrow-left text-lg"></i></button>
-    <div class="w-8 h-8 rounded-lg bg-black flex items-center justify-center border border-gold-500/30 overflow-hidden">
-      <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" class="w-full h-full object-cover">
-    </div>
-    <div class="flex flex-col leading-none">
-      <span class="font-black text-sm tracking-tighter uppercase">SkillForge</span>
-      <span class="text-[6px] text-gold-400 font-bold tracking-[0.2em] uppercase">Digital & Co. Ltd</span>
-    </div>
+    <a href="/" class="flex items-center gap-3 group">
+      <div class="w-8 h-8 rounded-lg bg-black flex items-center justify-center border border-gold-500/30 group-hover:border-gold transition-all overflow-hidden">
+        <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" class="w-full h-full object-cover">
+      </div>
+      <div class="flex flex-col leading-none">
+        <span class="font-black text-sm tracking-tighter uppercase group-hover:text-gold transition-all">SkillForge</span>
+        <span class="text-[6px] text-gold-400 font-bold tracking-[0.2em] uppercase">Digital & Co. Ltd</span>
+      </div>
+    </a>
   </div>
   <button onclick="toggleSidebar()" class="p-2 text-white/50 hover:text-white transition-all"><i class="fa-solid fa-bars-staggered text-xl"></i></button>
 </div>
@@ -82,13 +83,15 @@ tailwind.config = {
 <aside id="main-sidebar" class="w-72 glass-strong border-r border-white/5 flex flex-col fixed inset-y-0 z-50 transition-all duration-500 -translate-x-full md:translate-x-0">
   <div class="p-8 flex-1 overflow-y-auto custom-scrollbar">
     <div class="flex items-center gap-3 mb-10">
-      <div class="w-10 h-10 rounded-xl bg-black flex items-center justify-center border border-gold-500/30 overflow-hidden">
-        <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" class="w-full h-full object-cover">
-      </div>
-      <div class="flex flex-col leading-none">
-        <span class="font-black text-sm tracking-tighter uppercase">SkillForge</span>
-        <span class="text-[7px] text-gold-400 font-bold tracking-[0.2em] uppercase">Digital & Co. Ltd</span>
-      </div>
+      <a href="/" class="flex items-center gap-3 group">
+        <div class="w-10 h-10 rounded-xl bg-black flex items-center justify-center border border-gold-500/30 group-hover:border-gold transition-all overflow-hidden">
+          <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" class="w-full h-full object-cover">
+        </div>
+        <div class="flex flex-col leading-none">
+          <span class="font-black text-sm tracking-tighter uppercase group-hover:text-gold transition-all">SkillForge</span>
+          <span class="text-[7px] text-gold-400 font-bold tracking-[0.2em] uppercase">Digital & Co. Ltd</span>
+        </div>
+      </a>
     </div>
     <nav class="space-y-1">
       <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Academy Hub</p>
@@ -201,9 +204,9 @@ tailwind.config = {
 
 <script type="module">
 import { themeManager } from '../../assets/theme-manager.js';
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js';
-import { getFirestore, doc, onSnapshot, updateDoc, getDoc } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js';
-import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+import { getFirestore, doc, updateDoc, getDoc } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
 const firebaseConfig = { 
@@ -223,7 +226,7 @@ const supabaseUrl = 'https://luxubaqztmbcpskyfgdp.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1eHViYXF6dG1iY3Bza3lmZ2RwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDYzNTcsImV4cCI6MjA5MTQyMjM1N30.Kmon8jh22u5KgWWpXf-7cdZ4qxlKXuUbVm6Mh-GHd8Q';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-const uid = themeManager.uid;
+let uid = themeManager.uid;
 let currentDesign = { type: 'solid-pair', primary: '#040810', secondary: '#f59e0b', font: 'Space Grotesk' };
 let pendingFile = null;
 
@@ -282,7 +285,12 @@ async function init() {
     const sw = document.createElement('div');
     sw.className = 'swatch';
     sw.innerHTML = `<div class="dual-inner"><div class="dual-1" style="background:${d.p}"></div><div class="dual-2" style="background:${d.s}"></div></div>`;
-    sw.onclick = () => { currentDesign.primary = d.p; currentDesign.secondary = d.s; currentDesign.type = 'solid-pair'; updatePreview(); };
+    sw.onclick = () => { 
+        currentDesign.primary = d.p; 
+        currentDesign.secondary = d.s; 
+        currentDesign.type = 'solid-pair'; 
+        updatePreview(); 
+    };
     dGrid.appendChild(sw);
   });
 
@@ -291,7 +299,12 @@ async function init() {
     const sw = document.createElement('div');
     sw.className = 'swatch';
     sw.style.background = `linear-gradient(135deg, ${g.c1}, ${g.c2})`;
-    sw.onclick = () => { currentDesign.c1 = g.c1; currentDesign.c2 = g.c2; currentDesign.type = 'gradient'; updatePreview(); };
+    sw.onclick = () => { 
+        currentDesign.c1 = g.c1; 
+        currentDesign.c2 = g.c2; 
+        currentDesign.type = 'gradient'; 
+        updatePreview(); 
+    };
     gGrid.appendChild(sw);
   });
 
@@ -300,7 +313,11 @@ async function init() {
     const sw = document.createElement('div');
     sw.className = 'wallpaper-swatch';
     sw.style.backgroundImage = `url(${w})`;
-    sw.onclick = () => { currentDesign.wallpaper = w; currentDesign.type = 'wallpaper'; updatePreview(); };
+    sw.onclick = () => { 
+        currentDesign.wallpaper = w; 
+        currentDesign.type = 'wallpaper'; 
+        updatePreview(); 
+    };
     wGrid.appendChild(sw);
   });
 
@@ -310,23 +327,47 @@ async function init() {
     card.className = `font-card`;
     card.style.fontFamily = f.family;
     card.innerHTML = `<p class="text-[8px] font-black uppercase tracking-widest text-white/30 mb-2">${f.name}</p><p class="text-xl font-bold">Neural Typography</p>`;
-    card.onclick = () => { currentDesign.fontFamily = f.family; currentDesign.fontName = f.name; updatePreview(); };
+    card.onclick = () => { 
+        currentDesign.fontFamily = f.family; 
+        currentDesign.fontName = f.name; 
+        updatePreview(); 
+    };
     fGrid.appendChild(card);
   });
 
+  let lastDataString = null;
   onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      const snap = await getDoc(doc(db, 'trainees', uid));
-      if (snap.exists()) {
-        const data = snap.data();
-        if (data.theme) currentDesign = { ...currentDesign, ...data.theme };
-        updatePreview();
-        applyControlUI(data.controls || {});
+    try {
+      const currentUid = user ? user.uid : themeManager.uid;
+      
+      if (currentUid) {
+        uid = currentUid;
+        const snap = await getDoc(doc(db, 'trainees', uid));
+        if (snap.exists()) {
+          const data = snap.data();
+          const dataString = JSON.stringify(data);
+          
+          if (dataString !== lastDataString) {
+            console.log('[Customize] Registry state synchronized');
+            if (data.theme) currentDesign = { ...currentDesign, ...data.theme };
+            updatePreview();
+            applyControlUI(data.controls || {});
+            lastDataString = dataString;
+          }
+        }
+        hideLoading();
+      } else {
+          window.location.href = '../../trainee-login/';
       }
-      document.getElementById('loading-screen').style.opacity = '0';
-      setTimeout(() => document.getElementById('loading-screen').classList.add('hidden'), 500);
+    } catch (err) {
+      console.error("[Customize] Auth/Data Fetch error:", err);
+      if (window.sf_report_error) window.sf_report_error("Customize Data Fetch Failure", err.stack);
+      hideLoading();
     }
   });
+
+  // Safety timeout
+  setTimeout(hideLoading, 5000);
 
   document.getElementById('wallpaper-upload').onchange = (e) => {
     const file = e.target.files[0];
@@ -344,27 +385,83 @@ async function init() {
   };
 }
 
+function hideLoading() {
+    const loader = document.getElementById('loading-screen');
+    if (loader) {
+        loader.style.opacity = '0';
+        setTimeout(() => loader.classList.add('hidden'), 500);
+    }
+}
+
 function updatePreview() {
   const box = document.getElementById('preview-box');
   const text = document.getElementById('preview-text');
   const bar = document.getElementById('preview-bar');
   
-  if (currentDesign.type === 'solid-pair') {
-    box.style.background = currentDesign.primary;
-    bar.style.backgroundColor = currentDesign.secondary;
-    document.documentElement.style.setProperty('--accent-color', currentDesign.secondary);
-  } else if (currentDesign.type === 'gradient') {
-    box.style.background = `linear-gradient(135deg, ${currentDesign.c1}, ${currentDesign.c2})`;
-    bar.style.backgroundColor = currentDesign.c1;
-    document.documentElement.style.setProperty('--accent-color', currentDesign.c1);
-  } else if (currentDesign.type === 'wallpaper') {
-    box.style.background = `url(${currentDesign.wallpaper})`;
-    box.style.backgroundSize = 'cover';
-    bar.style.backgroundColor = '#f59e0b';
+  if (!box || !text || !bar) {
+    console.warn('[Customize] Preview elements not found in DOM');
+    return;
   }
   
-  text.style.fontFamily = currentDesign.fontFamily;
+  // Clear active states
   document.querySelectorAll('.swatch, .wallpaper-swatch, .font-card').forEach(el => el.classList.remove('active'));
+
+  console.log('[Customize] Updating preview for type:', currentDesign.type);
+
+  try {
+    if (currentDesign.type === 'solid-pair' || currentDesign.type === 'dual') {
+      const p = currentDesign.primary || currentDesign.c1;
+      const s = currentDesign.secondary || currentDesign.c2;
+      box.style.background = p;
+      box.style.backgroundImage = 'none';
+      bar.style.backgroundColor = s;
+      document.documentElement.style.setProperty('--accent-color', s);
+      
+      // Highlight active solid pair
+      const rgbP = hexToRgb(p);
+      document.querySelectorAll('#dual-grid .swatch').forEach(sw => {
+          const inner = sw.querySelector('.dual-1');
+          if (inner && (inner.style.backgroundColor === rgbP || inner.style.background === rgbP)) sw.classList.add('active');
+      });
+    } else if (currentDesign.type === 'gradient') {
+      const grad = `linear-gradient(135deg, ${currentDesign.c1}, ${currentDesign.c2})`;
+      box.style.background = grad;
+      box.style.backgroundImage = 'none';
+      bar.style.backgroundColor = currentDesign.c1;
+      document.documentElement.style.setProperty('--accent-color', currentDesign.c1);
+      
+      // Highlight active gradient
+      document.querySelectorAll('#gradient-grid .swatch').forEach(sw => {
+          if (sw.style.background.includes(currentDesign.c1) || sw.style.backgroundImage.includes(currentDesign.c1)) sw.classList.add('active');
+      });
+    } else if (currentDesign.type === 'wallpaper') {
+      const wpUrl = currentDesign.wallpaper || '';
+      box.style.background = `url(${wpUrl})`;
+      box.style.backgroundSize = 'cover';
+      box.style.backgroundPosition = 'center';
+      bar.style.backgroundColor = '#f59e0b';
+      
+      // Highlight active wallpaper
+      document.querySelectorAll('.wallpaper-swatch').forEach(sw => {
+          if (sw.style.backgroundImage.includes(wpUrl)) sw.classList.add('active');
+      });
+    }
+    
+    if (currentDesign.fontFamily) {
+      text.style.fontFamily = currentDesign.fontFamily;
+      // Highlight active font
+      document.querySelectorAll('.font-card').forEach(card => {
+          if (card.style.fontFamily.replace(/['"]/g, '') === currentDesign.fontFamily.replace(/['"]/g, '')) card.classList.add('active');
+      });
+    }
+  } catch (err) {
+    console.error('[Customize] Preview update failed:', err);
+  }
+}
+
+function hexToRgb(hex) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? `rgb(${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)})` : hex;
 }
 
 window.setTab = (tab) => {
@@ -375,44 +472,87 @@ window.setTab = (tab) => {
 };
 
 window.toggleCanvas = () => {
-  const isEnabled = localStorage.getItem('sf_canvas_daily') === 'true';
-  localStorage.setItem('sf_canvas_daily', !isEnabled);
+  const isEnabled = localStorage.getItem('sf_canvas_enabled') !== 'false';
+  localStorage.setItem('sf_canvas_enabled', !isEnabled);
   applyControlUI({ canvasDaily: !isEnabled });
 };
 
 function applyControlUI(controls) {
   const toggle = document.getElementById('canvas-toggle');
-  const isEnabled = localStorage.getItem('sf_canvas_daily') === 'true';
+  if (!toggle) return;
+  const isEnabled = localStorage.getItem('sf_canvas_enabled') !== 'false';
   toggle.classList.toggle('bg-gold-500', isEnabled);
   toggle.querySelector('div').style.left = isEnabled ? '1.75rem' : '0.25rem';
 }
 
 window.commitDesign = async () => {
   const btn = document.getElementById('save-btn');
-  btn.disabled = true; btn.innerText = "Syncing Neural Matrix...";
+  if (btn.disabled) return;
   
+  btn.disabled = true; 
+  btn.innerText = "Syncing Neural Matrix...";
+  
+  console.log('[Customize] Starting design commit...');
+
   try {
-    const update = { theme: currentDesign };
+    const themeToSave = { ...currentDesign };
+    
+    // If there's a pending file, upload it via themeManager
     if (pendingFile) {
-      const fileName = `${uid}_wp_${Date.now()}.jpg`;
-      const { error } = await supabase.storage.from('wallpapers').upload(fileName, pendingFile);
-      if (error) throw error;
-      const { data: { publicUrl } } = supabase.storage.from('wallpapers').getPublicUrl(fileName);
-      update.theme.wallpaper = publicUrl;
-      update.theme.type = 'wallpaper';
+      console.log('[Customize] Uploading custom wallpaper...');
+      const url = await themeManager.saveWallpaper(pendingFile, 'CUSTOMIZE_STUDIO');
+      if (!url) throw new Error("Wallpaper upload failed");
+      themeToSave.wallpaper = url;
+      themeToSave.type = 'wallpaper';
     }
-    await updateDoc(doc(db, 'trainees', uid), update);
-    alert("Neural Assets Synchronized.");
-    location.reload();
+    
+    console.log('[Customize] Committing theme state:', themeToSave.type);
+    const success = await themeManager.saveTheme(themeToSave, 'CUSTOMIZE_STUDIO');
+    
+    if (success) {
+      if (currentDesign.fontFamily) {
+        console.log('[Customize] Syncing font selection:', currentDesign.fontFamily);
+        await themeManager.saveFont(currentDesign.fontFamily, 'CUSTOMIZE_STUDIO');
+      }
+      
+      // Success feedback
+      btn.classList.replace('bg-gold-500', 'bg-green-500');
+      btn.innerText = "Matrix Synchronized";
+      
+      setTimeout(() => {
+        alert("Neural Assets Synchronized.");
+        location.reload();
+      }, 500);
+    } else {
+      throw new Error("Theme manager failed to save the theme.");
+    }
   } catch (err) {
-    console.error(err);
-    alert("Sync Failed.");
-  } finally {
-    btn.disabled = false; btn.innerText = "Commit Design Matrix";
+    console.error('[Customize] Commit Failed:', err);
+    btn.classList.replace('bg-gold-500', 'bg-red-500');
+    btn.innerText = "Sync Failed";
+    
+    if (window.sf_report_error) {
+      window.sf_report_error(`Design Matrix Sync Failed: ${err.message}`, err.stack);
+    } else {
+      alert(`Sync Failed: ${err.message}`);
+    }
+    
+    setTimeout(() => {
+      btn.classList.replace('bg-red-500', 'bg-gold-500');
+      btn.disabled = false;
+      btn.innerText = "Commit Design Matrix";
+    }, 3000);
   }
+};
+
+window.toggleSidebar = () => {
+  const sidebar = document.getElementById('main-sidebar');
+  sidebar.classList.toggle('-translate-x-full');
 };
 
 init();
 </script>
+  <script type="module" src="../../assets/sf-core.js"></script>
+  <script type="module" src="../../assets/sf-turbo.js"></script>
 </body>
 </html>

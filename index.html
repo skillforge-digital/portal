@@ -7,6 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -66,11 +67,13 @@
     <!-- Navigation -->
     <nav class="h-24 px-6 md:px-20 flex items-center justify-between border-b border-white/5 glass sticky top-0 z-[100]">
         <div class="flex items-center gap-3">
-            <img src="https://i.postimg.cc/fRYD4HSw/Whats-App-Image-2026-01-16-at-1-20-06-PM.jpg" class="w-10 h-10 rounded-xl border border-gold/30">
-            <div class="flex flex-col leading-none">
-                <span class="font-black text-lg md:text-xl tracking-tighter uppercase">SkillForge</span>
-                <span class="text-[7px] md:text-[8px] text-gold font-bold tracking-[0.2em] uppercase">Digital & Co. Ltd</span>
-            </div>
+            <a href="/" class="flex items-center gap-3 group">
+                <img src="https://i.postimg.cc/fRYD4HSw/Whats-App-Image-2026-01-16-at-1-20-06-PM.jpg" class="w-10 h-10 rounded-xl border border-gold/30 group-hover:border-gold transition-all">
+                <div class="flex flex-col leading-none">
+                    <span class="font-black text-lg md:text-xl tracking-tighter uppercase group-hover:text-gold transition-all">SkillForge</span>
+                    <span class="text-[7px] md:text-[8px] text-gold font-bold tracking-[0.2em] uppercase">Digital & Co. Ltd</span>
+                </div>
+            </a>
         </div>
         <div class="hidden lg:flex items-center gap-8">
             <a href="trainee-registration/" class="text-[10px] font-black uppercase tracking-widest text-gold hover:text-white transition-all">Academy Registry</a>
@@ -421,6 +424,8 @@
     new Sundust();
     if (window.lucide) window.lucide.createIcons();
   </script>
+  <script type="module" src="assets/sf-turbo.js"></script>
+  <script type="module" src="assets/sf-atmosphere-3d.js"></script>
   <script src="assets/error-reporter.js"></script>
 </body>
 </html>

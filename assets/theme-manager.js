@@ -49,21 +49,38 @@ class ThemeManager {
             { name: 'Plus Jakarta Sans', family: "'Plus Jakarta Sans', sans-serif" }
         ];
         this.init();
+        
+        // Zero-Refresh Engine (PJAX) Integration
+        window.addEventListener('turbo:load', (e) => {
+            console.log(`[ThemeManager] Neural Re-Sync: ${e.detail.url}`);
+            this.applyTheme(this.currentTheme);
+            this.applyFont(localStorage.getItem('sf_font_family'));
+            this.applyControls(this.controls);
+            this.applyWallpaper(localStorage.getItem('sf_wallpaper_url'));
+        });
     }
 
     init() {
         this.applyTheme(this.currentTheme);
         this.applyControls(this.controls);
 
+        if (!this.uid) {
+            console.warn('ThemeManager: No UID found, skipping realtime sync.');
+            return;
+        }
+
         onSnapshot(doc(db, 'trainees', this.uid), (doc) => {
+            console.log('ThemeManager: Received registry snapshot update');
             if (doc.exists()) {
                 const data = doc.data();
                 if (data.theme) {
+                    console.log('ThemeManager: Applying remote theme:', data.theme.type);
                     this.currentTheme = data.theme;
                     localStorage.setItem('sf_global_theme', JSON.stringify(data.theme));
                     this.applyTheme(data.theme);
                 }
                 if (data.fontFamily) {
+                    console.log('ThemeManager: Applying remote font:', data.fontFamily);
                     this.applyFont(data.fontFamily);
                 }
                 if (data.controls || data.isLightMode !== undefined) {
@@ -78,11 +95,17 @@ class ThemeManager {
                     this.applyControls(this.controls);
                 }
                 if (data.wallpaper) {
+                    console.log('ThemeManager: Applying remote wallpaper');
                     this.applyWallpaper(data.wallpaper);
                 }
             }
+        }, (err) => {
+            console.error('ThemeManager Snapshot failed:', err);
+            if (window.sf_report_error) {
+                window.sf_report_error(`Registry Sync Failed: ${err.message}`, err.stack);
+            }
         });
-    }
+}
 
     applyFont(fontFamily) {
         if (!fontFamily) return;
@@ -169,6 +192,7 @@ class ThemeManager {
             document.body.style.backgroundImage = '';
             return;
         }
+        localStorage.setItem('sf_wallpaper_url', url);
         document.body.style.backgroundImage = `url('${url}')`;
         document.body.style.backgroundSize = 'cover';
         document.body.style.backgroundPosition = 'center';

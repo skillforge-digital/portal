@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkillForge — Neural Authorization</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+<style>
+  body { background: #040810; color: white; font-family: 'Space Grotesk', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+  .glass { background: rgba(12, 24, 50, 0.55); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); padding: 3rem; border-radius: 2rem; text-align: center; max-width: 400px; }
+  button { background: #f59e0b; color: #040810; padding: 1rem 2rem; border-radius: 1rem; border: none; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: all 0.3s ease; }
+  button:hover { background: white; transform: scale(1.05); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+</style>
+</head>
+<body>
+  <div class="glass">
+    <h1 style="color: #f59e0b; font-size: 2rem; margin-bottom: 1rem;">Neural Authorization</h1>
+    <p style="color: rgba(255,255,255,0.6); font-size: 0.9rem; margin-bottom: 2rem;">Click below to elevate your current identity to **Specialist Status** in the Academy Command Center.</p>
+    <button id="activate-btn" onclick="activate()">Authorize Specialist Access</button>
+    <p id="status" style="margin-top: 1.5rem; font-size: 0.8rem; font-weight: bold;"></p>
+  </div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+import { getFirestore, doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+
+const firebaseConfig = { 
+  apiKey: "AIzaSyAODtfZDqeR8DH7YRaiDlRwPOBlxxMfFnY", 
+  authDomain: "skillfoge-ecosystem.firebaseapp.com", 
+  projectId: "skillfoge-ecosystem", 
+  storageBucket: "skillfoge-ecosystem.firebasestorage.app", 
+  messagingSenderId: "279055501952", 
+  appId: "1:279055501952:web:e812364a6f8bcb5998f465", 
+  measurementId: "G-L669WT5FZS" 
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+window.activate = async () => {
+  const btn = document.getElementById('activate-btn');
+  const status = document.getElementById('status');
+  const uid = localStorage.getItem('skillforge_mock_uid') || (auth.currentUser ? auth.currentUser.uid : null);
+  
+  if (!uid) {
+    status.innerText = "Error: No active identity found. Please log in first.";
+    status.style.color = "#ef4444";
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerText = "Authorizing...";
+
+  try {
+    await setDoc(doc(db, 'specialists', uid), {
+      uid: uid,
+      role: 'Specialist',
+      authorizedAt: serverTimestamp(),
+      level: 'Admin'
+    });
+    
+    status.innerText = "Neural Authorization Complete. You are now a Specialist.";
+    status.style.color = "#22c55e";
+    btn.innerText = "Access Command Center";
+    btn.onclick = () => window.location.href = './specialist-dashboard/';
+    btn.disabled = false;
+  } catch (err) {
+    console.error(err);
+    status.innerText = "Authorization Failed. Check Console.";
+    status.style.color = "#ef4444";
+    btn.disabled = false;
+    btn.innerText = "Retry Authorization";
+  }
+};
+</script>
+</body>
+</html>

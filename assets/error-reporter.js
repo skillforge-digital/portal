@@ -199,14 +199,19 @@ UA: ${userAgent}
 
   // Global Error Listeners
   window.onerror = function(msg, url, lineNo, columnNo, error) {
-    const message = `Error: ${msg} at ${url}:${lineNo}:${columnNo}`;
-    showErrorReport(message, error ? error.stack : "No stack trace available");
+    const stack = error ? error.stack : "No stack trace available";
+    showErrorReport(`Global Error: ${msg} at ${lineNo}:${columnNo}`, stack);
     return false;
   };
 
   window.onunhandledrejection = function(event) {
-    showErrorReport(`Unhandled Promise Rejection: ${event.reason}`, event.reason ? event.reason.stack : "No stack trace available");
+    const error = event.reason;
+    const msg = error ? (error.message || error) : "Unhandled Promise Rejection";
+    const stack = error && error.stack ? error.stack : "No stack trace available";
+    showErrorReport(`Async Error: ${msg}`, stack);
   };
 
-  console.log("?? SkillForge Error Reporter Initialized");
+  // Export to window for manual calls
+  window.sf_report_error = showErrorReport;
+  console.log("🛠️ SkillForge Error Reporter Initialized");
 })();

@@ -6,15 +6,28 @@ service cloud.firestore {
     }
 
     match /trainees/{userId} {
-      allow read, write: if isAuthenticated();
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && request.auth.uid == userId;
     }
 
     match /presence/{userId} {
-      allow read, write: if isAuthenticated();
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && request.auth.uid == userId;
     }
     
     match /tracking/{userId} {
-      allow read, write: if isAuthenticated();
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && request.auth.uid == userId;
+    }
+
+    match /specialists/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Only manageable via Firebase Console or special script
+    }
+
+    match /announcements/{announcementId} {
+      allow read: if isAuthenticated();
+      allow write: if isSpecialist();
     }
 
     match /seasons/{seasonId}/{documents=**} {
@@ -36,13 +49,20 @@ service cloud.firestore {
       allow update, delete: if false;
     }
     
+    function isSpecialist() {
+      return isAuthenticated() && exists(/databases/$(database)/documents/specialists/$(request.auth.uid));
+    }
+
     match /badge_requests/{requestId} {
-      allow create, read: if isAuthenticated();
-      allow update, delete: if false;
+      allow create: if isAuthenticated();
+      allow read: if isAuthenticated();
+      allow update: if isSpecialist();
+      allow delete: if false;
     }
     
     match /{document=**} {
-      allow read, write: if isAuthenticated();
+      allow read: if isAuthenticated();
+      allow write: if false; // Strict fallback
     }
   }
 }

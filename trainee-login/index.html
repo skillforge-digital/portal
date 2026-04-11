@@ -7,7 +7,9 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<script>
     tailwind.config = {
       darkMode: 'class',
       theme: {
@@ -192,6 +194,8 @@
     new Sundust();
     if (window.lucide) window.lucide.createIcons();
   </script>
+  <script type="module" src="../assets/sf-turbo.js"></script>
+  <script type="module" src="../assets/sf-atmosphere-3d.js"></script>
   <script src="../assets/error-reporter.js"></script>
 </body>
 </html>

@@ -71,20 +71,19 @@ tailwind.config = {
 <body class="noise-bg overflow-x-hidden flex flex-col md:flex-row">
 
 <!-- Mobile Header -->
-<div class="md:hidden h-20 px-6 flex items-center justify-between glass sticky top-0 z-[100] border-b border-white/5 no-print">
+<div class="md:hidden h-20 px-6 flex items-center justify-between glass sticky top-0 z-[100] border-b border-white/5">
   <div class="flex items-center gap-3">
-    <button onclick="window.history.back()" class="p-2 auto-contrast-muted hover:auto-contrast transition-all" title="Go Back">
-      <i class="fa-solid fa-arrow-left text-lg"></i>
-    </button>
-    <div class="w-8 h-8 rounded-lg bg-black flex items-center justify-center border border-gold-500/30 overflow-hidden">
-      <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" alt="SF" class="w-full h-full object-cover">
-    </div>
-    <div class="flex flex-col leading-none">
-      <span class="font-black text-sm tracking-tighter uppercase auto-contrast">SkillForge</span>
-      <span class="text-[6px] text-gold-400 font-bold tracking-[0.2em] uppercase">Digital & Co. Ltd</span>
-    </div>
+    <a href="/" class="flex items-center gap-3 group">
+      <div class="w-8 h-8 rounded-lg bg-black flex items-center justify-center border border-gold-500/30 group-hover:border-gold transition-all overflow-hidden">
+        <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" class="w-full h-full object-cover">
+      </div>
+      <div class="flex flex-col leading-none">
+        <span class="font-black text-sm tracking-tighter uppercase group-hover:text-gold transition-all">SkillForge</span>
+        <span class="text-[6px] text-gold-400 font-bold tracking-[0.2em] uppercase">Digital & Co. Ltd</span>
+      </div>
+    </a>
   </div>
-  <button onclick="toggleSidebar()" class="p-2 auto-contrast-muted hover:auto-contrast transition-all">
+  <button onclick="toggleSidebar()" class="p-2 text-white/50 hover:text-white transition-all">
     <i class="fa-solid fa-bars-staggered text-xl"></i>
   </button>
 </div>
@@ -92,13 +91,15 @@ tailwind.config = {
 <aside id="main-sidebar" class="w-72 glass-strong border-r border-white/5 flex flex-col fixed inset-y-0 z-50 no-print transition-all duration-500 -translate-x-full md:translate-x-0">
   <div class="p-8 flex-1 custom-scrollbar overflow-y-auto">
     <div class="flex items-center gap-3 mb-10">
-      <div class="w-10 h-10 rounded-xl bg-black flex items-center justify-center text-navy-950 font-bold text-lg shadow-lg overflow-hidden border border-gold-500/30">
-        <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" alt="SF" class="w-full h-full object-cover">
-      </div>
-      <div class="flex flex-col leading-none">
-        <span class="font-black text-sm tracking-tighter uppercase auto-contrast">SkillForge</span>
-        <span class="text-[7px] text-gold-400 font-bold tracking-[0.2em] uppercase">Digital & Co. Ltd</span>
-      </div>
+      <a href="/" class="flex items-center gap-3 group">
+        <div class="w-10 h-10 rounded-xl bg-black flex items-center justify-center text-navy-950 font-bold text-lg shadow-lg overflow-hidden border border-gold-500/30 group-hover:border-gold transition-all">
+          <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" alt="SF" class="w-full h-full object-cover">
+        </div>
+        <div class="flex flex-col leading-none">
+          <span class="font-black text-sm tracking-tighter uppercase auto-contrast group-hover:text-gold transition-all">SkillForge</span>
+          <span class="text-[7px] text-gold-400 font-bold tracking-[0.2em] uppercase">Digital & Co. Ltd</span>
+        </div>
+      </a>
     </div>
     
     <div class="mb-8 p-4 rounded-2xl bg-white/5 border border-white/5">
@@ -161,11 +162,16 @@ tailwind.config = {
         <p class="text-[8px] font-bold text-white/20 uppercase tracking-widest px-4">Required: Complete Track Mastery & Specialist Approval</p>
       </div>
 
-      <div class="glass p-10 rounded-[40px] flex flex-col items-center justify-center text-center space-y-4 border-dashed border-white/10 border-2 hover:border-gold-500 transition-all cursor-pointer group" onclick="window.location.href='../customize/'">
-        <div class="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-white/20 group-hover:text-gold-500 transition-all">
-          <i class="fa-solid fa-plus text-2xl"></i>
+      <!-- Upload Section -->
+      <div id="upload-zone" class="glass p-10 rounded-[40px] flex flex-col items-center justify-center text-center space-y-4 border-dashed border-white/10 border-2 hover:border-gold-500 transition-all cursor-pointer group relative">
+        <input type="file" id="vault-file-input" class="absolute inset-0 opacity-0 cursor-pointer z-10" accept=".pdf,image/*">
+        <div id="upload-status-icon" class="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-white/20 group-hover:text-gold-500 transition-all">
+          <i class="fa-solid fa-cloud-arrow-up text-2xl"></i>
         </div>
-        <p class="text-[10px] font-bold auto-contrast-muted uppercase tracking-[0.2em]">Archive New Mastery</p>
+        <div id="upload-status-text">
+          <p class="text-[10px] font-bold auto-contrast-muted uppercase tracking-[0.2em]">Archive Mastery Asset</p>
+          <p class="text-[8px] text-white/20 uppercase mt-1">PDF or Image (Max 5MB)</p>
+        </div>
       </div>
     </div>
   </div>
@@ -175,7 +181,8 @@ tailwind.config = {
 import { themeManager } from '../../assets/theme-manager.js';
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js';
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js';
-import { getFirestore, doc, onSnapshot, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js';
+import { getFirestore, doc, onSnapshot, collection, addDoc, serverTimestamp, updateDoc, arrayUnion } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-storage.js';
 
 const firebaseConfig = { 
   apiKey: "AIzaSyAODtfZDqeR8DH7YRaiDlRwPOBlxxMfFnY", 
@@ -189,9 +196,67 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
 let traineeData = null;
 const uid = themeManager.uid;
+
+// Handle File Uploads
+document.getElementById('vault-file-input').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  if (file.size > 5 * 1024 * 1024) {
+    alert("Asset exceeded 5MB registry limit.");
+    return;
+  }
+
+  const icon = document.getElementById('upload-status-icon');
+  const text = document.getElementById('upload-status-text');
+  const originalHtml = text.innerHTML;
+
+  try {
+    text.innerHTML = `<p class="text-[10px] font-black text-gold-400 animate-pulse uppercase tracking-widest">Archiving Asset...</p>`;
+    icon.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-gold-500 text-2xl"></i>`;
+
+    const storageRef = ref(storage, `vault/${uid}/${Date.now()}_${file.name}`);
+    await uploadBytes(storageRef, file);
+    const url = await getDownloadURL(storageRef);
+
+    const assetData = {
+      name: file.name,
+      url: url,
+      type: file.type.includes('pdf') ? 'DOCUMENT' : 'IMAGE',
+      date: new Date().toLocaleDateString(),
+      timestamp: Date.now()
+    };
+
+    await updateDoc(doc(db, 'trainees', uid), {
+      vault: arrayUnion(assetData)
+    });
+
+    await addDoc(collection(db, 'audit_logs'), {
+      userId: uid,
+      action: 'VAULT_ASSET_ARCHIVED',
+      modifications: { fileName: file.name, type: assetData.type },
+      timestamp: serverTimestamp()
+    });
+
+    text.innerHTML = `<p class="text-[10px] font-black text-green-500 uppercase tracking-widest">Asset Archived</p>`;
+    icon.innerHTML = `<i class="fa-solid fa-check-double text-green-500 text-2xl"></i>`;
+    
+    setTimeout(() => {
+      text.innerHTML = originalHtml;
+      icon.innerHTML = `<i class="fa-solid fa-cloud-arrow-up text-white/20 text-2xl"></i>`;
+    }, 3000);
+
+  } catch (err) {
+    console.error(err);
+    alert("Archive failed. Neural sync interrupted.");
+    text.innerHTML = originalHtml;
+    icon.innerHTML = `<i class="fa-solid fa-cloud-arrow-up text-white/20 text-2xl"></i>`;
+  }
+});
 
 window.requestBadge = async () => {
   if (!traineeData) return;
@@ -295,12 +360,42 @@ function loadVault(data) {
   const grid = document.getElementById('vault-grid');
   const countEl = document.getElementById('vault-items-count');
   const items = data.vault || [];
+  const completedLessons = data.completedLessons || [];
   
   const existingCards = grid.querySelectorAll('.vault-item-card');
   existingCards.forEach(c => c.remove());
   
-  countEl.innerText = items.length;
+  countEl.innerText = items.length + completedLessons.length;
   
+  // Show Completed Lessons first
+  completedLessons.forEach(lessonId => {
+    const [track, lesson] = lessonId.split(':');
+    const trackName = track.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    const lessonName = lesson.split('/').pop().split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    
+    const card = document.createElement('div');
+    card.className = 'glass p-8 rounded-[40px] flex flex-col space-y-6 fade-in vault-item-card border-gold-500/20';
+    card.innerHTML = `
+      <div class="flex justify-between items-start">
+        <div class="w-12 h-12 rounded-2xl bg-green-500/10 flex items-center justify-center text-green-500">
+          <i class="fa-solid fa-graduation-cap text-xl"></i>
+        </div>
+        <span class="px-3 py-1 rounded-full bg-white/5 text-[8px] font-black auto-contrast-muted uppercase tracking-widest">Completed Lesson</span>
+      </div>
+      <div>
+        <h3 class="text-lg font-black auto-contrast truncate">${lessonName}</h3>
+        <p class="text-xs auto-contrast-muted line-clamp-2 mt-2">${trackName} Academy Curriculum</p>
+      </div>
+      <div class="pt-6 border-t border-white/5 flex items-center justify-between">
+        <span class="text-[8px] font-black auto-contrast-muted uppercase tracking-widest">Mastered Node</span>
+        <a href="../../skill forge site/academy/${track}/${lesson}/" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center auto-contrast-muted hover:auto-contrast hover:bg-white/10 transition-all">
+          <i class="fa-solid fa-arrow-right text-[10px]"></i>
+        </a>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
   items.forEach(item => {
     const card = document.createElement('div');
     card.className = 'glass p-8 rounded-[40px] flex flex-col space-y-6 fade-in vault-item-card';
@@ -317,9 +412,9 @@ function loadVault(data) {
       </div>
       <div class="pt-6 border-t border-white/5 flex items-center justify-between">
         <span class="text-[8px] font-black auto-contrast-muted uppercase tracking-widest">${item.date || 'Unknown Date'}</span>
-        <button class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center auto-contrast-muted hover:auto-contrast hover:bg-white/10 transition-all">
+        <a href="${item.url}" target="_blank" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center auto-contrast-muted hover:auto-contrast hover:bg-white/10 transition-all">
           <i class="fa-solid fa-arrow-right text-[10px]"></i>
-        </button>
+        </a>
       </div>
     `;
     grid.appendChild(card);
@@ -336,5 +431,7 @@ window.logout = () => {
   window.location.href = '../../trainee-login/';
 };
 </script>
+  <script type="module" src="../../assets/sf-core.js"></script>
+  <script type="module" src="../../assets/sf-turbo.js"></script>
 </body>
 </html>

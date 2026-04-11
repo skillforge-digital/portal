@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkillForge — Specialist Command Center</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        navy: { 950:'#040810', 900:'#070d1a', 800:'#0c1829', 700:'#112240', 600:'#1a3358' },
+        gold: { 300:'#fcd34d', 400:'#fbbf24', 500:'#f59e0b', 600:'#d97706', 700:'#b45309' },
+      }
+    }
+  }
+}
+</script>
+<style>
+  :root { --font-main: 'Space Grotesk', sans-serif; }
+  * { font-family: var(--font-main); transition: all 0.3s ease; }
+  body { background: #040810; color: white; min-height: 100dvh; overflow-x: hidden; }
+  .glass { background: rgba(12, 24, 50, 0.55); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
+  .glass-strong { background: rgba(12, 24, 50, 0.85); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.1); }
+  
+  .request-card { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  .request-card:hover { transform: translateY(-4px); }
+  
+  #loading-screen { position: fixed; inset: 0; background: #040810; z-index: 1000; display: flex; flex-direction: column; items-center: center; justify-content: center; transition: opacity 0.5s ease; }
+  
+  .badge-status { padding: 4px 12px; border-radius: 100px; font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; }
+  .status-pending { background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.2); }
+  .status-accepted { background: rgba(34, 197, 94, 0.1); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.2); }
+  .status-rejected { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); }
+</style>
+</head>
+<body class="flex flex-col md:flex-row">
+
+<div id="loading-screen">
+  <div class="flex flex-col items-center gap-6">
+    <div class="w-16 h-16 border-4 border-gold-500/20 border-t-gold-500 rounded-full animate-spin"></div>
+    <div class="text-center">
+      <p class="text-[10px] font-black uppercase tracking-[0.5em] text-gold-400">Authenticating Specialist</p>
+      <p class="text-[8px] text-white/20 uppercase tracking-[0.3em] mt-2">Connecting to Command Registry</p>
+    </div>
+  </div>
+</div>
+
+<aside class="w-72 glass-strong border-r border-white/5 flex flex-col fixed inset-y-0 z-50 transition-all duration-500 md:translate-x-0 -translate-x-full" id="sidebar">
+  <div class="p-8 flex-1 overflow-y-auto">
+    <div class="flex items-center gap-3 mb-10">
+      <div class="w-10 h-10 rounded-xl bg-black flex items-center justify-center border border-gold-500/30 overflow-hidden">
+        <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" class="w-full h-full object-cover">
+      </div>
+      <div class="flex flex-col leading-none">
+        <span class="font-black text-sm tracking-tighter uppercase">SkillForge</span>
+        <span class="text-[7px] text-gold-400 font-bold tracking-[0.2em] uppercase">Command Center</span>
+      </div>
+    </div>
+    <nav class="space-y-1">
+      <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Registry Control</p>
+      <a href="../" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-arrow-left w-4"></i> Back to Portal</a>
+      <a href="#" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest bg-gold-500/10 text-gold-400 border-r-4 border-gold-500"><i class="fa-solid fa-shield-halved w-4"></i> Badge Approvals</a>
+      <a href="#" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-users w-4"></i> Trainee Registry</a>
+      <a href="#" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-clipboard-list w-4"></i> Audit Logs</a>
+    </nav>
+  </div>
+  <div class="p-8 border-t border-white/5">
+    <button onclick="logout()" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-red-400/70 hover:text-red-400 hover:bg-red-400/10 transition-all">
+      <i class="fa-solid fa-right-from-bracket w-4"></i> Sign Out
+    </button>
+  </div>
+</aside>
+
+<main class="flex-1 md:ml-72 p-6 md:p-10 pt-24 md:pt-20">
+  <div class="max-w-6xl mx-auto space-y-12">
+    <header class="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8">
+      <div>
+        <p class="text-gold-400 text-sm font-medium tracking-widest uppercase">Specialist Portal</p>
+        <h1 class="text-4xl md:text-6xl font-black mt-1 uppercase tracking-tighter">Registry Control</h1>
+      </div>
+      <div class="flex gap-4">
+        <div class="glass px-6 py-3 rounded-2xl border border-white/5">
+          <p class="text-[8px] font-black text-white/30 uppercase tracking-widest">Pending Syncs</p>
+          <p class="text-xl font-bold text-gold-400" id="pending-count">0</p>
+        </div>
+      </div>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+      <div class="lg:col-span-2 space-y-8">
+        <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">Inbound Mastery Validation Requests</h2>
+        <div id="requests-grid" class="grid grid-cols-1 gap-4">
+          <!-- Requests will be injected here -->
+          <div class="glass p-12 text-center text-white/20 italic">
+            Scanning for neural validation requests...
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-8">
+        <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">Real-time Audit Log</h2>
+        <div id="audit-logs" class="glass-strong rounded-[40px] p-8 space-y-6 max-h-[60vh] overflow-y-auto custom-scrollbar">
+          <!-- Audit logs will be injected here -->
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+import { getFirestore, doc, onSnapshot, updateDoc, collection, query, orderBy, limit, getDoc, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+
+const firebaseConfig = { 
+  apiKey: "AIzaSyAODtfZDqeR8DH7YRaiDlRwPOBlxxMfFnY", 
+  authDomain: "skillfoge-ecosystem.firebaseapp.com", 
+  projectId: "skillfoge-ecosystem", 
+  storageBucket: "skillfoge-ecosystem.firebasestorage.app", 
+  messagingSenderId: "279055501952", 
+  appId: "1:279055501952:web:e812364a6f8bcb5998f465", 
+  measurementId: "G-L669WT5FZS" 
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+let currentSpecialist = null;
+
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    // Verify Specialist Status
+    const specialistDoc = await getDoc(doc(db, 'specialists', user.uid));
+    if (specialistDoc.exists()) {
+      currentSpecialist = specialistDoc.data();
+      initDashboard();
+      hideLoading();
+    } else {
+      // If not a specialist, redirect to login
+      console.warn('Unauthorized Access Attempt: UID', user.uid);
+      alert('Access Denied: Specialist credentials required.');
+      window.location.href = '../trainee-login/';
+    }
+  } else {
+    window.location.href = '../trainee-login/';
+  }
+});
+
+function hideLoading() {
+  const loader = document.getElementById('loading-screen');
+  loader.style.opacity = '0';
+  setTimeout(() => loader.classList.add('hidden'), 500);
+}
+
+function initDashboard() {
+  // Listen for badge requests
+  const qRequests = query(collection(db, 'badge_requests'), orderBy('timestamp', 'desc'));
+  onSnapshot(qRequests, (snap) => {
+    const grid = document.getElementById('requests-grid');
+    grid.innerHTML = '';
+    let pending = 0;
+
+    if (snap.empty) {
+        grid.innerHTML = '<div class="glass p-12 text-center text-white/20 italic">No validation requests archived.</div>';
+    }
+
+    snap.forEach(doc => {
+      const data = doc.data();
+      if (data.status === 'pending') pending++;
+      
+      const card = document.createElement('div');
+      card.className = 'request-card glass p-6 rounded-3xl border border-white/5 flex flex-col md:flex-row items-center justify-between gap-6';
+      card.innerHTML = `
+        <div class="flex items-center gap-4 flex-1">
+          <div class="w-12 h-12 rounded-2xl bg-gold-500/10 flex items-center justify-center text-gold-500 font-black">
+            ${data.userName ? data.userName.charAt(0) : '?'}
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="font-bold text-sm uppercase">${data.userName || 'Unknown Trainee'}</h3>
+              <span class="badge-status status-${data.status}">${data.status}</span>
+            </div>
+            <p class="text-[9px] text-white/40 uppercase tracking-widest mt-1">${data.track} • Lvl ${data.level || 1} • ${data.userSfid}</p>
+          </div>
+        </div>
+        <div class="flex gap-2">
+          ${data.status === 'pending' ? `
+            <button onclick="updateRequest('${doc.id}', 'accepted')" class="px-6 py-3 rounded-xl bg-green-500 text-black font-black text-[9px] uppercase tracking-widest hover:bg-white transition-all">Approve</button>
+            <button onclick="updateRequest('${doc.id}', 'rejected')" class="px-6 py-3 rounded-xl bg-red-500 text-white font-black text-[9px] uppercase tracking-widest hover:bg-white/10 transition-all">Reject</button>
+          ` : `
+            <p class="text-[8px] font-black uppercase tracking-widest text-white/20">Finalized</p>
+          `}
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+    document.getElementById('pending-count').innerText = pending;
+  });
+
+  // Listen for audit logs
+  const qLogs = query(collection(db, 'audit_logs'), orderBy('timestamp', 'desc'), limit(20));
+  onSnapshot(qLogs, (snap) => {
+    const logContainer = document.getElementById('audit-logs');
+    logContainer.innerHTML = '';
+    snap.forEach(doc => {
+      const data = doc.data();
+      const time = data.timestamp ? new Date(data.timestamp.seconds * 1000).toLocaleTimeString() : '...';
+      const log = document.createElement('div');
+      log.className = 'text-[9px] border-b border-white/5 pb-3 font-mono';
+      log.innerHTML = `
+        <div class="flex justify-between items-start mb-1">
+          <span class="text-gold-500">[${time}]</span>
+          <span class="text-white/20">${data.action}</span>
+        </div>
+        <div class="text-white/60 truncate">${JSON.stringify(data.modifications)}</div>
+      `;
+      logContainer.appendChild(log);
+    });
+  });
+}
+
+window.updateRequest = async (id, status) => {
+  try {
+    await updateDoc(doc(db, 'badge_requests', id), { 
+      status, 
+      processedBy: auth.currentUser.uid,
+      processedAt: serverTimestamp() 
+    });
+    
+    // Log the specialist action
+    await addDoc(collection(db, 'audit_logs'), {
+      userId: auth.currentUser.uid,
+      action: `SPECIALIST_${status.toUpperCase()}`,
+      modifications: { requestId: id, targetStatus: status },
+      timestamp: serverTimestamp(),
+      page: '/specialist-dashboard/'
+    });
+    
+  } catch (err) {
+    console.error('Update Failed:', err);
+    alert('Failed to update request registry.');
+  }
+};
+
+window.logout = () => {
+  signOut(auth).then(() => {
+    localStorage.removeItem('skillforge_mock_uid');
+    window.location.href = '../trainee-login/';
+  });
+};
+
+</script>
+  <script type="module" src="../assets/sf-turbo.js"></script>
+</body>
+</html>

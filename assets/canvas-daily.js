@@ -1,4 +1,5 @@
 const CANVAS_ID = 'gold-dust';
+
 function ensureCanvas() {
   let c = document.getElementById(CANVAS_ID);
   if (!c) {
@@ -12,10 +13,12 @@ function ensureCanvas() {
   }
   return c;
 }
+
 function hexToRgb(hex) {
   const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return m ? { r: parseInt(m[1], 16), g: parseInt(m[2], 16), b: parseInt(m[3], 16) } : { r: 245, g: 158, b: 11 };
 }
+
 function getAccentColor() {
   const css = getComputedStyle(document.documentElement);
   const rgbVar = css.getPropertyValue('--accent-color-rgb').trim();
@@ -26,6 +29,7 @@ function getAccentColor() {
   const hex = css.getPropertyValue('--accent-color').trim() || '#f59e0b';
   return hexToRgb(hex);
 }
+
 class DailyAtmosphere {
   constructor() {
     this.canvas = ensureCanvas();
@@ -36,17 +40,33 @@ class DailyAtmosphere {
     this.resize = this.resize.bind(this);
     this.draw = this.draw.bind(this);
     this.initParticles = this.initParticles.bind(this);
+    
     window.addEventListener('resize', this.resize);
+    
+    // Turbo integration: Re-initialize on navigation
+    window.addEventListener('turbo:load', () => {
+        console.log("[DailyAtmosphere] Neural Re-Sync: Recalculating canvas boundaries");
+        this.canvas = ensureCanvas();
+        if (this.canvas) {
+          this.ctx = this.canvas.getContext('2d');
+          this.resize();
+        }
+    });
+
     this.resize();
     this.initParticles();
     this.draw();
   }
+
   resize() {
+    if (!this.canvas) return;
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
     this.initParticles();
   }
+
   initParticles() {
+    if (!this.canvas) return;
     const w = this.canvas.width;
     const h = this.canvas.height;
     const cfg = {
@@ -58,6 +78,7 @@ class DailyAtmosphere {
       5: { c: 120, s: 1.2, r: 1.5 },
       6: { c: 25,  s: 0.3, r: 80 }
     }[this.day];
+    
     this.particles.length = 0;
     const limit = Math.min(cfg.c, Math.floor((w * h) / ([3, 6].includes(this.day) ? 15000 : 8000)));
     for (let i = 0; i < limit; i++) {
@@ -71,21 +92,31 @@ class DailyAtmosphere {
       });
     }
   }
+
   draw() {
+    if (!this.ctx || !this.canvas) {
+      requestAnimationFrame(this.draw);
+      return;
+    }
+    
     const ctx = this.ctx;
     const w = this.canvas.width;
     const h = this.canvas.height;
+
     if (!this.enabled) {
       ctx.clearRect(0, 0, w, h);
       requestAnimationFrame(this.draw);
       return;
     }
+
     ctx.clearRect(0, 0, w, h);
     const col = getAccentColor();
     const isDark = !document.body.classList.contains('light');
     const color = isDark ? col : { r: Math.max(0, col.r - 80), g: Math.max(0, col.g - 50), b: Math.max(0, col.b - 10) };
+    
     ctx.lineCap = 'round';
     ctx.lineWidth = 0.5;
+
     switch (this.day) {
       case 0:
         for (let p of this.particles) {
@@ -183,7 +214,7 @@ class DailyAtmosphere {
     requestAnimationFrame(this.draw);
   }
 }
-document.addEventListener('DOMContentLoaded', () => {
-  new DailyAtmosphere();
-});
 
+document.addEventListener('DOMContentLoaded', () => {
+  window.dailyAtmosphere = new DailyAtmosphere();
+});
