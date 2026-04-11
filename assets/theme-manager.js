@@ -18,8 +18,11 @@ const storage = getStorage(app);
 class ThemeManager {
     constructor() {
         this.uid = localStorage.getItem('skillforge_mock_uid');
-        if (!this.uid && !window.location.pathname.includes('login') && !window.location.pathname.includes('registration')) {
-            const base = window.location.pathname.split('/trainee-dashboard')[0] || '/';
+        const isProtectedPage = window.location.pathname.includes('trainee-dashboard');
+        const isAuthPage = window.location.pathname.includes('login') || window.location.pathname.includes('registration');
+        
+        if (!this.uid && isProtectedPage && !isAuthPage) {
+            const base = window.location.pathname.split('/trainee-dashboard')[0] || '';
             window.location.href = `${base}/trainee-login/`;
         }
         this.currentTheme = JSON.parse(localStorage.getItem('sf_global_theme') || '{}');

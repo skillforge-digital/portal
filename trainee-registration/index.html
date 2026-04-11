@@ -6,6 +6,7 @@
   <title>Trainee Academy Registration Page • SkillForge Digital & Co. Ltd</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script>
     tailwind.config = {
       theme: {
@@ -24,7 +25,7 @@
     body { font-family:'Plus Jakarta Sans',sans-serif; background:#0A1931; color:#f1f5f9; overflow-x:hidden; min-height: 100dvh; }
     #sundust-canvas { position:fixed; inset:0; width:100%; height:100dvh; z-index:0; pointer-events:none }
     .glass { background: rgba(255,255,255,0.02); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
-    input, select { background: rgba(255,255,255,0.03) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; font-size: 16px !important; } /* 16px to prevent iOS zoom */
+    input, select { background: rgba(255,255,255,0.03) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; font-size: 16px !important; }
     input:focus, select:focus { border-color: #C9A84C !important; outline: none !important; background: rgba(255,255,255,0.05) !important; }
     .step-card { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
     .step-active { border-color: #C9A84C; background: rgba(201,168,76,0.1); opacity: 1 !important; pointer-events: auto !important; }
@@ -33,6 +34,10 @@
     .structure-card.active-structure { border-color: #C9A84C; background: rgba(201,168,76,0.1); }
     @keyframes slide-up { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     .animate-slide-up { animation: slide-up 0.8s ease-out forwards; }
+    
+    .social-btn { transition: all 0.3s ease; }
+    .social-btn.followed { background: rgba(201,168,76,0.2); border-color: #C9A84C; color: #C9A84C; }
+    
     @media (max-width: 640px) {
         .glass { p-6 !important; }
         h1 { font-size: 2rem !important; }
@@ -197,21 +202,42 @@
                         <a href="https://discord.gg/M8Ng7jh4K" target="_blank" onclick="unlockStep(2)" class="bg-[#5865F2] text-white px-6 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest">Join Hub</a>
                     </div>
 
-                    <div id="step-2" class="step-card opacity-30 pointer-events-none p-6 glass rounded-2xl border-white/5 flex items-center justify-between">
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 bg-orange/10 rounded-xl flex items-center justify-center text-orange"><i data-lucide="share-2" class="w-5 h-5"></i></div>
-                            <div class="text-left">
-                                <p class="text-[10px] font-black text-white uppercase tracking-widest">Step 2: Social Sync</p>
-                                <p class="text-[8px] text-slate-500 font-bold uppercase tracking-widest">Follow Our Social Handles</p>
+                    <div id="step-2" class="step-card opacity-30 pointer-events-none p-6 glass rounded-2xl border-white/5 space-y-6">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 bg-orange/10 rounded-xl flex items-center justify-center text-orange"><i data-lucide="share-2" class="w-5 h-5"></i></div>
+                                <div class="text-left">
+                                    <p class="text-[10px] font-black text-white uppercase tracking-widest">Step 2: Social Sync</p>
+                                    <p class="text-[8px] text-slate-500 font-bold uppercase tracking-widest">Follow at least one handle</p>
+                                </div>
                             </div>
+                            <div id="follow-status" class="hidden px-3 py-1 bg-gold/20 text-gold rounded-full text-[8px] font-black uppercase animate-pulse">Synced</div>
                         </div>
-                        <div class="flex gap-2">
-                            <a href="https://x.com/Skillforgeorg" target="_blank" class="p-2 bg-white/5 rounded-lg hover:text-gold transition-all"><i class="fa-brands fa-x-twitter text-sm"></i></a>
-                            <a href="https://instagram.com/skillforgeco.digital" target="_blank" class="p-2 bg-white/5 rounded-lg hover:text-gold transition-all"><i class="fa-brands fa-instagram text-sm"></i></a>
-                            <a href="https://www.facebook.com/skillforgeco.digital" target="_blank" class="p-2 bg-white/5 rounded-lg hover:text-gold transition-all"><i class="fa-brands fa-facebook text-sm"></i></a>
-                            <a href="https://www.tiktok.com/@skillforge.co.ltd" target="_blank" class="p-2 bg-white/5 rounded-lg hover:text-gold transition-all"><i class="fa-brands fa-tiktok text-sm"></i></a>
-                            <a href="https://www.youtube.com/@SkillForgeco.digital" target="_blank" class="p-2 bg-white/5 rounded-lg hover:text-gold transition-all"><i class="fa-brands fa-youtube text-sm"></i></a>
-                            <a href="https://www.linkedin.com/in/skillforge-organization-551310398" target="_blank" onclick="unlockStep(3)" class="p-2 bg-white/5 rounded-lg hover:text-gold transition-all"><i class="fa-brands fa-linkedin text-sm"></i></a>
+                        <div class="flex justify-center gap-3 flex-wrap">
+                            <a href="https://x.com/Skillforgeorg" target="_blank" onclick="trackFollow('twitter')" class="social-btn p-4 bg-white/5 rounded-2xl border border-white/5 hover:border-white/20 transition-all flex flex-col items-center gap-2 group">
+                                <i class="fa-brands fa-x-twitter text-xl group-hover:scale-110 transition-transform"></i>
+                                <span class="text-[7px] font-black uppercase">X/Twitter</span>
+                            </a>
+                            <a href="https://instagram.com/skillforgeco.digital" target="_blank" onclick="trackFollow('instagram')" class="social-btn p-4 bg-white/5 rounded-2xl border border-white/5 hover:border-white/20 transition-all flex flex-col items-center gap-2 group">
+                                <i class="fa-brands fa-instagram text-xl text-[#E1306C] group-hover:scale-110 transition-transform"></i>
+                                <span class="text-[7px] font-black uppercase">Instagram</span>
+                            </a>
+                            <a href="https://www.facebook.com/skillforgeco.digital" target="_blank" onclick="trackFollow('facebook')" class="social-btn p-4 bg-white/5 rounded-2xl border border-white/5 hover:border-white/20 transition-all flex flex-col items-center gap-2 group">
+                                <i class="fa-brands fa-facebook text-xl text-[#1877F2] group-hover:scale-110 transition-transform"></i>
+                                <span class="text-[7px] font-black uppercase">Facebook</span>
+                            </a>
+                            <a href="https://www.tiktok.com/@skillforge.co.ltd" target="_blank" onclick="trackFollow('tiktok')" class="social-btn p-4 bg-white/5 rounded-2xl border border-white/5 hover:border-white/20 transition-all flex flex-col items-center gap-2 group">
+                                <i class="fa-brands fa-tiktok text-xl group-hover:scale-110 transition-transform"></i>
+                                <span class="text-[7px] font-black uppercase">TikTok</span>
+                            </a>
+                            <a href="https://www.youtube.com/@SkillForgeco.digital" target="_blank" onclick="trackFollow('youtube')" class="social-btn p-4 bg-white/5 rounded-2xl border border-white/5 hover:border-white/20 transition-all flex flex-col items-center gap-2 group">
+                                <i class="fa-brands fa-youtube text-xl text-[#FF0000] group-hover:scale-110 transition-transform"></i>
+                                <span class="text-[7px] font-black uppercase">YouTube</span>
+                            </a>
+                            <a href="https://www.linkedin.com/in/skillforge-organization-551310398" target="_blank" onclick="trackFollow('linkedin')" class="social-btn p-4 bg-white/5 rounded-2xl border border-white/5 hover:border-white/20 transition-all flex flex-col items-center gap-2 group">
+                                <i class="fa-brands fa-linkedin text-xl text-[#0A66C2] group-hover:scale-110 transition-transform"></i>
+                                <span class="text-[7px] font-black uppercase">LinkedIn</span>
+                            </a>
                         </div>
                     </div>
 
@@ -243,7 +269,7 @@
                 <p id="final-pin" class="text-3xl font-black text-white tracking-[0.5em] mb-4">******</p>
                 <p class="text-[8px] text-slate-600 font-bold uppercase tracking-widest">Use this Master Key to access your Trainee Command Center</p>
             </div>
-            <a href="/trainee-dashboard" class="inline-flex items-center gap-3 bg-gold text-navy px-12 py-5 rounded-2xl font-black uppercase text-xs tracking-widest shadow-2xl hover:bg-white transition-all">
+            <a href="../trainee-dashboard/" class="inline-flex items-center gap-3 bg-gold text-navy px-12 py-5 rounded-2xl font-black uppercase text-xs tracking-widest shadow-2xl hover:bg-white transition-all">
                 Enter Command Center <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
             </a>
         </section>
@@ -296,12 +322,10 @@
         if (file) {
             fileNameLabel.innerText = file.name;
             uploadedProfileFile = file;
-            // Deselect other avatars
             document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('selected'));
         }
     });
 
-    // Initialize Avatars
     const avatarGrid = document.getElementById('avatar-grid');
     const selectedAvatarInput = document.getElementById('selected-avatar');
     const avatarStyles = ['avataaars', 'bottts', 'pixel-art', 'lorelei', 'notionists'];
@@ -317,11 +341,12 @@
             document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('selected'));
             div.classList.add('selected');
             selectedAvatarInput.value = url;
+            uploadedProfileFile = null;
+            fileNameLabel.innerText = "Upload Passport (JPG/PNG)";
         };
         avatarGrid.appendChild(div);
     }
 
-    // Structure Selection
     const structureGrid = document.getElementById('structure-grid');
     const selectedLayoutInput = document.getElementById('selected-layout');
     
@@ -360,7 +385,15 @@
     };
 
     let traineeData = null;
-    const IS_TESTING = false;
+    let followedCount = 0;
+
+    window.trackFollow = (platform) => {
+        followedCount++;
+        document.getElementById('follow-status').classList.remove('hidden');
+        if (followedCount >= 1) {
+            unlockStep(3);
+        }
+    };
 
     document.getElementById('reg-form').onsubmit = async (e) => {
         e.preventDefault();
@@ -372,14 +405,12 @@
         traineeData.name = traineeData.name.toUpperCase();
         
         try {
-            const user = IS_TESTING ? { uid: 'test_trainee_' + Math.random().toString(36).substr(2, 9) } : (await signInAnonymously(auth)).user;
-            if (IS_TESTING) localStorage.setItem('skillforge_mock_uid', user.uid);
+            const user = (await signInAnonymously(auth)).user;
+            localStorage.setItem('skillforge_mock_uid', user.uid);
 
-            // Handle Profile Image Upload to Supabase
             let avatarUrl = traineeData.avatar;
             if (uploadedProfileFile) {
-                const fileExt = uploadedProfileFile.name.split('.').pop();
-                const fileName = `${user.uid}_${Date.now()}.${fileExt}`;
+                const fileName = `${user.uid}_${Date.now()}.jpg`;
                 const { data, error } = await supabase.storage
                     .from('avatars')
                     .upload(fileName, uploadedProfileFile);
@@ -408,18 +439,17 @@
                     sfid: newSFID, 
                     pin, 
                     uid: user.uid, 
+                    xp: 0,
                     created_at: serverTimestamp(),
-                    theme: { layout: parseInt(traineeData.layout) || 1, color: '#f59e0b', secondary: '#040810' } // Use selected layout
+                    theme: { layout: parseInt(traineeData.layout) || 1, color: '#f59e0b', secondary: '#040810' }
                 }, { merge: true });
                 
                 tx.set(counterRef, { [traineeData.track]: next }, { merge: true });
                 return { sfid: newSFID, pin };
             });
 
-            // Name handling: First name first
             const firstName = traineeData.name.trim().split(/\s+/)[0] || 'Human';
             document.getElementById('welcome-message').innerText = `Welcome to the Future of Mastery, ${firstName}. Your journey starts here.`;
-            document.getElementById('welcome-message').classList.add('text-gold');
             document.getElementById('final-sfid').innerText = result.sfid;
             document.getElementById('final-pin').innerText = result.pin;
             document.getElementById('tg-node-btn').href = TELEGRAM_NODES[traineeData.track];
@@ -429,7 +459,7 @@
             document.getElementById('onboarding-section').classList.remove('hidden');
         } catch (err) {
             console.error(err);
-            alert("Registration failure. We encountered a slight delay in syncing your mastery record. Please try again.");
+            alert("Registration failure. Please try again.");
         } finally {
             btn.disabled = false; btn.innerHTML = "Start Your Mastery Journey";
         }
@@ -437,6 +467,7 @@
 
     window.unlockStep = (step) => {
         document.getElementById(`step-${step}`).classList.add('step-active');
+        document.getElementById(`step-${step}`).classList.remove('opacity-30', 'pointer-events-none');
     };
 
     window.finishOnboarding = () => {
@@ -444,7 +475,6 @@
         document.getElementById('final-section').classList.remove('hidden');
     };
 
-    // Sundust Background
     class Sundust {
       constructor() {
         this.canvas = document.getElementById('sundust-canvas');
@@ -473,6 +503,5 @@
     new Sundust();
     if (window.lucide) window.lucide.createIcons();
   </script>
-  <script src="../assets/error-reporter.js"></script>
 </body>
 </html>

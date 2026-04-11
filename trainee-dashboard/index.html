@@ -80,19 +80,16 @@ tailwind.config = {
   .sidebar-link { transition: all 0.3s ease; }
   .sidebar-link.active { background: rgba(245, 158, 11, 0.1); color: #fbbf24; border-right: 3px solid #fbbf24; }
   
-  .light body { background: #f8fafc; color: #0f172a; }
-  .light .glass { background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(15, 23, 42, 0.08); }
-  .light .text-white { color: #0f172a !important; }
-  .light .text-white\/50 { color: rgba(15, 23, 42, 0.6) !important; }
-  .light .text-white\/40 { color: rgba(15, 23, 42, 0.5) !important; }
-  .light .text-white\/30 { color: rgba(15, 23, 42, 0.4) !important; }
-  .light .text-white\/20 { color: rgba(15, 23, 42, 0.3) !important; }
-  .light .glass-strong { background: rgba(255, 255, 255, 0.9); }
+  /* Text Sync & Contrast */
+  .auto-contrast { color: var(--text-color, white); }
+  .auto-contrast-muted { color: var(--text-muted, rgba(255,255,255,0.4)); }
+  .light { --text-color: #0f172a; --text-muted: rgba(15,23,42,0.5); }
 
   @media (max-width: 768px) {
     .glass, .glass-strong { backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); }
     .orbit-container { transform: scale(0.6); }
     .dock-item:hover { transform: translateY(-4px) scale(1.1); }
+    .template-section { padding-top: 5rem; }
   }
 
   /* Global Accent Color Overrides */
@@ -239,16 +236,22 @@ tailwind.config = {
             <p class="text-xs font-bold text-gold-300 font-mono sfid-display-target truncate w-full">SFID-26-XXX-000</p>
           </div>
         </div>
+        
+        <div class="glass rounded-[40px] p-6 col-span-2 flex flex-col justify-center fade-in-2">
             <div class="flex items-center justify-between mb-2">
               <div class="flex items-center gap-2"><span class="text-gold-400 text-xs font-semibold">Mastery XP</span><span class="text-white/30 text-xs">•</span><span class="text-white/50 text-xs xp-text-target">0 / 1,000</span></div>
               <span class="text-[10px] font-bold text-white/40 uppercase level-target">Lvl 1</span>
             </div>
             <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden"><div class="progress-fill h-full bg-gradient-to-r from-gold-600 to-gold-400 rounded-full xp-bar-target" style="width:0%"></div></div>
-          </div>
         </div>
+
         <div class="glass rounded-[40px] p-6 col-span-2 flex items-center gap-6 fade-in-2 group">
           <div class="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-white group-hover:scale-110 transition-transform shadow-inner"><i class="fa-solid fa-clock text-2xl"></i></div>
           <div><p class="text-white/40 text-xs uppercase tracking-wider mb-1">Active Study Time</p><p class="text-4xl font-bold tracking-tight study-time-target">00D 00H</p></div>
+        </div>
+        <div class="glass rounded-[40px] p-6 col-span-2 flex items-center gap-6 fade-in-2 group">
+          <div class="w-14 h-14 rounded-2xl bg-gold-500/10 flex items-center justify-center text-gold-500 group-hover:scale-110 transition-transform shadow-inner"><i class="fa-solid fa-sign-in-alt text-2xl"></i></div>
+          <div><p class="text-white/40 text-xs uppercase tracking-wider mb-1">Total Logins</p><p class="text-4xl font-bold tracking-tight logins-target">0</p></div>
         </div>
         <div class="glass-gold rounded-[40px] p-6 col-span-2 flex items-center gap-6 fade-in-3">
           <div class="w-14 h-14 rounded-2xl bg-gold-500/10 flex items-center justify-center text-gold-500"><i class="fa-solid fa-award text-2xl"></i></div>
@@ -258,12 +261,20 @@ tailwind.config = {
           </div>
         </div>
         <div class="glass rounded-[40px] p-8 col-span-2 row-span-2 flex flex-col gap-6 fade-in-4">
-          <p class="text-white/40 text-xs uppercase tracking-wider mb-2">Command Centers</p>
-          <div class="grid grid-cols-2 gap-4 h-full">
-            <a href="./" class="flex flex-col items-center justify-center gap-3 rounded-3xl bg-gold-500/10 border border-gold-500/20 hover:border-gold-400 transition-all group"><i class="fa-solid fa-satellite-dish text-gold-400 group-hover:scale-110 transition-transform"></i><span class="text-[10px] font-bold text-gold-400 uppercase tracking-widest">Mastery Hub</span></a>
-            <a href="customize/" class="flex flex-col items-center justify-center gap-3 rounded-3xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all group"><i class="fa-solid fa-wand-magic-sparkles text-white/60 group-hover:scale-110 transition-transform"></i><span class="text-[10px] font-bold text-white/60 uppercase tracking-widest">Env Design</span></a>
-            <a href="leaderboard/" class="flex flex-col items-center justify-center gap-3 rounded-3xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all group"><i class="fa-solid fa-ranking-star text-white/60 group-hover:scale-110 transition-transform"></i><span class="text-[10px] font-bold text-white/60 uppercase tracking-widest">Fame</span></a>
-            <a href="vault/" class="flex flex-col items-center justify-center gap-3 rounded-3xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all group"><i class="fa-solid fa-vault text-white/60 group-hover:scale-110 transition-transform"></i><span class="text-[10px] font-bold text-white/60 uppercase tracking-widest">Vault</span></a>
+          <p class="text-white/40 text-xs uppercase tracking-wider mb-2">Control Hub</p>
+          <div class="space-y-6">
+            <div class="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
+              <p class="text-[10px] font-black uppercase tracking-widest text-white/60">Atmospheric Glow</p>
+              <button onclick="toggleControl('glow')" id="ctrl-glow" class="w-12 h-6 rounded-full bg-white/10 relative transition-all"><div class="absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-all"></div></button>
+            </div>
+            <div class="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
+              <p class="text-[10px] font-black uppercase tracking-widest text-white/60">High-Contrast Light</p>
+              <button onclick="toggleControl('light')" id="ctrl-light" class="w-12 h-6 rounded-full bg-white/10 relative transition-all"><div class="absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-all"></div></button>
+            </div>
+            <div class="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
+              <p class="text-[10px] font-black uppercase tracking-widest text-white/60">Atmospheric Canvas</p>
+              <button onclick="toggleControl('canvas')" id="ctrl-canvas" class="w-12 h-6 rounded-full bg-white/10 relative transition-all"><div class="absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-all"></div></button>
+            </div>
           </div>
         </div>
       </div>
@@ -278,6 +289,10 @@ tailwind.config = {
           <div class="bg-white/5 px-4 py-2 flex items-center gap-2 border-b border-white/5"><span class="w-2 h-2 rounded-full bg-red-400/80"></span><span class="w-2 h-2 rounded-full bg-yellow-400/80"></span><span class="w-2 h-2 rounded-full bg-green-400/80"></span><span class="text-white/30 text-[8px] font-black uppercase ml-2 tracking-widest">Identity.profile</span></div>
           <div class="p-8">
             <div class="flex items-center gap-5 mb-6"><div class="w-16 h-16 rounded-2xl bg-black flex items-center justify-center text-navy-950 font-bold text-2xl shadow-lg profile-initials-target overflow-hidden border border-gold-500/30"><img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" alt="SF" class="w-full h-full object-cover"></div><div class="min-w-0"><h2 class="text-lg font-bold profile-name-target truncate">Loading...</h2><p class="text-gold-400 text-[10px] font-bold uppercase tracking-widest profile-track-target truncate">Academy Trainee</p><p class="text-white/40 text-[9px] font-bold mt-1 uppercase tracking-widest level-target truncate">Lvl 1</p></div></div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-gold-400 text-[9px] font-bold uppercase tracking-widest">Mastery XP</span>
+              <span class="text-white/50 text-[9px] font-bold xp-text-target">0 / 1,000</span>
+            </div>
             <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden"><div class="progress-fill h-full bg-gradient-to-r from-gold-600 to-gold-400 rounded-full xp-bar-target" style="width:0%"></div></div>
             <div class="mt-6 pin-reveal cursor-pointer rounded-2xl bg-white/5 p-4 border border-white/5 text-center"><p class="text-white/30 text-[8px] uppercase tracking-widest mb-1">Access Key</p><span class="access-pin-target text-2xl font-bold tracking-[0.3em] pin-blur text-gold-300">0000</span></div>
           </div>
@@ -378,7 +393,18 @@ tailwind.config = {
       <div class="lg:w-2/3 space-y-10">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div class="glass rounded-[40px] p-10"><p class="text-white/40 text-[10px] uppercase font-black tracking-[0.3em] mb-4">Study Time</p><p class="text-6xl font-black study-time-target">00D 00H</p></div>
-          <div class="glass rounded-[40px] p-10"><p class="text-gold-400 text-[10px] uppercase font-black tracking-[0.3em] mb-4">Mastery XP</p><p class="text-6xl font-black xp-text-target">0 XP</p></div>
+          <div class="glass rounded-[40px] p-10">
+              <p class="text-gold-400 text-[10px] uppercase font-black tracking-[0.3em] mb-4">Mastery XP</p>
+              <div class="flex items-end gap-2 mb-2">
+                  <p class="text-6xl font-black xp-text-target">0</p>
+                  <p class="text-[10px] font-bold text-white/40 uppercase mb-2">Total XP</p>
+              </div>
+              <div class="flex items-center justify-between mb-1">
+                  <span class="text-[10px] font-black text-gold-400 level-target">Lvl 1</span>
+                  <span class="text-[8px] font-bold text-white/30 xp-current-target">0 XP</span>
+              </div>
+              <div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden"><div class="progress-fill h-full bg-gold-500 xp-bar-target"></div></div>
+          </div>
         </div>
         <div class="glass rounded-[40px] p-10"><p class="text-white/40 text-[10px] uppercase font-black tracking-[0.3em] mb-8">Top Masters</p><div class="grid grid-cols-1 md:grid-cols-3 gap-6 leaderboard-top-target"></div></div>
       </div>
@@ -394,6 +420,13 @@ tailwind.config = {
           <div class="w-24 h-24 rounded-[32px] bg-gold-500 profile-initials-target overflow-hidden flex items-center justify-center text-navy-950 text-3xl font-black shadow-4K"></div>
           <h1 class="text-5xl lg:text-8xl font-black leading-tight profile-name-target max-w-xl">Loading...</h1>
           <p class="text-gold-400 text-sm font-black uppercase tracking-[0.5em] profile-track-target">Academy Trainee</p>
+          <div class="max-w-xs space-y-2">
+              <div class="flex justify-between items-center px-1">
+                  <span class="text-[10px] font-black text-gold-400 uppercase tracking-widest level-target">Lvl 1</span>
+                  <span class="text-[10px] font-black text-white/40 xp-text-target">0 / 1,000 XP</span>
+              </div>
+              <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden border border-white/5"><div class="progress-fill h-full bg-gold-500 xp-bar-target"></div></div>
+          </div>
         </div>
       </div>
       <div class="lg:w-1/2 p-10 lg:p-20 space-y-12 flex flex-col justify-center">
@@ -406,10 +439,22 @@ tailwind.config = {
   <!-- T6: Stack Layout -->
   <section id="t6" class="template-section p-6 md:p-10 pt-24 md:pt-20">
     <div class="max-w-4xl mx-auto space-y-8">
-      <div class="glass rounded-[48px] p-12 text-center space-y-6 glow-gold overflow-hidden">
+      <div class="glass rounded-[48px] p-12 text-center space-y-6 glow-gold overflow-hidden relative">
+        <div class="absolute top-0 left-0 w-full h-1 bg-gold-500/30"></div>
         <div class="w-20 h-20 rounded-3xl bg-white/5 mx-auto flex items-center justify-center text-gold-500 border border-white/10"><i class="fa-solid fa-user-astronaut text-3xl"></i></div>
         <h1 class="text-4xl md:text-6xl font-black profile-name-target truncate w-full">Alexis Mercer</h1>
-        <div class="flex justify-center gap-4 flex-wrap"><span class="px-4 py-1.5 rounded-full bg-gold-500/10 text-gold-400 text-[10px] font-black uppercase tracking-widest tier-target">Novice</span><span class="px-4 py-1.5 rounded-full bg-white/5 text-white/40 text-[10px] font-black uppercase tracking-widest gender-target whitespace-nowrap"></span></div>
+        <div class="flex justify-center gap-4 flex-wrap items-center">
+            <span class="px-4 py-1.5 rounded-full bg-gold-500/10 text-gold-400 text-[10px] font-black uppercase tracking-widest tier-target">Novice</span>
+            <span class="px-4 py-1.5 rounded-full bg-white/5 text-white/40 text-[10px] font-black uppercase tracking-widest level-target">Lvl 1</span>
+            <span class="px-4 py-1.5 rounded-full bg-white/5 text-white/40 text-[10px] font-black uppercase tracking-widest gender-target whitespace-nowrap"></span>
+        </div>
+        <div class="max-w-md mx-auto space-y-2">
+            <div class="flex justify-between items-center px-2">
+                <span class="text-[9px] font-black text-white/20 uppercase tracking-widest">Mastery Progress</span>
+                <span class="text-[9px] font-black text-gold-400 xp-text-target">0 / 1,000 XP</span>
+            </div>
+            <div class="w-full h-2 bg-white/5 rounded-full overflow-hidden border border-white/5"><div class="progress-fill h-full bg-gradient-to-r from-gold-600 to-gold-400 xp-bar-target"></div></div>
+        </div>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div class="glass rounded-[40px] p-10 text-center"><p class="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] mb-4">Presence</p><p class="text-5xl font-black study-time-target">00D 00H</p></div>
@@ -422,16 +467,44 @@ tailwind.config = {
   <!-- T7: Orbit Layout -->
   <section id="t7" class="template-section min-h-screen flex items-center justify-center relative p-10 overflow-hidden">
     <div class="absolute inset-0 bg-radial from-gold-500/5 to-transparent opacity-50"></div>
-    <div class="relative z-10 w-full max-w-4xl aspect-square flex items-center justify-center">
+    <div class="relative z-10 w-full max-w-4xl aspect-square flex items-center justify-center pointer-events-none">
       <div class="absolute inset-0 border border-white/5 rounded-full animate-spin-slow"></div>
       <div class="absolute inset-[15%] border border-white/10 rounded-full animate-spin-reverse-slow"></div>
-      <div class="glass-strong rounded-full p-16 md:p-24 text-center z-20 glow-gold border border-gold-500/20 max-w-[80vw]">
+      
+      <!-- Central Body -->
+      <div class="glass-strong rounded-full p-16 md:p-24 text-center z-20 glow-gold border border-gold-500/20 max-w-[80vw] pointer-events-auto">
         <h1 class="text-3xl md:text-5xl font-black profile-name-target truncate mb-2">Loading...</h1>
         <p class="text-gold-400 text-[10px] font-black uppercase tracking-[0.5em] profile-track-target">Academy Trainee</p>
+        
+        <!-- Level & XP inside Orbit center -->
+        <div class="mt-8 pt-8 border-t border-white/5 space-y-4">
+          <div class="flex justify-between items-center px-4">
+            <p class="text-[8px] font-black text-white/30 uppercase tracking-widest">Mastery XP</p>
+            <p class="text-[10px] font-black text-gold-400 level-target">Lvl 1</p>
+          </div>
+          <div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+            <div class="progress-fill h-full bg-gold-500 xp-bar-target" style="width:0%"></div>
+          </div>
+          <p class="text-[10px] font-black text-white/60 xp-text-target">0 / 1,000 XP</p>
+        </div>
       </div>
-      <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 glass p-6 rounded-3xl text-center min-w-[150px] orbit-1"><p class="text-[8px] font-black text-white/30 uppercase mb-1">Study Time</p><p class="text-xl font-black study-time-target">00D 00H</p></div>
-      <div class="absolute bottom-0 right-0 glass p-8 rounded-[40px] w-72 orbit-2 hidden md:block"><p class="text-[8px] font-black text-white/30 uppercase mb-4">Fame Registry</p><div class="space-y-3 leaderboard-top-target"></div></div>
-      <div class="absolute bottom-10 left-0 glass p-6 rounded-3xl text-center min-w-[150px] orbit-3"><p class="text-[8px] font-black text-gold-400 uppercase mb-1">Mastery XP</p><p class="text-xl font-black xp-text-target">0 XP</p></div>
+
+      <!-- Orbiting Satellites -->
+      <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 glass p-6 rounded-3xl text-center min-w-[150px] orbit-1 pointer-events-auto shadow-2xl border-gold-500/20">
+          <p class="text-[8px] font-black text-white/30 uppercase mb-1">Study Time</p>
+          <p class="text-xl font-black study-time-target">00D 00H</p>
+      </div>
+      
+      <div class="absolute bottom-0 right-0 glass p-8 rounded-[40px] w-72 orbit-2 hidden md:block pointer-events-auto shadow-2xl border-white/5">
+          <p class="text-[8px] font-black text-white/30 uppercase mb-4 tracking-widest">Fame Registry</p>
+          <div class="space-y-3 leaderboard-top-target"></div>
+      </div>
+      
+      <div class="absolute bottom-10 left-0 glass p-6 rounded-3xl text-center min-w-[150px] orbit-3 pointer-events-auto shadow-2xl border-gold-500/20">
+          <p class="text-[8px] font-black text-gold-400 uppercase mb-1">Cert Progress</p>
+          <p class="text-xl font-black cert-days-target">0 / 14</p>
+          <div class="w-full h-1 bg-white/5 rounded-full mt-2 overflow-hidden"><div class="progress-fill h-full bg-gold-500 cert-bar-target"></div></div>
+      </div>
     </div>
   </section>
 
@@ -454,15 +527,30 @@ tailwind.config = {
             <p class="text-xl font-bold profile-track-target text-white/60 truncate">Academy Trainee</p>
           </div>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-10 border-t border-white/5 pt-10">
-          <div class="space-y-4">
-            <p class="text-green-500 text-[10px] uppercase tracking-widest">&gt; TEMPORAL_LOG</p>
-            <p class="text-6xl font-black study-time-target text-white">00D 00H</p>
-          </div>
-          <div class="space-y-4">
-            <p class="text-green-500 text-[10px] uppercase tracking-widest">&gt; GLOBAL_STANDINGS</p>
-            <div class="space-y-3 leaderboard-top-target"></div>
-          </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-10 border-y border-white/5 py-10">
+            <div class="space-y-2">
+                <p class="text-green-500 text-[10px] uppercase tracking-widest">&gt; TEMPORAL_LOG</p>
+                <p class="text-5xl font-black study-time-target text-white">00D 00H</p>
+            </div>
+            <div class="space-y-4">
+                <p class="text-green-500 text-[10px] uppercase tracking-widest">&gt; MASTERY_METRICS</p>
+                <div class="space-y-2">
+                    <div class="flex justify-between text-[10px] uppercase font-bold">
+                        <span class="text-white/40">Level</span>
+                        <span class="text-green-500 level-target">Lvl 1</span>
+                    </div>
+                    <div class="flex justify-between text-[10px] uppercase font-bold">
+                        <span class="text-white/40">Experience</span>
+                        <span class="text-white xp-text-target">0 / 1,000 XP</span>
+                    </div>
+                    <div class="w-full h-1 bg-white/5"><div class="progress-fill h-full bg-green-500 xp-bar-target"></div></div>
+                </div>
+            </div>
+            <div class="space-y-4">
+                <p class="text-green-500 text-[10px] uppercase tracking-widest">&gt; GLOBAL_STANDINGS</p>
+                <div class="space-y-3 leaderboard-top-target"></div>
+            </div>
         </div>
       </div>
     </div>
@@ -474,6 +562,10 @@ tailwind.config = {
       <div class="h-96 bg-navy-950 p-12 lg:p-20 flex flex-col justify-end relative overflow-hidden">
         <div class="absolute top-10 right-10 text-white/20 font-serif italic text-4xl">SkillForge</div>
         <h1 class="text-6xl lg:text-9xl font-black text-white leading-none profile-name-target uppercase tracking-tighter truncate w-full">Loading...</h1>
+        <div class="absolute bottom-12 right-12 text-right">
+            <p class="text-gold-400 text-xs font-black uppercase tracking-[0.4em] level-target">Lvl 1 Master</p>
+            <p class="text-white/40 text-[10px] uppercase font-bold tracking-widest xp-text-target">0 / 1,000 XP</p>
+        </div>
       </div>
       <div class="p-12 lg:p-20 grid grid-cols-1 lg:grid-cols-12 gap-12">
         <div class="lg:col-span-8 space-y-12">
@@ -483,7 +575,11 @@ tailwind.config = {
           </div>
           <div class="grid grid-cols-2 gap-12">
             <div><p class="text-[10px] font-black uppercase tracking-widest mb-2">Certification</p><p class="text-4xl font-black cert-days-target">0 / 14</p></div>
-            <div><p class="text-[10px] font-black uppercase tracking-widest mb-2">Mastery XP</p><p class="text-4xl font-black xp-text-target">0 XP</p></div>
+            <div>
+                <p class="text-[10px] font-black uppercase tracking-widest mb-2">Mastery Status</p>
+                <p class="text-4xl font-black tier-target">Novice</p>
+                <div class="w-full h-1 bg-navy-950/10 mt-4"><div class="progress-fill h-full bg-navy-950 xp-bar-target"></div></div>
+            </div>
           </div>
         </div>
         <div class="lg:col-span-4 space-y-8 border-l-2 border-navy-950 pl-12">
@@ -499,17 +595,27 @@ tailwind.config = {
     <div class="flex gap-8 min-w-[1200px] h-full">
       <div class="w-80 flex flex-col gap-6">
         <p class="text-[10px] font-black text-white/30 uppercase tracking-[0.4em] px-4">Identity</p>
-        <div class="glass rounded-3xl p-8 space-y-6 overflow-hidden">
+        <div class="glass rounded-3xl p-8 space-y-6 overflow-hidden relative">
+          <div class="absolute top-0 right-0 w-24 h-24 bg-gold-500/5 rounded-full blur-2xl"></div>
           <div class="w-16 h-16 rounded-2xl bg-gold-500 profile-initials-target flex items-center justify-center text-navy-950 font-black text-xl"></div>
-          <h1 class="text-xl font-black profile-name-target truncate w-full">Loading...</h1>
-          <p class="text-[9px] font-bold text-white/40 uppercase tracking-widest profile-track-target truncate w-full">Academy Trainee</p>
+          <div>
+              <h1 class="text-xl font-black profile-name-target truncate w-full">Loading...</h1>
+              <p class="text-[9px] font-bold text-white/40 uppercase tracking-widest profile-track-target truncate w-full">Academy Trainee</p>
+          </div>
+          <div class="pt-4 border-t border-white/5 space-y-3">
+              <div class="flex justify-between text-[8px] font-black uppercase tracking-widest">
+                  <span class="text-white/30">Level</span>
+                  <span class="text-gold-400 level-target">Lvl 1</span>
+              </div>
+              <div class="w-full h-1 bg-white/5"><div class="progress-fill h-full bg-gold-500 xp-bar-target"></div></div>
+          </div>
         </div>
       </div>
       <div class="w-80 flex flex-col gap-6">
         <p class="text-[10px] font-black text-gold-400 uppercase tracking-[0.4em] px-4">Metrics</p>
         <div class="glass rounded-3xl p-8 space-y-8">
-          <div><p class="text-[8px] font-black text-white/30 uppercase mb-2">Total Presence</p><p class="text-4xl font-black study-time-target">00D 00H</p></div>
-          <div><p class="text-[8px] font-black text-white/30 uppercase mb-2">Mastery XP</p><p class="text-4xl font-black xp-text-target">0 XP</p></div>
+          <div><p class="text-[8px] font-black text-white/30 uppercase mb-2 tracking-widest">Total Presence</p><p class="text-4xl font-black study-time-target">00D 00H</p></div>
+          <div><p class="text-[8px] font-black text-white/30 uppercase mb-2 tracking-widest">Experience</p><p class="text-4xl font-black xp-text-target">0 XP</p></div>
         </div>
       </div>
       <div class="w-80 flex flex-col gap-6">
@@ -518,8 +624,9 @@ tailwind.config = {
       </div>
       <div class="w-80 flex flex-col gap-6">
         <p class="text-[10px] font-black text-white/30 uppercase tracking-[0.4em] px-4">Certification</p>
-        <div class="glass rounded-3xl p-8 text-center">
+        <div class="glass rounded-3xl p-8 text-center space-y-4">
           <p class="text-5xl font-black cert-days-target">0 / 14</p>
+          <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.3em]">Validation Days Stored</p>
           <div class="w-full h-1 bg-white/5 rounded-full mt-6 overflow-hidden"><div class="progress-fill h-full bg-gold-500 cert-bar-target"></div></div>
         </div>
       </div>
@@ -532,7 +639,7 @@ tailwind.config = {
 import { themeManager } from '../assets/theme-manager.js';
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js';
 import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js';
-import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, query, orderBy, limit, getDocs } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js';
+import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, query, orderBy, limit, getDocs, updateDoc } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
 const supabaseUrl = 'https://luxubaqztmbcpskyfgdp.supabase.co';
@@ -567,18 +674,60 @@ if (uid) {
   });
 }
 
+window.toggleControl = async (type) => {
+  if (!traineeData) return;
+  const controls = traineeData.controls || {};
+  const key = type === 'glow' ? 'glow' : (type === 'light' ? 'light' : 'canvas');
+  controls[key] = !controls[key];
+  
+  const update = {};
+  if (type === 'glow') update['controls.glow'] = controls.glow;
+  else if (type === 'light') update.isLightMode = controls.light;
+  else if (type === 'canvas') localStorage.setItem('sf_canvas_mode', controls.canvas);
+  
+  if (type !== 'canvas') await updateDoc(doc(db, 'trainees', uid), update);
+  applyControlState(controls);
+};
+
+function applyControlState(controls) {
+  if (!controls) return;
+  const glowBtn = document.getElementById('ctrl-glow');
+  const lightBtn = document.getElementById('ctrl-light');
+  const canvasBtn = document.getElementById('ctrl-canvas');
+
+  if (glowBtn) {
+    glowBtn.classList.toggle('bg-gold-500', !!controls.glow);
+    glowBtn.querySelector('div').style.left = controls.glow ? '1.5rem' : '0.25rem';
+  }
+  if (lightBtn) {
+    lightBtn.classList.toggle('bg-gold-500', !!controls.light);
+    lightBtn.querySelector('div').style.left = controls.light ? '1.5rem' : '0.25rem';
+    document.documentElement.classList.toggle('light', !!controls.light);
+  }
+  if (canvasBtn) {
+    const isCanvasOn = localStorage.getItem('sf_canvas_mode') === 'true';
+    canvasBtn.classList.toggle('bg-gold-500', isCanvasOn);
+    canvasBtn.querySelector('div').style.left = isCanvasOn ? '1.5rem' : '0.25rem';
+  }
+}
+
 function initDashboard() {
   updateDynamicUI();
+  applyControlState({
+    glow: traineeData.controls?.glow,
+    light: traineeData.isLightMode,
+    canvas: localStorage.getItem('sf_canvas_mode') === 'true'
+  });
   startRealtimePresence();
   loadLeaderboard();
   
   if (traineeData.theme?.layout) showLayout(traineeData.theme.layout);
   else if (localStorage.getItem('sf_preferred_layout')) showLayout(localStorage.getItem('sf_preferred_layout'));
-  else showLayout(1); // Default to Bento Grid if no preference is found
+  else showLayout(1); 
   
   if (traineeData.theme) {
     applyThemeState(traineeData.theme);
-    themeManager.applyTheme(traineeData.theme); // Ensure themeManager also applies it
+    themeManager.applyTheme(traineeData.theme); 
   }
 }
 
@@ -605,6 +754,21 @@ function updateDynamicUI() {
   document.querySelectorAll('.profile-track-target').forEach(el => el.innerText = traineeData.track || 'Academy Trainee');
   document.querySelectorAll('.profile-initials-target').forEach(el => el.innerText = initials);
   document.querySelectorAll('.access-pin-target').forEach(el => el.innerText = traineeData.pin || '000000');
+  
+  // Level & XP
+  const xp = traineeData.xp || 0;
+  const level = Math.floor(xp / 1000) + 1;
+  const xpInLevel = xp % 1000;
+  const progress = (xpInLevel / 1000) * 100;
+
+  document.querySelectorAll('.xp-text-target').forEach(el => el.innerText = `${xpInLevel.toLocaleString()} / 1,000 XP`);
+  document.querySelectorAll('.xp-current-target').forEach(el => el.innerText = `${xp.toLocaleString()} XP`);
+  document.querySelectorAll('.level-target').forEach(el => el.innerText = `Lvl ${level}`);
+  document.querySelectorAll('.xp-bar-target').forEach(el => {
+    el.style.width = `${progress}%`;
+    el.dataset.width = `${progress}%`;
+  });
+
   document.querySelectorAll('.gender-target').forEach(el => {
     el.innerText = traineeData.gender || 'UNSET';
     el.style.color = traineeData.gender === 'Female' ? '#f472b6' : (traineeData.gender === 'Male' ? '#60a5fa' : 'inherit');
@@ -619,6 +783,8 @@ function updateDynamicUI() {
 
   // Update SFID
   document.querySelectorAll('.sfid-display-target').forEach(el => el.innerText = traineeData.sfid || 'SFID-26-XXX-000');
+  document.querySelectorAll('.logins-target').forEach(el => el.innerText = traineeData.totalLogins || '0');
+  document.querySelectorAll('.tier-target').forEach(el => el.innerText = traineeData.tier || 'Trainee');
 
   // Update Avatar
   const avatarUrl = traineeData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${traineeData.name}&gender=${traineeData.gender === 'Female' ? 'female' : 'male'}`;
@@ -626,7 +792,6 @@ function updateDynamicUI() {
   // Use Cloudinary for optimized Supabase images if it's a Supabase URL
   let optimizedAvatarUrl = avatarUrl;
   if (avatarUrl.includes('supabase.co')) {
-    // Cloudinary Fetch URL optimization for user's cloud: db8pknwmz
     optimizedAvatarUrl = `https://res.cloudinary.com/db8pknwmz/image/fetch/f_auto,q_auto,w_400/${encodeURIComponent(avatarUrl)}`;
   }
 
@@ -646,20 +811,9 @@ function startRealtimePresence() {
   onSnapshot(doc(db, 'presence', uid), (snap) => {
     if (!snap.exists()) return;
     const p = snap.data();
-    const xp = Math.floor((p.totalTime || 0) / 60000) * 10;
-    const level = Math.floor(xp / 1000) + 1;
-    document.querySelectorAll('.xp-text-target').forEach(el => el.innerText = `${xp.toLocaleString()} XP`);
-    document.querySelectorAll('.level-target').forEach(el => el.innerText = `Lvl ${level}`);
     const d_val = Math.floor(p.totalTime / 86400000);
     const h_val = Math.floor((p.totalTime % 86400000) / 3600000);
     document.querySelectorAll('.study-time-target').forEach(el => el.innerText = `${d_val}D ${h_val}H`);
-    
-    // Update XP bars
-    const xpPercent = (xp % 1000) / 10;
-    document.querySelectorAll('.xp-bar-target').forEach(el => {
-      el.style.width = `${xpPercent}%`;
-      el.dataset.width = `${xpPercent}%`; // Store for re-triggering animation
-    });
   });
 }
 
@@ -682,12 +836,10 @@ async function loadLeaderboard() {
 window.showLayout = (num) => {
   console.log('Activating structure:', num);
   
-  // Persistence check: If we have a theme in localStorage, ensure layout is updated in it
   const savedTheme = JSON.parse(localStorage.getItem('sf_global_theme') || '{}');
   if (savedTheme.layout != num) {
     savedTheme.layout = num;
     localStorage.setItem('sf_global_theme', JSON.stringify(savedTheme));
-    // Also update themeManager instance if it exists
     if (window.themeManager) {
         window.themeManager.currentTheme.layout = num;
     }
@@ -699,7 +851,6 @@ window.showLayout = (num) => {
     target.classList.add('active-template');
     localStorage.setItem('sf_preferred_layout', num);
     
-    // Highlight switcher button
     document.querySelectorAll('.layout-switch-btn').forEach(btn => {
       btn.classList.remove('text-gold-400', 'bg-gold-500/10', 'border-gold-500/20');
       btn.classList.add('text-white/40');
@@ -709,12 +860,11 @@ window.showLayout = (num) => {
       }
     });
 
-    // Re-trigger progress bar animations for the newly shown layout
     setTimeout(() => {
       target.querySelectorAll('.progress-fill').forEach(bar => {
         const w = bar.dataset.width || bar.style.width;
         if (w) {
-          bar.dataset.width = w; // Store original
+          bar.dataset.width = w;
           bar.style.width = '0%';
           requestAnimationFrame(() => {
             requestAnimationFrame(() => { bar.style.width = w; });
@@ -740,7 +890,7 @@ window.toggleLayoutSwitcher = () => {
   icon.style.transform = container.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
 };
 
-window.logout = async () => { localStorage.removeItem('skillforge_mock_uid'); window.location.href = '/trainee-login'; };
+window.logout = async () => { localStorage.removeItem('skillforge_mock_uid'); window.location.href = '../trainee-login/'; };
 </script>
 <script type="module" src="../assets/canvas-daily.js"></script>
   <script src="../assets/error-reporter.js"></script>

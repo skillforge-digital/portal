@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SkillForge — Registration Customize</title>
+<title>SkillForge — Customize Your Experience</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;700&family=Caveat:wght@400;700&family=Unbounded:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;700&family=Caveat:wght@400;700&family=Unbounded:wght@400;700&family=Inter:wght@400;700&family=Playfair+Display:wght@400;700&family=Outfit:wght@400;700&family=Syne:wght@400;700&family=Lexend:wght@400;700&family=Plus+Jakarta+Sans:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <script>
 tailwind.config = {
@@ -25,103 +25,58 @@ tailwind.config = {
 </script>
 <style>
   :root { 
-    --font-main: 'Space Grotesk', sans-serif; 
-    --accent-color: #f59e0b;
-  }
-  * { font-family: var(--font-main); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-  body { background: #040810; transition: background 0.5s ease; overflow-x: hidden; }
-  .glass { background: rgba(12, 24, 50, 0.55); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
-  .glass-strong { background: rgba(12, 24, 50, 0.75); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.1); }
-  .sidebar-link.active { background: rgba(245, 158, 11, 0.1); color: #fbbf24; border-right: 3px solid #fbbf24; }
-  
-  .layout-card { cursor: pointer; position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); isolation: isolate; z-index: 10; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-  .layout-card * { pointer-events: none; }
-  .layout-card.active { border-color: #fbbf24; background: rgba(245, 158, 11, 0.15); box-shadow: 0 0 30px rgba(245, 158, 11, 0.2); z-index: 20; }
-  .layout-card:hover { transform: translateY(-8px) scale(1.02); border-color: rgba(245, 158, 11, 0.4); z-index: 30; background: rgba(255,255,255,0.02); }
-  
-  .preview-box { height: 100px; width: 100%; border-radius: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); position: relative; margin-bottom: 1rem; overflow: hidden; }
-  
-  .p1 .b1 { position: absolute; top: 10%; left: 10%; width: 35%; height: 80%; background: #fbbf24; opacity: 0.4; border-radius: 4px; }
-  .p1 .b2 { position: absolute; top: 10%; left: 50%; width: 40%; height: 35%; background: white; opacity: 0.1; border-radius: 4px; }
-  .p1 .b3 { position: absolute; top: 55%; left: 50%; width: 18%; height: 35%; background: white; opacity: 0.1; border-radius: 4px; }
-  .p1 .b4 { position: absolute; top: 55%; left: 72%; width: 18%; height: 35%; background: white; opacity: 0.1; border-radius: 4px; }
-  .p2 .d1 { position: absolute; bottom: 8%; left: 20%; right: 20%; height: 15%; background: white; opacity: 0.15; border-radius: 8px; }
-  .p2 .w1 { position: absolute; top: 15%; left: 15%; width: 30%; height: 50%; background: #fbbf24; opacity: 0.3; border-radius: 6px; }
-  .p2 .w2 { position: absolute; top: 15%; right: 15%; width: 30%; height: 50%; background: white; opacity: 0.05; border-radius: 6px; }
-  .p3 .n1 { position: absolute; top: 0; left: 0; right: 0; height: 18%; background: white; opacity: 0.15; }
-  .p3 .c1 { position: absolute; top: 30%; left: 10%; right: 10%; height: 50%; background: #fbbf24; opacity: 0.2; border-radius: 6px; }
-  .p4 .s1 { position: absolute; top: 0; right: 0; bottom: 0; width: 30%; background: white; opacity: 0.1; }
-  .p4 .m1 { position: absolute; top: 15%; left: 10%; width: 50%; height: 70%; background: #fbbf24; opacity: 0.2; border-radius: 6px; }
-  .p5 .l1 { position: absolute; top: 0; left: 0; bottom: 0; width: 50%; background: #fbbf24; opacity: 0.15; }
-  .p5 .r1 { position: absolute; top: 0; right: 0; bottom: 0; width: 50%; background: white; opacity: 0.05; }
-  .p6 .s1 { position: absolute; top: 10%; left: 15%; right: 15%; height: 20%; background: #fbbf24; opacity: 0.2; border-radius: 4px; }
-  .p6 .s2 { position: absolute; top: 40%; left: 15%; right: 15%; height: 20%; background: white; opacity: 0.1; border-radius: 4px; }
-  .p6 .s3 { position: absolute; top: 70%; left: 15%; right: 15%; height: 20%; background: white; opacity: 0.1; border-radius: 4px; }
-  .p7 .c1 { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 25%; height: 25%; background: #fbbf24; border-radius: 50%; }
-  .p7 .o1 { position: absolute; top: 15%; left: 50%; transform: translateX(-50%); width: 12%; height: 12%; background: white; opacity: 0.3; border-radius: 50%; }
-  .p7 .o2 { position: absolute; bottom: 15%; left: 15%; width: 12%; height: 12%; background: white; opacity: 0.3; border-radius: 50%; }
-  .p7 .o3 { position: absolute; bottom: 15%; right: 15%; width: 12%; height: 12%; background: white; opacity: 0.3; border-radius: 50%; }
-  .p8 .t1 { position: absolute; top: 10%; left: 10%; right: 10%; bottom: 10%; background: black; border: 1px solid #10b981; border-radius: 4px; }
-  .p8 .l1 { position: absolute; top: 25%; left: 18%; width: 40%; height: 2px; background: #10b981; opacity: 0.6; }
-  .p8 .l2 { position: absolute; top: 40%; left: 18%; width: 25%; height: 2px; background: #10b981; opacity: 0.4; }
-  .p9 .h1 { position: absolute; top: 0; left: 0; right: 0; height: 40%; background: #fbbf24; opacity: 0.2; }
-  .p9 .g1 { position: absolute; top: 50%; left: 10%; width: 40%; height: 40%; background: white; opacity: 0.1; border-radius: 4px; }
-  .p9 .g2 { position: absolute; top: 50%; right: 10%; width: 35%; height: 40%; background: white; opacity: 0.1; border-radius: 4px; }
-  .p10 .c1 { position: absolute; top: 10%; left: 5%; width: 20%; height: 80%; background: #fbbf24; opacity: 0.2; border-radius: 4px; }
-  .p10 .c2 { position: absolute; top: 10%; left: 28%; width: 20%; height: 80%; background: white; opacity: 0.05; border-radius: 4px; }
-  .p10 .c3 { position: absolute; top: 10%; left: 51%; width: 20%; height: 80%; background: white; opacity: 0.05; border-radius: 4px; }
-  .p10 .c4 { position: absolute; top: 10%; left: 74%; width: 20%; height: 80%; background: white; opacity: 0.05; border-radius: 4px; }
-
-  .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-  .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
-  .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(245,158,11,0.3); border-radius: 10px; }
-  
-  .glow-mode .glass { box-shadow: 0 0 20px var(--accent-color, rgba(245, 158, 11, 0.2)); }
-  .light body { background: #f8fafc; color: #0f172a; }
-  .light .glass { background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(15, 23, 42, 0.08); }
-
-  :root {
+    --font-main: 'Space Grotesk', sans-serif;
     --accent-color: #f59e0b;
     --accent-color-rgb: 245, 158, 11;
-    --accent-color-secondary: #d97706;
-    --accent-gradient: linear-gradient(135deg, var(--accent-color), var(--accent-color-secondary));
   }
-
-  .text-gold-400 { color: var(--accent-color) !important; }
-  .bg-gold-500 { background-color: var(--accent-color) !important; }
-  .bg-gold-500\/10 { background-color: rgba(var(--accent-color-rgb), 0.1) !important; }
-  .bg-gold-500\/15 { background-color: rgba(var(--accent-color-rgb), 0.15) !important; }
-  .bg-gold-500\/20 { background-color: rgba(var(--accent-color-rgb), 0.2) !important; }
-  .border-gold-500\/30 { border-color: rgba(var(--accent-color-rgb), 0.3) !important; }
-  .sidebar-link.active { background: rgba(var(--accent-color-rgb), 0.1) !important; color: var(--accent-color) !important; border-right-color: var(--accent-color) !important; }
-  .glow-mode .glass { box-shadow: 0 0 20px rgba(var(--accent-color-rgb), 0.2) !important; }
+  * { font-family: var(--font-main); transition: font-family 0.3s ease; }
+  body { background: #040810; color: white; min-height: 100dvh; display: flex; flex-direction: column; overflow-x: hidden; }
+  .glass { background: rgba(12, 24, 50, 0.55); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
+  .glass-strong { background: rgba(12, 24, 50, 0.75); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.1); }
+  .sidebar-link.active { background: rgba(var(--accent-color-rgb), 0.1); color: var(--accent-color); border-right: 3px solid var(--accent-color); }
+  
+  .gradient-swatch { width: 100%; aspect-ratio: 1; border-radius: 20px; cursor: pointer; border: 2px solid transparent; transition: all 0.3s ease; }
+  .gradient-swatch:hover { transform: scale(1.05); }
+  .gradient-swatch.active { border-color: white; transform: scale(1.1); box-shadow: 0 0 20px rgba(255,255,255,0.2); }
+  
+  .font-card { cursor: pointer; border: 1px solid rgba(255,255,255,0.05); transition: all 0.3s ease; }
+  .font-card.active { border-color: var(--accent-color); background: rgba(var(--accent-color-rgb), 0.1); }
+  
+  #loading-screen { position: fixed; inset: 0; background: #040810; z-index: 1000; display: flex; items-center: center; justify-content: center; transition: opacity 0.5s ease; }
+  .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--accent-color); border-radius: 10px; }
 </style>
 </head>
-<body class="text-white min-h-screen flex flex-col md:flex-row">
-<canvas id="gold-dust" class="fixed inset-0 pointer-events-none z-0"></canvas>
-<div class="md:hidden h-20 px-6 flex items-center justify-between glass sticky top-0 z-[100] border-b border-white/5 no-print">
+<body class="flex flex-col md:flex-row">
+
+<div id="loading-screen">
+  <div class="flex flex-col items-center gap-4">
+    <div class="w-12 h-12 border-4 border-gold-500/20 border-t-gold-500 rounded-full animate-spin"></div>
+    <p class="text-[10px] font-black uppercase tracking-[0.4em] text-gold-400">Syncing Design Registry...</p>
+  </div>
+</div>
+
+<!-- Mobile Header -->
+<div class="md:hidden h-20 px-6 flex items-center justify-between glass sticky top-0 z-[100] border-b border-white/5">
   <div class="flex items-center gap-3">
-    <button onclick="window.history.back()" class="p-2 text-white/50 hover:text-white transition-all" title="Go Back">
-      <i class="fa-solid fa-arrow-left text-lg"></i>
-    </button>
+    <button onclick="window.history.back()" class="p-2 text-white/50 hover:text-white transition-all"><i class="fa-solid fa-arrow-left text-lg"></i></button>
     <div class="w-8 h-8 rounded-lg bg-black flex items-center justify-center border border-gold-500/30 overflow-hidden">
-      <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" alt="SF" class="w-full h-full object-cover">
+      <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" class="w-full h-full object-cover">
     </div>
     <div class="flex flex-col leading-none">
       <span class="font-black text-sm tracking-tighter uppercase">SkillForge</span>
       <span class="text-[6px] text-gold-400 font-bold tracking-[0.2em] uppercase">Digital & Co. Ltd</span>
     </div>
   </div>
-  <button onclick="toggleSidebar()" class="p-2 text-white/50 hover:text-white transition-all">
-    <i class="fa-solid fa-bars-staggered text-xl"></i>
-  </button>
+  <button onclick="toggleSidebar()" class="p-2 text-white/50 hover:text-white transition-all"><i class="fa-solid fa-bars-staggered text-xl"></i></button>
 </div>
 
-<aside id="main-sidebar" class="w-72 glass-strong border-r border-white/5 flex flex-col fixed inset-y-0 z-50 no-print transition-all duration-500 -translate-x-full md:translate-x-0">
-  <div class="p-8 flex-1 custom-scrollbar overflow-y-auto">
+<aside id="main-sidebar" class="w-72 glass-strong border-r border-white/5 flex flex-col fixed inset-y-0 z-50 transition-all duration-500 -translate-x-full md:translate-x-0">
+  <div class="p-8 flex-1 overflow-y-auto custom-scrollbar">
     <div class="flex items-center gap-3 mb-10">
       <div class="w-10 h-10 rounded-xl bg-black flex items-center justify-center border border-gold-500/30 overflow-hidden">
-        <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" alt="SF" class="w-full h-full object-cover">
+        <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" class="w-full h-full object-cover">
       </div>
       <div class="flex flex-col leading-none">
         <span class="font-black text-sm tracking-tighter uppercase">SkillForge</span>
@@ -129,27 +84,12 @@ tailwind.config = {
       </div>
     </div>
     <nav class="space-y-1">
-      <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Academy Pages</p>
+      <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Academy Hub</p>
       <a href="../" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-layer-group w-4"></i> Overview</a>
       <a href="../dmc/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-id-card w-4"></i> Membership Card</a>
       <a href="../leaderboard/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-ranking-star w-4"></i> Hall of Fame</a>
       <a href="../vault/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-vault w-4"></i> The Vault</a>
-      <a href="../customize/" class="sidebar-link active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest"><i class="fa-solid fa-wand-magic-sparkles w-4"></i> Customize</a>
-      
-      <div class="mt-8 pt-8 border-t border-white/5 space-y-4">
-        <a href="#" target="_blank" class="telegram-join-target w-full flex items-center justify-between px-6 py-4 rounded-2xl bg-[#229ED9]/10 text-[#229ED9] hover:bg-[#229ED9]/20 transition-all group opacity-20 pointer-events-none">
-          <span class="font-bold text-[10px] uppercase tracking-widest">Join Telegram</span>
-          <i class="fa-brands fa-telegram text-lg group-hover:scale-110 transition-transform"></i>
-        </a>
-        <a href="https://wa.me/2349015185711" target="_blank" class="w-full flex items-center justify-between px-6 py-4 rounded-2xl bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366]/20 transition-all group">
-          <span class="font-bold text-[10px] uppercase tracking-widest">WhatsApp Support</span>
-          <i class="fa-brands fa-whatsapp text-lg group-hover:scale-110 transition-transform"></i>
-        </a>
-        <a href="https://discord.gg/skillforge" target="_blank" class="w-full flex items-center justify-between px-6 py-4 rounded-2xl bg-[#5865F2]/10 text-[#5865F2] hover:bg-[#5865F2]/20 transition-all group">
-          <span class="font-bold text-[10px] uppercase tracking-widest">Discord Support</span>
-          <i class="fa-brands fa-discord text-lg group-hover:scale-110 transition-transform"></i>
-        </a>
-      </div>
+      <a href="./" class="sidebar-link active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest"><i class="fa-solid fa-wand-magic-sparkles w-4"></i> Customize</a>
     </nav>
   </div>
   <div class="p-8 border-t border-white/5">
@@ -157,196 +97,67 @@ tailwind.config = {
       <i class="fa-solid fa-right-from-bracket w-4"></i> Sign Out
     </button>
   </div>
-  </aside>
+</aside>
 
 <main class="flex-1 md:ml-72 p-6 md:p-10 pt-24 md:pt-20">
-  <div class="max-w-7xl mx-auto space-y-12">
-    <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-      <div>
-        <p class="text-gold-400 text-sm font-medium tracking-widest uppercase">System Flux</p>
-        <h1 class="text-3xl md:text-5xl font-black mt-1">Registry <span class="text-white/40">Customize</span></h1>
-      </div>
-      <div id="save-status" class="w-full md:w-auto px-6 py-3 glass rounded-2xl flex items-center gap-3 opacity-0 transition-all">
-        <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-        <span class="text-[10px] font-black uppercase tracking-widest text-white/40">Registry Synced</span>
-      </div>
+  <div class="max-w-6xl mx-auto space-y-12">
+    <header>
+      <p class="text-gold-400 text-sm font-medium tracking-widest uppercase">Design Studio</p>
+      <h1 class="text-3xl md:text-5xl font-bold mt-1 uppercase tracking-tighter">Atmosphere Control</h1>
     </header>
 
-    <section class="space-y-8">
-      <div class="flex items-center justify-between">
-        <h2 class="text-2xl font-black uppercase tracking-tighter">Overview Live Preview</h2>
-        <span class="text-[10px] font-black text-white/20 uppercase tracking-widest">Real-time structure visualization</span>
-      </div>
-      <div class="glass-strong rounded-[48px] p-2 border border-white/5 overflow-hidden relative aspect-video group">
-        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-          <p class="text-[10px] font-black uppercase tracking-[0.3em]">Interactive Preview</p>
-        </div>
-        <div id="dashboard-preview-container" class="w-full h-full scale-[0.4] origin-top-left overflow-hidden pointer-events-none" style="width: 250%; height: 250%;">
-          <div class="flex items-center justify-center h-full">
-            <p class="text-white/20 uppercase tracking-widest animate-pulse">Initializing Page Interface...</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="space-y-8 relative z-20">
-      <div class="flex items-center justify-between">
-        <h2 class="text-2xl font-black uppercase tracking-tighter">Architecture Hub</h2>
-        <span class="text-[10px] font-black text-white/20 uppercase tracking-widest">Select Core Structure</span>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4" id="layout-grid">
-        <div class="layout-card glass p-4 rounded-[24px] flex flex-col transition-all active:scale-95" id="layout-1" data-layout="1" onclick="setLayout(1)">
-          <div class="preview-box p1"><div class="b1"></div><div class="b2"></div><div class="b3"></div><div class="b4"></div></div>
-          <h3 class="font-black text-[10px] uppercase tracking-widest text-center">Bento Grid</h3>
-          <div class="mt-2 flex justify-center"><div class="w-4 h-4 rounded-full border border-white/10 flex items-center justify-center"><div class="w-1.5 h-1.5 rounded-full bg-gold-500 opacity-0 transition-opacity check-dot"></div></div></div>
-        </div>
-        <div class="layout-card glass p-4 rounded-[24px] flex flex-col transition-all active:scale-95" id="layout-2" data-layout="2" onclick="setLayout(2)">
-          <div class="preview-box p2"><div class="d1"></div><div class="w1"></div><div class="w2"></div></div>
-          <h3 class="font-black text-[10px] uppercase tracking-widest text-center">Mac Dock</h3>
-          <div class="mt-2 flex justify-center"><div class="w-4 h-4 rounded-full border border-white/10 flex items-center justify-center"><div class="w-1.5 h-1.5 rounded-full bg-gold-500 opacity-0 transition-opacity check-dot"></div></div></div>
-        </div>
-        <div class="layout-card glass p-4 rounded-[24px] flex flex-col transition-all active:scale-95" id="layout-3" data-layout="3" onclick="setLayout(3)">
-          <div class="preview-box p3"><div class="n1"></div><div class="c1"></div></div>
-          <h3 class="font-black text-[10px] uppercase tracking-widest text-center">Top Nav</h3>
-          <div class="mt-2 flex justify-center"><div class="w-4 h-4 rounded-full border border-white/10 flex items-center justify-center"><div class="w-1.5 h-1.5 rounded-full bg-gold-500 opacity-0 transition-opacity check-dot"></div></div></div>
-        </div>
-        <div class="layout-card glass p-4 rounded-[24px] flex flex-col transition-all active:scale-95" id="layout-4" data-layout="4" onclick="setLayout(4)">
-          <div class="preview-box p4"><div class="s1"></div><div class="m1"></div></div>
-          <h3 class="font-black text-[10px] uppercase tracking-widest text-center">Right Sidebar</h3>
-          <div class="mt-2 flex justify-center"><div class="w-4 h-4 rounded-full border border-white/10 flex items-center justify-center"><div class="w-1.5 h-1.5 rounded-full bg-gold-500 opacity-0 transition-opacity check-dot"></div></div></div>
-        </div>
-        <div class="layout-card glass p-4 rounded-[24px] flex flex-col transition-all active:scale-95" id="layout-5" data-layout="5" onclick="setLayout(5)">
-          <div class="preview-box p5"><div class="l1"></div><div class="r1"></div></div>
-          <h3 class="font-black text-[10px] uppercase tracking-widest text-center">Split Screen</h3>
-          <div class="mt-2 flex justify-center"><div class="w-4 h-4 rounded-full border border-white/10 flex items-center justify-center"><div class="w-1.5 h-1.5 rounded-full bg-gold-500 opacity-0 transition-opacity check-dot"></div></div></div>
-        </div>
-        <div class="layout-card glass p-4 rounded-[24px] flex flex-col transition-all active:scale-95" id="layout-6" data-layout="6" onclick="setLayout(6)">
-          <div class="preview-box p6"><div class="s1"></div><div class="s2"></div><div class="s3"></div></div>
-          <h3 class="font-black text-[10px] uppercase tracking-widest text-center">Card Stack</h3>
-          <div class="mt-2 flex justify-center"><div class="w-4 h-4 rounded-full border border-white/10 flex items-center justify-center"><div class="w-1.5 h-1.5 rounded-full bg-gold-500 opacity-0 transition-opacity check-dot"></div></div></div>
-        </div>
-        <div class="layout-card glass p-4 rounded-[24px] flex flex-col transition-all active:scale-95" id="layout-7" data-layout="7" onclick="setLayout(7)">
-          <div class="preview-box p7"><div class="c1"></div><div class="o1"></div><div class="o2"></div><div class="o3"></div></div>
-          <h3 class="font-black text-[10px] uppercase tracking-widest text-center">Radial Orbit</h3>
-          <div class="mt-2 flex justify-center"><div class="w-4 h-4 rounded-full border border-white/10 flex items-center justify-center"><div class="w-1.5 h-1.5 rounded-full bg-gold-500 opacity-0 transition-opacity check-dot"></div></div></div>
-        </div>
-        <div class="layout-card glass p-4 rounded-[24px] flex flex-col transition-all active:scale-95" id="layout-8" data-layout="8" onclick="setLayout(8)">
-          <div class="preview-box p8"><div class="t1"></div><div class="l1"></div><div class="l2"></div></div>
-          <h3 class="font-black text-[10px] uppercase tracking-widest text-center">Tech Console</h3>
-          <div class="mt-2 flex justify-center"><div class="w-4 h-4 rounded-full border border-white/10 flex items-center justify-center"><div class="w-1.5 h-1.5 rounded-full bg-gold-500 opacity-0 transition-opacity check-dot"></div></div></div>
-        </div>
-        <div class="layout-card glass p-4 rounded-[24px] flex flex-col transition-all active:scale-95" id="layout-9" data-layout="9" onclick="setLayout(9)">
-          <div class="preview-box p9"><div class="h1"></div><div class="g1"></div><div class="g2"></div></div>
-          <h3 class="font-black text-[10px] uppercase tracking-widest text-center">Magazine</h3>
-          <div class="mt-2 flex justify-center"><div class="w-4 h-4 rounded-full border border-white/10 flex items-center justify-center"><div class="w-1.5 h-1.5 rounded-full bg-gold-500 opacity-0 transition-opacity check-dot"></div></div></div>
-        </div>
-        <div class="layout-card glass p-4 rounded-[24px] flex flex-col transition-all active:scale-95" id="layout-10" data-layout="10" onclick="setLayout(10)">
-          <div class="preview-box p10"><div class="c1"></div><div class="c2"></div><div class="c3"></div><div class="c4"></div></div>
-          <h3 class="font-black text-[10px] uppercase tracking-widest text-center">Kanban Hub</h3>
-          <div class="mt-2 flex justify-center"><div class="w-4 h-4 rounded-full border border-white/10 flex items-center justify-center"><div class="w-1.5 h-1.5 rounded-full bg-gold-500 opacity-0 transition-opacity check-dot"></div></div></div>
-        </div>
-      </div>
-    </section>
-
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
-      <div class="lg:col-span-2 space-y-10">
-        <div class="glass p-10 rounded-[40px] space-y-8 relative z-10">
-          <h3 class="text-xs font-bold text-white/40 uppercase tracking-[0.4em]">Solid Color Mastery</h3>
-          <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4" id="solid-pairs-grid">
-            <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#f59e0b', secondary: '#d97706' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#f59e0b"></div><div class="w-6 h-6 rounded-full" style="background:#d97706"></div></div><span class="text-[8px] font-black uppercase text-white/40">Royal Gold</span></button>
-            <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#3b82f6', secondary: '#2563eb' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#3b82f6"></div><div class="w-6 h-6 rounded-full" style="background:#2563eb"></div></div><span class="text-[8px] font-black uppercase text-white/40">Electric Blue</span></button>
-            <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#10b981', secondary: '#059669' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#10b981"></div><div class="w-6 h-6 rounded-full" style="background:#059669"></div></div><span class="text-[8px] font-black uppercase text-white/40">Emerald Green</span></button>
-            <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#8b5cf6', secondary: '#7c3aed' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#8b5cf6"></div><div class="w-6 h-6 rounded-full" style="background:#7c3aed"></div></div><span class="text-[8px] font-black uppercase text-white/40">Deep Purple</span></button>
-            <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#ef4444', secondary: '#dc2626' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#ef4444"></div><div class="w-6 h-6 rounded-full" style="background:#dc2626"></div></div><span class="text-[8px] font-black uppercase text-white/40">Crimson Red</span></button>
-            <button class="p-4 glass rounded-2xl flex flex-col items-center gap-3 hover:scale-105 transition-all border border-white/5 active:scale-95 theme-color-btn" onclick="setTheme({ type: 'solid-pair', primary: '#06b6d4', secondary: '#0891b2' })"><div class="flex gap-1"><div class="w-6 h-6 rounded-full" style="background:#06b6d4"></div><div class="w-6 h-6 rounded-full" style="background:#0891b2"></div></div><span class="text-[8px] font-black uppercase text-white/40">Cyber Cyan</span></button>
-          </div>
-        </div>
-
-        <div class="glass p-10 rounded-[40px] space-y-8 relative z-10">
-          <h3 class="text-xs font-bold text-white/40 uppercase tracking-[0.4em]">Premium Gradients</h3>
-          <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4" id="premium-gradients-grid">
-            <button class="h-24 rounded-2xl flex items-center justify-center hover:scale-105 transition-all border border-white/10 relative overflow-hidden group theme-grad-btn" style="background:linear-gradient(135deg, #040810, #1a3358, #3b82f6)" onclick="setTheme({ type: 'premium-gradient', colors: ['#040810', '#1a3358', '#3b82f6'] })"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[9px] font-black uppercase tracking-widest text-white">Hyper Space</span></div></button>
-            <button class="h-24 rounded-2xl flex items-center justify-center hover:scale-105 transition-all border border-white/10 relative overflow-hidden group theme-grad-btn" style="background:linear-gradient(135deg, #f59e0b, #fbbf24, #fcd34d, #ffffff)" onclick="setTheme({ type: 'premium-gradient', colors: ['#f59e0b', '#fbbf24', '#fcd34d', '#ffffff'] })"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[9px] font-black uppercase tracking-widest text-white">Golden Hour</span></div></button>
-          </div>
-        </div>
-
-        <div class="glass p-10 rounded-[40px] space-y-8 relative z-10">
-          <h3 class="text-xs font-bold text-white/40 uppercase tracking-[0.4em]">Font Selection Registry</h3>
-          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4" id="font-grid">
-            <!-- Populated via script -->
-          </div>
-        </div>
-
-        <div class="glass p-10 rounded-[40px] space-y-8 relative z-10">
+      <!-- Left Column: Theme Presets -->
+      <div class="lg:col-span-2 space-y-12">
+        <section class="space-y-6">
           <div class="flex items-center justify-between">
-            <h3 class="text-xs font-bold text-white/40 uppercase tracking-[0.4em]">Wallpaper Registry</h3>
-            <div class="flex gap-4">
-                <label class="px-6 py-2 glass rounded-xl text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-gold-500 hover:text-navy-950 transition-all active:scale-95">
-                  <i class="fa-solid fa-cloud-arrow-up mr-2"></i> Custom Upload
-                  <input type="file" id="wallpaper-upload" class="hidden" accept="image/*">
-                </label>
-            </div>
+            <h2 class="text-[11px] font-black uppercase tracking-[0.4em] text-white/40">Premium Atmosphere Gradients</h2>
+            <span class="text-[8px] font-bold text-gold-500 uppercase px-2 py-0.5 rounded-full bg-gold-500/10">25 Presets</span>
           </div>
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="wallpaper-grid">
-            <!-- Premium curated selection -->
-            <button class="aspect-video rounded-xl bg-cover bg-center border border-white/5 hover:border-gold-500 transition-all relative overflow-hidden group active:scale-95" style="background-image:url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072')" onclick="applyWallpaper('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072')"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[8px] font-black uppercase text-white">Neural Network</span></div></button>
-            <button class="aspect-video rounded-xl bg-cover bg-center border border-white/5 hover:border-gold-500 transition-all relative overflow-hidden group active:scale-95" style="background-image:url('https://images.unsplash.com/photo-1477346611705-65d1883cee1e?q=80&w=2070')" onclick="applyWallpaper('https://images.unsplash.com/photo-1477346611705-65d1883cee1e?q=80&w=2070')"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[8px] font-black uppercase text-white">Mountain Peak</span></div></button>
-            <button class="aspect-video rounded-xl bg-cover bg-center border border-white/5 hover:border-gold-500 transition-all relative overflow-hidden group active:scale-95" style="background-image:url('https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?q=80&w=2071')" onclick="applyWallpaper('https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?q=80&w=2071')"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[8px] font-black uppercase text-white">Cyber City</span></div></button>
-            <button class="aspect-video rounded-xl bg-cover bg-center border border-white/5 hover:border-gold-500 transition-all relative overflow-hidden group active:scale-95" style="background-image:url('https://images.unsplash.com/photo-1502134249126-9f3755a50d78?q=80&w=2070')" onclick="applyWallpaper('https://images.unsplash.com/photo-1502134249126-9f3755a50d78?q=80&w=2070')"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[8px] font-black uppercase text-white">Deep Space</span></div></button>
-            <button class="aspect-video rounded-xl bg-cover bg-center border border-white/5 hover:border-gold-500 transition-all relative overflow-hidden group active:scale-95" style="background-image:url('https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=2070')" onclick="applyWallpaper('https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=2070')"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[8px] font-black uppercase text-white">Aurora Fluid</span></div></button>
-            <button class="aspect-video rounded-xl bg-cover bg-center border border-white/5 hover:border-gold-500 transition-all relative overflow-hidden group active:scale-95" style="background-image:url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1964')" onclick="applyWallpaper('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1964')"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[8px] font-black uppercase text-white">Abstract Wave</span></div></button>
-            <button class="aspect-video rounded-xl bg-cover bg-center border border-white/5 hover:border-gold-500 transition-all relative overflow-hidden group active:scale-95" style="background-image:url('https://images.unsplash.com/photo-1464802686167-b939a6910659?q=80&w=2070')" onclick="applyWallpaper('https://images.unsplash.com/photo-1464802686167-b939a6910659?q=80&w=2070')"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[8px] font-black uppercase text-white">Cosmic Dust</span></div></button>
-            <button class="aspect-video rounded-xl bg-cover bg-center border border-white/5 hover:border-gold-500 transition-all relative overflow-hidden group active:scale-95" style="background-image:url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070')" onclick="applyWallpaper('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070')"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span class="text-[8px] font-black uppercase text-white">Vibrant Flow</span></div></button>
+          <div class="grid grid-cols-3 md:grid-cols-5 gap-4" id="gradient-grid">
+            <!-- Gradients injected via script -->
+          </div>
+        </section>
+
+        <section class="space-y-6">
+          <h2 class="text-[11px] font-black uppercase tracking-[0.4em] text-white/40">Typography Matrix</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="font-grid">
+            <!-- Fonts injected via script -->
+          </div>
+        </section>
+      </div>
+
+      <!-- Right Column: Live Settings & Uploads -->
+      <div class="space-y-8">
+        <div class="glass p-8 rounded-[40px] space-y-8">
+          <h3 class="text-[11px] font-black uppercase tracking-[0.4em] text-white/40">Live Matrix</h3>
+          <div class="p-6 rounded-3xl bg-white/5 border border-white/5 space-y-4" id="preview-box">
+            <p class="text-gold-400 text-[10px] font-black uppercase tracking-widest">Active State</p>
+            <h4 class="text-2xl font-bold tracking-tight">Neural Command</h4>
+            <div class="w-full h-1 bg-white/10 rounded-full overflow-hidden"><div class="h-full bg-gold-500 w-2/3"></div></div>
           </div>
           
-          <div id="private-wallpaper-section" class="hidden space-y-4 pt-6 border-t border-white/5">
-            <h4 class="text-[8px] font-black text-white/20 uppercase tracking-[0.3em]">Your Private Registry</h4>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="private-wallpaper-grid"></div>
+          <div class="space-y-4 pt-4 border-t border-white/5">
+            <label class="w-full glass-strong p-5 rounded-3xl flex items-center justify-between cursor-pointer hover:bg-white/5 transition-all group">
+              <div class="flex flex-col">
+                <span class="text-[10px] font-black uppercase tracking-widest text-white/60">Upload Wallpaper</span>
+                <span class="text-[8px] font-bold text-white/20 uppercase">JPG/PNG Atmosphere</span>
+              </div>
+              <div class="w-10 h-10 rounded-xl bg-gold-500/10 flex items-center justify-center text-gold-500 group-hover:bg-gold-500 group-hover:text-navy-950 transition-all">
+                <i class="fa-solid fa-image"></i>
+              </div>
+              <input type="file" id="wallpaper-input" class="hidden" accept="image/*">
+            </label>
+            
+            <button onclick="resetTheme()" class="w-full p-5 rounded-3xl text-[10px] font-black uppercase tracking-widest text-red-400/50 hover:text-red-400 hover:bg-red-400/10 transition-all">
+              Reset Neural Atmosphere
+            </button>
           </div>
         </div>
-      </div>
 
-      <div class="space-y-10">
-        <div class="glass p-10 rounded-[40px] space-y-8">
-          <h3 class="text-xs font-bold text-white/40 uppercase tracking-[0.4em]">Control Hub</h3>
-          <div class="space-y-6">
-            <div class="flex items-center justify-between group cursor-pointer" onclick="toggleSetting('glow')">
-              <div><p class="text-[10px] font-bold uppercase tracking-widest">Atmospheric Glow</p></div>
-              <button class="w-12 h-6 bg-white/10 rounded-full relative p-1 transition-all"><div id="glow-ball" class="w-4 h-4 bg-white/40 rounded-full transition-all"></div></button>
-            </div>
-            <div class="flex items-center justify-between group cursor-pointer" onclick="toggleSetting('light')">
-              <div><p class="text-[10px] font-bold uppercase tracking-widest">High-Contrast Light</p></div>
-              <button class="w-12 h-6 bg-white/10 rounded-full relative p-1 transition-all"><div id="light-ball" class="w-4 h-4 bg-white/40 rounded-full transition-all"></div></button>
-            </div>
-            <div class="flex items-center justify-between group cursor-pointer" onclick="toggleSetting('canvas')">
-              <div><p class="text-[10px] font-bold uppercase tracking-widest">Atmospheric Canvas</p></div>
-              <button class="w-12 h-6 bg-white/10 rounded-full relative p-1 transition-all"><div id="canvas-ball" class="w-4 h-4 bg-white/40 rounded-full transition-all"></div></button>
-            </div>
-          </div>
-          <button onclick="handleExplicitSave()" class="w-full bg-gold-500 text-navy-950 py-5 rounded-3xl font-black uppercase text-[11px] tracking-[0.2em] shadow-2xl hover:bg-white hover:scale-[1.02] active:scale-[0.98] transition-all">
-            Save All Changes
-          </button>
-        </div>
-
-        <div class="glass p-8 rounded-[40px] space-y-6 flex flex-col h-[500px]">
-          <h3 class="text-xs font-bold text-white/40 uppercase tracking-[0.4em]">Audit Trail</h3>
-          <div id="audit-trail" class="space-y-3 flex-1 overflow-y-auto pr-2 custom-scrollbar">
-            <p class="text-white/20 text-[9px] uppercase text-center py-10">Syncing registry logs...</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="confirm-modal" class="fixed inset-0 z-[100] flex items-center justify-center p-6 opacity-0 pointer-events-none transition-all duration-300">
-    <div class="absolute inset-0 bg-black/90 backdrop-blur-md"></div>
-    <div class="relative glass-strong p-12 rounded-[48px] max-w-md w-full border border-white/10 shadow-4K scale-90 transition-all duration-300 modal-content text-center">
-      <div class="w-20 h-20 rounded-3xl bg-gold-500/20 flex items-center justify-center mx-auto mb-8 shadow-inner"><i class="fa-solid fa-gears text-gold-500 text-3xl"></i></div>
-      <h2 class="text-3xl font-black mb-3 uppercase tracking-tighter">Commit Global Shift?</h2>
-      <p class="text-white/50 text-sm mb-10 leading-relaxed uppercase tracking-widest text-[9px]">This action will propagate all architectural and atmospheric changes across your entire dashboard registry. Do you wish to proceed?</p>
-      <div class="flex flex-col gap-4">
-        <button id="confirm-save-btn" class="w-full bg-gold-500 text-navy-950 py-5 rounded-3xl font-black uppercase text-[11px] tracking-[0.2em] hover:bg-white transition-all shadow-xl">Confirm Commit</button>
-        <button onclick="closeModal()" class="w-full py-5 rounded-3xl font-black uppercase text-[11px] tracking-[0.2em] text-white/40 hover:text-white transition-all">Abort</button>
+        <button onclick="commitDesign()" id="save-btn" class="w-full bg-gold-500 text-navy-950 py-6 rounded-3xl font-black uppercase text-[11px] tracking-[0.3em] shadow-2xl hover:bg-white hover:scale-[1.02] active:scale-[0.98] transition-all">
+          Sync Design Matrix
+        </button>
       </div>
     </div>
   </div>
@@ -355,7 +166,9 @@ tailwind.config = {
 <script type="module">
 import { themeManager } from '../../assets/theme-manager.js';
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js';
-import { getFirestore, doc, getDoc, setDoc, collection, query, orderBy, limit, onSnapshot } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js';
+import { getFirestore, doc, onSnapshot, updateDoc, getDoc } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js';
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
 const firebaseConfig = { 
   apiKey: "AIzaSyAODtfZDqeR8DH7YRaiDlRwPOBlxxMfFnY", 
@@ -368,288 +181,141 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
 
-let pendingTheme = { ...themeManager.currentTheme };
-let selectedWallpaper = null;
-let selectedFont = localStorage.getItem('sf_font_family') || "'Space Grotesk', sans-serif";
+const supabaseUrl = 'https://luxubaqztmbcpskyfgdp.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1eHViYXF6dG1iY3Bza3lmZ2RwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDYzNTcsImV4cCI6MjA5MTQyMjM1N30.Kmon8jh22u5KgWWpXf-7cdZ4qxlKXuUbVm6Mh-GHd8Q';
+const supabase = createClient(supabaseUrl, supabaseKey);
 
-window.setFont = (fontFamily) => {
-    selectedFont = fontFamily;
-    themeManager.applyFont(fontFamily);
-    renderFonts();
-    const status = document.getElementById('save-status');
-    status.innerHTML = `<div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div><span class="text-[10px] font-black uppercase tracking-widest text-white/40">Font Previewing...</span>`;
-    status.classList.remove('opacity-0');
-    setTimeout(() => status.classList.add('opacity-0'), 2000);
-};
+const uid = themeManager.uid;
+let currentDesign = { type: 'gradient', c1: '#040810', c2: '#0c1829', font: 'Space Grotesk' };
+let pendingWallpaper = null;
 
-function renderFonts() {
-    const grid = document.getElementById('font-grid');
-    if (!grid) return;
-    grid.innerHTML = '';
-    themeManager.fonts.forEach(font => {
-        const btn = document.createElement('button');
-        const isActive = selectedFont === font.family;
-        btn.className = `p-4 glass rounded-2xl flex flex-col items-center gap-2 transition-all border ${isActive ? 'border-gold-500 bg-gold-500/10' : 'border-white/5'} hover:scale-105 active:scale-95`;
-        btn.onclick = () => setFont(font.family);
-        btn.innerHTML = `<span class="text-lg font-bold" style="font-family: ${font.family}">Aa</span><span class="text-[8px] font-black uppercase text-white/40">${font.name}</span>`;
-        grid.appendChild(btn);
-    });
-}
+const gradients = [
+  { c1: '#040810', c2: '#0c1829' }, { c1: '#0f172a', c2: '#1e293b' }, { c1: '#111827', c2: '#1f2937' },
+  { c1: '#0c0a09', c2: '#1c1917' }, { c1: '#171717', c2: '#262626' }, { c1: '#020617', c2: '#0f172a' },
+  { c1: '#050505', c2: '#1a1a1a' }, { c1: '#080c14', c2: '#141c2c' }, { c1: '#0a101d', c2: '#162231' },
+  { c1: '#000000', c2: '#121212' }, { c1: '#1a365d', c2: '#2a4365' }, { c1: '#1c4532', c2: '#22543d' },
+  { c1: '#702459', c2: '#3b122d' }, { c1: '#2d3748', c2: '#1a202c' }, { c1: '#4a5568', c2: '#2d3748' },
+  { c1: '#1a202c', c2: '#000000' }, { c1: '#2c5282', c2: '#1a365d' }, { c1: '#276749', c2: '#1c4532' },
+  { c1: '#9b2c2c', c2: '#742a2a' }, { c1: '#2b6cb0', c2: '#2c5282' }, { c1: '#2f855a', c2: '#276749' },
+  { c1: '#c05621', c2: '#9c4221' }, { c1: '#805ad5', c2: '#6b46c1' }, { c1: '#d53f8c', c2: '#b83280' },
+  { c1: '#3182ce', c2: '#2b6cb0' }
+];
 
-window.setTheme = async (theme) => {
-  pendingTheme = { ...pendingTheme, ...theme };
-  themeManager.applyTheme(pendingTheme);
-  updateThemeButtonStates(theme);
-  const status = document.getElementById('save-status');
-  status.innerHTML = `<div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div><span class="text-[10px] font-black uppercase tracking-widest text-white/40">Theme Previewing...</span>`;
-  status.classList.remove('opacity-0');
-  setTimeout(() => status.classList.add('opacity-0'), 2000);
-};
-
-function updateThemeButtonStates(theme) {
-  document.querySelectorAll('.theme-color-btn, .theme-grad-btn').forEach(btn => {
-    btn.classList.remove('border-gold-500', 'bg-gold-500/10');
-    btn.classList.add('border-white/5');
-  });
-}
-
-window.setLayout = async (id) => {
-  pendingTheme.layout = id;
-  document.querySelectorAll('.layout-card').forEach(c => c.classList.remove('active'));
-  const card = document.getElementById(`layout-${id}`);
-  if (card) {
-    card.classList.add('active');
-    card.querySelectorAll('.check-dot').forEach(dot => dot.classList.remove('opacity-0'));
-  }
-  themeManager.currentTheme.layout = id;
-  themeManager.applyTheme(pendingTheme);
-  updateLivePreview(id);
-  const status = document.getElementById('save-status');
-  status.innerHTML = `<div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div><span class="text-[10px] font-black uppercase tracking-widest text-white/40">Layout Previewing...</span>`;
-  status.classList.remove('opacity-0');
-  setTimeout(() => status.classList.add('opacity-0'), 2000);
-};
-
-window.applyWallpaper = async (url) => {
-  selectedWallpaper = url;
-  themeManager.applyWallpaper(url);
-  document.querySelectorAll('#wallpaper-grid button').forEach(btn => {
-    btn.classList.remove('border-gold-500');
-    btn.classList.add('border-white/5');
-    if (btn.style.backgroundImage.includes(url)) btn.classList.add('border-gold-500');
-  });
-  const status = document.getElementById('save-status');
-  status.innerHTML = `<div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div><span class="text-[10px] font-black uppercase tracking-widest text-white/40">Wallpaper Previewing...</span>`;
-  status.classList.remove('opacity-0');
-  setTimeout(() => status.classList.add('opacity-0'), 2000);
-};
-
-const TELEGRAM_NODES = {
-  "Forex Synthetic Indices": "https://t.me/+KWyN-sKQNMExZjg8",
-  "Forex Currency Pairs": "https://t.me/+9cAdAp2Pw_FjNmJk",
-  "AI Content Creation": "https://t.me/+I5vUYuIuaMw4N2Rk",
-  "Photography & Editing": "https://t.me/+mkRAltkqJd41YTE0",
-  "Graphic Design": "https://t.me/+PTJq2zoyz0M3ZDZk",
-  "Digital Marketing": "https://t.me/+uIkOfw5x2MpmNjI0",
-  "Mobile Cinematography": "https://t.me/+un1weOJ0HcsyZDdk",
-  "Discord Development": "https://t.me/+Y5wcP_PIQf1kMzlk",
-  "Web Development": "https://t.me/+vEJTv3fBRl43Yjlk",
-  "Cyber Security": "https://t.me/+M4ZYMfz5tiYzZWVk"
-};
+const fonts = [
+  { name: 'Space Grotesk', class: 'font-grotesk' },
+  { name: 'Instrument Serif', class: 'font-serif' },
+  { name: 'JetBrains Mono', class: 'font-mono' },
+  { name: 'Plus Jakarta Sans', class: 'font-jakarta' }
+];
 
 async function init() {
-  renderFonts();
-  const uid = themeManager.uid;
-  const traineeSnap = await getDoc(doc(db, 'trainees', uid));
-  if (traineeSnap.exists()) {
-    const traineeData = traineeSnap.data();
-    const tgLink = TELEGRAM_NODES[traineeData.track] || 'https://t.me/skillforgeorg';
-    document.querySelectorAll('.telegram-join-target').forEach(el => {
-      el.href = tgLink;
-      el.classList.remove('opacity-20', 'pointer-events-none');
-    });
-    
-    if (traineeData.privateWallpapers) {
-        const pGrid = document.getElementById('private-wallpaper-grid');
-        const pSection = document.getElementById('private-wallpaper-section');
-        pSection.classList.remove('hidden');
-        traineeData.privateWallpapers.forEach(url => {
-            const btn = document.createElement('button');
-            btn.className = "aspect-video rounded-xl bg-cover bg-center border border-white/5 hover:border-gold-500 transition-all active:scale-95";
-            btn.style.backgroundImage = `url('${url}')`;
-            btn.onclick = () => applyWallpaper(url);
-            pGrid.appendChild(btn);
-        });
-    }
-  }
+  const grid = document.getElementById('gradient-grid');
+  gradients.forEach(g => {
+    const sw = document.createElement('div');
+    sw.className = 'gradient-swatch';
+    sw.style.background = `linear-gradient(135deg, ${g.c1}, ${g.c2})`;
+    sw.onclick = () => {
+      currentDesign.c1 = g.c1; currentDesign.c2 = g.c2; currentDesign.type = 'gradient';
+      updatePreview();
+    };
+    grid.appendChild(sw);
+  });
 
-  const uploadInput = document.getElementById('wallpaper-upload');
-  uploadInput?.addEventListener('change', async (e) => {
+  const fGrid = document.getElementById('font-grid');
+  fonts.forEach(f => {
+    const card = document.createElement('div');
+    card.className = `font-card p-6 rounded-3xl ${f.class}`;
+    card.innerHTML = `<p class="text-[8px] font-black uppercase tracking-widest text-white/30 mb-2">${f.name}</p><p class="text-xl font-bold">Atmosphere Font</p>`;
+    card.onclick = () => { currentDesign.font = f.name; updatePreview(); };
+    fGrid.appendChild(card);
+  });
+
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      const snap = await getDoc(doc(db, 'trainees', uid));
+      if (snap.exists()) {
+        const data = snap.data();
+        if (data.theme) {
+            currentDesign = { ...currentDesign, ...data.theme };
+            updatePreview();
+        }
+      }
+      document.getElementById('loading-screen').style.opacity = '0';
+      setTimeout(() => document.getElementById('loading-screen').classList.add('hidden'), 500);
+    } else {
+      window.location.href = '../../trainee-login/';
+    }
+  });
+
+  document.getElementById('wallpaper-input').onchange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const isGlobal = confirm("Would you like to add this to the GLOBAL gallery for everyone to use?\n\nClick OK for GLOBAL, Cancel for PRIVATE.");
-      selectedWallpaper = file; // Store the actual file object
-      themeManager.applyWallpaper(URL.createObjectURL(file)); // Apply temporary preview
-      
-      const status = document.getElementById('save-status');
-      status.innerHTML = `<div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div><span class="text-[10px] font-black uppercase tracking-widest text-white/40">Ready to Commit (${isGlobal ? 'Global' : 'Private'})</span>`;
-      status.classList.remove('opacity-0');
-      
-      localStorage.setItem('sf_pending_upload_type', isGlobal ? 'global' : 'private');
+      pendingWallpaper = file;
+      currentDesign.type = 'wallpaper';
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        document.getElementById('preview-box').style.backgroundImage = `url(${ev.target.result})`;
+        document.getElementById('preview-box').style.backgroundSize = 'cover';
+      };
+      reader.readAsDataURL(file);
     }
-  });
-
-  await fetchTemplates();
-  const q = query(collection(db, 'audit_logs'), orderBy('timestamp', 'desc'), limit(20));
-  onSnapshot(q, (snapshot) => {
-    const trail = document.getElementById('audit-trail');
-    if (!trail) return;
-    trail.innerHTML = '';
-    snapshot.forEach(docSnap => {
-      const log = docSnap.data();
-      if (log.userId !== uid) return;
-      const date = log.timestamp?.toDate().toLocaleString() || 'Just now';
-      const item = document.createElement('div');
-      item.className = 'p-4 glass rounded-2xl border border-white/5';
-      const detail = log.action === 'THEME_UPDATE' ? `Applied ${log.modifications?.type || 'new'} theme` : 
-                     log.action === 'LAYOUT_UPDATE' ? `Switched to Layout ${log.modifications?.new || '?'}` : 
-                     log.action === 'WALLPAPER_UPDATE' ? 'Updated Registry Wallpaper' : 
-                     log.action === 'CONTROLS_UPDATE' ? 'Updated Atmosphere Settings' :
-                     log.action === 'FONT_UPDATE' ? `Updated Typography to ${log.modifications?.fontFamily?.split("'")[1] || 'New Font'}` :
-                     'Registry Synchronized';
-      item.innerHTML = `<div class="flex justify-between items-start mb-1"><p class="text-[8px] font-black uppercase text-gold-400">${log.action}</p><p class="text-[7px] text-white/20 font-mono">${date}</p></div><p class="text-[8px] text-white/40 uppercase tracking-tighter">${detail}</p>`;
-      trail.appendChild(item);
-    });
-  });
-
-  if (themeManager.currentTheme.layout) {
-    updateCheckDots(themeManager.currentTheme.layout);
-    document.getElementById(`layout-${themeManager.currentTheme.layout}`)?.classList.add('active');
-    updateLivePreview(themeManager.currentTheme.layout);
-  }
-  updateToggleUI();
+  };
 }
 
-window.handleExplicitSave = async () => {
-    const confirmBtn = document.getElementById('confirm-save-btn');
-    const modal = document.getElementById('confirm-modal');
-    modal.classList.remove('opacity-0', 'pointer-events-none');
-    
-    confirmBtn.onclick = async () => {
-        confirmBtn.disabled = true;
-        confirmBtn.innerText = "Syncing Neural Registry...";
-        
-        try {
-            if (selectedWallpaper) {
-                const isGlobal = localStorage.getItem('sf_pending_upload_type') === 'global';
-                await themeManager.saveWallpaper(selectedWallpaper, 'CUSTOMIZE', isGlobal);
-            }
-            if (selectedFont) {
-                await themeManager.saveFont(selectedFont);
-            }
-            await themeManager.saveTheme(pendingTheme);
-            
-            modal.classList.add('opacity-0', 'pointer-events-none');
-            const status = document.getElementById('save-status');
-            status.innerHTML = `<div class="w-2 h-2 rounded-full bg-green-500"></div><span class="text-[10px] font-black uppercase tracking-widest text-white/40">Changes Committed</span>`;
-            status.classList.remove('opacity-0');
-            setTimeout(() => status.classList.add('opacity-0'), 3000);
-        } catch (err) {
-            console.error(err);
-        } finally {
-            confirmBtn.disabled = false;
-            confirmBtn.innerText = "Confirm Commit";
-        }
-    };
-};
+function updatePreview() {
+  const box = document.getElementById('preview-box');
+  if (currentDesign.type === 'gradient') {
+    box.style.background = `linear-gradient(135deg, ${currentDesign.c1}, ${currentDesign.c2})`;
+  }
+  box.style.fontFamily = currentDesign.font;
+  
+  document.querySelectorAll('.gradient-swatch').forEach(s => {
+    const grad = `linear-gradient(135deg, ${currentDesign.c1}, ${currentDesign.c2})`;
+    s.classList.toggle('active', s.style.background.replace(/\s/g, '') === grad.replace(/\s/g, ''));
+  });
+  
+  document.querySelectorAll('.font-card').forEach(c => {
+    c.classList.toggle('active', c.querySelector('.text-xl').parentElement.innerText.includes(currentDesign.font));
+  });
+}
 
-window.closeModal = () => {
-    document.getElementById('confirm-modal').classList.add('opacity-0', 'pointer-events-none');
-};
-
-window.toggleSidebar = () => {
-  const sidebar = document.getElementById('main-sidebar');
-  sidebar.classList.toggle('-translate-x-full');
-};
-
-let dashboardTemplates = {};
-
-async function fetchTemplates() {
+window.commitDesign = async () => {
+  const btn = document.getElementById('save-btn');
+  btn.disabled = true; btn.innerText = "Syncing Design Matrix...";
+  
   try {
-    const response = await fetch('../index.html');
-    const html = await response.text();
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    for (let i = 1; i <= 10; i++) {
-      const template = doc.getElementById(`t${i}`);
-      if (template) {
-        dashboardTemplates[i] = template.innerHTML;
-      }
+    const update = { theme: currentDesign };
+    if (pendingWallpaper) {
+      const fileName = `${uid}_wp_${Date.now()}.jpg`;
+      const { error } = await supabase.storage.from('wallpapers').upload(fileName, pendingWallpaper);
+      if (error) throw error;
+      const { data: { publicUrl } } = supabase.storage.from('wallpapers').getPublicUrl(fileName);
+      update.theme.wallpaper = publicUrl;
+      update.theme.type = 'wallpaper';
     }
-  } catch (err) {
-    console.warn('Could not fetch index.html templates for preview:', err);
-  }
-}
-
-function updateLivePreview(id) {
-  const container = document.getElementById('dashboard-preview-container');
-  if (!container) return;
-  if (dashboardTemplates[id]) {
-    container.innerHTML = dashboardTemplates[id];
-    const name = "PREVIEW TRAINEE";
-    container.querySelectorAll('.profile-name-target').forEach(el => el.innerText = name);
-    container.querySelectorAll('.user-name-target').forEach(el => el.innerText = "PREVIEW");
-    container.querySelectorAll('.profile-initials-target').forEach(el => el.innerText = "PT");
     
-    container.style.fontFamily = selectedFont;
-    container.querySelectorAll('*').forEach(el => el.style.fontFamily = selectedFont);
-  } else {
-    container.innerHTML = `<div class="flex items-center justify-center h-full text-white/20 uppercase tracking-widest">Structure T${id} Pending Registry Sync</div>`;
+    await updateDoc(doc(db, 'trainees', uid), update);
+    alert("Design Matrix Synchronized Successfully.");
+    location.reload();
+  } catch (err) {
+    console.error(err);
+    alert("Sync Failed. Please check neural connection.");
+  } finally {
+    btn.disabled = false; btn.innerText = "Sync Design Matrix";
   }
-}
-
-function updateCheckDots(id) {
-    document.querySelectorAll('.check-dot').forEach(dot => dot.classList.add('opacity-0'));
-    const card = document.getElementById(`layout-${id}`);
-    if (card) card.querySelector('.check-dot').classList.remove('opacity-0');
-}
-
-function updateToggleUI() {
-    const controls = themeManager.controls;
-    document.getElementById('glow-ball').style.transform = controls.glow ? 'translateX(24px)' : 'translateX(0)';
-    document.getElementById('light-ball').style.transform = controls.light ? 'translateX(24px)' : 'translateX(0)';
-    document.getElementById('canvas-ball').style.transform = localStorage.getItem('sf_canvas_mode') === 'true' ? 'translateX(24px)' : 'translateX(0)';
-}
-
-window.toggleSetting = async (key) => {
-    const controls = { ...themeManager.controls };
-    if (key === 'glow') controls.glow = !controls.glow;
-    if (key === 'light') controls.light = !controls.light;
-    if (key === 'canvas') {
-        const mode = localStorage.getItem('sf_canvas_mode') === 'true';
-        localStorage.setItem('sf_canvas_mode', !mode);
-        updateToggleUI();
-        return;
-    }
-    await themeManager.saveControls(controls);
-    updateToggleUI();
 };
 
-window.toggleSidebar = () => {
-  const sidebar = document.getElementById('main-sidebar');
-  sidebar.classList.toggle('-translate-x-full');
+window.resetTheme = () => {
+  currentDesign = { type: 'gradient', c1: '#040810', c2: '#0c1829', font: 'Space Grotesk' };
+  updatePreview();
 };
 
-window.logout = () => {
-  localStorage.removeItem('skillforge_mock_uid');
-  window.location.href = '../../trainee-login/';
-};
+window.toggleSidebar = () => document.getElementById('main-sidebar').classList.toggle('-translate-x-full');
+window.logout = () => { localStorage.removeItem('skillforge_mock_uid'); window.location.href = '../../trainee-login/'; };
 
 init();
 </script>
-<script type="module" src="../../assets/canvas-daily.js"></script>
-<script src="../../assets/error-reporter.js"></script>
 </body>
 </html>
-

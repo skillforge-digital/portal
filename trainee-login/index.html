@@ -149,7 +149,7 @@
             if (!querySnapshot.empty) {
                 const trainee = querySnapshot.docs[0].data();
                 localStorage.setItem('skillforge_mock_uid', trainee.uid);
-                window.location.href = "../trainee-dashboard/";
+                window.location.href = '../trainee-dashboard/';
             } else {
                 alert("Invalid mastery credentials. Please verify your email and password.");
             }

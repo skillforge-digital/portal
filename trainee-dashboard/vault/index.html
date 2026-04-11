@@ -42,13 +42,12 @@ tailwind.config = {
     background-size: cover; 
     background-position: center; 
     background-attachment: fixed; 
-    min-h-screen;
+    min-height: 100dvh;
   }
 
   .glass { background: rgba(12, 24, 50, 0.55); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
-  .glass-strong { background: rgba(12, 24, 50, 0.75); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.1); }
+  .glass-strong { background: rgba(12, 24, 50, 0.75); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.1); }
   
-  /* Text Visibility Overrides */
   .auto-contrast { color: var(--text-primary) !important; }
   .auto-contrast-muted { color: var(--text-secondary) !important; }
   
@@ -62,10 +61,14 @@ tailwind.config = {
   
   @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
   .fade-in { animation: fadeUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+
+  .badge-silver {
+    background: linear-gradient(135deg, #e2e8f0 0%, #94a3b8 50%, #cbd5e1 100%);
+    box-shadow: 0 0 20px rgba(148, 163, 184, 0.3), inset 0 0 10px rgba(255,255,255,0.5);
+  }
 </style>
 </head>
 <body class="noise-bg overflow-x-hidden flex flex-col md:flex-row">
-<canvas id="atmospheric-glow" class="fixed inset-0 pointer-events-none z-0"></canvas>
 
 <!-- Mobile Header -->
 <div class="md:hidden h-20 px-6 flex items-center justify-between glass sticky top-0 z-[100] border-b border-white/5 no-print">
@@ -142,9 +145,27 @@ tailwind.config = {
     </header>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 fade-in" style="animation-delay: 0.2s" id="vault-grid">
+      <!-- Silver Badge Section -->
+      <div class="glass p-10 rounded-[40px] flex flex-col items-center justify-center text-center space-y-6 border-white/5 relative overflow-hidden group">
+        <div id="badge-display" class="w-32 h-32 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shadow-inner relative transition-all duration-700">
+          <i class="fa-solid fa-award text-5xl text-white/10 group-hover:scale-110 transition-transform"></i>
+          <div class="absolute inset-0 bg-white/5 animate-pulse rounded-full opacity-0" id="badge-glow"></div>
+        </div>
+        <div class="space-y-2">
+          <h3 class="text-xl font-black uppercase tracking-tighter text-white" id="badge-title">Silver Badge</h3>
+          <p class="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]" id="badge-status-text">Certification Locked</p>
+        </div>
+        <button onclick="requestBadge()" id="badge-request-btn" class="w-full py-5 rounded-2xl bg-gold-500 text-navy-950 text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl hover:bg-white transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+          Request Validation
+        </button>
+        <p class="text-[8px] font-bold text-white/20 uppercase tracking-widest px-4">Required: Complete Track Mastery & Specialist Approval</p>
+      </div>
+
       <div class="glass p-10 rounded-[40px] flex flex-col items-center justify-center text-center space-y-4 border-dashed border-white/10 border-2 hover:border-gold-500 transition-all cursor-pointer group" onclick="window.location.href='../customize/'">
-        <i class="fa-solid fa-plus text-3xl text-white/20 group-hover:text-gold-500 transition-colors"></i>
-        <p class="text-[10px] font-bold auto-contrast-muted uppercase tracking-[0.2em]">New Mastery Page</p>
+        <div class="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-white/20 group-hover:text-gold-500 transition-all">
+          <i class="fa-solid fa-plus text-2xl"></i>
+        </div>
+        <p class="text-[10px] font-bold auto-contrast-muted uppercase tracking-[0.2em]">Archive New Mastery</p>
       </div>
     </div>
   </div>
@@ -152,10 +173,9 @@ tailwind.config = {
 
 <script type="module">
 import { themeManager } from '../../assets/theme-manager.js';
-import { DailyAtmosphere } from '../../assets/canvas-daily.js';
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js';
-import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js';
-import { getFirestore, doc, onSnapshot } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js';
+import { getFirestore, doc, onSnapshot, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js';
 
 const firebaseConfig = { 
   apiKey: "AIzaSyAODtfZDqeR8DH7YRaiDlRwPOBlxxMfFnY", 
@@ -170,7 +190,43 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-const atmosphere = new DailyAtmosphere('atmospheric-glow');
+let traineeData = null;
+const uid = themeManager.uid;
+
+window.requestBadge = async () => {
+  if (!traineeData) return;
+  const btn = document.getElementById('badge-request-btn');
+  btn.disabled = true;
+  btn.innerText = "Transmitting Request...";
+  
+  try {
+    await addDoc(collection(db, 'badge_requests'), {
+      userId: uid,
+      userName: traineeData.name,
+      userSfid: traineeData.sfid || 'N/A',
+      track: traineeData.track,
+      level: Math.floor((traineeData.xp || 0) / 1000) + 1,
+      timestamp: serverTimestamp(),
+      status: 'pending',
+      type: 'SILVER_BADGE'
+    });
+    
+    await addDoc(collection(db, 'audit_logs'), {
+      userId: uid,
+      action: 'BADGE_REQUEST_SENT',
+      modifications: { type: 'SILVER_BADGE', track: traineeData.track },
+      timestamp: serverTimestamp()
+    });
+    
+    alert("Mastery Badge Request Transmitted to Specialists.");
+    btn.innerText = "Approval Pending";
+  } catch (err) {
+    console.error(err);
+    alert("Transmission Failed. Error in Registry Sync.");
+    btn.disabled = false;
+    btn.innerText = "Request Validation";
+  }
+};
 
 const TELEGRAM_CHANNELS = {
   "Forex Synthetic Indices": "https://t.me/+KWyN-sKQNMExZjg8",
@@ -187,45 +243,67 @@ const TELEGRAM_CHANNELS = {
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    onSnapshot(doc(db, 'trainees', user.uid), (snap) => {
+    onSnapshot(doc(db, 'trainees', uid), (snap) => {
       if (snap.exists()) {
-        const data = snap.data();
-        const firstName = data.name ? data.name.split(' ')[0] : 'Trainee';
+        traineeData = snap.data();
+        const firstName = traineeData.name ? traineeData.name.split(' ')[0] : 'Trainee';
         document.getElementById('user-name-target').innerText = firstName;
         
-        // Update Telegram link
-        const tgLink = TELEGRAM_CHANNELS[data.track] || 'https://t.me/skillforgeorg';
+        const tgLink = TELEGRAM_CHANNELS[traineeData.track] || 'https://t.me/skillforgeorg';
         document.querySelectorAll('.telegram-join-target').forEach(el => el.href = tgLink);
         
-        themeManager.sync(data);
-        if (data.controls?.canvasAtmosphere) {
-          atmosphere.start();
-        } else {
-          atmosphere.stop();
-        }
-        
-        loadVault(data);
+        loadVault(traineeData);
       }
     });
+    checkBadgeStatus(user.uid);
   } else {
-    window.location.href = '/login.html';
+    window.location.href = '../../trainee-login/';
   }
 });
+
+async function checkBadgeStatus(userId) {
+    onSnapshot(collection(db, 'badge_requests'), (snap) => {
+        const myRequest = snap.docs.find(d => d.data().userId === userId && d.data().type === 'SILVER_BADGE');
+        const btn = document.getElementById('badge-request-btn');
+        const badgeDisplay = document.getElementById('badge-display');
+        const statusText = document.getElementById('badge-status-text');
+        const glow = document.getElementById('badge-glow');
+        const icon = badgeDisplay.querySelector('i');
+
+        if (myRequest) {
+            const data = myRequest.data();
+            if (data.status === 'pending') {
+                btn.disabled = true;
+                btn.innerText = "Approval Pending";
+                statusText.innerText = "Awaiting Specialist Approval";
+                statusText.classList.add('text-gold-400');
+            } else if (data.status === 'accepted') {
+                btn.classList.add('hidden');
+                badgeDisplay.classList.add('badge-silver');
+                icon.classList.remove('text-white/10');
+                icon.classList.add('text-navy-950');
+                statusText.innerText = "Premium Silver Badge Granted";
+                statusText.classList.remove('text-white/30');
+                statusText.classList.add('text-slate-300', 'font-black');
+                glow.classList.remove('opacity-0');
+            }
+        }
+    });
+}
 
 function loadVault(data) {
   const grid = document.getElementById('vault-grid');
   const countEl = document.getElementById('vault-items-count');
   const items = data.vault || [];
-  countEl.innerText = items.length;
   
-  // Clear existing items but keep the "plus" button
-  const plusBtn = grid.firstElementChild;
-  grid.innerHTML = '';
-  grid.appendChild(plusBtn);
+  const existingCards = grid.querySelectorAll('.vault-item-card');
+  existingCards.forEach(c => c.remove());
+  
+  countEl.innerText = items.length;
   
   items.forEach(item => {
     const card = document.createElement('div');
-    card.className = 'glass p-8 rounded-[40px] flex flex-col space-y-6 fade-in';
+    card.className = 'glass p-8 rounded-[40px] flex flex-col space-y-6 fade-in vault-item-card';
     card.innerHTML = `
       <div class="flex justify-between items-start">
         <div class="w-12 h-12 rounded-2xl bg-gold-500/10 flex items-center justify-center text-gold-500">
