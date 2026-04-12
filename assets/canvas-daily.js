@@ -1,4 +1,4 @@
-const CANVAS_ID = 'gold-dust';
+﻿const CANVAS_ID = 'gold-dust';
 
 function ensureCanvas() {
   let c = document.getElementById(CANVAS_ID);
@@ -218,3 +218,4 @@ class DailyAtmosphere {
 document.addEventListener('DOMContentLoaded', () => {
   window.dailyAtmosphere = new DailyAtmosphere();
 });
+

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * SkillForge Core Engine (v2.0.0)
  * Unified Tracking, Identity, and Neural Sync
  * Replaces: presence.js, academy-tracker.js, presence_site.js
@@ -298,3 +298,4 @@ window.startRealtimePresence = () => {
 
 export const sfCore = new SkillForgeCore();
 window.sfCore = sfCore;
+

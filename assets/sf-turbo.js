@@ -1,4 +1,4 @@
-/**
+﻿/**
  * SkillForge Turbo Engine (v1.1.0)
  * Zero-Refresh MPA Transitions (PJAX)
  */
@@ -188,3 +188,4 @@ class SkillForgeTurbo {
 
 export const turbo = new SkillForgeTurbo();
 window.sfTurbo = turbo;
+

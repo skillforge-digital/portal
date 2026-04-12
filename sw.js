@@ -1,4 +1,4 @@
-/**
+﻿/**
  * SkillForge Offline Matrix (v1.0.0)
  * Service Worker for Offline Access
  */
@@ -76,3 +76,4 @@ self.addEventListener('fetch', (event) => {
         })
     );
 });
+

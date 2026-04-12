@@ -1,4 +1,4 @@
-/**
+﻿/**
  * SkillForge Digital Error Reporter
  * Captures global errors and provides a way for users to report issues.
  */
@@ -243,3 +243,4 @@ UA: ${userAgent}
   window.sf_report_error = showErrorReport;
   console.log("🛠️ SkillForge Error Reporter Initialized");
 })();
+

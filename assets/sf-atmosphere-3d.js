@@ -1,4 +1,4 @@
-/**
+﻿/**
  * SkillForge GPU-Accelerated Atmosphere (v1.0.0)
  * Three.js Instanced Particles for High-Performance Visuals
  */
@@ -94,3 +94,4 @@ window.addEventListener('turbo:load', () => {
         window.neural3D.onResize();
     }
 });
+
