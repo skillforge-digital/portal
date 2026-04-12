@@ -70,18 +70,20 @@ class ThemeManager {
             return;
         }
 
-        const auth = getAuth();
-        if (!auth.currentUser) {
-            try {
-                await signInAnonymously(auth);
-                console.log('ThemeManager: Authenticated anonymously');
-            } catch (err) {
-                console.error('ThemeManager: Anonymous authentication failed:', err);
-                return;
+        const auth = getAuth(app);
+        
+        // Use onAuthStateChanged to ensure we only sync when authenticated
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                console.log('ThemeManager: User session detected, starting sync...');
+                this.startSync();
+            } else {
+                console.log('ThemeManager: No session, authenticating anonymously...');
+                signInAnonymously(auth).catch(err => {
+                    console.error('ThemeManager: Authentication failed:', err);
+                });
             }
-        }
-
-        this.startSync();
+        });
     }
 
     startSync() {

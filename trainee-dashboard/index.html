@@ -880,21 +880,18 @@ const db = getFirestore(app);
 
 let traineeData = null;
 
-// Get UID from themeManager (which handles localStorage and redirect)
+// UID from themeManager handles the primary lookup
 const uid = themeManager.uid;
 
 if (uid) {
+  // ThemeManager handles the global auth state, so we just listen for the data
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      console.log("[Dashboard] Authenticated as:", user.uid);
+      console.log("[Dashboard] Neural connection confirmed:", user.uid);
       startRegistrySync(uid);
-    } else {
-      console.log("[Dashboard] No user session found, signing in anonymously...");
-      signInAnonymously(auth);
     }
   });
 } else {
-    // No UID found, redirect to login
     window.location.href = '../trainee-login/';
 }
 
