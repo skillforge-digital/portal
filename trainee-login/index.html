@@ -147,8 +147,8 @@
                 const traineeDoc = querySnapshot.docs[0];
                 const trainee = traineeDoc.data();
                 
-                // If trainee doc has no UID, we should link it to current anonymous user
-                if (!trainee.uid) {
+                // Link doc to current anonymous session to ensure write permissions
+                if (trainee.uid !== auth.currentUser.uid) {
                     await updateDoc(doc(db, "trainees", traineeDoc.id), { uid: auth.currentUser.uid });
                     trainee.uid = auth.currentUser.uid;
                 }
