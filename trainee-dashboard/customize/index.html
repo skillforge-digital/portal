@@ -281,67 +281,76 @@ const wallpapers = [
 
 async function init() {
   const dGrid = document.getElementById('dual-grid');
-  dualColors.forEach(d => {
-    const sw = document.createElement('div');
-    sw.className = 'swatch';
-    sw.innerHTML = `<div class="dual-inner"><div class="dual-1" style="background:${d.p}"></div><div class="dual-2" style="background:${d.s}"></div></div>`;
-    sw.onclick = () => { 
-        currentDesign.primary = d.p; 
-        currentDesign.secondary = d.s; 
-        currentDesign.type = 'solid-pair'; 
-        updatePreview(); 
-    };
-    dGrid.appendChild(sw);
-  });
+  if (dGrid) {
+    dualColors.forEach(d => {
+      const sw = document.createElement('div');
+      sw.className = 'swatch';
+      sw.innerHTML = `<div class="dual-inner"><div class="dual-1" style="background:${d.p}"></div><div class="dual-2" style="background:${d.s}"></div></div>`;
+      sw.onclick = () => { 
+          currentDesign.primary = d.p; 
+          currentDesign.secondary = d.s; 
+          currentDesign.type = 'solid-pair'; 
+          updatePreview(); 
+      };
+      dGrid.appendChild(sw);
+    });
+  }
 
   const gGrid = document.getElementById('gradient-grid');
-  gradients.forEach(g => {
-    const sw = document.createElement('div');
-    sw.className = 'swatch';
-    sw.style.background = `linear-gradient(135deg, ${g.c1}, ${g.c2})`;
-    sw.onclick = () => { 
-        currentDesign.c1 = g.c1; 
-        currentDesign.c2 = g.c2; 
-        currentDesign.type = 'gradient'; 
-        updatePreview(); 
-    };
-    gGrid.appendChild(sw);
-  });
+  if (gGrid) {
+    gradients.forEach(g => {
+      const sw = document.createElement('div');
+      sw.className = 'swatch';
+      sw.style.background = `linear-gradient(135deg, ${g.c1}, ${g.c2})`;
+      sw.onclick = () => { 
+          currentDesign.c1 = g.c1; 
+          currentDesign.c2 = g.c2; 
+          currentDesign.type = 'gradient'; 
+          updatePreview(); 
+      };
+      gGrid.appendChild(sw);
+    });
+  }
 
   const wGrid = document.getElementById('wallpaper-grid');
-  wallpapers.forEach(w => {
-    const sw = document.createElement('div');
-    sw.className = 'wallpaper-swatch';
-    sw.style.backgroundImage = `url(${w})`;
-    sw.onclick = () => { 
-        currentDesign.wallpaper = w; 
-        currentDesign.type = 'wallpaper'; 
-        updatePreview(); 
-    };
-    wGrid.appendChild(sw);
-  });
+  if (wGrid) {
+    wallpapers.forEach(w => {
+      const sw = document.createElement('div');
+      sw.className = 'wallpaper-swatch';
+      sw.style.backgroundImage = `url(${w})`;
+      sw.onclick = () => { 
+          currentDesign.wallpaper = w; 
+          currentDesign.type = 'wallpaper'; 
+          updatePreview(); 
+      };
+      wGrid.appendChild(sw);
+    });
+  }
 
   const fGrid = document.getElementById('font-grid');
-  themeManager.fonts.forEach(f => {
-    const card = document.createElement('div');
-    card.className = `font-card`;
-    card.style.fontFamily = f.family;
-    card.innerHTML = `<p class="text-[8px] font-black uppercase tracking-widest text-white/30 mb-2">${f.name}</p><p class="text-xl font-bold">Neural Typography</p>`;
-    card.onclick = () => { 
-        currentDesign.fontFamily = f.family; 
-        currentDesign.fontName = f.name; 
-        updatePreview(); 
-    };
-    fGrid.appendChild(card);
-  });
+  if (fGrid) {
+    themeManager.fonts.forEach(f => {
+      const card = document.createElement('div');
+      card.className = `font-card`;
+      card.style.fontFamily = f.family;
+      card.innerHTML = `<p class="text-[8px] font-black uppercase tracking-widest text-white/30 mb-2">${f.name}</p><p class="text-xl font-bold">Neural Typography</p>`;
+      card.onclick = () => { 
+          currentDesign.fontFamily = f.family; 
+          currentDesign.fontName = f.name; 
+          updatePreview(); 
+      };
+      fGrid.appendChild(card);
+    });
+  }
 
   let lastDataString = null;
+  
   onAuthStateChanged(auth, async (user) => {
-    try {
-      const currentUid = user ? user.uid : themeManager.uid;
+    if (user) {
+      console.log('[Customize] Neural connection confirmed:', user.uid);
+      uid = user.uid;
       
-      if (currentUid) {
-        uid = currentUid;
+      try {
         const snap = await getDoc(doc(db, 'trainees', uid));
         if (snap.exists()) {
           const data = snap.data();
@@ -355,34 +364,43 @@ async function init() {
             lastDataString = dataString;
           }
         }
+      } catch (err) {
+        console.error("[Customize] Data fetch error:", err);
+        if (window.sf_report_error) window.sf_report_error("Customize Data Fetch Failure", err.stack);
+      } finally {
         hideLoading();
-      } else {
-          window.location.href = '../../trainee-login/';
       }
-    } catch (err) {
-      console.error("[Customize] Auth/Data Fetch error:", err);
-      if (window.sf_report_error) window.sf_report_error("Customize Data Fetch Failure", err.stack);
-      hideLoading();
+    } else {
+      console.log('[Customize] No session, authenticating anonymously...');
+      signInAnonymously(auth).catch(err => {
+        console.error('[Customize] Auth failed:', err);
+        hideLoading();
+      });
     }
   });
 
   // Safety timeout
   setTimeout(hideLoading, 5000);
 
-  document.getElementById('wallpaper-upload').onchange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      pendingFile = file;
-      currentDesign.type = 'wallpaper';
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        const box = document.getElementById('preview-box');
-        box.style.background = `url(${ev.target.result})`;
-        box.style.backgroundSize = 'cover';
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  const wpUpload = document.getElementById('wallpaper-upload');
+  if (wpUpload) {
+    wpUpload.onchange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        pendingFile = file;
+        currentDesign.type = 'wallpaper';
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const box = document.getElementById('preview-box');
+          if (box) {
+            box.style.background = `url(${ev.target.result})`;
+            box.style.backgroundSize = 'cover';
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+  }
 }
 
 function hideLoading() {
