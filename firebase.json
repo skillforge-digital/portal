@@ -4,7 +4,11 @@
     "ignore": [
       "firebase.json",
       "**/.*",
-      "**/node_modules/**"
+      "**/node_modules/**",
+      "skill forge site/**",
+      "integrity_check.py",
+      "DEPLOYMENT_GUIDE.md",
+      "UPDATE_LOG.md"
     ],
     "cleanUrls": true,
     "trailingSlash": false
@@ -12,8 +16,5 @@
   "firestore": {
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
-  },
-  "storage": {
-    "rules": "storage.rules"
   }
 }

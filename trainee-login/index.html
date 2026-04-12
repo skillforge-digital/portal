@@ -94,7 +94,7 @@
 
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js';
-    import { getFirestore, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+    import { getFirestore, collection, query, where, getDocs, doc, updateDoc } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
     import { getAuth, signInAnonymously } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
 
     const firebaseConfig = { 
@@ -134,13 +134,25 @@
         btn.innerHTML = "Authenticating...";
 
         try {
-            // In a real app, use auth.signInWithEmailAndPassword
-            // For now, we query Firestore since we're in "remove auth guard for testing" mode
+            // Ensure we are signed in anonymously before querying
+            if (!auth.currentUser) {
+                await signInAnonymously(auth);
+            }
+            
+            // Query Firestore to verify email and password
             const q = query(collection(db, "trainees"), where("email", "==", email), where("password", "==", password));
             const querySnapshot = await getDocs(q);
 
             if (!querySnapshot.empty) {
-                const trainee = querySnapshot.docs[0].data();
+                const traineeDoc = querySnapshot.docs[0];
+                const trainee = traineeDoc.data();
+                
+                // If trainee doc has no UID, we should link it to current anonymous user
+                if (!trainee.uid) {
+                    await updateDoc(doc(db, "trainees", traineeDoc.id), { uid: auth.currentUser.uid });
+                    trainee.uid = auth.currentUser.uid;
+                }
+                
                 localStorage.setItem('skillforge_mock_uid', trainee.uid);
                 window.location.href = '../trainee-dashboard/';
             } else {

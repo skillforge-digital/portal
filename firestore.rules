@@ -38,13 +38,19 @@ service cloud.firestore {
     // Badge Requests
     match /badge_requests/{requestId} {
       allow create: if request.auth != null;
-      allow read, update: if get(/databases/$(database)/documents/specialists/$(request.auth.uid)).exists();
+      allow read, update: if exists(/databases/$(database)/documents/specialists/$(request.auth.uid));
     }
     
     // Season Artifacts
     match /seasons/{seasonId}/{document=**} {
       allow read: if request.auth != null;
       allow write: if get(/databases/$(database)/documents/specialists/$(request.auth.uid)).data.level == 'Director';
+    }
+
+    // Announcements & News
+    match /announcements/{announcementId} {
+      allow read: if true;
+      allow write: if exists(/databases/$(database)/documents/specialists/$(request.auth.uid));
     }
   }
 }

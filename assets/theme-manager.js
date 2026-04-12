@@ -1,6 +1,6 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js';
 import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
-import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+import { getAuth, onAuthStateChanged, signInAnonymously } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-storage.js';
 
 const firebaseConfig = { 
@@ -61,7 +61,7 @@ class ThemeManager {
         });
     }
 
-    init() {
+    async init() {
         this.applyTheme(this.currentTheme);
         this.applyControls(this.controls);
 
@@ -70,6 +70,21 @@ class ThemeManager {
             return;
         }
 
+        const auth = getAuth();
+        if (!auth.currentUser) {
+            try {
+                await signInAnonymously(auth);
+                console.log('ThemeManager: Authenticated anonymously');
+            } catch (err) {
+                console.error('ThemeManager: Anonymous authentication failed:', err);
+                return;
+            }
+        }
+
+        this.startSync();
+    }
+
+    startSync() {
         onSnapshot(doc(db, 'trainees', this.uid), (doc) => {
             console.log('ThemeManager: Received registry snapshot update');
             if (doc.exists()) {
@@ -106,7 +121,7 @@ class ThemeManager {
                 window.sf_report_error(`Registry Sync Failed: ${err.message}`, err.stack);
             }
         });
-}
+    }
 
     applyFont(fontFamily) {
         if (!fontFamily) return;
