@@ -43,11 +43,18 @@ class SkillForgeCore {
 
     init() {
         onAuthStateChanged(this.auth, async (user) => {
-            if (user || this.uid) {
-                this.uid = user ? user.uid : this.uid;
+            if (user) {
+                // Keep document identifier (mock_uid) separate from session auth (user.uid)
+                this.uid = localStorage.getItem('skillforge_mock_uid') || user.uid;
+                console.log(`[NeuralCore] Session verified for: ${this.uid}`);
                 this.startNeuralSync();
                 this.handleDailyLogin();
                 this.trackCurrentLesson();
+            } else {
+                console.warn("[NeuralCore] No session detected. Initializing anonymous connection...");
+                signInAnonymously(this.auth).catch(err => {
+                    console.error("[NeuralCore] Auth failed:", err);
+                });
             }
         });
 
@@ -131,7 +138,11 @@ class SkillForgeCore {
         const minutes = Math.floor(elapsed / 60000);
         if (minutes < 1 && elapsed < 30000) return; // Minimum pulse of 30s or 1 min
 
-        const todayDate = new Date().toISOString().split('T')[0];
+        const now_date = new Date();
+        const todayDate = now_date.toISOString().split('T')[0];
+        const dayName = now_date.toLocaleDateString('en-US', { weekday: 'long' });
+        const monthName = now_date.toLocaleDateString('en-US', { month: 'long' });
+        
         const traineeRef = doc(this.db, 'trainees', this.uid);
         const presenceRef = doc(this.db, 'presence', this.uid);
 
@@ -141,6 +152,8 @@ class SkillForgeCore {
                 lastActive: now,
                 totalTime: increment(elapsed),
                 [`dailyStats.${todayDate}.timeSpent`]: increment(elapsed),
+                [`dailyStats.${todayDate}.day`]: dayName,
+                [`dailyStats.${todayDate}.month`]: monthName,
                 server_lastActive: serverTimestamp()
             };
 
@@ -148,10 +161,24 @@ class SkillForgeCore {
 
             // Update Trainee Stats (1 XP per minute)
             if (minutes >= 1) {
-                await updateDoc(traineeRef, {
+                const updateData = {
                     xp: increment(minutes),
                     totalTimeSpent: increment(elapsed)
-                });
+                };
+
+                // Increment certification eligibility if active for 30+ mins today
+                const snap = await getDoc(presenceRef);
+                if (snap.exists()) {
+                    const todayTime = snap.data().dailyStats?.[todayDate]?.timeSpent || 0;
+                    const lastCertUpdate = snap.data().lastCertUpdate || "";
+                    if (todayTime >= 1800000 && lastCertUpdate !== todayDate) {
+                        updateData.certDays = increment(1);
+                        await updateDoc(presenceRef, { lastCertUpdate: todayDate });
+                        console.log("[NeuralCore] Certification Eligibility incremented (+1 Day)");
+                    }
+                }
+
+                await updateDoc(traineeRef, updateData);
                 this.checkTierUpgrade(traineeRef);
             }
 

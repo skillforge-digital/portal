@@ -58,8 +58,8 @@ tailwind.config = {
   <div class="flex flex-col items-center gap-6">
     <div class="w-16 h-16 border-4 border-gold-500/20 border-t-gold-500 rounded-full animate-spin"></div>
     <div class="text-center">
-      <p class="text-[10px] font-black uppercase tracking-[0.5em] text-gold-400">Synchronizing Atmosphere</p>
-      <p class="text-[8px] text-white/20 uppercase tracking-[0.3em] mt-2">Restoring Premium Assets</p>
+      <p class="text-[10px] font-black uppercase tracking-[0.5em] text-gold-400">Loading Dashboard</p>
+      <p class="text-[8px] text-white/20 uppercase tracking-[0.3em] mt-2">Please wait, preparing your workspace...</p>
     </div>
   </div>
 </div>
@@ -158,44 +158,54 @@ tailwind.config = {
       <!-- Settings Sidebar -->
       <div class="space-y-8">
         <div class="glass p-10 rounded-[48px] sticky top-24 space-y-10">
-          <h3 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">Neural State</h3>
+          <div class="space-y-2">
+            <h3 class="text-[11px] font-black uppercase tracking-[0.5em] text-gold-500">Design Identity</h3>
+            <p class="text-[9px] text-white/30 uppercase tracking-widest">Active Neural Profile</p>
+          </div>
           
           <div class="p-8 rounded-[32px] bg-white/5 border border-white/5 space-y-6 overflow-hidden relative group" id="preview-box">
+            <div class="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-50"></div>
             <div class="relative z-10">
-              <p class="text-gold-400 text-[10px] font-black uppercase tracking-widest mb-1">Matrix Preview</p>
-              <h4 class="text-3xl font-black tracking-tighter mb-6" id="preview-text">Academy Node</h4>
-              <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
-                <div class="h-full bg-gold-500 w-2/3" id="preview-bar"></div>
+              <p class="text-gold-400 text-[10px] font-black uppercase tracking-widest mb-1">Atmosphere Preview</p>
+              <h4 class="text-3xl font-black tracking-tighter mb-6" id="preview-text">Academy Center</h4>
+              <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden shadow-inner">
+                <div class="h-full bg-gold-500 w-2/3 transition-all duration-1000" id="preview-bar"></div>
               </div>
+              <p class="text-[8px] font-bold text-white/20 uppercase mt-4 tracking-[0.2em]">Neural Registry Sync Active</p>
             </div>
           </div>
 
           <div class="space-y-5 pt-6 border-t border-white/5">
-            <div class="flex items-center justify-between p-5 rounded-3xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all">
+            <div class="flex items-center justify-between p-5 rounded-3xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all cursor-pointer" onclick="toggleCanvas()">
               <div class="flex flex-col">
-                <span class="text-[10px] font-black uppercase tracking-widest text-white/60">7-Day Canvas</span>
-                <span class="text-[8px] font-bold text-white/20 uppercase mt-1">Daily Atmosphere Change</span>
+                <span class="text-[10px] font-black uppercase tracking-widest text-white/60">7-Day Dynamic Canvas</span>
+                <span class="text-[8px] font-bold text-white/20 uppercase mt-1">Automatic Daily Updates</span>
               </div>
-              <button onclick="toggleCanvas()" id="canvas-toggle" class="w-14 h-7 rounded-full bg-white/10 relative transition-all">
+              <button id="canvas-toggle" class="w-14 h-7 rounded-full bg-white/10 relative transition-all pointer-events-none">
                 <div class="absolute top-1 left-1 w-5 h-5 rounded-full bg-white transition-all shadow-lg"></div>
               </button>
             </div>
 
             <label class="w-full glass-strong p-6 rounded-3xl flex items-center justify-between cursor-pointer hover:bg-white/10 transition-all group">
               <div class="flex flex-col">
-                <span class="text-[10px] font-black uppercase tracking-widest text-white/60">Upload Custom</span>
-                <span class="text-[8px] font-bold text-white/20 uppercase mt-1">JPG / PNG / WEBP</span>
+                <span class="text-[10px] font-black uppercase tracking-widest text-white/60">Upload Neural Skin</span>
+                <span class="text-[8px] font-bold text-white/20 uppercase mt-1">JPG / PNG / WEBP Assets</span>
               </div>
-              <div class="w-12 h-12 rounded-2xl bg-gold-500/10 flex items-center justify-center text-gold-500 group-hover:bg-gold-500 group-hover:text-navy-950 transition-all">
-                <i class="fa-solid fa-camera-retro text-xl"></i>
+              <div class="w-12 h-12 rounded-2xl bg-gold-500/10 flex items-center justify-center text-gold-500 group-hover:bg-gold-500 group-hover:text-navy-950 transition-all shadow-lg">
+                <i class="fa-solid fa-cloud-arrow-up text-xl"></i>
               </div>
               <input type="file" id="wallpaper-upload" class="hidden" accept="image/*">
             </label>
           </div>
 
-          <button onclick="commitDesign()" id="save-btn" class="w-full bg-gold-500 text-navy-950 py-7 rounded-[32px] font-black uppercase text-[11px] tracking-[0.4em] shadow-4K hover:bg-white hover:scale-[1.02] active:scale-[0.98] transition-all">
-            Commit Design Matrix
-          </button>
+          <div class="grid grid-cols-1 gap-4">
+            <button onclick="saveDesign()" id="save-btn" class="w-full bg-gold-500 text-navy-950 py-7 rounded-[32px] font-black uppercase text-[11px] tracking-[0.4em] shadow-4K hover:bg-white hover:scale-[1.02] active:scale-[0.98] transition-all">
+              Save Atmosphere Matrix
+            </button>
+            <button onclick="restoreDefaults()" class="w-full py-4 rounded-2xl bg-white/5 text-white/20 text-[9px] font-black uppercase tracking-widest hover:text-red-400 hover:bg-red-400/10 transition-all border border-white/5">
+              Restore Default State
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -242,7 +252,9 @@ const dualColors = [
   { p: '#3f6212', s: '#bef264' }, { p: '#4d7c0f', s: '#d9f99d' }, { p: '#166534', s: '#bbf7d0' },
   { p: '#15803d', s: '#dcfce7' }, { p: '#14532d', s: '#f0fdf4' }, { p: '#065f46', s: '#99f6e4' },
   { p: '#0f766e', s: '#ccfbf1' }, { p: '#115e59', s: '#2dd4bf' }, { p: '#134e4a', s: '#5eead4' },
-  { p: '#1e3a8a', s: '#bfdbfe' }, { p: '#1e40af', s: '#dbeafe' }
+  { p: '#1e3a8a', s: '#bfdbfe' }, { p: '#1e40af', s: '#dbeafe' }, { p: '#1e1b4b', s: '#818cf8' },
+  { p: '#312e81', s: '#c7d2fe' }, { p: '#3730a3', s: '#e0e7ff' }, { p: '#4338ca', s: '#eef2ff' },
+  { p: '#1e3a8a', s: '#93c5fd' }, { p: '#1e40af', s: '#bfdbfe' }, { p: '#1e3a8a', s: '#dbeafe' }
 ];
 
 const gradients = [
@@ -250,7 +262,12 @@ const gradients = [
   { c1: '#0c0a09', c2: '#1c1917' }, { c1: '#171717', c2: '#262626' }, { c1: '#020617', c2: '#0f172a' },
   { c1: '#050505', c2: '#1a1a1a' }, { c1: '#080c14', c2: '#141c2c' }, { c1: '#0a101d', c2: '#162231' },
   { c1: '#000000', c2: '#121212' }, { c1: '#1a365d', c2: '#2a4365' }, { c1: '#1c4532', c2: '#22543d' },
-  { c1: '#702459', c2: '#3b122d' }, { c1: '#2d3748', c2: '#1a202c' }, { c1: '#4a5568', c2: '#2d3748' }
+  { c1: '#702459', c2: '#3b122d' }, { c1: '#2d3748', c2: '#1a202c' }, { c1: '#4a5568', c2: '#2d3748' },
+  { c1: '#1e3a8a', c2: '#1e40af' }, { c1: '#312e81', c2: '#3730a3' }, { c1: '#4c1d95', c2: '#5b21b6' },
+  { c1: '#701a75', c2: '#86198f' }, { c1: '#9d174d', c2: '#be123c' }, { c1: '#991b1b', c2: '#b91c1c' },
+  { c1: '#9a3412', c2: '#c2410c' }, { c1: '#b45309', c2: '#d97706' }, { c1: '#854d0e', c2: '#a16207' },
+  { c1: '#3f6212', c2: '#4d7c0f' }, { c1: '#166534', c2: '#15803d' }, { c1: '#0f766e', c2: '#115e59' },
+  { c1: '#0e7490', c2: '#0369a1' }, { c1: '#1d4ed8', c2: '#1e40af' }, { c1: '#4338ca', c2: '#3730a3' }
 ];
 
 const wallpapers = [
@@ -268,15 +285,7 @@ const wallpapers = [
   "https://images.unsplash.com/photo-1439405326854-014607f694d7?q=80&w=2670&auto=format&fit=crop",
   "https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=2670&auto=format&fit=crop",
   "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=2670&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=2674&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=2560&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1501854140801-50d01698950b?q=80&w=2560&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?q=80&w=2560&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1426604966848-d7adac402bff?q=80&w=2560&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?q=80&w=2560&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1505506819641-4ad459bfed01?q=80&w=2560&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=2560&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?q=80&w=2560&auto=format&fit=crop"
+  "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=2674&auto=format&fit=crop"
 ];
 
 async function init() {
@@ -347,8 +356,9 @@ async function init() {
   
   onAuthStateChanged(auth, async (user) => {
     if (user) {
-      console.log('[Customize] Neural connection confirmed:', user.uid);
-      uid = user.uid;
+      // Prioritize the document ID (mock_uid) over the session UID
+      uid = localStorage.getItem('skillforge_mock_uid') || user.uid;
+      console.log('[Customize] Neural connection confirmed for:', uid);
       
       try {
         const snap = await getDoc(doc(db, 'trainees', uid));
@@ -503,14 +513,14 @@ function applyControlUI(controls) {
   toggle.querySelector('div').style.left = isEnabled ? '1.75rem' : '0.25rem';
 }
 
-window.commitDesign = async () => {
+window.saveDesign = async () => {
   const btn = document.getElementById('save-btn');
-  if (btn.disabled) return;
+  if (btn.disabled || !uid) return;
   
   btn.disabled = true; 
-  btn.innerText = "Syncing Neural Matrix...";
+  btn.innerText = "Saving Atmosphere Matrix...";
   
-  console.log('[Customize] Starting design commit...');
+  console.log(`[Customize] Saving design for registry: ${uid}`);
 
   try {
     const themeToSave = { ...currentDesign };
@@ -518,7 +528,7 @@ window.commitDesign = async () => {
     // Handle Custom Wallpaper Upload
     if (pendingFile) {
       btn.innerText = "Uploading Atmosphere...";
-      const fileName = `wallpapers/${auth.currentUser.uid}_${Date.now()}.jpg`;
+      const fileName = `wallpapers/${uid}_${Date.now()}.jpg`;
       const { error } = await supabase.storage.from('avatars').upload(fileName, pendingFile);
       if (error) throw error;
       const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(fileName);
@@ -539,9 +549,12 @@ window.commitDesign = async () => {
       fontName: themeToSave.fontName || 'Modern Grotesk'
     };
 
-    // Update Registry
-    const traineeRef = doc(db, 'trainees', auth.currentUser.uid);
-    await updateDoc(traineeRef, { theme: finalTheme });
+    // Update Registry using the document ID (uid)
+    const traineeRef = doc(db, 'trainees', uid);
+    await updateDoc(traineeRef, { 
+        theme: finalTheme,
+        uid: auth.currentUser.uid // Ensure the document is claimed by the current session
+    });
     
     // Immediate Apply to Local State
     themeManager.applyTheme(finalTheme);
@@ -549,25 +562,41 @@ window.commitDesign = async () => {
     // Notify ecosystem
     window.dispatchEvent(new CustomEvent('sf:theme_updated', { detail: finalTheme }));
     
-    btn.innerText = "Matrix Synchronized";
+    btn.innerText = "Atmosphere Saved";
     setTimeout(() => {
-        btn.innerText = "Commit Design Matrix";
+        btn.innerText = "Save Atmosphere Matrix";
         btn.disabled = false;
     }, 2000);
 
-    alert("Atmosphere Committed. Your custom matrix is now active across all nodes.");
+    alert("Atmosphere Saved. Your custom matrix is now active across all nodes.");
 
   } catch (err) {
-    console.error('[Customize] Commit failed:', err);
-    btn.innerText = "Sync Interrupted";
+    console.error('[Customize] Save failed:', err);
+    btn.innerText = "Save Interrupted";
     btn.disabled = false;
-    alert("Commit failed. Neural sync interrupted. Please check your connection.");
+    alert("Save failed. Neural sync interrupted. Please check your connection.");
   }
+};
+
+window.restoreDefaults = async () => {
+  if (!confirm("Are you sure you want to restore the default Academy atmosphere? This will reset your colors and fonts.")) return;
+  
+  currentDesign = {
+    type: 'solid-pair',
+    primary: '#040810',
+    secondary: '#f59e0b',
+    fontFamily: 'Space Grotesk',
+    fontName: 'Modern Grotesk',
+    wallpaper: ''
+  };
+  
+  updatePreview();
+  await saveDesign();
 };
 
 window.toggleSidebar = () => {
   const sidebar = document.getElementById('main-sidebar');
-  sidebar.classList.toggle('-translate-x-full');
+  if (sidebar) sidebar.classList.toggle('-translate-x-full');
 };
 
 init();

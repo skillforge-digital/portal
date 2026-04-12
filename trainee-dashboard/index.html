@@ -143,8 +143,8 @@ tailwind.config = {
   <div class="flex flex-col items-center gap-6">
     <div class="w-16 h-16 border-4 border-gold-500/20 border-t-gold-500 rounded-full animate-spin"></div>
     <div class="text-center">
-      <p class="text-[10px] font-black uppercase tracking-[0.5em] text-gold-400">Synchronizing Atmosphere</p>
-      <p class="text-[8px] text-white/20 uppercase tracking-[0.3em] mt-2">Restoring Premium Assets</p>
+      <p class="text-[10px] font-black uppercase tracking-[0.5em] text-gold-400">Loading Dashboard</p>
+      <p class="text-[8px] text-white/20 uppercase tracking-[0.3em] mt-2">Please wait, preparing your workspace...</p>
     </div>
   </div>
 </div>
@@ -174,7 +174,7 @@ tailwind.config = {
   <div class="px-4 bg-gold-500 text-navy-950 text-[8px] font-black uppercase tracking-widest h-full flex items-center z-10">Academy Flash</div>
   <div class="flex-1 overflow-hidden relative h-full">
     <div id="news-ticker-content" class="absolute whitespace-nowrap flex items-center h-full gap-20 animate-ticker">
-      <span class="text-[9px] font-bold text-white/60 uppercase tracking-widest italic">Initializing Neural Connection...</span>
+      <span class="text-[9px] font-bold text-white/60 uppercase tracking-widest italic">Loading Dashboard, please wait...</span>
     </div>
   </div>
 </div>
@@ -916,14 +916,20 @@ function startRegistrySync(targetUid) {
       console.warn("[Dashboard] Trainee data not found for UID:", targetUid);
       // Failsafe: hide loader even if data missing
       const loader = document.getElementById('loading-screen');
-      if (loader) loader.style.display = 'none';
+      if (loader) {
+          loader.style.opacity = '0';
+          setTimeout(() => loader.style.display = 'none', 500);
+      }
     }
   }, (err) => {
     console.error("[Dashboard] Snapshot error:", err);
     if (window.sf_report_error) window.sf_report_error("Dashboard Registry Sync Failed", err.stack);
     // Failsafe: hide loader on error
     const loader = document.getElementById('loading-screen');
-    if (loader) loader.style.display = 'none';
+    if (loader) {
+        loader.style.opacity = '0';
+        setTimeout(() => loader.style.display = 'none', 500);
+    }
   });
 }
 
@@ -1019,7 +1025,24 @@ function updateDynamicUI() {
       el.innerText = initials;
     }
   });
-  document.querySelectorAll('.access-pin-target').forEach(el => el.innerText = traineeData.pin || '000000');
+  // Access Pin
+  const track = traineeData.track || "Academy Trainee";
+  const TRACK_CODES = {
+    "Forex Synthetic Indices": "SYN",
+    "Forex Currency Pairs": "CUR",
+    "AI Content Creation": "AIC",
+    "Photography & Editing": "PHO",
+    "Graphic Design": "GRD",
+    "Digital Marketing": "MKT",
+    "Mobile Cinematography": "CIN",
+    "Discord Development": "DIS",
+    "Web Development": "WEB",
+    "Cyber Security": "CYB"
+  };
+  const trackCode = TRACK_CODES[track] || "SFD";
+  const pin = traineeData.pin || "0000";
+  const accessKey = `${trackCode}-${pin}`;
+  document.querySelectorAll('.access-pin-target').forEach(el => el.innerText = accessKey);
   
   // Level & XP
   const xp = traineeData.xp || 0;
@@ -1042,12 +1065,20 @@ function updateDynamicUI() {
   
   // Certification Progress
   const certDays = traineeData.certDays || 0;
-  const certProgress = (certDays / 14) * 100;
-  document.querySelectorAll('.cert-days-target').forEach(el => el.innerText = `${certDays} / 14`);
+  const certGoal = 14;
+  const certProgress = Math.min((certDays / certGoal) * 100, 100);
+  document.querySelectorAll('.cert-days-target').forEach(el => el.innerText = `${certDays} / ${certGoal} Days`);
   document.querySelectorAll('.cert-bar-target').forEach(el => {
     el.style.width = `${certProgress}%`;
     el.dataset.width = `${certProgress}%`;
   });
+
+  // Neural Connection Time (Study Time)
+  // traineeData.totalTimeSpent is in ms from NeuralCore
+  const totalMs = traineeData.totalTimeSpent || 0;
+  const d_val = Math.floor(totalMs / 86400000);
+  const h_val = Math.floor((totalMs % 86400000) / 3600000);
+  document.querySelectorAll('.study-time-target').forEach(el => el.innerText = `${String(d_val).padStart(2, '0')}D ${String(h_val).padStart(2, '0')}H`);
 
   // Update Telegram Join Link
   const tgLink = TELEGRAM_NODES[traineeData.track] || 'https://t.me/skillforgeorg';
@@ -1167,10 +1198,14 @@ window.showLayout = (num) => {
     });
 
     const target = document.getElementById(targetId);
-    if (target) {
-      target.classList.add('active-template');
-      target.style.display = 'block';
-      localStorage.setItem('sf_preferred_layout', num);
+    if (!target) {
+      console.warn(`[LayoutEngine] Structure ${targetId} not found in DOM. This page may not support layouts.`);
+      return;
+    }
+
+    target.classList.add('active-template');
+    target.style.display = 'block';
+    localStorage.setItem('sf_preferred_layout', num);
       
       // 4. Layout-Specific Injections (T7 ONLY)
       if (num == 7) {

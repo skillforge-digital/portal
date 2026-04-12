@@ -75,12 +75,12 @@ class ThemeManager {
         // Use onAuthStateChanged to ensure we only sync when authenticated
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                console.log('ThemeManager: User session detected, starting sync...');
+                console.log('ThemeManager: Connection confirmed, loading preferences...');
                 this.startSync();
             } else {
-                console.log('ThemeManager: No session, authenticating anonymously...');
+                console.log('ThemeManager: Initializing session...');
                 signInAnonymously(auth).catch(err => {
-                    console.error('ThemeManager: Authentication failed:', err);
+                    console.error('ThemeManager: Session initialization failed:', err);
                 });
             }
         });
@@ -149,7 +149,15 @@ class ThemeManager {
         const autoContrast = (bgHex) => {
             if (this.controls.light) return;
             const lum = hexToLum(bgHex);
-            if (lum > 0.6) body.classList.add('light'); else body.classList.remove('light');
+            if (lum > 0.6) {
+                body.classList.add('light');
+                document.documentElement.style.setProperty('--text-main', '#040810');
+                document.documentElement.style.setProperty('--text-muted', 'rgba(4, 8, 16, 0.6)');
+            } else {
+                body.classList.remove('light');
+                document.documentElement.style.setProperty('--text-main', '#f1f5f9');
+                document.documentElement.style.setProperty('--text-muted', 'rgba(241, 245, 249, 0.6)');
+            }
         };
         
         if (theme.type === 'gradient') {
@@ -162,6 +170,8 @@ class ThemeManager {
             document.body.style.background = grad;
             document.body.style.backgroundAttachment = 'fixed';
             autoContrast(theme.c1);
+            // Global background particles sync
+            window.dispatchEvent(new CustomEvent('sf:bg_update', { detail: { colors: [theme.c1, theme.c2] } }));
         } else if (theme.type === 'premium-gradient') {
             const grad = `linear-gradient(135deg, ${theme.colors.join(', ')})`;
             root.style.setProperty('--accent-gradient', grad);
@@ -172,6 +182,7 @@ class ThemeManager {
             document.body.style.background = grad;
             document.body.style.backgroundAttachment = 'fixed';
             autoContrast(theme.colors[0]);
+            window.dispatchEvent(new CustomEvent('sf:bg_update', { detail: { colors: theme.colors } }));
         } else if (theme.type === 'solid-pair' || theme.type === 'dual') {
             const primary = theme.primary || theme.color;
             const secondary = theme.secondary || primary;
@@ -182,6 +193,7 @@ class ThemeManager {
             root.style.setProperty('--global-bg', '#040810');
             document.body.style.background = '#040810';
             autoContrast(secondary);
+            window.dispatchEvent(new CustomEvent('sf:bg_update', { detail: { colors: [primary, secondary] } }));
         } else if (theme.type === 'accent') {
             root.style.setProperty('--accent-color', theme.color);
             root.style.setProperty('--accent-color-rgb', hexToRgb(theme.color));
@@ -191,7 +203,7 @@ class ThemeManager {
             autoContrast(theme.color);
         }
 
-        if (theme.layout && (window.location.pathname.endsWith('index.html') || window.location.pathname === '/')) {
+        if (theme.layout && (window.location.pathname.endsWith('trainee-dashboard/') || window.location.pathname.endsWith('trainee-dashboard/index.html'))) {
             if (typeof window.showLayout === 'function') {
                 window.showLayout(theme.layout);
             }

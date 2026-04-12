@@ -158,19 +158,34 @@
   const trigger = document.createElement('button');
   trigger.className = 'sf-report-trigger';
   trigger.innerHTML = `<i class="fa-solid fa-bug"></i> Report Hub Issue`;
-  trigger.onclick = () => showErrorReport("Manual User Report: System state requested.");
+  trigger.onclick = () => showErrorReport("Manual User Report: System state requested.", "", true);
   document.body.appendChild(trigger);
 
   const logEl = document.getElementById('sf-error-log');
   const copyBtn = document.getElementById('sf-copy-error');
   const closeBtn = document.getElementById('sf-close-error');
 
-  function showErrorReport(errorMsg, stack = "") {
+  function showErrorReport(errorMsg, stack = "", isCritical = false) {
     const timestamp = new Date().toISOString();
     const url = window.location.href;
     const userAgent = navigator.userAgent;
     const uid = localStorage.getItem('skillforge_mock_uid') || 'Anonymous';
     
+    // Clean up the error message for the title
+    let displayTitle = "System Anomaly Detected";
+    let displayDesc = "The Command Center encountered an unexpected sequence. Copy the debug log below and send it to the administrator for analysis.";
+
+    if (errorMsg.includes("permissions")) {
+      displayTitle = "Access Denied";
+      displayDesc = "Your neural connection does not have the required clearance for this registry node. This usually happens if you are signed out or your session has expired.";
+    } else if (errorMsg.includes("Layout Engine")) {
+      displayTitle = "Architecture Sync Failure";
+      displayDesc = "The system failed to render the requested layout structure. This may be due to a missing template or a neural sync interruption.";
+    } else if (errorMsg.includes("auth")) {
+      displayTitle = "Authentication Required";
+      displayDesc = "Your identity could not be verified. Please return to the login center to restore your session.";
+    }
+
     const debugData = `--- SKILLFORGE DEBUG REPORT ---
 Timestamp: ${timestamp}
 URL: ${url}
@@ -180,8 +195,21 @@ Stack: ${stack}
 UA: ${userAgent}
 ------------------------------`;
 
-    logEl.textContent = debugData;
-    modal.classList.add('active');
+    console.error(`[SkillForge Error] ${errorMsg}`, stack);
+
+    // Only show modal for critical errors or explicit manual reports
+    const criticalKeywords = ['permissions', 'quota', 'auth', 'registry', 'failed to fetch', 'layout engine'];
+    const isActuallyCritical = isCritical || criticalKeywords.some(kw => errorMsg.toLowerCase().includes(kw));
+
+    if (isActuallyCritical) {
+      const titleEl = modal.querySelector('.sf-error-title');
+      const descEl = modal.querySelector('.sf-error-desc');
+      if (titleEl) titleEl.textContent = displayTitle;
+      if (descEl) descEl.innerHTML = `${displayDesc}<br><br><span style="color: #f59e0b; font-weight: bold;">Problem:</span> ${errorMsg}`;
+      
+      logEl.textContent = debugData;
+      modal.classList.add('active');
+    }
   }
 
   copyBtn.onclick = () => {

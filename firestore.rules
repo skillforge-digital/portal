@@ -4,12 +4,12 @@ service cloud.firestore {
     
     // Trainee Registry
     match /trainees/{traineeId} {
-      allow read: if request.auth != null;
-      allow list: if request.auth != null;
+      allow read, list: if request.auth != null;
       allow write: if request.auth != null && (
         request.auth.uid == traineeId || 
         resource.data.uid == request.auth.uid ||
-        !('uid' in resource.data)
+        !('uid' in resource.data) ||
+        request.resource.data.uid == request.auth.uid
       );
       // Allow creation during registration
       allow create: if request.auth != null;
@@ -17,11 +17,23 @@ service cloud.firestore {
     
     // Presence Registry
     match /presence/{userId} {
-      allow read: if request.auth != null;
+      allow read, list: if request.auth != null;
       allow write: if request.auth != null && (
         request.auth.uid == userId || 
         resource.data.uid == request.auth.uid ||
-        !('uid' in resource.data)
+        !('uid' in resource.data) ||
+        request.resource.data.uid == request.auth.uid
+      );
+    }
+
+    // Analytics & Tracking
+    match /tracking/{userId} {
+      allow read, list: if request.auth != null;
+      allow write: if request.auth != null && (
+        request.auth.uid == userId || 
+        resource.data.uid == request.auth.uid ||
+        !('uid' in resource.data) ||
+        request.resource.data.uid == request.auth.uid
       );
     }
     
@@ -58,7 +70,7 @@ service cloud.firestore {
 
     // Announcements & News
     match /announcements/{announcementId} {
-      allow read: if true;
+      allow read, list: if true;
       allow write: if exists(/databases/$(database)/documents/specialists/$(request.auth.uid));
     }
   }
