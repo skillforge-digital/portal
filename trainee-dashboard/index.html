@@ -1099,19 +1099,24 @@ function startRealtimePresence() {
 }
 
 async function loadLeaderboard() {
-  const q = query(collection(db, 'trainees'), orderBy('xp', 'desc'), limit(3));
-  const snap = await getDocs(q);
-  document.querySelectorAll('.leaderboard-top-target').forEach(container => {
-    container.innerHTML = '';
-    let rank = 1;
-    snap.forEach(doc => {
-      const trainee = doc.data();
-      const item = document.createElement('div');
-      item.className = "flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5";
-      item.innerHTML = `<div class="w-8 h-8 rounded-lg bg-gold-500 flex items-center justify-center text-navy-950 font-black text-xs">${rank++}</div><div class="flex-1"><p class="text-[11px] font-black text-white uppercase">${trainee.name}</p><p class="text-[9px] text-gold-400">${(trainee.xp || 0).toLocaleString()} XP</p></div>`;
-      container.appendChild(item);
+  try {
+    const q = query(collection(db, 'trainees'), orderBy('xp', 'desc'), limit(3));
+    const snap = await getDocs(q);
+    document.querySelectorAll('.leaderboard-top-target').forEach(container => {
+      container.innerHTML = '';
+      let rank = 1;
+      snap.forEach(doc => {
+        const trainee = doc.data();
+        const item = document.createElement('div');
+        item.className = "flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5";
+        item.innerHTML = `<div class="w-8 h-8 rounded-lg bg-gold-500 flex items-center justify-center text-navy-950 font-black text-xs">${rank++}</div><div class="flex-1"><p class="text-[11px] font-black text-white uppercase">${trainee.name}</p><p class="text-[9px] text-gold-400">${(trainee.xp || 0).toLocaleString()} XP</p></div>`;
+        container.appendChild(item);
+      });
     });
-  });
+  } catch (err) {
+    console.error("[Dashboard] Leaderboard failed to load:", err);
+    if (window.sf_report_error) window.sf_report_error("Leaderboard Sync Failed", err.stack);
+  }
 }
 
 // Global state for layout rendering
