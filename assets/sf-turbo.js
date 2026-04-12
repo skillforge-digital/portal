@@ -23,13 +23,34 @@ class SkillForgeTurbo {
             // Skip actual file downloads, hash links, or external targets
             if (link.hasAttribute('download') || url.hash || link.target === '_blank') return;
             
-            // Handle root navigation properly
-            const currentPath = window.location.pathname;
-            const targetPath = url.pathname;
-            if (currentPath === targetPath) return;
+            // Normalize paths for comparison (remove trailing slashes and index.html)
+            const normalize = (path) => path.replace(/\/index\.html$/, '/').replace(/\/$/, '') || '/';
+            const currentPath = normalize(window.location.pathname);
+            const targetPath = normalize(url.pathname);
+            
+            if (currentPath === targetPath) {
+                // Same page - just prevent default to avoid refresh
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                return;
+            }
 
             e.preventDefault();
             this.navigate(url.href);
+        });
+
+        // Hidden "Slash Command" for Specialist Portal
+        let buffer = '';
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            
+            buffer += e.key.toLowerCase();
+            if (buffer.endsWith('/staff')) {
+                console.log("[Turbo] Specialist Authorization Command Detected");
+                buffer = '';
+                window.location.href = '/activate-specialist.html';
+            }
+            if (buffer.length > 10) buffer = buffer.substring(1);
         });
 
         // Handle browser back/forward

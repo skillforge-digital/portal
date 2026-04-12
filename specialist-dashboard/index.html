@@ -29,7 +29,7 @@ tailwind.config = {
   .request-card { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
   .request-card:hover { transform: translateY(-4px); }
   
-  #loading-screen { position: fixed; inset: 0; background: #040810; z-index: 1000; display: flex; flex-direction: column; items-center: center; justify-content: center; transition: opacity 0.5s ease; }
+  #loading-screen { position: fixed; inset: 0; background: #040810; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease; }
   
   .badge-status { padding: 4px 12px; border-radius: 100px; font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; }
   .status-pending { background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.2); }
@@ -63,12 +63,19 @@ tailwind.config = {
     <nav class="space-y-1">
       <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Registry Control</p>
       <a href="../" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-arrow-left w-4"></i> Back to Portal</a>
-      <a href="#" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest bg-gold-500/10 text-gold-400 border-r-4 border-gold-500"><i class="fa-solid fa-shield-halved w-4"></i> Badge Approvals</a>
-      <a href="#" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-users w-4"></i> Trainee Registry</a>
-      <a href="#" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-clipboard-list w-4"></i> Audit Logs</a>
+      <a href="#" onclick="showSection('approvals')" id="nav-approvals" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest bg-gold-500/10 text-gold-400 border-r-4 border-gold-500"><i class="fa-solid fa-shield-halved w-4"></i> Badge Approvals</a>
+      <a href="#" onclick="showSection('analytics')" id="nav-analytics" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-chart-line w-4"></i> Track Analytics</a>
+      <a href="#" onclick="showSection('directors')" id="nav-directors" class="nav-link hidden w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-crown w-4"></i> Director Forge</a>
     </nav>
   </div>
   <div class="p-8 border-t border-white/5">
+    <div class="flex items-center gap-4 mb-6 p-4 rounded-2xl bg-white/5 border border-white/5">
+      <div class="w-10 h-10 rounded-xl bg-gold-500/10 flex items-center justify-center text-gold-500 font-black text-xs" id="specialist-initials">S</div>
+      <div class="min-w-0">
+        <p class="text-[10px] font-black text-white uppercase truncate" id="specialist-name">Loading...</p>
+        <p class="text-[8px] text-gold-400 font-bold uppercase tracking-widest truncate" id="specialist-track">Academy Staff</p>
+      </div>
+    </div>
     <button onclick="logout()" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-red-400/70 hover:text-red-400 hover:bg-red-400/10 transition-all">
       <i class="fa-solid fa-right-from-bracket w-4"></i> Sign Out
     </button>
@@ -80,41 +87,89 @@ tailwind.config = {
     <header class="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8">
       <div>
         <p class="text-gold-400 text-sm font-medium tracking-widest uppercase">Specialist Portal</p>
-        <h1 class="text-4xl md:text-6xl font-black mt-1 uppercase tracking-tighter">Registry Control</h1>
+        <h1 class="text-4xl md:text-6xl font-black mt-1 uppercase tracking-tighter" id="section-title">Registry Control</h1>
       </div>
       <div class="flex gap-4">
         <div class="glass px-6 py-3 rounded-2xl border border-white/5">
-          <p class="text-[8px] font-black text-white/30 uppercase tracking-widest">Pending Syncs</p>
+          <p class="text-[8px] font-black text-white/30 uppercase tracking-widest">Inbound Syncs</p>
           <p class="text-xl font-bold text-gold-400" id="pending-count">0</p>
+        </div>
+        <div class="glass px-6 py-3 rounded-2xl border border-white/5">
+          <p class="text-[8px] font-black text-white/30 uppercase tracking-widest">Active Pulse</p>
+          <p class="text-xl font-bold text-gold-400" id="active-pulse">0</p>
         </div>
       </div>
     </header>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+    <!-- Approvals Section -->
+    <div id="section-approvals" class="dashboard-section grid grid-cols-1 lg:grid-cols-3 gap-12">
       <div class="lg:col-span-2 space-y-8">
         <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">Inbound Mastery Validation Requests</h2>
         <div id="requests-grid" class="grid grid-cols-1 gap-4">
-          <!-- Requests will be injected here -->
-          <div class="glass p-12 text-center text-white/20 italic">
-            Scanning for neural validation requests...
-          </div>
+          <div class="glass p-12 text-center text-white/20 italic">Scanning for neural validation requests...</div>
         </div>
       </div>
-
       <div class="space-y-8">
         <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">Real-time Audit Log</h2>
-        <div id="audit-logs" class="glass-strong rounded-[40px] p-8 space-y-6 max-h-[60vh] overflow-y-auto custom-scrollbar">
-          <!-- Audit logs will be injected here -->
+        <div id="audit-logs" class="glass-strong rounded-[40px] p-8 space-y-6 max-h-[60vh] overflow-y-auto custom-scrollbar"></div>
+      </div>
+    </div>
+
+    <!-- Analytics Section -->
+    <div id="section-analytics" class="dashboard-section hidden space-y-12">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="glass p-8 rounded-[40px] border border-white/5">
+          <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-4">Total Track Trainees</p>
+          <p class="text-5xl font-black text-gold-400" id="track-trainees-count">0</p>
+          <p class="text-[8px] text-white/20 uppercase tracking-[0.3em] mt-2">Enrolled in your path</p>
+        </div>
+        <div class="glass p-8 rounded-[40px] border border-white/5">
+          <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-4">Track Pulse XP</p>
+          <p class="text-5xl font-black text-gold-400" id="track-xp-sum">0</p>
+          <p class="text-[8px] text-white/20 uppercase tracking-[0.3em] mt-2">Combined registry progress</p>
+        </div>
+        <div class="glass p-8 rounded-[40px] border border-white/5">
+          <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-4">Your Specialist Presence</p>
+          <p class="text-5xl font-black text-gold-400" id="specialist-hours">0H</p>
+          <p class="text-[8px] text-white/20 uppercase tracking-[0.3em] mt-2">Active command time</p>
         </div>
       </div>
+      <div class="glass-strong rounded-[40px] p-10 border border-white/5">
+        <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40 mb-8">Active Track Presence</h2>
+        <div id="active-trainees-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="glass p-8 text-center text-white/20 italic col-span-full">No active neural pulses detected in your track.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Director Forge Section -->
+    <div id="section-directors" class="dashboard-section hidden space-y-12">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="glass p-10 rounded-[40px] border border-red-500/20 space-y-6">
+                <div class="w-12 h-12 rounded-2xl bg-red-500/10 flex items-center justify-center text-red-500"><i class="fa-solid fa-trash-can text-2xl"></i></div>
+                <div>
+                    <h3 class="text-xl font-black uppercase tracking-tight text-white">Registry Reset</h3>
+                    <p class="text-xs text-white/40 mt-2 leading-relaxed">Danger: This will archive current season XP and clear the registry for a fresh start. This action cannot be undone.</p>
+                </div>
+                <button onclick="clearSeason()" class="w-full py-4 rounded-2xl bg-red-500 text-black font-black uppercase text-[10px] tracking-widest hover:bg-white transition-all">Clear Season Registry</button>
+            </div>
+            <div class="glass p-10 rounded-[40px] border border-gold-500/20 space-y-6">
+                <div class="w-12 h-12 rounded-2xl bg-gold-500/10 flex items-center justify-center text-gold-500"><i class="fa-solid fa-bolt text-2xl"></i></div>
+                <div>
+                    <h3 class="text-xl font-black uppercase tracking-tight text-white">Initialize Season</h3>
+                    <p class="text-xs text-white/40 mt-2 leading-relaxed">Deploy a new Mastery Season across the SkillForge Ecosystem. Sets global enrollment status to Active.</p>
+                </div>
+                <button onclick="startSeason()" class="w-full py-4 rounded-2xl bg-gold-500 text-black font-black uppercase text-[10px] tracking-widest hover:bg-white transition-all">Start New Season</button>
+            </div>
+        </div>
     </div>
   </div>
 </main>
 
 <script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-import { getFirestore, doc, onSnapshot, updateDoc, collection, query, orderBy, limit, getDoc, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
-import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js';
+import { getFirestore, doc, onSnapshot, updateDoc, collection, query, orderBy, limit, getDoc, addDoc, serverTimestamp, where, getDocs, writeBatch } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
 
 const firebaseConfig = { 
   apiKey: "AIzaSyAODtfZDqeR8DH7YRaiDlRwPOBlxxMfFnY", 
@@ -122,8 +177,8 @@ const firebaseConfig = {
   projectId: "skillfoge-ecosystem", 
   storageBucket: "skillfoge-ecosystem.firebasestorage.app", 
   messagingSenderId: "279055501952", 
-  appId: "1:279055501952:web:e812364a6f8bcb5998f465", 
-  measurementId: "G-L669WT5FZS" 
+  appId: "1:279055501952:web:45e741d2e8b23af698f465", 
+  measurementId: "G-YZNF8273RC" 
 };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
@@ -137,6 +192,14 @@ onAuthStateChanged(auth, async (user) => {
     const specialistDoc = await getDoc(doc(db, 'specialists', user.uid));
     if (specialistDoc.exists()) {
       currentSpecialist = specialistDoc.data();
+      document.getElementById('specialist-name').innerText = currentSpecialist.name || 'Specialist';
+      document.getElementById('specialist-track').innerText = currentSpecialist.track || 'Academy Staff';
+      document.getElementById('specialist-initials').innerText = (currentSpecialist.name || 'S').charAt(0).toUpperCase();
+      
+      if (currentSpecialist.level === 'Director') {
+        document.getElementById('nav-directors').classList.remove('hidden');
+      }
+
       initDashboard();
       hideLoading();
     } else {
@@ -156,8 +219,25 @@ function hideLoading() {
   setTimeout(() => loader.classList.add('hidden'), 500);
 }
 
+window.showSection = (section) => {
+    document.querySelectorAll('.dashboard-section').forEach(s => s.classList.add('hidden'));
+    document.getElementById(`section-${section}`).classList.remove('hidden');
+    
+    document.querySelectorAll('.nav-link').forEach(l => {
+        l.classList.remove('bg-gold-500/10', 'text-gold-400', 'border-r-4', 'border-gold-500');
+        l.classList.add('text-white/50');
+    });
+    
+    const activeNav = document.getElementById(`nav-${section}`);
+    activeNav.classList.remove('text-white/50');
+    activeNav.classList.add('bg-gold-500/10', 'text-gold-400', 'border-r-4', 'border-gold-500');
+    
+    const titles = { approvals: 'Registry Control', analytics: 'Track Insights', directors: 'Director Forge' };
+    document.getElementById('section-title').innerText = titles[section] || 'Command Center';
+};
+
 function initDashboard() {
-  // Listen for badge requests
+  // 1. Badge Requests Listener
   const qRequests = query(collection(db, 'badge_requests'), orderBy('timestamp', 'desc'));
   onSnapshot(qRequests, (snap) => {
     const grid = document.getElementById('requests-grid');
@@ -201,7 +281,59 @@ function initDashboard() {
     document.getElementById('pending-count').innerText = pending;
   });
 
-  // Listen for audit logs
+  // 2. Track Analytics & Active Trainees
+  if (currentSpecialist.track) {
+    const qTrack = query(collection(db, 'trainees'), where('track', '==', currentSpecialist.track));
+    onSnapshot(qTrack, (snap) => {
+        document.getElementById('track-trainees-count').innerText = snap.size;
+        let totalXP = 0;
+        snap.forEach(doc => totalXP += (doc.data().xp || 0));
+        document.getElementById('track-xp-sum').innerText = totalXP.toLocaleString();
+    });
+
+    // Active Presence (Users who pulsed in the last 5 minutes)
+    const fiveMinAgo = Date.now() - (5 * 60 * 1000);
+    const qPresence = query(collection(db, 'presence'), where('lastActive', '>=', fiveMinAgo));
+    onSnapshot(qPresence, async (snap) => {
+        const list = document.getElementById('active-trainees-list');
+        list.innerHTML = '';
+        let activeCount = 0;
+        
+        for (const pDoc of snap.docs) {
+            const pData = pDoc.data();
+            // Need to verify they are in the specialist's track
+            const tDoc = await getDoc(doc(db, 'trainees', pDoc.id));
+            if (tDoc.exists() && tDoc.data().track === currentSpecialist.track) {
+                activeCount++;
+                const trainee = tDoc.data();
+                const card = document.createElement('div');
+                card.className = 'glass p-6 rounded-3xl border border-gold-500/20 flex items-center gap-4 animate-pulse';
+                card.innerHTML = `
+                    <div class="w-8 h-8 rounded-full bg-gold-500 flex items-center justify-center text-navy-950 text-[10px] font-black">${trainee.name.charAt(0)}</div>
+                    <div>
+                        <p class="text-[10px] font-black text-white uppercase">${trainee.name}</p>
+                        <p class="text-[8px] text-gold-400 font-bold uppercase tracking-widest">Active Now</p>
+                    </div>
+                `;
+                list.appendChild(card);
+            }
+        }
+        document.getElementById('active-pulse').innerText = activeCount;
+        if (activeCount === 0) {
+            list.innerHTML = '<div class="glass p-8 text-center text-white/20 italic col-span-full">No active neural pulses detected in your track.</div>';
+        }
+    });
+  }
+
+  // 3. Specialist Own Hours
+  onSnapshot(doc(db, 'presence', auth.currentUser.uid), (snap) => {
+      if (snap.exists()) {
+          const hours = Math.floor((snap.data().totalTime || 0) / 3600000);
+          document.getElementById('specialist-hours').innerText = `${hours}H`;
+      }
+  });
+
+  // 4. Global Audit Log
   const qLogs = query(collection(db, 'audit_logs'), orderBy('timestamp', 'desc'), limit(20));
   onSnapshot(qLogs, (snap) => {
     const logContainer = document.getElementById('audit-logs');
@@ -222,6 +354,65 @@ function initDashboard() {
     });
   });
 }
+
+window.clearSeason = async () => {
+    if (!confirm("CRITICAL ACTION: Are you sure you want to clear the global registry for the new season? All current XP will be archived.")) return;
+    
+    const password = prompt("Director Authorization Required. Enter Command Key:");
+    if (password !== 'FORGE2026') return alert("Invalid Authorization Key.");
+
+    try {
+        const trainees = await getDocs(collection(db, 'trainees'));
+        const batch = writeBatch(db);
+        
+        trainees.forEach(tDoc => {
+            const data = tDoc.data();
+            // Archive current XP to a 'history' subcollection or field
+            batch.update(doc(db, 'trainees', tDoc.id), {
+                xp: 0,
+                totalTimeSpent: 0,
+                certDays: 0,
+                [`history.season_2026_01`]: { xp: data.xp, time: data.totalTimeSpent }
+            });
+        });
+
+        // Also clear presence registry
+        const presence = await getDocs(collection(db, 'presence'));
+        presence.forEach(pDoc => batch.delete(doc(db, 'presence', pDoc.id)));
+
+        await batch.commit();
+        alert("Neural Registry Purged. Season 2026-01 Archived.");
+        
+        await addDoc(collection(db, 'audit_logs'), {
+            userId: auth.currentUser.uid,
+            action: 'DIRECTOR_REGISTRY_PURGE',
+            modifications: { season: '2026-01' },
+            timestamp: serverTimestamp()
+        });
+    } catch (err) {
+        console.error(err);
+        alert("Purge Failed. Registry integrity preserved.");
+    }
+};
+
+window.startSeason = async () => {
+    try {
+        await updateDoc(doc(db, 'system', 'config'), {
+            enrollmentOpen: true,
+            currentSeason: '2026-02',
+            lastStartedAt: serverTimestamp()
+        });
+        alert("New Mastery Season Initialized. Enrollment is now OPEN.");
+    } catch (err) {
+        // Create the doc if it doesn't exist
+        await setDoc(doc(db, 'system', 'config'), {
+            enrollmentOpen: true,
+            currentSeason: '2026-02',
+            lastStartedAt: serverTimestamp()
+        });
+        alert("New Mastery Season Initialized (New Config Created).");
+    }
+};
 
 window.updateRequest = async (id, status) => {
   try {

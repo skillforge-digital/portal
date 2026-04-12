@@ -287,9 +287,9 @@ tailwind.config = {
 
 <script type="module">
 import { themeManager } from '../../assets/theme-manager.js';
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-import { getFirestore, doc, onSnapshot, updateDoc } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
-import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js';
+import { getFirestore, doc, onSnapshot, updateDoc } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
 const firebaseConfig = { 
@@ -298,8 +298,8 @@ const firebaseConfig = {
   projectId: "skillfoge-ecosystem", 
   storageBucket: "skillfoge-ecosystem.firebasestorage.app", 
   messagingSenderId: "279055501952", 
-  appId: "1:279055501952:web:e812364a6f8bcb5998f465", 
-  measurementId: "G-L669WT5FZS" 
+  appId: "1:279055501952:web:45e741d2e8b23af698f465", 
+  measurementId: "G-YZNF8273RC" 
 };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
@@ -447,12 +447,39 @@ window.saveCard = async () => {
 };
 
 window.downloadCard = async () => {
+  const btn = document.querySelector('button[onclick="downloadCard()"]');
+  const originalText = btn.innerHTML;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Rendering...';
+  
   const card = document.getElementById('membership-card');
-  const canvas = await html2canvas(card, { scale: 3, useCORS: true, backgroundColor: null });
-  const link = document.createElement('a');
-  link.download = `SkillForge_DMC_${traineeData.name.replace(/\s+/g, '_')}.png`;
-  link.href = canvas.toDataURL('image/png');
-  link.click();
+  const img = document.getElementById('dmc-avatar-target');
+  
+  // Force CORS for proxy if using supabase/external
+  if (img.src.includes('supabase.co') && !img.src.includes('cloudinary')) {
+    img.src = `https://res.cloudinary.com/db8pknwmz/image/fetch/f_auto,q_auto,w_800/${encodeURIComponent(img.src)}`;
+  }
+  
+  // Small delay to ensure proxy is loaded
+  await new Promise(r => setTimeout(r, 500));
+
+  try {
+    const canvas = await html2canvas(card, { 
+      scale: 3, 
+      useCORS: true, 
+      allowTaint: false,
+      backgroundColor: null,
+      logging: false
+    });
+    const link = document.createElement('a');
+    link.download = `SkillForge_DMC_${(traineeData.name || 'Trainee').replace(/\s+/g, '_')}.png`;
+    link.href = canvas.toDataURL('image/png', 1.0);
+    link.click();
+  } catch (err) {
+    console.error("Export Error:", err);
+    alert("Export failed. Please try 'Commit Changes' first to sync your photo to our 4K relay.");
+  } finally {
+    btn.innerHTML = originalText;
+  }
 };
 
 window.logout = () => {

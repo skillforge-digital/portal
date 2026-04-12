@@ -1,6 +1,7 @@
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-import { getFirestore, doc, getDoc, setDoc, addDoc, collection, serverTimestamp, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js';
+import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-storage.js';
 
 const firebaseConfig = { 
   apiKey: "AIzaSyAODtfZDqeR8DH7YRaiDlRwPOBlxxMfFnY", 
@@ -8,8 +9,8 @@ const firebaseConfig = {
   projectId: "skillfoge-ecosystem", 
   storageBucket: "skillfoge-ecosystem.firebasestorage.app", 
   messagingSenderId: "279055501952", 
-  appId: "1:279055501952:web:e812364a6f8bcb5998f465", 
-  measurementId: "G-L669WT5FZS" 
+  appId: "1:279055501952:web:45e741d2e8b23af698f465", 
+  measurementId: "G-YZNF8273RC" 
 };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);

@@ -1,68 +1,50 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    function isAuthenticated() {
-      return request.auth != null;
+    
+    // Trainee Registry
+    match /trainees/{traineeId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == traineeId;
+      // Allow creation during registration
+      allow create: if request.auth != null;
     }
-
-    match /trainees/{userId} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated() && request.auth.uid == userId;
-    }
-
+    
+    // Presence Registry
     match /presence/{userId} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated() && request.auth.uid == userId;
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
     }
     
-    match /tracking/{userId} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated() && request.auth.uid == userId;
-    }
-
-    match /specialists/{userId} {
-      allow read: if isAuthenticated();
-      allow write: if false; // Only manageable via Firebase Console or special script
-    }
-
-    match /announcements/{announcementId} {
-      allow read: if isAuthenticated();
-      allow write: if isSpecialist();
-    }
-
-    match /seasons/{seasonId}/{documents=**} {
-      allow read, write: if isAuthenticated();
-    }
-
-    match /global_config/{docId} {
-      allow read: if isAuthenticated();
-      allow write: if false;
-    }
-
-    match /wallpapers/{wallpaperId} {
-      allow read, create, update: if isAuthenticated();
-      allow delete: if false;
+    // System Configuration
+    match /system/{docId} {
+      allow read: if true;
+      allow write: if get(/databases/$(database)/documents/specialists/$(request.auth.uid)).data.level == 'Director';
     }
     
+    // Specialist Registry
+    match /specialists/{specialistId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null; // Managed by activate-specialist logic
+      allow update, delete: if false; // Immutable once authorized
+    }
+    
+    // Audit Logs
     match /audit_logs/{logId} {
-      allow create, read: if isAuthenticated();
-      allow update, delete: if false;
+      allow create: if request.auth != null;
+      allow read: if get(/databases/$(database)/documents/specialists/$(request.auth.uid)).data.level == 'Director';
     }
     
-    function isSpecialist() {
-      return isAuthenticated() && exists(/databases/$(database)/documents/specialists/$(request.auth.uid));
-    }
-
+    // Badge Requests
     match /badge_requests/{requestId} {
-      allow create: if isAuthenticated();
-      allow read: if isAuthenticated();
-      allow update: if isSpecialist();
-      allow delete: if false;
+      allow create: if request.auth != null;
+      allow read, update: if get(/databases/$(database)/documents/specialists/$(request.auth.uid)).exists();
     }
     
-    match /{document=**} {
-      allow read: if isAuthenticated();
-      allow write: if false; // Strict fallback
+    // Season Artifacts
+    match /seasons/{seasonId}/{document=**} {
+      allow read: if request.auth != null;
+      allow write: if get(/databases/$(database)/documents/specialists/$(request.auth.uid)).data.level == 'Director';
     }
   }
 }

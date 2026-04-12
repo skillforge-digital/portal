@@ -98,6 +98,32 @@ This log tracks all architectural changes, feature implementations, and system u
 - **The Vault & Badge System**: Permanent career repository for completed tracks with tiered badges (Silver for foundations, Gold for Masterclass).
 
 ### 🔄 Season Management & Recurring Enrollment
+- **Season Reset Logic**: Implemented "Clear Season" and "New Season" behavior for administrative control.
+- **Legacy Archiving**: Completed sessions are now archived to the Vault before registry reset.
+
+## [2026-04-12] - Phase 1: Neural Registry Unification (v1.9.0)
+
+### 🔄 Registry & SDK Unification
+- [x] **Standardize Firebase SDK**: Synchronize all portal nodes to Firebase v12.12.0 via global CDN.
+- [x] **Unified Config Node**: Update `firebaseConfig` across all files with the production-ready `appId` and `measurementId`.
+- [x] **Identity Synchronization**: Hardened the `skillforge_mock_uid` logic to ensure zero-refresh session persistence between Academy nodes.
+- [x] **CORS Policy Patch**: Updated Service Worker (`sw.js`) to handle v12.12.0 assets with `no-cors` mode for reliable offline caching.
+
+## [2026-04-12] - Navigation Optimization & Specialist Command Isolation (v1.8.0)
+
+### 🚀 Navigation & Performance
+- **Fixed Deep Refresh Bug**: Resolved an issue in `sf-turbo.js` where internal navigation would occasionally trigger a full browser reload. Optimized `currentPath` comparison to handle trailing slashes and `index.html` redundancy.
+- **Service Worker CORS Fix**: Patched `sw.js` to handle external CDN assets (Tailwind, FontAwesome) using `no-cors` mode, preventing installation failures and "Failed to fetch" errors.
+
+### 🛡️ Specialist Command Center (Staff Portal)
+- **Staff Registration Isolation**: Decoupled staff registration from the trainee enrollment flow. Specialist access is now restricted to an "Authorization Node" triggered by a hidden "Slash Command" (`/staff`).
+- **Specialist Track Insights**: Specialists can now view track-specific metrics (Total Trainees, Active Session Counts) directly in their command center.
+- **Director Controls**: Added administrative overrides for Directors to clear global registry data and initiate new Mastery Seasons.
+
+### 🛠️ Core Fixes
+- **Dashboard Syntax Resolution**: Fixed a critical JS SyntaxError in the `trainee-dashboard` registry sync logic.
+- **Improved Neural Sync**: Optimized the pulse interval and XP reward logic for better performance during long study sessions.
+
 - **Season Wipe Protocol**: Logic ready for directors to conclude cycles while preserving trainee accounts, XP, and badges.
 - **New Mastery Node**: Seamless re-enrollment flow for existing trainees to pick their next track without re-registering.
 - **Human-Centric UI Shift**: Replaced technical jargon with mentor-driven language ("Mastery Journey", "Command Center", "Registry").

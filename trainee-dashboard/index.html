@@ -222,10 +222,10 @@ tailwind.config = {
     <nav class="space-y-1">
       <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Academy Pages</p>
       <a href="./" class="sidebar-link active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest"><i class="fa-solid fa-layer-group w-4"></i> Overview</a>
-      <a href="dmc/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-id-card w-4"></i> Membership Card</a>
-      <a href="leaderboard/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-ranking-star w-4"></i> Hall of Fame</a>
-      <a href="vault/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-vault w-4"></i> The Vault</a>
-      <a href="customize/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-wand-magic-sparkles w-4"></i> Customize</a>
+      <a href="./dmc/" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-id-card w-4"></i> Membership Card</a>
+      <a href="./leaderboard/" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-ranking-star w-4"></i> Hall of Fame</a>
+      <a href="./vault/" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-vault w-4"></i> The Vault</a>
+      <a href="./customize/" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-wand-magic-sparkles w-4"></i> Customize</a>
       
       <div id="continue-learning-container" class="mt-8 pt-8 border-t border-white/5 space-y-4 hidden">
         <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Neural Resume</p>
@@ -276,11 +276,14 @@ tailwind.config = {
           <div class="absolute top-0 right-0 w-32 h-32 bg-gold-500/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
           <div>
             <div class="w-16 h-16 rounded-2xl bg-black flex items-center justify-center text-navy-950 font-bold text-2xl relative pulse-ring shadow-xl profile-initials-target overflow-hidden border border-gold-500/30">
-              <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=1" id="profile-avatar-target" class="w-full h-full object-contain">
+              <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=1" class="profile-avatar-target w-full h-full object-contain">
             </div>
             <h2 class="text-xl md:text-2xl font-bold mt-4 profile-name-target truncate w-full">Loading...</h2>
             <p class="text-white/50 text-xs md:text-sm profile-track-target truncate w-full">Academy Trainee</p>
-            <div class="flex items-center gap-2 mt-2"><span class="px-2 py-0.5 rounded-full bg-gold-500/10 text-[8px] md:text-[9px] font-bold text-gold-400 uppercase tracking-widest tier-target">Novice</span></div>
+            <div class="flex items-center gap-2 mt-2">
+              <span class="px-2 py-0.5 rounded-full bg-gold-500/10 text-[8px] md:text-[9px] font-bold text-gold-400 uppercase tracking-widest tier-target">Novice</span>
+              <span class="px-2 py-0.5 rounded-full bg-white/5 text-[8px] md:text-[9px] font-bold text-white/40 uppercase tracking-widest gender-target">Unset</span>
+            </div>
           </div>
           <div>
             <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.3em] mb-2">Registry ID</p>
@@ -339,13 +342,14 @@ tailwind.config = {
         <div class="glass-strong rounded-3xl overflow-hidden glow-gold float-anim md:col-span-1">
           <div class="bg-white/5 px-4 py-2 flex items-center gap-2 border-b border-white/5"><span class="w-2 h-2 rounded-full bg-red-400/80"></span><span class="w-2 h-2 rounded-full bg-yellow-400/80"></span><span class="w-2 h-2 rounded-full bg-green-400/80"></span><span class="text-white/30 text-[8px] font-black uppercase ml-2 tracking-widest">Identity.profile</span></div>
           <div class="p-8">
-            <div class="flex items-center gap-5 mb-6"><div class="w-16 h-16 rounded-2xl bg-black flex items-center justify-center text-navy-950 font-bold text-2xl shadow-lg profile-initials-target overflow-hidden border border-gold-500/30"><img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" alt="SF" class="w-full h-full object-cover"></div><div class="min-w-0"><h2 class="text-lg font-bold profile-name-target truncate">Loading...</h2><p class="text-gold-400 text-[10px] font-bold uppercase tracking-widest profile-track-target truncate">Academy Trainee</p><p class="text-white/40 text-[9px] font-bold mt-1 uppercase tracking-widest level-target truncate">Lvl 1</p></div></div>
+            <div class="flex items-center gap-5 mb-6"><div class="w-16 h-16 rounded-2xl bg-black flex items-center justify-center text-navy-950 font-bold text-2xl shadow-lg profile-initials-target overflow-hidden border border-gold-500/30"><img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" alt="SF" class="profile-avatar-target w-full h-full object-cover"></div><div class="min-w-0"><h2 class="text-lg font-bold profile-name-target truncate">Loading...</h2><p class="text-gold-400 text-[10px] font-bold uppercase tracking-widest profile-track-target truncate">Academy Trainee</p><div class="flex gap-2 mt-1"><p class="text-white/40 text-[9px] font-bold uppercase tracking-widest level-target truncate">Lvl 1</p><p class="text-gold-500/60 text-[9px] font-bold uppercase tracking-widest tier-target truncate">Novice</p></div></div></div>
             <div class="flex items-center justify-between mb-2">
               <span class="text-gold-400 text-[9px] font-bold uppercase tracking-widest">Mastery XP</span>
               <span class="text-white/50 text-[9px] font-bold xp-text-target">0 / 1,000</span>
             </div>
             <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden"><div class="progress-fill h-full bg-gradient-to-r from-gold-600 to-gold-400 rounded-full xp-bar-target" style="width:0%"></div></div>
             <div class="mt-4 flex justify-between items-center"><span class="text-white/30 text-[8px] font-black uppercase tracking-widest">Logins</span><span class="text-xs font-bold text-gold-400 logins-target">0</span></div>
+            <div class="mt-2 flex justify-between items-center"><span class="text-white/30 text-[8px] font-black uppercase tracking-widest">Gender</span><span class="text-[9px] font-bold text-white/60 uppercase gender-target">Unset</span></div>
             <div class="mt-2 flex justify-between items-center"><span class="text-white/30 text-[8px] font-black uppercase tracking-widest">SFID</span><span class="text-[9px] font-mono font-bold text-white/60 sfid-display-target truncate">SFID-26-XXX</span></div>
             <div class="mt-6 pin-reveal cursor-pointer rounded-2xl bg-white/5 p-4 border border-white/5 text-center"><p class="text-white/30 text-[8px] uppercase tracking-widest mb-1">Access Key</p><span class="access-pin-target text-2xl font-bold tracking-[0.3em] pin-blur text-gold-300">0000</span></div>
           </div>
@@ -467,7 +471,10 @@ tailwind.config = {
             <img src="" class="profile-avatar-target w-full h-full object-cover">
           </div>
           <h1 class="text-3xl font-black profile-name-target truncate w-full">Alexis Mercer</h1>
-          <p class="text-gold-400 text-[10px] font-black uppercase tracking-widest mt-2 profile-track-target truncate w-full">Academy Trainee</p>
+          <div class="flex items-center justify-center gap-3 mt-2">
+            <p class="text-gold-400 text-[10px] font-black uppercase tracking-widest profile-track-target truncate">Academy Trainee</p>
+            <span class="px-2 py-0.5 rounded-full bg-gold-500/10 text-[8px] font-bold text-gold-400 uppercase tracking-widest tier-target">Novice</span>
+          </div>
           <div class="mt-8 p-6 rounded-3xl bg-white/5 border border-white/5 text-left space-y-4">
             <div class="flex justify-between items-center gap-2"><span class="text-[9px] font-black text-white/30 uppercase">Registry ID</span><span class="text-[10px] font-mono font-bold text-gold-400 sfid-display-target truncate">SFID-26-XXX</span></div>
             <div class="flex justify-between items-center gap-2"><span class="text-[9px] font-black text-white/30 uppercase">Status</span><span class="text-[10px] font-bold text-green-400 uppercase tracking-widest">Active</span></div>
@@ -525,9 +532,15 @@ tailwind.config = {
       <div class="lg:w-1/2 p-10 lg:p-20 flex flex-col justify-center bg-black/20 backdrop-blur-md relative overflow-hidden">
         <div class="absolute inset-0 bg-gradient-to-br from-gold-500/10 to-transparent opacity-30"></div>
         <div class="relative z-10 space-y-8">
-          <div class="w-24 h-24 rounded-[32px] bg-gold-500 profile-initials-target overflow-hidden flex items-center justify-center text-navy-950 text-3xl font-black shadow-4K"></div>
+          <div class="w-24 h-24 rounded-[32px] bg-gold-500 profile-initials-target overflow-hidden flex items-center justify-center text-navy-950 text-3xl font-black shadow-4K">
+            <img src="" class="profile-avatar-target w-full h-full object-cover">
+          </div>
           <h1 class="text-5xl lg:text-8xl font-black leading-tight profile-name-target max-w-xl">Loading...</h1>
-          <p class="text-gold-400 text-sm font-black uppercase tracking-[0.5em] profile-track-target">Academy Trainee</p>
+          <div class="flex items-center gap-6">
+            <p class="text-gold-400 text-sm font-black uppercase tracking-[0.5em] profile-track-target">Academy Trainee</p>
+            <span class="px-3 py-1 rounded-full bg-gold-500/10 text-[10px] font-black text-gold-400 uppercase tracking-[0.3em] tier-target">Novice</span>
+            <span class="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] gender-target">Unset</span>
+          </div>
           <div class="max-w-xs space-y-4">
               <div class="flex justify-between items-center px-1">
                   <span class="text-[10px] font-black text-gold-400 uppercase tracking-widest level-target">Lvl 1</span>
@@ -573,7 +586,9 @@ tailwind.config = {
     <div class="max-w-4xl mx-auto space-y-8">
       <div class="glass rounded-[48px] p-12 text-center space-y-6 glow-gold overflow-hidden relative">
         <div class="absolute top-0 left-0 w-full h-1 bg-gold-500/30"></div>
-        <div class="w-20 h-20 rounded-3xl bg-white/5 mx-auto flex items-center justify-center text-gold-500 border border-white/10"><i class="fa-solid fa-user-astronaut text-3xl"></i></div>
+        <div class="w-20 h-20 rounded-3xl bg-black mx-auto flex items-center justify-center text-gold-500 border border-white/10 overflow-hidden profile-initials-target relative">
+          <img src="" class="profile-avatar-target w-full h-full object-cover">
+        </div>
         <h1 class="text-4xl md:text-6xl font-black profile-name-target truncate w-full">Alexis Mercer</h1>
         <div class="flex justify-center gap-4 flex-wrap items-center">
             <span class="px-4 py-1.5 rounded-full bg-gold-500/10 text-gold-400 text-[10px] font-black uppercase tracking-widest tier-target">Novice</span>
@@ -619,9 +634,15 @@ tailwind.config = {
     <div class="absolute inset-0 bg-radial from-gold-500/5 to-transparent opacity-50"></div>
     <div class="relative z-10 w-full max-w-4xl aspect-square flex items-center justify-center pointer-events-none transform scale-50 md:scale-100 transition-transform" id="orbit-stage">
       <!-- Central Body -->
-      <div class="glass-strong rounded-full p-12 md:p-24 text-center z-20 glow-gold border border-gold-500/20 max-w-[90vw] md:max-w-[80vw] pointer-events-auto shadow-4K">
-        <h1 class="text-2xl md:text-5xl font-black profile-name-target truncate mb-2">Loading...</h1>
-        <p class="text-gold-400 text-[8px] md:text-[10px] font-black uppercase tracking-[0.5em] profile-track-target">Academy Trainee</p>
+      <div class="glass-strong rounded-full p-12 md:p-24 text-center z-20 glow-gold border border-gold-500/20 max-w-[90vw] md:max-w-[80vw] pointer-events-auto shadow-4K relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10">
+          <img src="" class="profile-avatar-target w-full h-full object-cover">
+        </div>
+        <h1 class="text-2xl md:text-5xl font-black profile-name-target truncate mb-2 relative z-10">Loading...</h1>
+        <div class="flex items-center justify-center gap-4 relative z-10">
+          <p class="text-gold-400 text-[10px] md:text-xs font-black uppercase tracking-[0.4em] profile-track-target">Academy Trainee</p>
+          <span class="text-[9px] font-black text-white/30 uppercase tracking-[0.3em] tier-target">Novice</span>
+        </div>
         
         <div class="mt-4 md:mt-8 pt-4 md:pt-8 border-t border-white/5 space-y-2 md:space-y-4">
           <div class="flex justify-between items-center px-4">
@@ -656,9 +677,16 @@ tailwind.config = {
       </div>
       <div class="space-y-10 overflow-hidden">
         <div class="flex flex-col md:flex-row gap-10">
+          <div class="w-24 h-24 rounded-2xl bg-black border border-green-500/30 overflow-hidden flex-shrink-0 profile-initials-target relative">
+            <img src="" class="profile-avatar-target w-full h-full object-cover">
+          </div>
           <div class="space-y-2 min-w-0 flex-1">
             <p class="text-green-500 text-[10px] uppercase tracking-widest">&gt; TRAINEE_IDENTITY</p>
             <h1 class="text-4xl font-black profile-name-target uppercase text-white truncate">Loading...</h1>
+            <div class="flex gap-4">
+              <p class="text-green-500/50 text-[10px] uppercase tracking-widest">&gt; MASTERY_TIER: <span class="tier-target text-white">Novice</span></p>
+              <p class="text-green-500/50 text-[10px] uppercase tracking-widest">&gt; GENDER_IDENT: <span class="gender-target text-white">Unset</span></p>
+            </div>
           </div>
           <div class="space-y-2 min-w-0 flex-1">
             <p class="text-green-500 text-[10px] uppercase tracking-widest">&gt; ACADEMY_TRACK</p>
@@ -713,11 +741,18 @@ tailwind.config = {
   <section id="t9" class="template-section">
     <div class="max-w-6xl mx-auto bg-white text-navy-950 min-h-screen">
       <div class="h-96 bg-navy-950 p-12 lg:p-20 flex flex-col justify-end relative overflow-hidden">
+        <div class="absolute inset-0 opacity-20">
+          <img src="" class="profile-avatar-target w-full h-full object-cover">
+        </div>
         <div class="absolute top-10 right-10 text-white/20 font-serif italic text-4xl">SkillForge</div>
-        <h1 class="text-6xl lg:text-9xl font-black text-white leading-none profile-name-target uppercase tracking-tighter truncate w-full">Loading...</h1>
+        <h1 class="text-6xl lg:text-9xl font-black text-white leading-none profile-name-target uppercase tracking-tighter truncate w-full relative z-10">Loading...</h1>
         <div class="absolute bottom-12 right-12 text-right">
             <p class="text-gold-400 text-xs font-black uppercase tracking-[0.4em] level-target">Lvl 1 Master</p>
-            <p class="text-white/40 text-[10px] uppercase font-bold tracking-widest xp-text-target">0 / 1,000 XP</p>
+            <div class="flex items-center justify-end gap-3 mt-1">
+              <span class="text-[10px] font-black text-white/60 uppercase tracking-widest tier-target">Novice</span>
+              <span class="text-[10px] font-black text-white/20 uppercase tracking-widest gender-target">Unset</span>
+            </div>
+            <p class="text-white/40 text-[10px] uppercase font-bold tracking-widest xp-text-target mt-1">0 / 1,000 XP</p>
             <p class="text-navy-950/20 text-[8px] font-mono mt-2 sfid-display-target">SFID-26-XXX</p>
         </div>
       </div>
@@ -766,7 +801,10 @@ tailwind.config = {
           </div>
           <div>
               <h1 class="text-xl font-black profile-name-target truncate w-full">Loading...</h1>
-              <p class="text-[9px] font-bold text-white/40 uppercase tracking-widest profile-track-target truncate w-full">Academy Trainee</p>
+              <div class="flex items-center gap-2">
+                <p class="text-[9px] font-bold text-white/40 uppercase tracking-widest profile-track-target truncate">Academy Trainee</p>
+                <span class="text-[7px] font-black text-white/20 uppercase tracking-widest gender-target">Unset</span>
+              </div>
           </div>
           <div class="pt-4 border-t border-white/5 space-y-3">
               <div class="flex justify-between text-[8px] font-black uppercase tracking-widest">
@@ -818,9 +856,9 @@ tailwind.config = {
 
 <script type="module">
 import { themeManager } from '../assets/theme-manager.js';
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js';
-import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js';
-import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, query, orderBy, limit, getDocs, updateDoc } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, query, orderBy, limit, getDocs, updateDoc } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
 const supabaseUrl = 'https://luxubaqztmbcpskyfgdp.supabase.co';
@@ -833,8 +871,8 @@ const firebaseConfig = {
   projectId: "skillfoge-ecosystem", 
   storageBucket: "skillfoge-ecosystem.firebasestorage.app", 
   messagingSenderId: "279055501952", 
-  appId: "1:279055501952:web:e812364a6f8bcb5998f465", 
-  measurementId: "G-L669WT5FZS" 
+  appId: "1:279055501952:web:45e741d2e8b23af698f465", 
+  measurementId: "G-YZNF8273RC" 
 };
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -966,7 +1004,11 @@ function updateDynamicUI() {
   document.querySelectorAll('.profile-name-target').forEach(el => el.innerText = traineeData.name);
   document.querySelectorAll('.user-name-target').forEach(el => el.innerText = firstName);
   document.querySelectorAll('.profile-track-target').forEach(el => el.innerText = traineeData.track || 'Academy Trainee');
-  document.querySelectorAll('.profile-initials-target').forEach(el => el.innerText = initials);
+  document.querySelectorAll('.profile-initials-target').forEach(el => {
+    if (!el.querySelector('.profile-avatar-target')) {
+      el.innerText = initials;
+    }
+  });
   document.querySelectorAll('.access-pin-target').forEach(el => el.innerText = traineeData.pin || '000000');
   
   // Level & XP
@@ -986,6 +1028,8 @@ function updateDynamicUI() {
   document.querySelectorAll('.gender-target').forEach(el => {
     el.innerText = traineeData.gender || 'UNSET';
     el.style.color = traineeData.gender === 'Female' ? '#f472b6' : (traineeData.gender === 'Male' ? '#60a5fa' : 'inherit');
+  });
+  
   // Certification Progress
   const certDays = traineeData.certDays || 0;
   const certProgress = (certDays / 14) * 100;
@@ -1013,12 +1057,18 @@ function updateDynamicUI() {
   // Use Cloudinary for optimized Supabase images if it's a Supabase URL
   let optimizedAvatarUrl = avatarUrl;
   if (avatarUrl.includes('supabase.co')) {
-    optimizedAvatarUrl = `https://res.cloudinary.com/db8pknwmz/image/fetch/f_auto,q_auto,w_400/${encodeURIComponent(avatarUrl)}`;
+    // Correct Cloudinary fetch URL with proper account name and parameters
+    optimizedAvatarUrl = `https://res.cloudinary.com/db8pknwmz/image/fetch/f_auto,q_auto,w_400,c_fill,g_face/${encodeURIComponent(avatarUrl)}`;
   }
 
   document.querySelectorAll('.profile-avatar-target').forEach(el => {
     el.src = optimizedAvatarUrl;
     el.classList.remove('opacity-0');
+    // Error fallback to standard avatar if Cloudinary/Supabase fails
+    el.onerror = () => {
+      el.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${traineeData.name}`;
+      el.onerror = null;
+    };
   });
 }
 
@@ -1077,10 +1127,10 @@ window.showLayout = (num) => {
 
   try {
     // 1. Universal Cleanup (Strict)
+    // Only remove satellites and rings, keep the central body intact in the template
     document.querySelectorAll('.orbit-satellite, .orbit-ring').forEach(el => el.remove());
     const stages = document.querySelectorAll('[id="orbit-stage"]');
     stages.forEach(s => {
-        s.innerHTML = '';
         s.style.display = 'none';
     });
 
@@ -1219,7 +1269,17 @@ function updateNeuralResume(data) {
   }
 }
 
-window.toggleLayoutSwitcher = () => {
+// Keyboard Engine for Layout Switching
+  document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    const num = parseInt(e.key);
+    if (!isNaN(num) && num >= 0 && num <= 9) {
+      const layoutId = num === 0 ? 10 : num;
+      window.showLayout(layoutId);
+    }
+  });
+
+  window.toggleLayoutSwitcher = () => {
   const container = document.getElementById('layout-buttons');
   const icon = document.getElementById('switcher-icon');
   container.classList.toggle('hidden');

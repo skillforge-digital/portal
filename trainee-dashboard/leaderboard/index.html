@@ -169,9 +169,9 @@ tailwind.config = {
 <script type="module">
 import { themeManager } from '../../assets/theme-manager.js';
 import { DailyAtmosphere } from '../../assets/canvas-daily.js';
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js';
-import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js';
-import { getFirestore, doc, getDoc, collection, query, orderBy, limit, getDocs, onSnapshot } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+import { getFirestore, doc, getDoc, collection, query, orderBy, limit, getDocs, onSnapshot } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 
 const firebaseConfig = { 
   apiKey: "AIzaSyAODtfZDqeR8DH7YRaiDlRwPOBlxxMfFnY", 
@@ -179,8 +179,8 @@ const firebaseConfig = {
   projectId: "skillfoge-ecosystem", 
   storageBucket: "skillfoge-ecosystem.firebasestorage.app", 
   messagingSenderId: "279055501952", 
-  appId: "1:279055501952:web:e812364a6f8bcb5998f465", 
-  measurementId: "G-L669WT5FZS" 
+  appId: "1:279055501952:web:45e741d2e8b23af698f465", 
+  measurementId: "G-YZNF8273RC" 
 };
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -222,7 +222,10 @@ onAuthStateChanged(auth, (user) => {
         const tgLink = TELEGRAM_CHANNELS[data.track] || 'https://t.me/skillforgeorg';
         document.querySelectorAll('.telegram-join-target').forEach(el => el.href = tgLink);
         
-        themeManager.sync(data);
+        if (data.theme) {
+          themeManager.applyTheme(data.theme);
+          themeManager.applyFont(data.theme.fontFamily || 'Space Grotesk');
+        }
         if (data.controls?.canvasAtmosphere) {
           atmosphere.start();
         } else {

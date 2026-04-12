@@ -4,9 +4,9 @@
  * Replaces: presence.js, academy-tracker.js, presence_site.js
  */
 
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
-import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp, onSnapshot } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 
 const firebaseConfig = { 
   apiKey: "AIzaSyAODtfZDqeR8DH7YRaiDlRwPOBlxxMfFnY", 
@@ -14,8 +14,8 @@ const firebaseConfig = {
   projectId: "skillfoge-ecosystem", 
   storageBucket: "skillfoge-ecosystem.firebasestorage.app", 
   messagingSenderId: "279055501952", 
-  appId: "1:279055501952:web:e812364a6f8bcb5998f465", 
-  measurementId: "G-L669WT5FZS" 
+  appId: "1:279055501952:web:45e741d2e8b23af698f465", 
+  measurementId: "G-YZNF8273RC" 
 };
 
 class SkillForgeCore {
@@ -158,6 +158,9 @@ class SkillForgeCore {
             console.log(`[NeuralCore] Pulse successful: +${minutes}min XP`);
         } catch (err) {
             console.error("[NeuralCore] Pulse Failed:", err);
+            if (window.sf_report_error) {
+                window.sf_report_error("Neural Pulse Failed: Registry sync interrupted.", err.stack);
+            }
         }
     }
 
@@ -194,7 +197,7 @@ class SkillForgeCore {
         const lastLevel = data.lastNotifiedLevel || 1;
 
         // 1. Tier Upgrade Logic
-        let tier = 'Trainee';
+        let tier = 'Novice';
         if (xp >= 5000) tier = 'Intermediate';
         else if (xp >= 2500) tier = 'Beginner';
         else if (xp >= 1000) tier = 'Starter';

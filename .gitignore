@@ -1,3 +1,6 @@
+# SkillForge Academy Main Site (Exclude from Portal Repo)
+skill forge site/
+
 # Local IDE/Environment
 .trae/
 .vscode/

@@ -43,7 +43,7 @@ tailwind.config = {
   .font-card:hover { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.1); }
   .font-card.active { border-color: var(--accent-color); background: rgba(var(--accent-color-rgb), 0.1); }
   
-  #loading-screen { position: fixed; inset: 0; background: #040810; z-index: 1000; display: flex; flex-direction: column; items-center: center; justify-content: center; transition: opacity 0.5s ease; }
+  #loading-screen { position: fixed; inset: 0; background: #040810; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease; }
   
   .tab-btn { padding: 14px 28px; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.2em; border-radius: 18px; transition: all 0.3s ease; color: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.05); }
   .tab-btn.active { background: var(--accent-color); color: #040810; border-color: var(--accent-color); box-shadow: 0 0 20px rgba(var(--accent-color-rgb), 0.3); }
@@ -204,9 +204,9 @@ tailwind.config = {
 
 <script type="module">
 import { themeManager } from '../../assets/theme-manager.js';
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-import { getFirestore, doc, updateDoc, getDoc } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
-import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js';
+import { getFirestore, doc, updateDoc, getDoc } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
 const firebaseConfig = { 
@@ -215,8 +215,8 @@ const firebaseConfig = {
   projectId: "skillfoge-ecosystem", 
   storageBucket: "skillfoge-ecosystem.firebasestorage.app", 
   messagingSenderId: "279055501952", 
-  appId: "1:279055501952:web:e812364a6f8bcb5998f465", 
-  measurementId: "G-L669WT5FZS" 
+  appId: "1:279055501952:web:45e741d2e8b23af698f465", 
+  measurementId: "G-YZNF8273RC" 
 };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
@@ -497,51 +497,53 @@ window.commitDesign = async () => {
   try {
     const themeToSave = { ...currentDesign };
     
-    // If there's a pending file, upload it via themeManager
+    // Handle Custom Wallpaper Upload
     if (pendingFile) {
-      console.log('[Customize] Uploading custom wallpaper...');
-      const url = await themeManager.saveWallpaper(pendingFile, 'CUSTOMIZE_STUDIO');
-      if (!url) throw new Error("Wallpaper upload failed");
-      themeToSave.wallpaper = url;
+      btn.innerText = "Uploading Atmosphere...";
+      const fileName = `wallpapers/${auth.currentUser.uid}_${Date.now()}.jpg`;
+      const { error } = await supabase.storage.from('avatars').upload(fileName, pendingFile);
+      if (error) throw error;
+      const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(fileName);
+      themeToSave.wallpaper = publicUrl;
       themeToSave.type = 'wallpaper';
+      pendingFile = null;
     }
+
+    // Standardize theme structure for theme-manager
+    const finalTheme = {
+      type: themeToSave.type || 'solid-pair',
+      primary: themeToSave.primary || themeToSave.c1 || '#040810',
+      secondary: themeToSave.secondary || themeToSave.c2 || '#f59e0b',
+      c1: themeToSave.c1 || themeToSave.primary || '#040810',
+      c2: themeToSave.c2 || themeToSave.secondary || '#f59e0b',
+      wallpaper: themeToSave.wallpaper || '',
+      fontFamily: themeToSave.fontFamily || 'Space Grotesk',
+      fontName: themeToSave.fontName || 'Modern Grotesk'
+    };
+
+    // Update Registry
+    const traineeRef = doc(db, 'trainees', auth.currentUser.uid);
+    await updateDoc(traineeRef, { theme: finalTheme });
     
-    console.log('[Customize] Committing theme state:', themeToSave.type);
-    const success = await themeManager.saveTheme(themeToSave, 'CUSTOMIZE_STUDIO');
+    // Immediate Apply to Local State
+    themeManager.applyTheme(finalTheme);
     
-    if (success) {
-      if (currentDesign.fontFamily) {
-        console.log('[Customize] Syncing font selection:', currentDesign.fontFamily);
-        await themeManager.saveFont(currentDesign.fontFamily, 'CUSTOMIZE_STUDIO');
-      }
-      
-      // Success feedback
-      btn.classList.replace('bg-gold-500', 'bg-green-500');
-      btn.innerText = "Matrix Synchronized";
-      
-      setTimeout(() => {
-        alert("Neural Assets Synchronized.");
-        location.reload();
-      }, 500);
-    } else {
-      throw new Error("Theme manager failed to save the theme.");
-    }
-  } catch (err) {
-    console.error('[Customize] Commit Failed:', err);
-    btn.classList.replace('bg-gold-500', 'bg-red-500');
-    btn.innerText = "Sync Failed";
+    // Notify ecosystem
+    window.dispatchEvent(new CustomEvent('sf:theme_updated', { detail: finalTheme }));
     
-    if (window.sf_report_error) {
-      window.sf_report_error(`Design Matrix Sync Failed: ${err.message}`, err.stack);
-    } else {
-      alert(`Sync Failed: ${err.message}`);
-    }
-    
+    btn.innerText = "Matrix Synchronized";
     setTimeout(() => {
-      btn.classList.replace('bg-red-500', 'bg-gold-500');
-      btn.disabled = false;
-      btn.innerText = "Commit Design Matrix";
-    }, 3000);
+        btn.innerText = "Commit Design Matrix";
+        btn.disabled = false;
+    }, 2000);
+
+    alert("Atmosphere Committed. Your custom matrix is now active across all nodes.");
+
+  } catch (err) {
+    console.error('[Customize] Commit failed:', err);
+    btn.innerText = "Sync Interrupted";
+    btn.disabled = false;
+    alert("Commit failed. Neural sync interrupted. Please check your connection.");
   }
 };
 

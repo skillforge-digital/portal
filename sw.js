@@ -11,16 +11,37 @@ const ASSETS_TO_CACHE = [
     '/assets/sf-turbo.js',
     '/assets/sf-atmosphere-3d.js',
     '/assets/theme-manager.js',
-    '/assets/error-reporter.js',
+    '/assets/error-reporter.js'
+];
+
+// External assets that might not support CORS for pre-caching
+const EXTERNAL_ASSETS = [
     'https://cdn.tailwindcss.com',
-    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css'
+    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css',
+    'https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js',
+    'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js',
+    'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js',
+    'https://www.gstatic.com/firebasejs/12.12.0/firebase-storage.js',
+    'https://www.gstatic.com/firebasejs/12.12.0/firebase-analytics.js'
 ];
 
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
             console.log('[OfflineMatrix] Archiving core assets to local cache');
-            return cache.addAll(ASSETS_TO_CACHE);
+            // Cache internal assets first
+            const cacheInternal = cache.addAll(ASSETS_TO_CACHE);
+            
+            // Attempt to cache external assets with no-cors if they fail regular fetch
+            const cacheExternal = Promise.all(
+                EXTERNAL_ASSETS.map(url => 
+                    fetch(url, { mode: 'no-cors' })
+                        .then(response => cache.put(url, response))
+                        .catch(err => console.warn(`[OfflineMatrix] Failed to cache external asset: ${url}`, err))
+                )
+            );
+
+            return Promise.all([cacheInternal, cacheExternal]);
         })
     );
 });

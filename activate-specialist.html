@@ -17,15 +17,16 @@
 <body>
   <div class="glass">
     <h1 style="color: #f59e0b; font-size: 2rem; margin-bottom: 1rem;">Neural Authorization</h1>
-    <p style="color: rgba(255,255,255,0.6); font-size: 0.9rem; margin-bottom: 2rem;">Click below to elevate your current identity to **Specialist Status** in the Academy Command Center.</p>
+    <p style="color: rgba(255,255,255,0.6); font-size: 0.9rem; margin-bottom: 2rem;">Enter your **Command Key** to elevate your current identity to **Specialist Status**.</p>
+    <input type="password" id="command-key" placeholder="Enter Staff Key" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); padding: 1rem; border-radius: 1rem; color: white; margin-bottom: 1.5rem; text-align: center; font-family: 'Space Grotesk', sans-serif;">
     <button id="activate-btn" onclick="activate()">Authorize Specialist Access</button>
     <p id="status" style="margin-top: 1.5rem; font-size: 0.8rem; font-weight: bold;"></p>
   </div>
 
 <script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-import { getFirestore, doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
-import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+import { getFirestore, doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 
 const firebaseConfig = { 
   apiKey: "AIzaSyAODtfZDqeR8DH7YRaiDlRwPOBlxxMfFnY", 
@@ -33,8 +34,8 @@ const firebaseConfig = {
   projectId: "skillfoge-ecosystem", 
   storageBucket: "skillfoge-ecosystem.firebasestorage.app", 
   messagingSenderId: "279055501952", 
-  appId: "1:279055501952:web:e812364a6f8bcb5998f465", 
-  measurementId: "G-L669WT5FZS" 
+  appId: "1:279055501952:web:45e741d2e8b23af698f465", 
+  measurementId: "G-YZNF8273RC" 
 };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
@@ -43,10 +44,16 @@ const auth = getAuth(app);
 window.activate = async () => {
   const btn = document.getElementById('activate-btn');
   const status = document.getElementById('status');
+  const keyInput = document.getElementById('command-key');
   const uid = localStorage.getItem('skillforge_mock_uid') || (auth.currentUser ? auth.currentUser.uid : null);
   
   if (!uid) {
-    status.innerText = "Error: No active identity found. Please log in first.";
+    status.innerText = "Error: No active identity found.";
+    return;
+  }
+
+  if (keyInput.value !== 'FORGE-STAFF-2026') {
+    status.innerText = "Invalid Command Key. Authorization denied.";
     status.style.color = "#ef4444";
     return;
   }
@@ -57,9 +64,11 @@ window.activate = async () => {
   try {
     await setDoc(doc(db, 'specialists', uid), {
       uid: uid,
+      name: auth.currentUser?.displayName || 'Authorized Specialist',
       role: 'Specialist',
       authorizedAt: serverTimestamp(),
-      level: 'Admin'
+      level: 'Director', // Set to Director for full access to Forge controls
+      track: 'Web Development' // Default track for testing
     });
     
     status.innerText = "Neural Authorization Complete. You are now a Specialist.";
