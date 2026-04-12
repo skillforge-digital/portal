@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -221,11 +221,11 @@ tailwind.config = {
     </div>
     <nav class="space-y-1">
       <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Academy Pages</p>
-      <a href="./" class="sidebar-link active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest"><i class="fa-solid fa-layer-group w-4"></i> Overview</a>
-      <a href="./dmc/" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-id-card w-4"></i> Membership Card</a>
-      <a href="./leaderboard/" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-ranking-star w-4"></i> Hall of Fame</a>
-      <a href="./vault/" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-vault w-4"></i> The Vault</a>
-      <a href="./customize/" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-wand-magic-sparkles w-4"></i> Customize</a>
+      <a href="/trainee-dashboard/" class="sidebar-link active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest"><i class="fa-solid fa-layer-group w-4"></i> Overview</a>
+      <a href="/trainee-dashboard/dmc/" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-id-card w-4"></i> Membership Card</a>
+      <a href="/trainee-dashboard/leaderboard/" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-ranking-star w-4"></i> Hall of Fame</a>
+      <a href="/trainee-dashboard/vault/" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-vault w-4"></i> The Vault</a>
+      <a href="/trainee-dashboard/customize/" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-wand-magic-sparkles w-4"></i> Customize</a>
       
       <div id="continue-learning-container" class="mt-8 pt-8 border-t border-white/5 space-y-4 hidden">
         <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Progress Overview</p>
@@ -1335,6 +1335,13 @@ function updateNeuralResume(data) {
   container.classList.toggle('hidden');
   icon.style.transform = container.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
 };
+
+// Handle re-initialization on Turbo loads
+window.addEventListener('sf:turbo-render', () => {
+    console.log("[Dashboard] Re-hydrating Command Center...");
+    if (typeof initDashboard === 'function') initDashboard();
+    if (typeof loadNewsTicker === 'function') loadNewsTicker();
+});
 
 window.logout = async () => { localStorage.removeItem('skillforge_mock_uid'); window.location.href = '../trainee-login/'; };
 </script>

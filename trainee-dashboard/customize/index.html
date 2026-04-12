@@ -599,6 +599,12 @@ window.toggleSidebar = () => {
   if (sidebar) sidebar.classList.toggle('-translate-x-full');
 };
 
+// Handle re-initialization on Turbo loads
+window.addEventListener('sf:turbo-render', () => {
+    console.log("[Customize] Re-initializing Design Studio...");
+    init();
+});
+
 init();
 </script>
   <script type="module" src="../../assets/sf-core.js"></script>

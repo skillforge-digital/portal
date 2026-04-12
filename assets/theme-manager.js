@@ -132,9 +132,18 @@ class ThemeManager {
     }
 
     applyTheme(theme) {
-        if (!theme) return;
+        if (!theme || Object.keys(theme).length === 0) {
+            console.warn("[ThemeManager] Attempted to apply empty theme. Falling back to defaults.");
+            theme = { type: 'solid-pair', primary: '#040810', secondary: '#f59e0b' };
+        }
+        
+        console.log(`[ThemeManager] Applying atmosphere matrix: ${theme.type}`);
         const root = document.documentElement;
         const body = document.body;
+        
+        // Save current theme to memory
+        this.currentTheme = theme;
+        localStorage.setItem('sf_global_theme', JSON.stringify(theme));
 
         const hexToRgb = (hex) => {
             const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);

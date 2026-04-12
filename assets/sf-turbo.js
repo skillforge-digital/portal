@@ -1,4 +1,4 @@
-﻿/**
+/**
  * SkillForge Turbo Engine (v1.1.0)
  * Zero-Refresh MPA Transitions (PJAX)
  */
@@ -24,7 +24,7 @@ class SkillForgeTurbo {
             if (link.hasAttribute('download') || url.hash || link.target === '_blank') return;
             
             // Normalize paths for comparison (remove trailing slashes and index.html)
-            const normalize = (path) => path.replace(/\/index\.html$/, '/').replace(/\/$/, '') || '/';
+            const normalize = (path) => path.replace(/\/index\.html$/, '').replace(/\/$/, '') || '/';
             const currentPath = normalize(window.location.pathname);
             const targetPath = normalize(url.pathname);
             
@@ -36,7 +36,10 @@ class SkillForgeTurbo {
             }
 
             e.preventDefault();
-            this.navigate(url.href);
+            
+            // Standardize URL to absolute path from root
+            const absoluteTarget = url.origin === window.location.origin ? url.pathname + url.search + url.hash : url.href;
+            this.navigate(absoluteTarget);
         });
 
         // Hidden "Slash Command" for Specialist Portal
@@ -84,76 +87,64 @@ class SkillForgeTurbo {
         this.showProgressBar();
 
         try {
-            const html = await this.fetchPage(url);
-            const parser = new DOMParser();
-            const newDoc = parser.parseFromString(html, 'text/html');
+            if (this.currentController) {
+                this.currentController.abort();
+            }
+            this.currentController = new AbortController();
 
-            // 1. Update Title
-            document.title = newDoc.title;
-
-            // 2. Swap Main Content
-            const newMain = newDoc.querySelector('main') || newDoc.body;
-            const currentMain = document.querySelector('main') || document.body;
-
-            // Fade out
-            currentMain.style.opacity = '0';
-            currentMain.style.transform = 'translateY(10px)';
+            const res = await fetch(url, {
+                signal: this.currentController.signal,
+                headers: { 'X-Requested-With': 'SkillForge-Turbo' }
+            });
+            const html = await res.text();
             
-            setTimeout(() => {
-                // Update URL
-                if (pushState) window.history.pushState({ url }, '', url);
+            // Dispatch 'before-render' for hydration preparation
+            window.dispatchEvent(new CustomEvent('sf:turbo-before-render'));
 
-                // Replace content
-                currentMain.innerHTML = newMain.innerHTML;
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            
+            // Efficiently swap content
+            const oldMain = document.querySelector('main');
+            const newMain = doc.querySelector('main');
+            if (oldMain && newMain) {
+                oldMain.innerHTML = newMain.innerHTML;
                 
-                // Copy classes from new body to current body
-                document.body.className = newDoc.body.className;
-
-                // 3. Re-run Scripts in the new content
-                this.executeScripts(currentMain);
-
-                // 4. Notify components (ThemeManager, Core, etc.)
-                window.dispatchEvent(new CustomEvent('turbo:load', { detail: { url } }));
-
-                // Fade in
-                currentMain.style.opacity = '1';
-                currentMain.style.transform = 'translateY(0)';
-                this.hideProgressBar();
-                this.isNavigating = false;
+                // Update specific page classes or metadata
+                document.title = doc.title;
                 
-                // Scroll to top
-                window.scrollTo(0, 0);
-            }, 300);
+                // Re-initialize scripts for the new content
+                this.rehydrate();
+            } else {
+                // Fallback for non-dashboard pages
+                window.location.href = url;
+            }
 
+            window.history.pushState({}, '', url);
+            window.dispatchEvent(new CustomEvent('sf:turbo-render'));
         } catch (err) {
-            console.error("[Turbo] Navigation Failed, falling back to hard refresh:", err);
-            window.location.href = url;
+            if (err.name !== 'AbortError') {
+                console.error("[Turbo] Engine stall:", err);
+                window.location.href = url;
+            }
         }
     }
 
-    async fetchPage(url) {
-        // Clear cache for registry-heavy pages to ensure fresh data
-        if (url.includes('dashboard') || url.includes('vault') || url.includes('leaderboard')) {
-            this.cache.delete(url);
-        }
-
-        if (this.cache.has(url)) return this.cache.get(url);
+    rehydrate() {
+        console.log("[Turbo] Hydrating neural nodes...");
         
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        // 1. Re-initialize Lucide icons
+        if (window.lucide) window.lucide.createIcons();
         
-        const html = await res.text();
-        this.cache.set(url, html);
-        return html;
-    }
-
-    executeScripts(container) {
-        const scripts = container.querySelectorAll('script');
+        // 2. Re-trigger theme application
+        if (window.themeManager) window.themeManager.init();
+        
+        // 3. Re-initialize page-specific logic
+        // Any <script> inside <main> will be executed if manually handled
+        const scripts = document.querySelector('main').querySelectorAll('script');
         scripts.forEach(oldScript => {
             const newScript = document.createElement('script');
-            Array.from(oldScript.attributes).forEach(attr => {
-                newScript.setAttribute(attr.name, attr.value);
-            });
+            Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
             newScript.appendChild(document.createTextNode(oldScript.innerHTML));
             oldScript.parentNode.replaceChild(newScript, oldScript);
         });

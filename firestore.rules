@@ -5,14 +5,21 @@ service cloud.firestore {
     // Trainee Registry
     match /trainees/{traineeId} {
       allow read, list: if request.auth != null;
-      allow write: if request.auth != null && (
-        request.auth.uid == traineeId || 
-        resource.data.uid == request.auth.uid ||
-        !('uid' in resource.data) ||
-        request.resource.data.uid == request.auth.uid
-      );
+      
       // Allow creation during registration
       allow create: if request.auth != null;
+      
+      // Robust Write Logic:
+      // 1. User owns the document (UID matches ID)
+      // 2. User has already claimed it (UID field matches session)
+      // 3. LEGACY CLAIM: Document exists but has no UID, and user is adding their UID
+      allow update: if request.auth != null && (
+        request.auth.uid == traineeId || 
+        resource.data.uid == request.auth.uid ||
+        (!('uid' in resource.data) && request.resource.data.uid == request.auth.uid)
+      );
+      
+      allow delete: if false; // Data is immutable for trainees
     }
     
     // Presence Registry
@@ -21,8 +28,7 @@ service cloud.firestore {
       allow write: if request.auth != null && (
         request.auth.uid == userId || 
         resource.data.uid == request.auth.uid ||
-        !('uid' in resource.data) ||
-        request.resource.data.uid == request.auth.uid
+        (!('uid' in resource.data) && request.resource.data.uid == request.auth.uid)
       );
     }
 
@@ -32,8 +38,7 @@ service cloud.firestore {
       allow write: if request.auth != null && (
         request.auth.uid == userId || 
         resource.data.uid == request.auth.uid ||
-        !('uid' in resource.data) ||
-        request.resource.data.uid == request.auth.uid
+        (!('uid' in resource.data) && request.resource.data.uid == request.auth.uid)
       );
     }
     
@@ -62,9 +67,16 @@ service cloud.firestore {
       allow read, update: if exists(/databases/$(database)/documents/specialists/$(request.auth.uid));
     }
     
-    // Season Artifacts
+    // Season Artifacts & Registry Counters
     match /seasons/{seasonId}/{document=**} {
       allow read: if request.auth != null;
+      
+      // Allow trainees to update the registration counter specifically
+      match /artifacts/trainees/counters/tracks {
+        allow read, write: if request.auth != null;
+      }
+      
+      // All other season writes restricted to Directors
       allow write: if get(/databases/$(database)/documents/specialists/$(request.auth.uid)).data.level == 'Director';
     }
 
