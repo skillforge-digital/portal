@@ -1,12 +1,12 @@
-﻿/**
+﻿﻿﻿/**
  * SkillForge Core Engine (v2.0.0)
  * Unified Tracking, Identity, and Neural Sync
  * Replaces: presence.js, academy-tracker.js, presence_site.js
  */
 
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js';
-import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
-import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp, onSnapshot } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+import { getAuth, onAuthStateChanged, signInAnonymously } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp, onSnapshot, addDoc, collection } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 
 const firebaseConfig = { 
   apiKey: "AIzaSyAODtfZDqeR8DH7YRaiDlRwPOBlxxMfFnY", 
@@ -35,21 +35,16 @@ class SkillForgeCore {
         window.addEventListener('turbo:load', () => {
             console.log("[NeuralCore] Turbo Load: Re-initializing registry listeners");
             this.uid = localStorage.getItem('skillforge_mock_uid');
-            this.startNeuralSync();
-            this.handleDailyLogin();
-            this.trackCurrentLesson();
+            this.syncRegistryState();
         });
     }
 
     init() {
         onAuthStateChanged(this.auth, async (user) => {
             if (user) {
-                // Keep document identifier (mock_uid) separate from session auth (user.uid)
                 this.uid = localStorage.getItem('skillforge_mock_uid') || user.uid;
                 console.log(`[NeuralCore] Session verified for: ${this.uid}`);
-                this.startNeuralSync();
-                this.handleDailyLogin();
-                this.trackCurrentLesson();
+                this.syncRegistryState();
             } else {
                 console.warn("[NeuralCore] No session detected. Initializing anonymous connection...");
                 signInAnonymously(this.auth).catch(err => {
@@ -66,16 +61,85 @@ class SkillForgeCore {
         window.addEventListener('beforeunload', () => this.pulse());
     }
 
+    async syncRegistryState() {
+        if (!this.uid) return;
+
+        const path = window.location.pathname;
+        const isAcademyTrack = path.includes('/academy/') && 
+                              !path.endsWith('/academy/') && 
+                              !path.endsWith('/academy/index.html') &&
+                              !path.includes('gate.html');
+
+        if (isAcademyTrack) {
+            const trackId = this.getCurrentTrack();
+            const hasPasscodeSession = this.verifyPasscodeSession(trackId);
+
+            if (hasPasscodeSession) {
+                console.log(`[NeuralCore] Academy Access Confirmed: ${trackId}. Activating Trackers.`);
+                this.startNeuralSync();
+                this.handleAcademyActivity();
+                this.trackCurrentLesson();
+            } else {
+                console.log("[NeuralCore] Academy track detected but no active passcode session. Tracking suspended.");
+            }
+        } else {
+            console.log("[NeuralCore] Outside Academy Scope. Neural trackers in standby.");
+            this.stopPulse();
+        }
+    }
+
+    getCurrentTrack() {
+        const parts = window.location.pathname.split('/').filter(p => p);
+        const academyIdx = parts.indexOf('academy');
+        return (academyIdx !== -1 && parts.length > academyIdx + 1) ? parts[academyIdx + 1] : null;
+    }
+
+    verifyPasscodeSession(trackId) {
+        if (!trackId) return false;
+        const name = `sf_gate_session_${trackId}`;
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) {
+            const token = parts.pop().split(';').shift();
+            try {
+                const [fingerprint, timestamp] = atob(token).split('|');
+                // Check if session is less than 24 hours old
+                return (Date.now() - parseInt(timestamp)) < 24 * 60 * 60 * 1000;
+            } catch (e) { return false; }
+        }
+        return false;
+    }
+
+    async handleAcademyActivity() {
+        if (!this.uid) return;
+        const today = new Date().toISOString().split('T')[0];
+        const trackRef = doc(this.db, 'tracking', this.uid);
+        const traineeRef = doc(this.db, 'trainees', this.uid);
+
+        // This tracks Academy Login Days and Total Academy Accesses
+        const snap = await getDoc(trackRef);
+        const data = snap.exists() ? snap.data() : { lastAcademyAccess: '', academyLoginDays: 0 };
+
+        if (data.lastAcademyAccess !== today) {
+            console.log("[NeuralCore] New Academy Day Access detected.");
+            await setDoc(trackRef, {
+                lastAcademyAccess: today,
+                academyLoginDays: increment(1),
+                lastUpdated: serverTimestamp()
+            }, { merge: true });
+
+            await updateDoc(traineeRef, {
+                totalLogins: increment(1) // Renamed internally to Academy Logins per user requirement
+            });
+        }
+    }
+
     async trackCurrentLesson() {
         if (!this.uid || !window.location.pathname.includes('/academy/')) return;
         
-        const pathParts = window.location.pathname.split('/').filter(p => p);
-        const academyIdx = pathParts.indexOf('academy');
-        if (academyIdx === -1 || pathParts.length <= academyIdx + 1) return;
-
-        const track = pathParts[academyIdx + 1];
-        const lesson = pathParts.slice(academyIdx + 2).join('/');
-        if (!lesson) return;
+        const track = this.getCurrentTrack();
+        const lesson = window.location.pathname.split('/').slice(-2, -1)[0]; // Simplified lesson extraction
+        if (!lesson || lesson === track) return;
 
         console.log(`[NeuralCore] Tracking: ${track} > ${lesson}`);
         const traineeRef = doc(this.db, 'trainees', this.uid);
@@ -131,42 +195,70 @@ class SkillForgeCore {
     async pulse() {
         if (!this.uid || !this.isTracking) return;
         
+        const path = window.location.pathname;
+        const isAcademyLesson = path.includes('/academy/') && 
+                                !path.endsWith('/academy/') && 
+                                !path.endsWith('/academy/index.html');
+        
+        if (!isAcademyLesson) {
+            console.log("[NeuralCore] Pulse skipped: Not in a verified Academy Lesson track.");
+            return;
+        }
+
         const now = Date.now();
         const elapsed = now - this.lastPulse;
         this.lastPulse = now;
         
         const minutes = Math.floor(elapsed / 60000);
-        if (minutes < 1 && elapsed < 30000) return; // Minimum pulse of 30s or 1 min
+        if (minutes < 1 && elapsed < 30000) return; 
 
         const now_date = new Date();
         const todayDate = now_date.toISOString().split('T')[0];
         const dayName = now_date.toLocaleDateString('en-US', { weekday: 'long' });
         const monthName = now_date.toLocaleDateString('en-US', { month: 'long' });
+        const currentHour = now_date.getHours();
+        
+        // Calculate Week Number
+        const startOfYear = new Date(now_date.getFullYear(), 0, 1);
+        const pastDaysOfYear = (now_date - startOfYear) / 86400000;
+        const weekNumber = Math.ceil((pastDaysOfYear + startOfYear.getDay() + 1) / 7);
+        const weekKey = `${now_date.getFullYear()}-W${weekNumber}`;
+
+        const trackId = this.getCurrentTrack();
         
         const traineeRef = doc(this.db, 'trainees', this.uid);
         const presenceRef = doc(this.db, 'presence', this.uid);
 
         try {
-            // Unified Update
+            await addDoc(collection(this.db, "academy_audit_logs"), {
+                uid: this.uid,
+                path: path,
+                trackId: trackId,
+                timestamp: serverTimestamp(),
+                elapsed: elapsed,
+                type: 'ACADEMY_PULSE'
+            });
+
             const batch = {
                 lastActive: now,
                 totalTime: increment(elapsed),
                 [`dailyStats.${todayDate}.timeSpent`]: increment(elapsed),
                 [`dailyStats.${todayDate}.day`]: dayName,
                 [`dailyStats.${todayDate}.month`]: monthName,
+                [`dailyStats.${todayDate}.tracks.${trackId}`]: increment(elapsed),
+                [`weeklyStats.${weekKey}`]: increment(elapsed),
+                [`hourlyStats.${currentHour}`]: increment(elapsed),
                 server_lastActive: serverTimestamp()
             };
 
             await setDoc(presenceRef, batch, { merge: true });
 
-            // Update Trainee Stats (1 XP per minute)
             if (minutes >= 1) {
                 const updateData = {
                     xp: increment(minutes),
                     totalTimeSpent: increment(elapsed)
                 };
 
-                // Increment certification eligibility if active for 30+ mins today
                 const snap = await getDoc(presenceRef);
                 if (snap.exists()) {
                     const todayTime = snap.data().dailyStats?.[todayDate]?.timeSpent || 0;
@@ -174,44 +266,14 @@ class SkillForgeCore {
                     if (todayTime >= 1800000 && lastCertUpdate !== todayDate) {
                         updateData.certDays = increment(1);
                         await updateDoc(presenceRef, { lastCertUpdate: todayDate });
-                        console.log("[NeuralCore] Certification Eligibility incremented (+1 Day)");
                     }
                 }
 
                 await updateDoc(traineeRef, updateData);
                 this.checkTierUpgrade(traineeRef);
             }
-
-            console.log(`[NeuralCore] Pulse successful: +${minutes}min XP`);
         } catch (err) {
             console.error("[NeuralCore] Pulse Failed:", err);
-            if (window.sf_report_error) {
-                window.sf_report_error("Neural Pulse Failed: Registry sync interrupted.", err.stack);
-            }
-        }
-    }
-
-    async handleDailyLogin() {
-        if (!this.uid) return;
-        const today = new Date().toISOString().split('T')[0];
-        const trackRef = doc(this.db, 'tracking', this.uid);
-        const traineeRef = doc(this.db, 'trainees', this.uid);
-
-        const snap = await getDoc(trackRef);
-        const data = snap.exists() ? snap.data() : { lastLogin: '', loginDays: 0 };
-
-        if (data.lastLogin !== today) {
-            console.log("[NeuralCore] New daily login detected. Rewarding XP.");
-            await setDoc(trackRef, {
-                lastLogin: today,
-                loginDays: increment(1),
-                lastUpdated: serverTimestamp()
-            }, { merge: true });
-
-            await updateDoc(traineeRef, {
-                xp: increment(50), // 50 XP Daily Bonus
-                totalLogins: increment(1)
-            });
         }
     }
 
@@ -295,7 +357,6 @@ window.startRealtimePresence = () => {
     console.log("[NeuralCore] startRealtimePresence called (Legacy Alias)");
     if (window.sfCore) window.sfCore.pulse();
 };
-
+export default SkillForgeCore;
 export const sfCore = new SkillForgeCore();
 window.sfCore = sfCore;
-

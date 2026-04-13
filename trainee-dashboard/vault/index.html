@@ -1,9 +1,19 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SkillForge — Academy Vault</title>
+<script>
+  (function() {
+    const uid = localStorage.getItem('skillforge_mock_uid');
+    if (!uid) {
+      window.stop();
+      const base = window.location.pathname.split('/trainee-dashboard')[0] || '';
+      window.location.href = base + '/trainee-login/';
+    }
+  })();
+</script>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;700&family=Caveat:wght@400;700&family=Unbounded:wght@400;700&family=Inter:wght@400;700&family=Playfair+Display:wght@400;700&family=Outfit:wght@400;700&family=Syne:wght@400;700&family=Lexend:wght@400;700&family=Plus+Jakarta+Sans:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">

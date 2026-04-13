@@ -4,6 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SkillForge Digital — Academy Center</title>
+<script>
+  // Immediate Auth Guard - Prevent Layout Flash
+  (function() {
+    const uid = localStorage.getItem('skillforge_mock_uid');
+    const isLoginPage = window.location.pathname.includes('trainee-login');
+    if (!uid && !isLoginPage) {
+      window.stop(); // Stop further parsing
+      const base = window.location.pathname.split('/trainee-dashboard')[0] || '';
+      window.location.href = base + '/trainee-login/';
+    }
+  })();
+</script>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;700&family=Caveat:wght@400;700&family=Unbounded:wght@400;700&family=Inter:wght@400;700&family=Playfair+Display:wght@400;700&family=Outfit:wght@400;700&family=Syne:wght@400;700&family=Lexend:wght@400;700&family=Plus+Jakarta+Sans:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -130,11 +142,11 @@ tailwind.config = {
   .active-template#t7 .orbit-satellite, 
   .active-template#t7 .orbit-ring { display: block !important; }
   
-  #orbit-stage { position: absolute; inset: 0; display: flex; items-center: center; justify-content: center; pointer-events: none; z-index: 5; }
+  #orbit-stage { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; z-index: 5; }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
-    #loading-screen { position: fixed; inset: 0; background: #040810; z-index: 9999; display: flex; flex-direction: column; items-center: center; justify-content: center; transition: opacity 0.5s ease; }
+    #loading-screen { position: fixed; inset: 0; background: #040810; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease; }
   </style>
 </head>
 <body class="noise-bg text-white overflow-x-hidden min-h-screen flex flex-col md:flex-row">
@@ -227,6 +239,18 @@ tailwind.config = {
       <a href="/trainee-dashboard/vault/" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-vault w-4"></i> The Vault</a>
       <a href="/trainee-dashboard/customize/" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-wand-magic-sparkles w-4"></i> Customize</a>
       
+      <div id="next-season-container" class="mt-8 pt-8 border-t border-white/5 space-y-4">
+        <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Academy Evolution</p>
+        <button id="next-season-btn" onclick="registerNextSeason()" class="w-full flex items-center justify-between p-4 rounded-2xl bg-gold-500/10 border border-gold-500/20 text-gold-400 hover:bg-gold-500/20 transition-all group disabled:opacity-30 disabled:grayscale disabled:pointer-events-none">
+          <div class="flex flex-col text-left">
+            <span class="text-[7px] font-black uppercase tracking-widest opacity-60">Season 2026/B</span>
+            <span class="text-[10px] font-bold uppercase">Register for Next Season</span>
+          </div>
+          <i class="fa-solid fa-chevron-right text-xs group-hover:translate-x-1 transition-transform"></i>
+        </button>
+        <p id="next-season-locked-msg" class="hidden text-[7px] text-red-400 font-bold uppercase tracking-widest text-center px-4">Currently locked to active track session</p>
+      </div>
+      
       <div id="continue-learning-container" class="mt-8 pt-8 border-t border-white/5 space-y-4 hidden">
         <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Progress Overview</p>
         <a id="continue-learning-btn" href="#" class="w-full flex items-center justify-between p-4 rounded-2xl bg-gold-500/10 border border-gold-500/20 text-gold-400 hover:bg-gold-500/20 transition-all group">
@@ -247,7 +271,7 @@ tailwind.config = {
           <span class="font-bold text-[10px] uppercase tracking-widest">WhatsApp Support</span>
           <i class="fa-brands fa-whatsapp text-lg group-hover:scale-110 transition-transform"></i>
         </a>
-        <a href="https://discord.gg/skillforge" target="_blank" class="w-full flex items-center justify-between px-6 py-4 rounded-2xl bg-[#5865F2]/10 text-[#5865F2] hover:bg-[#5865F2]/20 transition-all group">
+        <a href="https://discord.gg/zVCDMNAh8E" target="_blank" class="w-full flex items-center justify-between px-6 py-4 rounded-2xl bg-[#5865F2]/10 text-[#5865F2] hover:bg-[#5865F2]/20 transition-all group">
           <span class="font-bold text-[10px] uppercase tracking-widest">Discord Support</span>
           <i class="fa-brands fa-discord text-lg group-hover:scale-110 transition-transform"></i>
         </a>
@@ -329,6 +353,19 @@ tailwind.config = {
               <p class="text-[10px] font-black uppercase tracking-widest text-white/60">Atmospheric Canvas</p>
               <button onclick="toggleControl('canvas')" class="ctrl-canvas-btn w-12 h-6 rounded-full bg-white/10 relative transition-all"><div class="absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-all"></div></button>
             </div>
+          </div>
+        </div>
+        <!-- Neural Activity Timeline -->
+        <div class="glass rounded-[40px] p-10 col-span-2 md:col-span-4 flex flex-col gap-6 fade-in-4">
+          <div class="flex justify-between items-center">
+            <p class="text-white/40 text-[10px] uppercase font-black tracking-[0.3em]">Neural Activity Timeline</p>
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-gold-500"></span><span class="text-[8px] font-black text-white/40 uppercase tracking-widest">Mastery</span></div>
+                <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-white/10"></span><span class="text-[8px] font-black text-white/40 uppercase tracking-widest">Idle</span></div>
+            </div>
+          </div>
+          <div id="activity-timeline-target" class="flex gap-2 overflow-x-auto pb-4 no-scrollbar">
+            <!-- Dynamic Activity Injected Here -->
           </div>
         </div>
       </div>
@@ -1092,6 +1129,17 @@ function updateDynamicUI() {
   document.querySelectorAll('.logins-target').forEach(el => el.innerText = traineeData.totalLogins || '0');
   document.querySelectorAll('.tier-target').forEach(el => el.innerText = traineeData.tier || 'Trainee');
 
+  // Handle Multi-track Registration State
+  const nextSeasonBtn = document.getElementById('next-season-btn');
+  const nextSeasonLockedMsg = document.getElementById('next-season-locked-msg');
+  if (traineeData.fingerprint_locked) {
+    nextSeasonBtn.disabled = true;
+    nextSeasonLockedMsg.classList.remove('hidden');
+  } else {
+    nextSeasonBtn.disabled = false;
+    nextSeasonLockedMsg.classList.add('hidden');
+  }
+
   // Update Avatar
   const avatarUrl = traineeData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${traineeData.name}&gender=${traineeData.gender === 'Female' ? 'female' : 'male'}`;
   
@@ -1126,7 +1174,42 @@ function startRealtimePresence() {
     const d_val = Math.floor(p.totalTime / 86400000);
     const h_val = Math.floor((p.totalTime % 86400000) / 3600000);
     document.querySelectorAll('.study-time-target').forEach(el => el.innerText = `${d_val}D ${h_val}H`);
+    
+    // Render Neural Activity Timeline
+    renderTimeline(p.dailyStats || {});
   });
+}
+
+function renderTimeline(stats) {
+    const container = document.getElementById('activity-timeline-target');
+    if (!container) return;
+    
+    // Get last 14 days
+    const dates = [];
+    for (let i = 13; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        dates.push(d.toISOString().split('T')[0]);
+    }
+    
+    container.innerHTML = dates.map(date => {
+        const dayData = stats[date] || { timeSpent: 0 };
+        const mins = Math.floor(dayData.timeSpent / 60000);
+        const height = Math.min(Math.max((mins / 120) * 100, 10), 100); // Max 2 hours for full height
+        const dayName = new Date(date).toLocaleDateString('en-US', { weekday: 'short' });
+        
+        return `
+            <div class="flex flex-col items-center gap-3 min-w-[45px]">
+                <div class="w-full bg-white/5 rounded-full h-32 flex flex-col justify-end overflow-hidden p-1">
+                    <div class="w-full rounded-full bg-gradient-to-t from-gold-600 to-gold-400 transition-all duration-1000" style="height: ${mins > 0 ? height : 0}%"></div>
+                </div>
+                <div class="text-center">
+                    <p class="text-[8px] font-black text-white/40 uppercase">${dayName}</p>
+                    <p class="text-[7px] font-bold text-gold-500">${mins}m</p>
+                </div>
+            </div>
+        `;
+    }).join('');
 }
 
 async function loadLeaderboard() {
@@ -1258,9 +1341,6 @@ window.showLayout = (num) => {
           }
         });
       }, 50);
-    } else {
-      throw new Error(`Structure T${num} not found in DOM.`);
-    }
   } catch (err) {
     console.error(`[LayoutEngine] Error rendering T${num}:`, err);
     if (window.sf_report_error) window.sf_report_error(`Layout Engine Failure: T${num}`, err.stack);
@@ -1343,7 +1423,25 @@ window.addEventListener('sf:turbo-render', () => {
     if (typeof loadNewsTicker === 'function') loadNewsTicker();
 });
 
-window.logout = async () => { localStorage.removeItem('skillforge_mock_uid'); window.location.href = '../trainee-login/'; };
+window.logout = async () => { 
+    localStorage.removeItem('skillforge_mock_uid'); 
+    
+    // Clear cross-subdomain cookie
+    const cookieDomain = window.location.hostname.includes('skillforgedigital.com.ng') ? '.skillforgedigital.com.ng' : window.location.hostname;
+    document.cookie = `sf_uid=; path=/; domain=${cookieDomain}; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax; Secure`;
+    
+    window.location.href = '../trainee-login/'; 
+};
+
+window.registerNextSeason = () => {
+    // If fingerprint is locked, this won't be reachable via UI, but add guard anyway
+    if (traineeData.fingerprint_locked) {
+        alert("ACCESS DENIED: Multiple track registration is restricted until current season completion.");
+        return;
+    }
+    // Redirect to registration with a special flag if needed
+    window.location.href = '../trainee-registration/?season=2026B';
+};
 </script>
 <script type="module" src="../assets/sf-core.js"></script>
 <script type="module" src="../assets/sf-turbo.js"></script>

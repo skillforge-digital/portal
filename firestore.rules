@@ -2,88 +2,106 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
+    // Helper Functions
+    function isDirector() {
+      return exists(/databases/$(database)/documents/specialists/$(request.auth.uid)) && 
+             get(/databases/$(database)/documents/specialists/$(request.auth.uid)).data.level == 'Director';
+    }
+    
+    function isSpecialist() {
+      return exists(/databases/$(database)/documents/specialists/$(request.auth.uid));
+    }
+
     // Trainee Registry
     match /trainees/{traineeId} {
       allow read, list: if request.auth != null;
-      
-      // Allow creation during registration
       allow create: if request.auth != null;
       
-      // Robust Write Logic:
-      // 1. User owns the document (UID matches ID)
-      // 2. User has already claimed it (UID field matches session)
-      // 3. LEGACY CLAIM: Document exists but has no UID, and user is adding their UID
+      // Update logic: Prevent unauthorized track changes if already set
       allow update: if request.auth != null && (
         request.auth.uid == traineeId || 
         resource.data.uid == request.auth.uid ||
         (!('uid' in resource.data) && request.resource.data.uid == request.auth.uid)
+      ) && (
+        // Directors can update anything
+        isDirector() ||
+        // Trainees cannot change their own track if it's already defined
+        (!('track' in request.resource.data) || request.resource.data.track == resource.data.track)
       );
       
-      allow delete: if false; // Data is immutable for trainees
+      allow delete: if false;
     }
     
-    // Presence Registry
-    match /presence/{userId} {
+    // Presence, Tracking & Stats
+    match /{collection}/{userId} {
       allow read, list: if request.auth != null;
-      allow write: if request.auth != null && (
-        request.auth.uid == userId || 
-        resource.data.uid == request.auth.uid ||
-        (!('uid' in resource.data) && request.resource.data.uid == request.auth.uid)
-      );
+      allow write: if request.auth != null && (request.auth.uid == userId || resource.data.uid == request.auth.uid);
+      allow create: if request.auth != null;
+      match /{collection} {
+        allow read, write: if request.auth != null;
+      }
+      // Apply to presence and tracking specifically
+      match /presence/{userId} { allow read, write: if request.auth != null; }
+      match /tracking/{userId} { allow read, write: if request.auth != null; }
     }
 
-    // Analytics & Tracking
-    match /tracking/{userId} {
-      allow read, list: if request.auth != null;
-      allow write: if request.auth != null && (
-        request.auth.uid == userId || 
-        resource.data.uid == request.auth.uid ||
-        (!('uid' in resource.data) && request.resource.data.uid == request.auth.uid)
-      );
+    // Password Resets Subsystem
+    match /password_resets/{requestId} {
+      allow create: if true; // Anonymous requests allowed
+      allow read: if isDirector();
+      allow update: if true; // Allow token invalidation
     }
-    
-    // System Configuration
-    match /system/{docId} {
-      allow read: if true;
-      allow write: if get(/databases/$(database)/documents/specialists/$(request.auth.uid)).data.level == 'Director';
+
+    // Email Dispatch (Trigger Email Extension)
+    match /mail/{mailId} {
+      allow create: if true; // Allowed for system-triggered emails (reset, etc.)
+      allow read: if isDirector();
     }
-    
+
+    // Audit Logs (Academy, Gate, Security)
+    match /{collection}/{logId} {
+      allow create: if request.auth != null;
+      allow read: if isDirector();
+      
+      // Specify log collections
+      match /academy_audit_logs/{logId} { allow create: if request.auth != null; }
+      match /gate_audit_logs/{logId} { allow create: if request.auth != null; }
+      match /audit_logs/{logId} { allow create: if request.auth != null; }
+    }
+
+    // Feedback Collection
+    match /feedback/{feedbackId} {
+      allow create: if true; // Anonymous feedback allowed
+      allow read: if isSpecialist();
+    }
+
     // Specialist Registry
     match /specialists/{specialistId} {
       allow read: if request.auth != null;
-      allow create: if request.auth != null; // Managed by activate-specialist logic
-      allow update, delete: if false; // Immutable once authorized
-    }
-    
-    // Audit Logs
-    match /audit_logs/{logId} {
       allow create: if request.auth != null;
-      allow read: if get(/databases/$(database)/documents/specialists/$(request.auth.uid)).data.level == 'Director';
+      allow update, delete: if isDirector();
+    }
+
+    // System & Seasons
+    match /system/{docId} {
+      allow read: if true;
+      allow write: if isDirector();
     }
     
-    // Badge Requests
-    match /badge_requests/{requestId} {
-      allow create: if request.auth != null;
-      allow read, update: if exists(/databases/$(database)/documents/specialists/$(request.auth.uid));
-    }
-    
-    // Season Artifacts & Registry Counters
     match /seasons/{seasonId}/{document=**} {
       allow read: if request.auth != null;
+      allow write: if isDirector();
       
-      // Allow trainees to update the registration counter specifically
+      // Exception for counters during registration
       match /artifacts/trainees/counters/tracks {
         allow read, write: if request.auth != null;
       }
-      
-      // All other season writes restricted to Directors
-      allow write: if get(/databases/$(database)/documents/specialists/$(request.auth.uid)).data.level == 'Director';
     }
 
     // Announcements & News
     match /announcements/{announcementId} {
       allow read, list: if true;
-      allow write: if exists(/databases/$(database)/documents/specialists/$(request.auth.uid));
+      allow write: if isSpecialist();
     }
   }
 }
