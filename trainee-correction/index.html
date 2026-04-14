@@ -4,7 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Data Correction • SkillForge Digital</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+<script>
+  // Immediate UI Preparation - Hide content until Neural Core is ready
+  (function() {
+    document.documentElement.style.visibility = 'hidden';
+  })();
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script>
     tailwind.config = {
@@ -214,6 +220,16 @@
     }
     new Sundust();
     if (window.lucide) window.lucide.createIcons();
+    
+    // Reveal content once the UI has been hydrated
+    setTimeout(() => {
+        document.documentElement.style.visibility = 'visible';
+    }, 100);
+
+    // Re-hydration for Turbo
+    window.addEventListener('sf:turbo-render', () => {
+        if (window.lucide) window.lucide.createIcons();
+    });
   </script>
 </body>
 </html>
