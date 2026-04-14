@@ -83,6 +83,18 @@
 
             <form id="staff-reg-form" class="space-y-6">
                 <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Department/Unit Assignment</label>
+                    <select required id="department-select" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10">
+                        <option value="">SELECT DEPARTMENT...</option>
+                        <option value="Trading Academy">Trading Academy</option>
+                        <option value="Digital & Intelligence">Digital & Intelligence</option>
+                        <option value="Technology">Technology</option>
+                        <option value="Creative Academy">Creative Academy</option>
+                        <option value="Marketing">Marketing (Universal)</option>
+                    </select>
+                </div>
+
+                <div class="space-y-2">
                     <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Full Command Name</label>
                     <input required name="name" type="text" placeholder="FIRSTNAME LASTNAME" class="w-full p-4 rounded-2xl text-sm uppercase">
                 </div>
@@ -184,6 +196,7 @@
         const btn = document.getElementById('reg-btn');
         const formData = new FormData(e.target);
         const { name, email, password } = Object.fromEntries(formData.entries());
+        const department = document.getElementById('department-select').value;
 
         btn.disabled = true;
         btn.innerHTML = 'Onboarding Personnel...';
@@ -194,20 +207,21 @@
             const user = userCred.user;
 
             // 2. Update Auth Profile
-            await updateProfile(user, { displayName: name });
+            await updateProfile(user, { displayName: name.toUpperCase() });
 
             // 3. Determine Highest Role
             const highestRole = assignedRoles.sort((a, b) => 
                 ROLE_HIERARCHY.indexOf(a) - ROLE_HIERARCHY.indexOf(b)
             )[0] || 'Staff';
 
-            // 4. Create Staff Document
+            // 4. Create Staff Document with department
             await setDoc(doc(db, 'staffs', user.uid), {
                 uid: user.uid,
                 name: name.toUpperCase(),
                 email: email.toLowerCase(),
                 roles: assignedRoles,
                 primaryRole: highestRole,
+                department: department,
                 roleCode: assignedCode,
                 created_at: serverTimestamp(),
                 lastLogin: serverTimestamp(),

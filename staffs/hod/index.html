@@ -290,28 +290,55 @@
 
     async function renderStaff(container) {
       const snap = await getDocs(query(collection(db, 'staffs'), orderBy('created_at', 'desc')));
+      const hodDept = window.staffCore?.getHODDepartment();
+      
+      // Filter staff by HOD's department
+      const filteredStaff = snap.docs.filter(doc => {
+        const staffData = doc.data();
+        return !hodDept || staffData.department === hodDept;
+      });
+      
+      const dept = hodDept ? window.staffCore.DEPARTMENTS[hodDept] : null;
       
       let html = `
         <header class="mb-8">
-          <p class="text-purple-400 text-xs font-black tracking-[0.4em] uppercase">Unit Personnel</p>
+          <div class="flex items-center gap-4 mb-2">
+            <p class="text-purple-400 text-xs font-black tracking-[0.4em] uppercase">Unit Personnel</p>
+            ${dept ? `<span class="px-3 py-1 rounded-full bg-${dept.color}-500/10 text-${dept.color}-400 text-[8px] font-black uppercase">${hodDept}</span>` : ''}
+          </div>
           <h1 class="text-4xl md:text-5xl font-black mt-2 uppercase tracking-tighter">Staff Registry</h1>
+          <p class="text-slate-500 text-xs mt-2">${filteredStaff.length} staff member${filteredStaff.length !== 1 ? 's' : ''} in your unit</p>
         </header>
+
+        ${!hodDept ? `<div class="glass p-6 rounded-2xl border border-orange-500/20 mb-8">
+          <p class="text-orange-400 text-sm font-bold">⚠️ No department assigned</p>
+          <p class="text-slate-400 text-xs mt-1">Contact the Director to be assigned to a department.</p>
+        </div>` : ''}
 
         <div class="glass-strong rounded-[40px] p-8 border border-white/5">
           <table class="w-full text-left">
             <thead class="text-[10px] font-black uppercase text-slate-500 border-b border-white/10">
               <tr>
                 <th class="pb-4">Personnel</th>
+                <th class="pb-4">Department</th>
                 <th class="pb-4">Roles</th>
                 <th class="pb-4">Primary Role</th>
               </tr>
             </thead>
             <tbody class="text-sm">`;
       
-      snap.forEach(doc => {
+      if (filteredStaff.length === 0) {
+        html += `<tr><td colspan="4" class="py-12 text-center text-white/40 italic">No staff in your department yet.</td></tr>`;
+      }
+      
+      filteredStaff.forEach(doc => {
         const d = doc.data();
+        const staffDept = d.department ? window.staffCore.DEPARTMENTS[d.department] : null;
         html += `<tr class="border-b border-white/5">
           <td class="py-4 font-bold text-white uppercase text-xs">${d.name || 'Unknown'}</td>
+          <td class="py-4">
+            ${staffDept ? `<span class="px-3 py-1 rounded-full bg-${staffDept.color}-500/10 text-${staffDept.color}-400 text-[8px] font-black uppercase">${d.department}</span>` : '<span class="text-slate-500 text-[10px]">Unassigned</span>'}
+          </td>
           <td class="py-4 text-[10px] text-slate-400">${(d.roles || []).join(', ')}</td>
           <td class="py-4"><span class="px-3 py-1 rounded-full bg-purple-500/10 text-purple-400 text-[8px] font-black uppercase">${d.primaryRole || 'Staff'}</span></td>
         </tr>`;

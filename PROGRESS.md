@@ -15,11 +15,19 @@
   - Permission methods: `canEditAnnouncements()`, `canManageSeasons()`, `canWipeData()`, `canRestoreData()`
   - Audit logging for all administrative actions
 
-#### 2. Director Dashboard (`staffs/director/index.html`)
+#### 2. Department/Unit Structure
+- **Departments with Tracks:**
+  - **Trading Academy**: Forex, CPS Currency Pairs, Forex Synthetics
+  - **Digital & Intelligence**: Cyber Security, Digital Marketing, AI Content Creation, Development & Technology
+  - **Technology**: Web Development, Discord Development
+  - **Creative Academy**: Graphics Design, Photography & Editing, Mobile Cinematography
+  - **Marketing**: Universal (all tracks)
+
+#### 3. Director Dashboard (`staffs/director/index.html`)
 - **Full Access Features:**
   - Global Overview with real-time trainee/staff counts
   - Trainee Registry management (view, delete)
-  - Personnel Registry management
+  - Personnel Registry management with department assignments
   - Global Announcement broadcasting (all scopes)
   - Season Management with archive/restore
   - ROLE Code generation for staff onboarding
@@ -31,24 +39,34 @@
   - Archive restoration capability
   - Double confirmation prompts for destructive actions
 
-#### 3. HOD Dashboard (`staffs/hod/index.html`)
+#### 4. HOD Dashboard (`staffs/hod/index.html`)
 - **Scoped Access:**
-  - Unit Overview with trainee/staff counts
+  - Unit Overview with department-filtered trainee/staff counts
   - Announcement posting (HOD Dashboard, Staff Dashboard, Global)
-  - View-only trainee registry
+  - Staff Registry filtered by department
   - Cannot initialize seasons or manage global settings
 
-#### 4. Staff Portal Structure
+#### 5. Staff Portal Structure
 - `/staffs/` - Main gateway
 - `/staffs/login/` - Personnel authentication
-- `/staffs/registration/` - ROLE code-based onboarding
+- `/staffs/registration/` - ROLE code-based onboarding with department assignment
 - `/staffs/director/` - Director command hub
 - `/staffs/hod/` - HOD unit hub
 - `/staffs/specialist/` - Specialist hub (foundation)
 - `/staffs/marketing/` - Digital Marketing hub (foundation)
 - `/staffs/support/` - Support Staff hub (foundation)
 
-#### 5. Season Reset System
+#### 6. Role-Based Permissions
+
+| Role | Trainee Visibility | Announcement Scope | Season Mgmt | Department Access |
+|------|-------------------|-------------------|-------------|------------------|
+| Director | All | Global | Full | All |
+| HOD | All | HOD, Staff, Global | View Only | Own Department |
+| Specialist | Domain-Only | None | None | Own Tracks |
+| Digital Marketing | All (UTC) | Marketing | None | Marketing Only |
+| Support Staff | All (UTC) | None | None | Support Only |
+
+#### 7. Season Reset System
 - **New Track to Learn Banner** - Appears on registration page during new seasons
 - Season initialization workflow with:
   - Validation of season naming conventions
@@ -57,7 +75,12 @@
   - Batch distribution tracking
   - Restoration procedures
 
-#### 6. Security & Performance
+#### 8. Universal Track Clearance (UTC)
+- Marketing staff have UTC to bypass gate restrictions
+- Can review any track for content creation purposes
+- Portal tracks time spent via Neural Sync without affecting trainee XP
+
+#### 9. Security & Performance
 - **Firestore Rules** - Comprehensive RBAC enforcement
 - **Centralized Firebase Config** (`assets/firebase-config.js`)
 - **Immediate UI Preparation** pattern - Prevents layout flashes
@@ -70,7 +93,7 @@
 ### Collections
 | Collection | Purpose |
 |------------|---------|
-| `staffs` | Personnel registry with roles array and primaryRole |
+| `staffs` | Personnel registry with roles array, primaryRole, and department |
 | `role_codes` | Staff onboarding codes with role assignments |
 | `season_archives` | Backup of trainee data before season wipes |
 | `system` | Global config including currentSeason |
@@ -82,15 +105,25 @@
 | `mail` | Email dispatch queue |
 | `academy_audit_logs` | Academy activity audit |
 | `feedback` | Trainee feedback collection |
+| `badge_requests` | Badge verification requests |
 
 ### Role Hierarchy
 ```
 Director (Full Access)
-  └── HOD (Scoped Announcements, View Trainees)
-       └── Specialist (Path Management)
-            ├── Digital Marketing (Marketing Hub)
-            └── Support Staff (Support Hub)
+  └── HOD (Scoped Announcements, Department View)
+       └── Specialist (Track-isolated Visibility)
+            ├── Digital Marketing (UTC, All Tracks)
+            └── Support Staff (UTC, Support Hub)
 ```
+
+### Department/Unit Mapping
+| Department | Tracks |
+|------------|--------|
+| Trading Academy | Forex, CPS Currency Pairs, Forex Synthetics |
+| Digital & Intelligence | Cyber Security, Digital Marketing, AI Content Creation, Development & Technology |
+| Technology | Web Development, Discord Development |
+| Creative Academy | Graphics Design, Photography & Editing, Mobile Cinematography |
+| Marketing | Universal (all tracks) |
 
 ---
 
@@ -103,10 +136,13 @@ Director (Full Access)
 - [ ] Director can restore archived season
 - [ ] HOD cannot initialize seasons
 - [ ] HOD can post scoped announcements
-- [ ] ROLE code generates valid staff access
+- [ ] HOD can only see staff in their department
+- [ ] ROLE code generates valid staff access with department
 - [ ] New Track banner appears after season reset
 - [ ] Old trainees can re-register for new season
 - [ ] Audit logs record all administrative actions
+- [ ] Marketing staff can access all tracks (UTC)
+- [ ] Specialists can only see trainees in their tracks
 
 ---
 
@@ -120,13 +156,13 @@ Director (Full Access)
 
 ## Next Steps / TODO
 
-- [ ] Implement returning trainee flow (existing email detection)
-- [ ] Add portal lock/unlock controls to Director master panel
-- [ ] Build Specialist dashboard with track-specific trainee views
-- [ ] Add community management features to Director sidebar
-- [ ] Implement XP/progress reset for re-registered trainees
-- [ ] Create automated backup schedules
-- [ ] Add email notification for season transitions
+- [ ] Specialist dashboard with track-specific trainee filtering
+- [ ] Marketing dashboard with social media deployment hub
+- [ ] Support Staff dashboard with ticket management
+- [ ] Social media account metrics integration
+- [ ] Badge verification workflow for Specialists
+- [ ] Feedback module for Specialist-to-Trainee communication
+- [ ] Neural Sync passive monitoring for Marketing staff
 
 ---
 
@@ -148,6 +184,12 @@ Invalid formats (will be rejected):
 - `season 2026` (wrong order)
 - `2026-volume-2` (wrong separator)
 
+### Universal Track Clearance (UTC)
+Marketing staff and Directors have UTC which:
+- Bypasses the `STRICT_SINGLE_ENROLLMENT` policy
+- Allows cross-track content review
+- Logs presence without affecting trainee XP
+
 ---
 
 ## Known Issues
@@ -161,11 +203,13 @@ Invalid formats (will be rejected):
 ### v2.1.0 (Current)
 - Implemented comprehensive RBAC system
 - Director: Full access with season management
-- HOD: Scoped announcements and view-only trainees
-- ROLE code-based staff onboarding
+- HOD: Scoped announcements, department-filtered staff view
+- ROLE code-based staff onboarding with department assignment
 - Season initialization with backup/restore
 - "New Track to Learn" banner for season resets
 - Audit logging for all administrative actions
+- Department/unit structure with track assignments
+- Universal Track Clearance (UTC) for Marketing
 
 ### v2.0.0
 - Centralized Firebase configuration

@@ -14,11 +14,31 @@ class StaffCore {
         this.user = null;
         this.profile = null;
         
+        // Department/Unit hierarchy with tracks
+        this.DEPARTMENTS = {
+            'Trading Academy': {
+                tracks: ['Forex', 'CPS Currency Pairs', 'Forex Synthetics'],
+                color: 'emerald'
+            },
+            'Digital & Intelligence': {
+                tracks: ['Cyber Security', 'Digital Marketing', 'AI Content Creation', 'Development & Technology'],
+                color: 'blue'
+            },
+            'Technology': {
+                tracks: ['Web Development', 'Discord Development'],
+                color: 'purple'
+            },
+            'Creative Academy': {
+                tracks: ['Graphics Design', 'Photography & Editing', 'Mobile Cinematography'],
+                color: 'pink'
+            }
+        };
+        
         // Permission hierarchy
         this.ROLE_HIERARCHY = ['Director', 'HOD', 'Specialist', 'Digital Marketing', 'Support Staff'];
         this.SCOPE_HIERARCHY = {
             'Director': ['global', 'trainees', 'specialists', 'staffs', 'marketing', 'support', 'hod'],
-            'HOD': ['hod', 'staffs', 'marketing', 'support'], // Can only edit release and staff dashboards
+            'HOD': ['hod', 'staffs', 'marketing', 'support'],
             'Specialist': ['specialists'],
             'Digital Marketing': ['marketing'],
             'Support Staff': ['support']
@@ -292,6 +312,71 @@ class StaffCore {
             console.error('[StaffCore] Failed to get current season:', err);
             return null;
         }
+    }
+
+    /**
+     * Get the HOD's assigned department
+     */
+    getHODDepartment() {
+        if (!this.profile) return null;
+        // HODs have a department field in their profile
+        return this.profile.department || null;
+    }
+
+    /**
+     * Get all departments
+     */
+    getDepartments() {
+        return this.DEPARTMENTS;
+    }
+
+    /**
+     * Check if a staff belongs to HOD's department
+     */
+    isStaffInDepartment(staffData, department) {
+        if (!staffData || !department) return false;
+        // Staff have a department field
+        return staffData.department === department;
+    }
+
+    /**
+     * Get track specialists for a given department
+     */
+    getTrackSpecialists(department) {
+        const dept = this.DEPARTMENTS[department];
+        return dept ? dept.tracks : [];
+    }
+
+    /**
+     * Check if user has Universal Track Clearance (UTC)
+     * Marketing staff have UTC to bypass gate restrictions
+     */
+    hasUniversalTrackClearance() {
+        if (!this.profile) return false;
+        const role = this.profile.primaryRole;
+        return role === 'Digital Marketing' || role === 'Director';
+    }
+
+    /**
+     * Check if user can view trainee for a specific track
+     * Specialists can only see trainees in their assigned tracks
+     */
+    canViewTraineeTrack(track) {
+        if (!this.profile) return false;
+        
+        // Directors and HODs can see all
+        if (['Director', 'HOD'].includes(this.profile.primaryRole)) return true;
+        
+        // Marketing can see all (UTC)
+        if (this.profile.primaryRole === 'Digital Marketing') return true;
+        
+        // Specialists can only see their specific tracks
+        if (this.profile.primaryRole === 'Specialist') {
+            const deptTracks = this.getTrackSpecialists(this.profile.department);
+            return deptTracks.includes(track);
+        }
+        
+        return false;
     }
 }
 
