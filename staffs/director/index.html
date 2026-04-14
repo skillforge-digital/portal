@@ -28,7 +28,7 @@
     .glass-strong { background: rgba(255,255,255,0.05); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.1); }
     @keyframes slide-up { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     .animate-slide-up { animation: slide-up 0.8s ease-out forwards; }
-    .nav-link.active { background: rgba(201,168,76,0.1); color: #C9A84C; border-right: 4px solid #C9A84C; }
+    .tab-btn.active { border-color: var(--gold); color: var(--gold); background: rgba(201,168,76,0.1); }
   </style>
 </head>
 <body class="flex flex-col md:flex-row">
@@ -49,18 +49,27 @@
 
       <nav class="space-y-1">
         <p class="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Command Nodes</p>
-        <a href="#" class="nav-link active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+        <button data-tab="overview" class="nav-btn active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
           <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Global Overview
-        </a>
-        <a href="#" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
-          <i data-lucide="users" class="w-4 h-4"></i> Personnel Registry
-        </a>
-        <a href="#" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
-          <i data-lucide="user-check" class="w-4 h-4"></i> Trainee Registry
-        </a>
-        <a href="#" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+        </button>
+        <button data-tab="trainees" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+          <i data-lucide="users" class="w-4 h-4"></i> Trainee Registry
+        </button>
+        <button data-tab="staff" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+          <i data-lucide="user-check" class="w-4 h-4"></i> Personnel Registry
+        </button>
+        <button data-tab="announcements" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+          <i data-lucide="megaphone" class="w-4 h-4"></i> Announcements
+        </button>
+        <button data-tab="seasons" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+          <i data-lucide="calendar" class="w-4 h-4"></i> Season Management
+        </button>
+        <button data-tab="codes" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
           <i data-lucide="key" class="w-4 h-4"></i> Access Codes
-        </a>
+        </button>
+        <button data-tab="audit" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+          <i data-lucide="scroll-text" class="w-4 h-4"></i> Audit Logs
+        </button>
       </nav>
     </div>
 
@@ -72,7 +81,7 @@
                 <p class="text-[8px] text-gold font-bold uppercase tracking-widest truncate" id="user-role">Director Access</p>
             </div>
         </div>
-        <button onclick="window.staffCore.logout()" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-red-400/70 hover:text-red-400 hover:bg-red-400/10 transition-all">
+        <button id="logout-btn" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-red-400/70 hover:text-red-400 hover:bg-red-400/10 transition-all">
             <i data-lucide="log-out" class="w-4 h-4"></i> Sign Out
         </button>
     </div>
@@ -80,82 +89,618 @@
 
   <!-- Main Content -->
   <main class="flex-1 md:ml-72 p-6 md:p-12 pt-24 md:pt-20">
-    <div class="max-w-6xl mx-auto space-y-12 animate-slide-up">
-        <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
-            <div>
-                <p class="text-gold text-xs font-black tracking-[0.4em] uppercase">Director Forge Node</p>
-                <h1 class="text-4xl md:text-6xl font-black mt-2 uppercase tracking-tighter">Global Hub</h1>
-            </div>
-            <div class="flex gap-4">
-                <div class="glass px-6 py-3 rounded-2xl border border-white/5">
-                    <p class="text-[8px] font-black text-white/30 uppercase tracking-widest">Neural Pulse</p>
-                    <p class="text-xl font-bold text-gold" id="pulse-count">ACTIVE</p>
-                </div>
-            </div>
-        </header>
-
-        <!-- Stats Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="glass p-8 rounded-[40px] border border-white/5">
-                <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-4">Total Trainees</p>
-                <p class="text-5xl font-black text-gold" id="trainee-count">0</p>
-                <p class="text-[8px] text-white/20 uppercase tracking-[0.3em] mt-2">Active registry entries</p>
-            </div>
-            <div class="glass p-8 rounded-[40px] border border-white/5">
-                <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-4">Command Personnel</p>
-                <p class="text-5xl font-black text-gold" id="staff-count">0</p>
-                <p class="text-[8px] text-white/20 uppercase tracking-[0.3em] mt-2">Authorized staff nodes</p>
-            </div>
-            <div class="glass p-8 rounded-[40px] border border-white/5">
-                <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-4">Registry Health</p>
-                <p class="text-5xl font-black text-gold">100%</p>
-                <p class="text-[8px] text-white/20 uppercase tracking-[0.3em] mt-2">Neural sync verified</p>
-            </div>
-        </div>
-
-        <!-- Main Workspace -->
-        <div class="glass-strong rounded-[40px] p-10 border border-white/5 min-h-[400px]">
-            <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40 mb-8">Registry Activity Log</h2>
-            <div class="flex items-center justify-center h-64 text-white/20 italic">
-                Scanning global neural pulse for activity...
-            </div>
-        </div>
+    <div id="tab-content" class="max-w-6xl mx-auto space-y-12 animate-slide-up">
+      <!-- Content loaded dynamically -->
     </div>
   </main>
 
-  <script type="module">
-    import StaffCore from '../../assets/staff-core.js';
-    import { db } from '../../assets/firebase-config.js';
-    import { collection, query, getDocs, onSnapshot, doc, getDoc } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
-
-    window.addEventListener('DOMContentLoaded', async () => {
-        // Core Protection is handled by StaffCore module
-        
-        // Populate Profile Info once StaffCore is ready
-        const checkCore = setInterval(() => {
-            if (window.staffCore && window.staffCore.profile) {
-                clearInterval(checkCore);
-                const profile = window.staffCore.profile;
-                document.getElementById('user-name').innerText = profile.name || 'DIRECTOR';
-                document.getElementById('user-role').innerText = profile.primaryRole + ' Access';
-                document.getElementById('user-initials').innerText = (profile.name || 'D').charAt(0);
-                
-                initDashboard();
-            }
-        }, 100);
+  <script>
+    // Global state
+    let currentTab = 'overview';
+    
+    // Navigation
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tab = btn.getAttribute('data-tab');
+        showTab(tab);
+      });
+    });
+    
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      window.staffCore.logout();
     });
 
-    async function initDashboard() {
-        // Real-time Trainee Count
-        onSnapshot(collection(db, "trainees"), (snap) => {
-            document.getElementById('trainee-count').innerText = snap.size;
-        });
-
-        // Real-time Staff Count
-        onSnapshot(collection(db, "staffs"), (snap) => {
-            document.getElementById('staff-count').innerText = snap.size;
-        });
+    async function showTab(tab) {
+      currentTab = tab;
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active', 'text-gold', 'bg-gold/10', 'border-r-4', 'border-gold'));
+      document.querySelector(`[data-tab="${tab}"]`).classList.add('active', 'text-gold', 'bg-gold/10', 'border-r-4', 'border-gold');
+      
+      const content = document.getElementById('tab-content');
+      content.innerHTML = '<div class="flex items-center justify-center h-64"><div class="w-10 h-10 border-4 border-gold/20 border-t-gold rounded-full animate-spin"></div></div>';
+      
+      switch(tab) {
+        case 'overview': await renderOverview(content); break;
+        case 'trainees': await renderTrainees(content); break;
+        case 'staff': await renderStaff(content); break;
+        case 'announcements': await renderAnnouncements(content); break;
+        case 'seasons': await renderSeasons(content); break;
+        case 'codes': await renderCodes(content); break;
+        case 'audit': await renderAudit(content); break;
+        default: await renderOverview(content);
+      }
+      
+      if (window.lucide) window.lucide.createIcons();
     }
+
+    async function renderOverview(container) {
+      const traineeSnap = await getDocs(collection(db, 'trainees'));
+      const staffSnap = await getDocs(collection(db, 'staffs'));
+      const seasonSnap = await getDoc(doc(db, 'system', 'config'));
+      const currentSeason = seasonSnap.exists() ? seasonSnap.data().currentSeason : '2026';
+      
+      container.innerHTML = `
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
+          <div>
+            <p class="text-gold text-xs font-black tracking-[0.4em] uppercase">Director Forge Node</p>
+            <h1 class="text-4xl md:text-6xl font-black mt-2 uppercase tracking-tighter">Global Hub</h1>
+          </div>
+          <div class="flex gap-4">
+            <div class="glass px-6 py-3 rounded-2xl border border-white/5">
+              <p class="text-[8px] font-black text-white/30 uppercase tracking-widest">Active Season</p>
+              <p class="text-xl font-bold text-gold">${currentSeason}</p>
+            </div>
+          </div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="glass p-8 rounded-[40px] border border-white/5">
+            <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-4">Total Trainees</p>
+            <p class="text-5xl font-black text-gold">${traineeSnap.size}</p>
+            <p class="text-[8px] text-white/20 uppercase tracking-[0.3em] mt-2">Active registry entries</p>
+          </div>
+          <div class="glass p-8 rounded-[40px] border border-white/5">
+            <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-4">Command Personnel</p>
+            <p class="text-5xl font-black text-gold">${staffSnap.size}</p>
+            <p class="text-[8px] text-white/20 uppercase tracking-[0.3em] mt-2">Authorized staff nodes</p>
+          </div>
+          <div class="glass p-8 rounded-[40px] border border-white/5">
+            <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-4">Registry Health</p>
+            <p class="text-5xl font-black text-green-400">100%</p>
+            <p class="text-[8px] text-white/20 uppercase tracking-[0.3em] mt-2">Neural sync verified</p>
+          </div>
+        </div>
+
+        <div class="glass-strong rounded-[40px] p-10 border border-white/5 min-h-[300px]">
+          <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40 mb-8">Quick Actions</h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <button onclick="showTab('announcements')" class="p-6 rounded-2xl bg-gold/10 border border-gold/20 text-left hover:bg-gold/20 transition-all">
+              <i data-lucide="megaphone" class="w-8 h-8 text-gold mb-4"></i>
+              <p class="font-black uppercase text-sm">Post Announcement</p>
+              <p class="text-[10px] text-white/40 mt-1">Broadcast to all dashboards</p>
+            </button>
+            <button onclick="showTab('seasons')" class="p-6 rounded-2xl bg-orange/10 border border-orange/20 text-left hover:bg-orange/20 transition-all">
+              <i data-lucide="calendar" class="w-8 h-8 text-orange mb-4"></i>
+              <p class="font-black uppercase text-sm">Manage Seasons</p>
+              <p class="text-[10px] text-white/40 mt-1">Initialize or archive seasons</p>
+            </button>
+            <button onclick="showTab('trainees')" class="p-6 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-left hover:bg-blue-500/20 transition-all">
+              <i data-lucide="users" class="w-8 h-8 text-blue-400 mb-4"></i>
+              <p class="font-black uppercase text-sm">View Trainees</p>
+              <p class="text-[10px] text-white/40 mt-1">Access full registry</p>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    async function renderTrainees(container) {
+      const snap = await getDocs(query(collection(db, 'trainees'), orderBy('created_at', 'desc')));
+      
+      let html = `
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-8">
+          <div>
+            <p class="text-gold text-xs font-black tracking-[0.4em] uppercase">Registry Control</p>
+            <h1 class="text-4xl md:text-5xl font-black mt-2 uppercase tracking-tighter">Trainee Registry</h1>
+          </div>
+          <div class="flex gap-4">
+            <div class="glass px-6 py-3 rounded-2xl border border-white/5">
+              <p class="text-[8px] font-black text-white/30 uppercase tracking-widest">Total</p>
+              <p class="text-xl font-bold text-gold">${snap.size}</p>
+            </div>
+          </div>
+        </header>
+
+        <div class="glass-strong rounded-[40px] p-8 border border-white/5 overflow-x-auto">
+          <table class="w-full text-left">
+            <thead class="text-[10px] font-black uppercase text-slate-500 border-b border-white/10">
+              <tr>
+                <th class="pb-4">Profile</th>
+                <th class="pb-4">SFID</th>
+                <th class="pb-4">Track</th>
+                <th class="pb-4">XP/Tier</th>
+                <th class="pb-4">Contact</th>
+                <th class="pb-4">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="text-sm">`;
+      
+      if (snap.empty) {
+        html += `<tr><td colspan="6" class="py-12 text-center text-white/40 italic">No trainees registered yet.</td></tr>`;
+      }
+      
+      snap.forEach(doc => {
+        const d = doc.data();
+        html += `<tr class="border-b border-white/5 hover:bg-white/[0.02]">
+          <td class="py-4">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-white/5 overflow-hidden">
+                <img src="${d.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + doc.id}" class="w-full h-full object-cover">
+              </div>
+              <div>
+                <p class="font-bold text-white uppercase text-xs">${d.name || 'Anonymous'}</p>
+                <p class="text-[8px] text-slate-500 uppercase">Joined: ${d.created_at?.toDate().toLocaleDateString() || 'N/A'}</p>
+              </div>
+            </div>
+          </td>
+          <td class="py-4 font-mono text-[10px] text-gold">${d.sfid || 'PENDING'}</td>
+          <td class="py-4 uppercase text-[9px] font-black text-slate-300">${d.track || 'Unassigned'}</td>
+          <td class="py-4">
+            <p class="text-[10px] font-black">${d.xp || 0} XP</p>
+            <p class="text-[8px] text-gold/60 uppercase">${d.tier || 'Novice'}</p>
+          </td>
+          <td class="py-4 text-[10px] text-slate-300">${d.email || 'N/A'}</td>
+          <td class="py-4">
+            <button onclick="viewTrainee('${doc.id}')" class="p-2 hover:text-gold"><i data-lucide="eye" class="w-4 h-4"></i></button>
+            <button onclick="deleteTrainee('${doc.id}')" class="p-2 hover:text-red-400"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+          </td>
+        </tr>`;
+      });
+      
+      html += `</tbody></table></div>`;
+      container.innerHTML = html;
+    }
+
+    async function renderStaff(container) {
+      const snap = await getDocs(query(collection(db, 'staffs'), orderBy('created_at', 'desc')));
+      
+      let html = `
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-8">
+          <div>
+            <p class="text-gold text-xs font-black tracking-[0.4em] uppercase">Personnel Control</p>
+            <h1 class="text-4xl md:text-5xl font-black mt-2 uppercase tracking-tighter">Staff Registry</h1>
+          </div>
+        </header>
+
+        <div class="glass-strong rounded-[40px] p-8 border border-white/5">
+          <table class="w-full text-left">
+            <thead class="text-[10px] font-black uppercase text-slate-500 border-b border-white/10">
+              <tr>
+                <th class="pb-4">Personnel</th>
+                <th class="pb-4">Roles</th>
+                <th class="pb-4">Primary Role</th>
+                <th class="pb-4">Status</th>
+              </tr>
+            </thead>
+            <tbody class="text-sm">`;
+      
+      snap.forEach(doc => {
+        const d = doc.data();
+        html += `<tr class="border-b border-white/5">
+          <td class="py-4 font-bold text-white uppercase text-xs">${d.name || 'Unknown'}</td>
+          <td class="py-4 text-[10px] text-slate-400">${(d.roles || []).join(', ')}</td>
+          <td class="py-4"><span class="px-3 py-1 rounded-full bg-gold/10 text-gold text-[8px] font-black uppercase">${d.primaryRole || 'Staff'}</span></td>
+          <td class="py-4"><span class="px-3 py-1 rounded-full ${d.status === 'active' ? 'bg-green-500/10 text-green-400' : 'bg-white/10 text-white/40'} text-[8px] font-black uppercase">${d.status || 'active'}</span></td>
+        </tr>`;
+      });
+      
+      html += `</tbody></table></div>`;
+      container.innerHTML = html;
+    }
+
+    async function renderAnnouncements(container) {
+      const snap = await getDocs(query(collection(db, 'announcements'), orderBy('timestamp', 'desc')));
+      
+      container.innerHTML = `
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-8">
+          <div>
+            <p class="text-gold text-xs font-black tracking-[0.4em] uppercase">Global Broadcast</p>
+            <h1 class="text-4xl md:text-5xl font-black mt-2 uppercase tracking-tighter">Announcements</h1>
+          </div>
+          <button onclick="showNewAnnouncementModal()" class="bg-gold text-navy-950 px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-white transition-all">
+            <i data-lucide="plus" class="w-4 h-4 inline mr-2"></i> New Announcement
+          </button>
+        </header>
+
+        <div class="glass-strong rounded-[40px] p-8 border border-white/5 space-y-4">
+          ${snap.empty ? '<p class="text-center text-white/40 py-12 italic">No announcements posted yet.</p>' : ''}
+          ${snap.docs.map(doc => {
+            const d = doc.data();
+            return `<div class="p-6 rounded-2xl bg-white/5 border border-white/5">
+              <div class="flex justify-between items-start mb-4">
+                <div>
+                  <h3 class="font-black uppercase text-lg">${d.title || 'Untitled'}</h3>
+                  <p class="text-[10px] text-slate-500 uppercase tracking-widest">${d.timestamp?.toDate().toLocaleString() || 'N/A'}</p>
+                </div>
+                <div class="flex gap-2">
+                  <span class="px-3 py-1 rounded-full bg-gold/10 text-gold text-[8px] font-black uppercase">${d.scope || 'global'}</span>
+                  <button onclick="deleteAnnouncement('${doc.id}')" class="p-2 hover:text-red-400"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                </div>
+              </div>
+              <p class="text-sm text-slate-300">${d.content || ''}</p>
+            </div>`;
+          }).join('')}
+        </div>
+
+        <!-- New Announcement Modal -->
+        <div id="announcement-modal" class="hidden fixed inset-0 z-[200] bg-navy/90 flex items-center justify-center p-6">
+          <div class="glass-strong p-10 rounded-[40px] border border-white/10 max-w-xl w-full space-y-6">
+            <div class="flex justify-between items-center">
+              <h2 class="text-2xl font-black uppercase">New Announcement</h2>
+              <button onclick="closeAnnouncementModal()" class="p-2 hover:text-red-400"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            <div class="space-y-4">
+              <div>
+                <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Title</label>
+                <input type="text" id="ann-title" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl mt-2" placeholder="Announcement Title">
+              </div>
+              <div>
+                <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Content</label>
+                <textarea id="ann-content" rows="4" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl mt-2" placeholder="Announcement content..."></textarea>
+              </div>
+              <div>
+                <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Scope</label>
+                <select id="ann-scope" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl mt-2">
+                  <option value="global">Global (All Dashboards)</option>
+                  <option value="trainees">Trainees Only</option>
+                  <option value="staffs">Staff Only</option>
+                  <option value="specialists">Specialists Only</option>
+                </select>
+              </div>
+              <button onclick="postAnnouncement()" class="w-full py-4 bg-gold text-navy-950 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-white transition-all">
+                Post Announcement
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function renderSeasons(container) {
+      const configSnap = await getDoc(doc(db, 'system', 'config'));
+      const currentSeason = configSnap.exists() ? configSnap.data().currentSeason : '2026';
+      
+      const archivesSnap = await getDocs(collection(db, 'season_archives'));
+      
+      container.innerHTML = `
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-8">
+          <div>
+            <p class="text-gold text-xs font-black tracking-[0.4em] uppercase">Lifecycle Management</p>
+            <h1 class="text-4xl md:text-5xl font-black mt-2 uppercase tracking-tighter">Season Management</h1>
+          </div>
+        </header>
+
+        <!-- Current Season -->
+        <div class="glass p-8 rounded-[40px] border border-gold/20 mb-8">
+          <div class="flex justify-between items-center mb-6">
+            <div>
+              <p class="text-[10px] font-black text-gold uppercase tracking-widest mb-2">Active Season</p>
+              <h2 class="text-3xl font-black text-white">${currentSeason}</h2>
+            </div>
+            <div class="px-4 py-2 rounded-full bg-green-500/10 text-green-400 text-[10px] font-black uppercase">Live</div>
+          </div>
+          <p class="text-sm text-slate-400 mb-6">All trainee registrations are currently being accepted for this season.</p>
+          
+          <div class="flex gap-4">
+            <button onclick="initializeNewSeason()" class="flex-1 py-4 bg-orange text-navy-950 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-white transition-all">
+              <i data-lucide="calendar" class="w-4 h-4 inline mr-2"></i> Initialize New Season
+            </button>
+          </div>
+        </div>
+
+        <!-- Season Archives -->
+        <div class="glass-strong rounded-[40px] p-8 border border-white/5">
+          <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40 mb-8">Season Archives</h2>
+          <div class="space-y-4">
+            ${archivesSnap.empty ? '<p class="text-center text-white/40 py-8 italic">No archived seasons yet.</p>' : ''}
+            ${archivesSnap.docs.map(doc => {
+              const d = doc.data();
+              return `<div class="p-6 rounded-2xl bg-white/5 border border-white/5 flex justify-between items-center">
+                <div>
+                  <h3 class="font-black uppercase">${doc.id}</h3>
+                  <p class="text-[10px] text-slate-500 mt-1">${d.traineeCount || 0} trainees archived</p>
+                </div>
+                <div class="flex gap-2">
+                  <button onclick="restoreSeason('${doc.id}')" class="px-4 py-2 rounded-xl bg-gold/10 text-gold text-[10px] font-black uppercase hover:bg-gold/20 transition-all">
+                    <i data-lucide="archive-restore" class="w-4 h-4 inline mr-1"></i> Restore
+                  </button>
+                </div>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>
+
+        <!-- Warning Modal -->
+        <div id="season-warning-modal" class="hidden fixed inset-0 z-[200] bg-navy/90 flex items-center justify-center p-6">
+          <div class="glass-strong p-10 rounded-[40px] border border-red-500/20 max-w-xl w-full space-y-6">
+            <div class="text-center">
+              <div class="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="alert-triangle" class="w-8 h-8 text-red-400"></i>
+              </div>
+              <h2 class="text-2xl font-black uppercase text-red-400">Critical Action</h2>
+            </div>
+            <p class="text-center text-slate-400">Initializing a new season will <strong class="text-white">PERMANENTLY WIPE</strong> all current trainee registrations. This action cannot be undone unless you have a backup.</p>
+            <div class="space-y-4">
+              <input type="text" id="new-season-name" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl text-center font-black" placeholder='Season Name (e.g., "2026 Volume 2")'>
+              <button onclick="confirmSeasonInit()" class="w-full py-4 bg-red-500 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-red-400 transition-all">
+                Confirm Season Initialization
+              </button>
+              <button onclick="closeSeasonModal()" class="w-full py-4 bg-white/5 text-slate-400 rounded-2xl font-bold text-[10px] uppercase tracking-widest hover:bg-white/10 transition-all">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function renderCodes(container) {
+      container.innerHTML = `
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-8">
+          <div>
+            <p class="text-gold text-xs font-black tracking-[0.4em] uppercase">Access Control</p>
+            <h1 class="text-4xl md:text-5xl font-black mt-2 uppercase tracking-tighter">ROLE Codes</h1>
+          </div>
+          <button onclick="generateRoleCode()" class="bg-gold text-navy-950 px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-white transition-all">
+            <i data-lucide="plus" class="w-4 h-4 inline mr-2"></i> Generate Code
+          </button>
+        </header>
+
+        <div class="glass-strong rounded-[40px] p-8 border border-white/5">
+          <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40 mb-6">Available Codes</h2>
+          <div id="codes-list" class="space-y-4">
+            <p class="text-center text-white/40 py-8 italic">Loading codes...</p>
+          </div>
+        </div>
+      `;
+      
+      // Load codes from Firestore
+      loadRoleCodes();
+    }
+
+    async function renderAudit(container) {
+      const snap = await getDocs(query(collection(db, 'staff_audit_logs'), orderBy('timestamp', 'desc'), limit(100)));
+      
+      container.innerHTML = `
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-8">
+          <div>
+            <p class="text-gold text-xs font-black tracking-[0.4em] uppercase">Security & Compliance</p>
+            <h1 class="text-4xl md:text-5xl font-black mt-2 uppercase tracking-tighter">Audit Logs</h1>
+          </div>
+        </header>
+
+        <div class="glass-strong rounded-[40px] p-8 border border-white/5 max-h-[600px] overflow-y-auto">
+          ${snap.empty ? '<p class="text-center text-white/40 py-12 italic">No audit logs recorded yet.</p>' : ''}
+          ${snap.docs.map(doc => {
+            const d = doc.data();
+            return `<div class="py-4 border-b border-white/5">
+              <div class="flex justify-between items-start mb-2">
+                <span class="px-3 py-1 rounded-full bg-gold/10 text-gold text-[8px] font-black uppercase">${d.action}</span>
+                <span class="text-[10px] text-slate-500">${d.timestamp?.toDate().toLocaleString() || 'N/A'}</span>
+              </div>
+              <p class="text-sm text-white font-bold">${d.name} (${d.role})</p>
+              <p class="text-[10px] text-slate-400 mt-1">${JSON.stringify(d.details || {})}</p>
+            </div>`;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    // Helper Functions
+    window.showNewAnnouncementModal = function() {
+      document.getElementById('announcement-modal').classList.remove('hidden');
+    };
+    
+    window.closeAnnouncementModal = function() {
+      document.getElementById('announcement-modal').classList.add('hidden');
+    };
+    
+    window.postAnnouncement = async function() {
+      const title = document.getElementById('ann-title').value;
+      const content = document.getElementById('ann-content').value;
+      const scope = document.getElementById('ann-scope').value;
+      
+      if (!title || !content) {
+        alert('Please fill in all fields');
+        return;
+      }
+      
+      await addDoc(collection(db, 'announcements'), {
+        title,
+        content,
+        scope,
+        postedBy: window.staffCore.profile.name,
+        postedByUid: window.staffCore.user.uid,
+        timestamp: serverTimestamp()
+      });
+      
+      await window.staffCore.logAnnouncementEdit('new', null, content, scope);
+      closeAnnouncementModal();
+      showTab('announcements');
+    };
+    
+    window.deleteAnnouncement = async function(id) {
+      if (!confirm('Delete this announcement?')) return;
+      await deleteDoc(doc(db, 'announcements', id));
+      showTab('announcements');
+    };
+    
+    window.initializeNewSeason = function() {
+      document.getElementById('season-warning-modal').classList.remove('hidden');
+    };
+    
+    window.closeSeasonModal = function() {
+      document.getElementById('season-warning-modal').classList.add('hidden');
+    };
+    
+    window.confirmSeasonInit = async function() {
+      const name = document.getElementById('new-season-name').value.trim();
+      
+      // Validate season name
+      const validation = window.staffCore.validateSeasonName(name);
+      if (!validation.valid) {
+        alert(validation.error);
+        return;
+      }
+      
+      // Double confirmation
+      if (!confirm(`Are you absolutely sure you want to initialize "${name}"? This will archive the current season and wipe all trainee registrations.`)) {
+        return;
+      }
+      
+      const configSnap = await getDoc(doc(db, 'system', 'config'));
+      const currentSeason = configSnap.exists() ? configSnap.data().currentSeason : '2026';
+      
+      // Archive current trainees
+      const traineesSnap = await getDocs(collection(db, 'trainees'));
+      const traineeCount = traineesSnap.size;
+      
+      // Create archive
+      await setDoc(doc(db, 'season_archives', currentSeason), {
+        traineeCount,
+        archivedAt: serverTimestamp(),
+        archivedBy: window.staffCore.user.uid,
+        trainees: traineesSnap.docs.map(d => ({ id: d.id, ...d.data() }))
+      }, { merge: true });
+      
+      // Update system config
+      await setDoc(doc(db, 'system', 'config'), {
+        currentSeason: name,
+        lastInitialized: serverTimestamp(),
+        initializedBy: window.staffCore.user.uid
+      }, { merge: true });
+      
+      // Delete all trainees (wipe)
+      const batch = writeBatch(db);
+      traineesSnap.forEach(doc => {
+        batch.delete(doc.ref);
+      });
+      await batch.commit();
+      
+      // Clear counters
+      await deleteDoc(doc(db, 'seasons', currentSeason, 'artifacts', 'trainees', 'counters', 'tracks'));
+      
+      await window.staffCore.logSeasonInit(name, currentSeason);
+      
+      alert(`Season "${name}" has been initialized. ${traineeCount} trainees archived.`);
+      closeSeasonModal();
+      showTab('seasons');
+    };
+    
+    window.restoreSeason = async function(seasonName) {
+      if (!confirm(`Restore all trainees from "${seasonName}"? This will replace current registrations.`)) return;
+      
+      const archiveSnap = await getDoc(doc(db, 'season_archives', seasonName));
+      if (!archiveSnap.exists()) {
+        alert('Archive not found!');
+        return;
+      }
+      
+      const data = archiveSnap.data();
+      if (!data.trainees || data.trainees.length === 0) {
+        alert('No trainees in this archive.');
+        return;
+      }
+      
+      // Restore trainees
+      const batch = writeBatch(db);
+      data.trainees.forEach(t => {
+        const { id, ...rest } = t;
+        batch.set(doc(db, 'trainees', id), rest, { merge: true });
+      });
+      await batch.commit();
+      
+      await window.staffCore.logDataRestoration(seasonName, data.trainees.length);
+      
+      alert(`${data.trainees.length} trainees restored from "${seasonName}".`);
+      showTab('seasons');
+    };
+    
+    window.generateRoleCode = async function() {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let code = 'SFD-';
+      for (let i = 0; i < 6; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
+      
+      const roles = prompt('Enter roles for this code (comma-separated):\nDirector, HOD, Specialist, Digital Marketing, Support Staff');
+      if (!roles) return;
+      
+      const roleList = roles.split(',').map(r => r.trim()).filter(r => r);
+      
+      await setDoc(doc(db, 'role_codes', code), {
+        roles: roleList,
+        used: false,
+        createdBy: window.staffCore.user.uid,
+        createdAt: serverTimestamp()
+      });
+      
+      alert(`ROLE Code generated: ${code}\nRoles: ${roleList.join(', ')}`);
+      loadRoleCodes();
+    };
+    
+    async function loadRoleCodes() {
+      const snap = await getDocs(collection(db, 'role_codes'));
+      const container = document.getElementById('codes-list');
+      
+      if (snap.empty) {
+        container.innerHTML = '<p class="text-center text-white/40 py-8 italic">No role codes generated yet.</p>';
+        return;
+      }
+      
+      container.innerHTML = snap.docs.map(doc => {
+        const d = doc.data();
+        return `<div class="p-4 rounded-2xl bg-white/5 border border-white/5 flex justify-between items-center">
+          <div>
+            <p class="font-mono font-black text-lg">${doc.id}</p>
+            <p class="text-[10px] text-slate-500 mt-1">Roles: ${(d.roles || []).join(', ')}</p>
+          </div>
+          <span class="px-3 py-1 rounded-full ${d.used ? 'bg-red-500/10 text-red-400' : 'bg-green-500/10 text-green-400'} text-[8px] font-black uppercase">
+            ${d.used ? 'Used' : 'Available'}
+          </span>
+        </div>`;
+      }).join('');
+    }
+
+    window.viewTrainee = async function(uid) {
+      const snap = await getDoc(doc(db, 'trainees', uid));
+      if (!snap.exists()) return;
+      const d = snap.data();
+      alert(`Trainee Details:\n\nName: ${d.name}\nSFID: ${d.sfid}\nTrack: ${d.track}\nXP: ${d.xp}\nTier: ${d.tier}\nEmail: ${d.email}\nPhone: ${d.phone}`);
+    };
+    
+    window.deleteTrainee = async function(uid) {
+      if (!confirm('Permanently delete this trainee?')) return;
+      await deleteDoc(doc(db, 'trainees', uid));
+      showTab('trainees');
+    };
+
+    // Initialize
+    window.addEventListener('DOMContentLoaded', () => {
+      const checkCore = setInterval(() => {
+        if (window.staffCore && window.staffCore.profile) {
+          clearInterval(checkCore);
+          document.getElementById('user-name').textContent = window.staffCore.profile.name || 'DIRECTOR';
+          document.getElementById('user-role').textContent = window.staffCore.profile.primaryRole + ' Access';
+          document.getElementById('user-initials').textContent = (window.staffCore.profile.name || 'D').charAt(0);
+          showTab('overview');
+        }
+      }, 100);
+    });
+  </script>
+
+  <script type="module">
+    import StaffCore from '../../assets/staff-core.js';
+    import { db, auth } from '../../assets/firebase-config.js';
+    import { collection, query, getDocs, doc, getDoc, setDoc, addDoc, deleteDoc, serverTimestamp, orderBy, onSnapshot, writeBatch } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
 
     // Sundust Background
     class Sundust {
@@ -184,7 +729,6 @@
       }
     }
     new Sundust();
-    if (window.lucide) window.lucide.createIcons();
   </script>
 </body>
 </html>

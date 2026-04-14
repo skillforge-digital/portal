@@ -57,6 +57,16 @@
 
   <div class="relative z-10 max-w-4xl mx-auto">
     <header class="text-center mb-12 md:mb-16 space-y-4">
+        <!-- New Track to Learn Banner (Season Reset) -->
+        <div id="new-season-banner" class="hidden mb-8 p-6 rounded-3xl bg-gradient-to-r from-orange/20 via-gold/20 to-orange/20 border border-orange/30 text-center animate-slide-up">
+            <div class="flex items-center justify-center gap-3 mb-2">
+                <i data-lucide="sparkles" class="w-6 h-6 text-orange"></i>
+                <span class="text-orange font-black text-[10px] uppercase tracking-[0.3em]">New Season Detected</span>
+            </div>
+            <h2 class="text-2xl md:text-3xl font-black text-white uppercase tracking-tight mb-2">Start a New Track to Learn</h2>
+            <p class="text-slate-400 text-xs max-w-lg mx-auto">A new mastery season has begun. Register to unlock fresh credentials and begin your journey with new pathways to expertise.</p>
+        </div>
+
         <a href="https://skillforgedigital.com.ng/" class="inline-flex items-center gap-2 text-gold font-black text-[10px] uppercase tracking-[0.3em] mb-6 md:mb-8 hover:text-white transition-all">
             <i data-lucide="arrow-left" class="w-3 h-3"></i> Back to Gateway
         </a>
@@ -291,13 +301,44 @@
 
   <script type="module">
     import { db, auth } from '../assets/firebase-config.js';
-    import { doc, setDoc, runTransaction, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+    import { doc, getDoc, setDoc, runTransaction, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
     import { signInAnonymously } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
     const supabaseUrl = 'https://luxubaqztmbcpskyfgdp.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1eHViYXF6dG1iY3Bza3lmZ2RwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDYzNTcsImV4cCI6MjA5MTQyMjM1N30.Kmon8jh22u5KgWWpXf-7cdZ4qxlKXuUbVm6Mh-GHd8Q';
     const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Check for season reset and display banner
+    async function checkSeasonReset() {
+        try {
+            const configSnap = await getDoc(doc(db, 'system', 'config'));
+            if (configSnap.exists()) {
+                const seasonName = configSnap.data().currentSeason || '2026';
+                const lastInit = configSnap.data().lastInitialized;
+                
+                // If season was initialized within last 7 days, show "New Track" banner
+                if (lastInit) {
+                    const daysSinceInit = (Date.now() - lastInit.toDate().getTime()) / (1000 * 60 * 60 * 24);
+                    if (daysSinceInit <= 7) {
+                        const banner = document.getElementById('new-season-banner');
+                        if (banner) {
+                            banner.classList.remove('hidden');
+                        }
+                    }
+                }
+            }
+        } catch (err) {
+            console.log('[SeasonCheck] Using default season 2026');
+        }
+        
+        // Reveal content after check
+        setTimeout(() => {
+            document.documentElement.style.visibility = 'visible';
+        }, 100);
+    }
+    
+    checkSeasonReset();
 
     window.togglePassword = (id) => {
         const input = document.getElementById(id);

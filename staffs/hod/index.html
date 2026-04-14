@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HOD Command Center — SkillForge Digital</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+    body { font-family:'Plus Jakarta Sans',sans-serif; background:#040810; color:#f1f5f9; overflow-x:hidden; min-height: 100dvh; }
+    #sundust-canvas { position:fixed; inset:0; width:100%; height:100dvh; z-index:0; pointer-events:none }
+    .glass { background: rgba(255,255,255,0.02); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
+    .glass-strong { background: rgba(255,255,255,0.05); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.1); }
+    @keyframes slide-up { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .animate-slide-up { animation: slide-up 0.8s ease-out forwards; }
+  </style>
+</head>
+<body class="flex flex-col md:flex-row">
+  <canvas id="sundust-canvas"></canvas>
+
+  <!-- Sidebar -->
+  <aside class="w-72 glass-strong border-r border-white/5 flex flex-col fixed inset-y-0 z-50 transition-all duration-500 md:translate-x-0 -translate-x-full" id="sidebar">
+    <div class="p-8 flex-1 overflow-y-auto">
+      <div class="flex items-center gap-3 mb-12">
+        <div class="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center text-purple-400 border border-purple-400/20">
+          <i data-lucide="shield" class="w-6 h-6"></i>
+        </div>
+        <div class="flex flex-col leading-none">
+          <span class="font-black text-sm tracking-tighter uppercase">SkillForge</span>
+          <span class="text-[8px] text-purple-400 font-bold tracking-[0.3em] uppercase">HOD Unit</span>
+        </div>
+      </div>
+
+      <nav class="space-y-1">
+        <p class="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Command Nodes</p>
+        <button data-tab="overview" class="nav-btn active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Unit Overview
+        </button>
+        <button data-tab="announcements" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+          <i data-lucide="megaphone" class="w-4 h-4"></i> Announcements
+        </button>
+        <button data-tab="trainees" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+          <i data-lucide="users" class="w-4 h-4"></i> Trainee Registry
+        </button>
+        <button data-tab="staff" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+          <i data-lucide="user-check" class="w-4 h-4"></i> Unit Staff
+        </button>
+      </nav>
+    </div>
+
+    <div class="p-8 border-t border-white/5">
+        <div class="flex items-center gap-4 mb-6 p-4 rounded-2xl bg-white/5 border border-white/5">
+            <div class="w-10 h-10 rounded-xl bg-purple-400/10 flex items-center justify-center text-purple-400 font-black text-xs" id="user-initials">H</div>
+            <div class="min-w-0">
+                <p class="text-[10px] font-black text-white uppercase truncate" id="user-name">Loading...</p>
+                <p class="text-[8px] text-purple-400 font-bold uppercase tracking-widest truncate" id="user-role">HOD Access</p>
+            </div>
+        </div>
+        <button id="logout-btn" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-red-400/70 hover:text-red-400 hover:bg-red-400/10 transition-all">
+            <i data-lucide="log-out" class="w-4 h-4"></i> Sign Out
+        </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 md:ml-72 p-6 md:p-12 pt-24 md:pt-20">
+    <div id="tab-content" class="max-w-6xl mx-auto space-y-12 animate-slide-up">
+      <!-- Content loaded dynamically -->
+    </div>
+  </main>
+
+  <script>
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tab = btn.getAttribute('data-tab');
+        showTab(tab);
+      });
+    });
+    
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      window.staffCore.logout();
+    });
+
+    async function showTab(tab) {
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active', 'text-purple-400', 'bg-purple-400/10', 'border-r-4', 'border-purple-400'));
+      document.querySelector(`[data-tab="${tab}"]`).classList.add('active', 'text-purple-400', 'bg-purple-400/10', 'border-r-4', 'border-purple-400');
+      
+      const content = document.getElementById('tab-content');
+      content.innerHTML = '<div class="flex items-center justify-center h-64"><div class="w-10 h-10 border-4 border-purple-400/20 border-t-purple-400 rounded-full animate-spin"></div></div>';
+      
+      switch(tab) {
+        case 'overview': await renderOverview(content); break;
+        case 'announcements': await renderAnnouncements(content); break;
+        case 'trainees': await renderTrainees(content); break;
+        case 'staff': await renderStaff(content); break;
+        default: await renderOverview(content);
+      }
+      
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    async function renderOverview(container) {
+      const traineeSnap = await getDocs(collection(db, 'trainees'));
+      const staffSnap = await getDocs(collection(db, 'staffs'));
+      
+      container.innerHTML = `
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
+          <div>
+            <p class="text-purple-400 text-xs font-black tracking-[0.4em] uppercase">HOD Command Node</p>
+            <h1 class="text-4xl md:text-6xl font-black mt-2 uppercase tracking-tighter">Unit Hub</h1>
+          </div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="glass p-8 rounded-[40px] border border-white/5">
+            <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-4">Unit Trainees</p>
+            <p class="text-5xl font-black text-purple-400">${traineeSnap.size}</p>
+            <p class="text-[8px] text-white/20 uppercase tracking-[0.3em] mt-2">Under your supervision</p>
+          </div>
+          <div class="glass p-8 rounded-[40px] border border-white/5">
+            <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-4">Unit Staff</p>
+            <p class="text-5xl font-black text-purple-400">${staffSnap.size}</p>
+            <p class="text-[8px] text-white/20 uppercase tracking-[0.3em] mt-2">Active personnel</p>
+          </div>
+        </div>
+
+        <div class="glass-strong rounded-[40px] p-10 border border-white/5 min-h-[300px]">
+          <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40 mb-8">Quick Actions</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <button onclick="showTab('announcements')" class="p-6 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-left hover:bg-purple-500/20 transition-all">
+              <i data-lucide="megaphone" class="w-8 h-8 text-purple-400 mb-4"></i>
+              <p class="font-black uppercase text-sm">Post Announcement</p>
+              <p class="text-[10px] text-white/40 mt-1">Broadcast to unit dashboards</p>
+            </button>
+            <button onclick="showTab('trainees')" class="p-6 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-left hover:bg-blue-500/20 transition-all">
+              <i data-lucide="users" class="w-8 h-8 text-blue-400 mb-4"></i>
+              <p class="font-black uppercase text-sm">View Trainees</p>
+              <p class="text-[10px] text-white/40 mt-1">Access unit registry</p>
+            </button>
+          </div>
+        </div>
+
+        <div class="glass rounded-[40px] p-8 border border-white/5">
+          <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40 mb-6">Your Permissions</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="flex items-center gap-3 p-4 rounded-2xl bg-green-500/10 border border-green-500/20">
+              <i data-lucide="check-circle" class="w-5 h-5 text-green-400"></i>
+              <span class="text-sm font-bold">Edit HOD & Staff Announcements</span>
+            </div>
+            <div class="flex items-center gap-3 p-4 rounded-2xl bg-green-500/10 border border-green-500/20">
+              <i data-lucide="check-circle" class="w-5 h-5 text-green-400"></i>
+              <span class="text-sm font-bold">View Unit Trainees</span>
+            </div>
+            <div class="flex items-center gap-3 p-4 rounded-2xl bg-red-500/10 border border-red-500/20">
+              <i data-lucide="x-circle" class="w-5 h-5 text-red-400"></i>
+              <span class="text-sm font-bold">Cannot Initialize Seasons</span>
+            </div>
+            <div class="flex items-center gap-3 p-4 rounded-2xl bg-red-500/10 border border-red-500/20">
+              <i data-lucide="x-circle" class="w-5 h-5 text-red-400"></i>
+              <span class="text-sm font-bold">Cannot Manage Global Settings</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function renderAnnouncements(container) {
+      const snap = await getDocs(query(collection(db, 'announcements'), orderBy('timestamp', 'desc')));
+      
+      container.innerHTML = `
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-8">
+          <div>
+            <p class="text-purple-400 text-xs font-black tracking-[0.4em] uppercase">Unit Broadcast</p>
+            <h1 class="text-4xl md:text-5xl font-black mt-2 uppercase tracking-tighter">Announcements</h1>
+          </div>
+          <button onclick="showNewAnnouncementModal()" class="bg-purple-400 text-navy-950 px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-white transition-all">
+            <i data-lucide="plus" class="w-4 h-4 inline mr-2"></i> New Announcement
+          </button>
+        </header>
+
+        <div class="glass-strong rounded-[40px] p-8 border border-white/5 space-y-4">
+          ${snap.empty ? '<p class="text-center text-white/40 py-12 italic">No announcements posted yet.</p>' : ''}
+          ${snap.docs.map(doc => {
+            const d = doc.data();
+            const canDelete = window.staffCore.canEditAnnouncements(d.scope);
+            return `<div class="p-6 rounded-2xl bg-white/5 border border-white/5">
+              <div class="flex justify-between items-start mb-4">
+                <div>
+                  <h3 class="font-black uppercase text-lg">${d.title || 'Untitled'}</h3>
+                  <p class="text-[10px] text-slate-500 uppercase tracking-widest">${d.timestamp?.toDate().toLocaleString() || 'N/A'}</p>
+                </div>
+                <div class="flex gap-2">
+                  <span class="px-3 py-1 rounded-full bg-purple-500/10 text-purple-400 text-[8px] font-black uppercase">${d.scope || 'global'}</span>
+                  ${canDelete ? `<button onclick="deleteAnnouncement('${doc.id}')" class="p-2 hover:text-red-400"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : ''}
+                </div>
+              </div>
+              <p class="text-sm text-slate-300">${d.content || ''}</p>
+            </div>`;
+          }).join('')}
+        </div>
+
+        <!-- New Announcement Modal -->
+        <div id="announcement-modal" class="hidden fixed inset-0 z-[200] bg-navy/90 flex items-center justify-center p-6">
+          <div class="glass-strong p-10 rounded-[40px] border border-white/10 max-w-xl w-full space-y-6">
+            <div class="flex justify-between items-center">
+              <h2 class="text-2xl font-black uppercase">New Announcement</h2>
+              <button onclick="closeAnnouncementModal()" class="p-2 hover:text-red-400"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            <div class="space-y-4">
+              <div>
+                <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Title</label>
+                <input type="text" id="ann-title" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl mt-2" placeholder="Announcement Title">
+              </div>
+              <div>
+                <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Content</label>
+                <textarea id="ann-content" rows="4" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl mt-2" placeholder="Announcement content..."></textarea>
+              </div>
+              <div>
+                <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Scope</label>
+                <select id="ann-scope" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl mt-2">
+                  <option value="hod">HOD Dashboard</option>
+                  <option value="staffs">Staff Dashboard</option>
+                  <option value="global">Global (All)</option>
+                </select>
+              </div>
+              <button onclick="postAnnouncement()" class="w-full py-4 bg-purple-400 text-navy-950 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-white transition-all">
+                Post Announcement
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function renderTrainees(container) {
+      const snap = await getDocs(query(collection(db, 'trainees'), orderBy('created_at', 'desc')));
+      
+      let html = `
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-8">
+          <div>
+            <p class="text-purple-400 text-xs font-black tracking-[0.4em] uppercase">Registry Control</p>
+            <h1 class="text-4xl md:text-5xl font-black mt-2 uppercase tracking-tighter">Trainee Registry</h1>
+          </div>
+          <div class="glass px-6 py-3 rounded-2xl border border-white/5">
+            <p class="text-[8px] font-black text-white/30 uppercase tracking-widest">Total</p>
+            <p class="text-xl font-bold text-purple-400">${snap.size}</p>
+          </div>
+        </header>
+
+        <div class="glass-strong rounded-[40px] p-8 border border-white/5 overflow-x-auto">
+          <table class="w-full text-left">
+            <thead class="text-[10px] font-black uppercase text-slate-500 border-b border-white/10">
+              <tr>
+                <th class="pb-4">Profile</th>
+                <th class="pb-4">Track</th>
+                <th class="pb-4">XP/Tier</th>
+                <th class="pb-4">Contact</th>
+              </tr>
+            </thead>
+            <tbody class="text-sm">`;
+      
+      if (snap.empty) {
+        html += `<tr><td colspan="4" class="py-12 text-center text-white/40 italic">No trainees registered yet.</td></tr>`;
+      }
+      
+      snap.forEach(doc => {
+        const d = doc.data();
+        html += `<tr class="border-b border-white/5">
+          <td class="py-4">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-white/5 overflow-hidden">
+                <img src="${d.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + doc.id}" class="w-full h-full object-cover">
+              </div>
+              <p class="font-bold text-white uppercase text-xs">${d.name || 'Anonymous'}</p>
+            </div>
+          </td>
+          <td class="py-4 uppercase text-[9px] font-black text-slate-300">${d.track || 'Unassigned'}</td>
+          <td class="py-4">
+            <p class="text-[10px] font-black">${d.xp || 0} XP</p>
+            <p class="text-[8px] text-purple-400/60 uppercase">${d.tier || 'Novice'}</p>
+          </td>
+          <td class="py-4 text-[10px] text-slate-300">${d.email || 'N/A'}</td>
+        </tr>`;
+      });
+      
+      html += `</tbody></table></div>`;
+      container.innerHTML = html;
+    }
+
+    async function renderStaff(container) {
+      const snap = await getDocs(query(collection(db, 'staffs'), orderBy('created_at', 'desc')));
+      
+      let html = `
+        <header class="mb-8">
+          <p class="text-purple-400 text-xs font-black tracking-[0.4em] uppercase">Unit Personnel</p>
+          <h1 class="text-4xl md:text-5xl font-black mt-2 uppercase tracking-tighter">Staff Registry</h1>
+        </header>
+
+        <div class="glass-strong rounded-[40px] p-8 border border-white/5">
+          <table class="w-full text-left">
+            <thead class="text-[10px] font-black uppercase text-slate-500 border-b border-white/10">
+              <tr>
+                <th class="pb-4">Personnel</th>
+                <th class="pb-4">Roles</th>
+                <th class="pb-4">Primary Role</th>
+              </tr>
+            </thead>
+            <tbody class="text-sm">`;
+      
+      snap.forEach(doc => {
+        const d = doc.data();
+        html += `<tr class="border-b border-white/5">
+          <td class="py-4 font-bold text-white uppercase text-xs">${d.name || 'Unknown'}</td>
+          <td class="py-4 text-[10px] text-slate-400">${(d.roles || []).join(', ')}</td>
+          <td class="py-4"><span class="px-3 py-1 rounded-full bg-purple-500/10 text-purple-400 text-[8px] font-black uppercase">${d.primaryRole || 'Staff'}</span></td>
+        </tr>`;
+      });
+      
+      html += `</tbody></table></div>`;
+      container.innerHTML = html;
+    }
+
+    // Helper Functions
+    window.showNewAnnouncementModal = function() {
+      document.getElementById('announcement-modal').classList.remove('hidden');
+    };
+    
+    window.closeAnnouncementModal = function() {
+      document.getElementById('announcement-modal').classList.add('hidden');
+    };
+    
+    window.postAnnouncement = async function() {
+      const title = document.getElementById('ann-title').value;
+      const content = document.getElementById('ann-content').value;
+      const scope = document.getElementById('ann-scope').value;
+      
+      if (!title || !content) {
+        alert('Please fill in all fields');
+        return;
+      }
+      
+      if (!window.staffCore.canEditAnnouncements(scope)) {
+        alert('Unauthorized: You cannot post to this scope.');
+        return;
+      }
+      
+      await addDoc(collection(db, 'announcements'), {
+        title,
+        content,
+        scope,
+        postedBy: window.staffCore.profile.name,
+        postedByUid: window.staffCore.user.uid,
+        timestamp: serverTimestamp()
+      });
+      
+      await window.staffCore.logAnnouncementEdit('new', null, content, scope);
+      closeAnnouncementModal();
+      showTab('announcements');
+    };
+    
+    window.deleteAnnouncement = async function(id) {
+      if (!confirm('Delete this announcement?')) return;
+      await deleteDoc(doc(db, 'announcements', id));
+      showTab('announcements');
+    };
+
+    // Initialize
+    window.addEventListener('DOMContentLoaded', () => {
+      const checkCore = setInterval(() => {
+        if (window.staffCore && window.staffCore.profile) {
+          clearInterval(checkCore);
+          document.getElementById('user-name').textContent = window.staffCore.profile.name || 'HOD';
+          document.getElementById('user-role').textContent = window.staffCore.profile.primaryRole + ' Access';
+          document.getElementById('user-initials').textContent = (window.staffCore.profile.name || 'H').charAt(0);
+          showTab('overview');
+        }
+      }, 100);
+    });
+  </script>
+
+  <script type="module">
+    import { db } from '../../assets/firebase-config.js';
+    import { collection, query, getDocs, doc, getDoc, addDoc, deleteDoc, serverTimestamp, orderBy } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+
+    class Sundust {
+      constructor() {
+        this.canvas = document.getElementById('sundust-canvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.particles = [];
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+        this.initParticles();
+        this.animate();
+      }
+      resize(){ this.canvas.width=window.innerWidth; this.canvas.height=window.innerHeight }
+      initParticles(){ for(let i=0;i<40;i++) this.particles.push(this.createParticle()) }
+      createParticle(){ return { x:Math.random()*this.canvas.width,y:Math.random()*this.canvas.height,size:Math.random()*1.2+0.5,alpha:Math.random()*0.3+0.1,vx:(Math.random()-0.5)*0.2,vy:(Math.random()-0.5)*0.2,p:Math.random()*Math.PI*2 } }
+      animate(){
+        this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
+        this.particles.forEach(p=>{
+          p.x+=p.vx; p.y+=p.vy; p.p+=0.01;
+          if(p.x<0)p.x=this.canvas.width; if(p.x>this.canvas.width)p.x=0;
+          if(p.y<0)p.y=this.canvas.height; if(p.y>this.canvas.height)p.y=0;
+          this.ctx.fillStyle=`rgba(168,85,247,${p.alpha+Math.sin(p.p)*0.1})`;
+          this.ctx.beginPath(); this.ctx.arc(p.x,p.y,p.size,0,Math.PI*2); this.ctx.fill();
+        });
+        requestAnimationFrame(()=>this.animate());
+      }
+    }
+    new Sundust();
+  </script>
+</body>
+</html>

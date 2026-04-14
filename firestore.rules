@@ -2,10 +2,19 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Helper Functions
+    // ==================== HELPER FUNCTIONS ====================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
     function isStaff() {
       return request.auth != null && 
              exists(/databases/$(database)/documents/staffs/$(request.auth.uid));
+    }
+
+    function getStaffData() {
+      return get(/databases/$(database)/documents/staffs/$(request.auth.uid)).data;
     }
 
     function isDirector() {
@@ -14,6 +23,13 @@ service cloud.firestore {
          get(/databases/$(database)/documents/specialists/$(request.auth.uid)).data.level == 'Director') ||
         (exists(/databases/$(database)/documents/staffs/$(request.auth.uid)) && 
          get(/databases/$(database)/documents/staffs/$(request.auth.uid)).data.primaryRole == 'Director')
+      );
+    }
+    
+    function isHOD() {
+      return request.auth != null && (
+        (exists(/databases/$(database)/documents/staffs/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/staffs/$(request.auth.uid)).data.primaryRole == 'HOD')
       );
     }
     
@@ -29,24 +45,43 @@ service cloud.firestore {
       return request.auth != null && request.auth.uid == userId;
     }
 
-    // ROLE Codes Subsystem
-    match /role_codes/{codeId} {
-      allow read: if true; 
+    // ==================== SYSTEM CONFIG ====================
+    
+    match /system/{docId} {
+      allow read: if true; // Public for season info
       allow write: if isDirector();
     }
 
-    // Staff Registry
+    // ==================== ROLE CODES (Staff Onboarding) ====================
+    
+    match /role_codes/{codeId} {
+      allow read: if true; // Required for verification during registration
+      allow create: if isDirector();
+      allow update: if isDirector();
+      allow delete: if isDirector();
+    }
+
+    // ==================== STAFF REGISTRY ====================
+    
     match /staffs/{staffId} {
-      allow read: if request.auth != null && (isOwner(staffId) || isStaff());
-      allow create: if request.auth != null;
+      allow read: if isAuthenticated() && (isOwner(staffId) || isStaff());
+      allow create: if request.auth != null; // Allow self-registration via role codes
       allow update: if isOwner(staffId) || isDirector();
       allow delete: if isDirector();
     }
 
-    // Trainee Registry
+    // ==================== STAFF AUDIT LOGS ====================
+    
+    match /staff_audit_logs/{logId} {
+      allow read: if isDirector();
+      allow create: if isStaff();
+    }
+
+    // ==================== TRAINEE REGISTRY ====================
+    
     match /trainees/{traineeId} {
-      allow read: if request.auth != null; 
-      allow list: if request.auth != null;
+      allow read: if isAuthenticated(); 
+      allow list: if isAuthenticated();
       allow create: if request.auth != null;
       allow update: if request.auth != null && (
         isOwner(traineeId) || 
@@ -56,9 +91,10 @@ service cloud.firestore {
       allow delete: if isDirector();
     }
     
-    // Presence & Tracking
+    // ==================== PRESENCE & TRACKING ====================
+    
     match /presence/{userId} {
-      allow read: if request.auth != null;
+      allow read: if isAuthenticated();
       allow write: if isOwner(userId) && (
         !('server_lastActive' in resource.data) || 
         request.time > resource.data.server_lastActive + duration.value(55, 's')
@@ -66,71 +102,94 @@ service cloud.firestore {
     }
 
     match /tracking/{userId} {
-      allow read: if request.auth != null && (isOwner(userId) || isStaff());
+      allow read: if isAuthenticated() && (isOwner(userId) || isStaff());
       allow write: if isOwner(userId);
     }
 
-    // Password Resets Subsystem
+    // ==================== SEASON ARCHIVES ====================
+    
+    match /season_archives/{seasonId} {
+      allow read: if isDirector();
+      allow create: if isDirector();
+      allow delete: if isDirector();
+    }
+    
+    match /seasons/{seasonId}/{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if isDirector();
+      
+      match /artifacts/trainees/counters/tracks {
+        allow read, write: if isAuthenticated();
+      }
+    }
+
+    // ==================== PASSWORD RESETS ====================
+    
     match /password_resets/{requestId} {
       allow create: if true;
       allow read: if isDirector();
       allow update: if true;
     }
 
-    // Email Dispatch
+    // ==================== EMAIL DISPATCH ====================
+    
     match /mail/{mailId} {
       allow create: if true;
       allow read: if isDirector();
     }
 
-    // Audit Logs
+    // ==================== AUDIT LOGS ====================
+    
     match /academy_audit_logs/{logId} {
-      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.uid == request.auth.uid;
       allow read: if isDirector();
     }
     
     match /gate_audit_logs/{logId} {
-      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.uid == request.auth.uid;
       allow read: if isDirector();
     }
     
     match /audit_logs/{logId} {
-      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.uid == request.auth.uid;
       allow read: if isDirector();
     }
 
-    // Feedback Collection
+    // ==================== ANNOUNCEMENTS ====================
+    
+    match /announcements/{announcementId} {
+      allow read: if true; // Public broadcast
+      allow create: if isStaff(); // Staff can create
+      allow update: if isStaff() && (
+        // Directors can edit any
+        isDirector() ||
+        // HODs can only edit their own scope
+        (isHOD() && resource.data.postedByUid == request.auth.uid)
+      );
+      allow delete: if isDirector();
+    }
+
+    // ==================== FEEDBACK ====================
+    
     match /feedback/{feedbackId} {
-      allow create: if true;
+      allow create: if true; // Anonymous feedback allowed
       allow read: if isStaff();
     }
 
-    // Specialist Registry (Legacy Support)
+    // ==================== SPECIALIST REGISTRY (Legacy) ====================
+    
     match /specialists/{specialistId} {
-      allow read: if request.auth != null;
+      allow read: if isAuthenticated();
       allow create: if isDirector();
       allow update, delete: if isDirector();
     }
 
-    // System & Seasons
-    match /system/{docId} {
-      allow read: if true;
-      allow write: if isDirector();
-    }
+    // ==================== BADGE REQUESTS ====================
     
-    match /seasons/{seasonId}/{document=**} {
-      allow read: if request.auth != null;
-      allow write: if isDirector();
-      
-      match /artifacts/trainees/counters/tracks {
-        allow read, write: if request.auth != null;
-      }
-    }
-
-    // Announcements & News
-    match /announcements/{announcementId} {
-      allow read, list: if true;
-      allow write: if isStaff();
+    match /badge_requests/{requestId} {
+      allow read: if isStaff();
+      allow create: if isAuthenticated();
+      allow update: if isDirector() || isSpecialist();
     }
   }
 }
