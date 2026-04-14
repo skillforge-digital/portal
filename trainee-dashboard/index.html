@@ -1405,8 +1405,14 @@ function updateNeuralResume(data) {
 // Handle re-initialization on Turbo loads
 window.addEventListener('sf:turbo-render', () => {
     console.log("[Dashboard] Re-hydrating Command Center...");
-    if (typeof initDashboard === 'function') initDashboard();
-    if (typeof loadNewsTicker === 'function') loadNewsTicker();
+    if (traineeData) {
+        initDashboard();
+        updateNeuralResume(traineeData);
+        loadNewsTicker();
+    } else {
+        const uid = themeManager.uid;
+        if (uid) startRegistrySync(uid);
+    }
 });
 
 window.logout = async () => { 

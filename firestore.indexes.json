@@ -41,13 +41,6 @@
       ]
     },
     {
-      "collectionGroup": "announcements",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "timestamp", "order": "DESCENDING" }
-      ]
-    },
-    {
       "collectionGroup": "password_resets",
       "queryScope": "COLLECTION",
       "fields": [

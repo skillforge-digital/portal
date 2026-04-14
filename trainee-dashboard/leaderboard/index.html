@@ -5,13 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SkillForge — Academy Hall of Fame</title>
 <script>
+  // Immediate UI Preparation - Hide content until Neural Core is ready
   (function() {
-    const uid = localStorage.getItem('skillforge_mock_uid');
-    if (!uid) {
-      window.stop();
-      const base = window.location.pathname.split('/trainee-dashboard')[0] || '';
-      window.location.href = base + '/trainee-login/';
-    }
+    document.documentElement.style.visibility = 'hidden';
   })();
 </script>
 <script src="https://cdn.tailwindcss.com"></script>
@@ -301,10 +297,10 @@ window.toggleSidebar = () => {
   sidebar.classList.toggle('-translate-x-full');
 };
 
-window.logout = () => {
-  localStorage.removeItem('skillforge_mock_uid');
-  window.location.href = '../../trainee-login/';
-};
+// Re-hydration for Turbo
+window.addEventListener('sf:turbo-render', () => {
+    loadLeaderboard();
+});
 </script>
   <script type="module" src="../../assets/sf-core.js"></script>
   <script type="module" src="../../assets/sf-turbo.js"></script>

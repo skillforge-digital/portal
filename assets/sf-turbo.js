@@ -1,153 +1,163 @@
 /**
- * SkillForge Turbo Engine (v1.1.0)
- * Zero-Refresh MPA Transitions (PJAX)
+ * SkillForge Turbo Engine (v1.2.0)
+ * Zero-Refresh Navigation (PJAX) with Full Page Hydration
+ * Optimized for Dashboard Persistence & Content Reliability
  */
 
 class SkillForgeTurbo {
     constructor() {
         this.cache = new Map();
         this.isNavigating = false;
+        this.currentController = null;
         this.init();
     }
 
     init() {
-        // Listen for all clicks on the document
+        // Intercept clicks on internal links
         document.addEventListener('click', (e) => {
             const link = e.target.closest('a');
-            if (!link) return;
+            if (!link || link.hasAttribute('data-turbo-ignore')) return;
 
-            // Only intercept internal links
-            const url = new URL(link.href);
+            const url = new URL(link.href, window.location.origin);
             if (url.origin !== window.location.origin) return;
             
-            // Skip actual file downloads, hash links, or external targets
+            // Skip downloads, hash links, external targets, or non-html links
             if (link.hasAttribute('download') || url.hash || link.target === '_blank') return;
             
-            // Normalize paths for comparison (remove trailing slashes and index.html)
+            // Normalize paths for comparison
             const normalize = (path) => path.replace(/\/index\.html$/, '').replace(/\/$/, '') || '/';
             const currentPath = normalize(window.location.pathname);
             const targetPath = normalize(url.pathname);
             
             if (currentPath === targetPath) {
-                // Same page - just prevent default to avoid refresh
                 e.preventDefault();
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 return;
             }
 
             e.preventDefault();
-            
-            // Standardize URL to absolute path from root
-            const absoluteTarget = url.origin === window.location.origin ? url.pathname + url.search + url.hash : url.href;
-            this.navigate(absoluteTarget);
+            this.navigate(url.pathname + url.search + url.hash);
         });
 
-        // Hidden "Slash Command" for Specialist Portal
-        let buffer = '';
-        document.addEventListener('keydown', (e) => {
-            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-            
-            buffer += e.key.toLowerCase();
-            if (buffer.endsWith('/staff')) {
-                console.log("[Turbo] Specialist Authorization Command Detected");
-                buffer = '';
-                window.location.href = '/activate-specialist.html';
-            }
-            if (buffer.length > 10) buffer = buffer.substring(1);
-        });
-
-        // Handle browser back/forward
+        // Handle browser back/forward navigation
         window.addEventListener('popstate', (e) => {
-            if (e.state && e.state.url) {
-                this.navigate(e.state.url, false);
-            }
+            this.navigate(window.location.pathname + window.location.search + window.location.hash, false);
         });
 
-        // Store initial state
-        window.history.replaceState({ url: window.location.href }, '', window.location.href);
-        this.registerServiceWorker();
-        console.log("[Turbo] Engine Initialized");
-    }
-
-    registerServiceWorker() {
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('[OfflineMatrix] Sync Active:', reg.scope))
-                    .catch(err => console.error('[OfflineMatrix] Registry Sync Failed:', err));
-            });
-        }
+        console.log("[Turbo] Engine Initialized & Monitoring Neural Links");
     }
 
     async navigate(url, pushState = true) {
         if (this.isNavigating) return;
         this.isNavigating = true;
 
-        console.log(`[Turbo] Navigating to: ${url}`);
+        console.log(`[Turbo] Syncing Node: ${url}`);
         this.showProgressBar();
 
         try {
-            if (this.currentController) {
-                this.currentController.abort();
-            }
+            if (this.currentController) this.currentController.abort();
             this.currentController = new AbortController();
 
             const res = await fetch(url, {
                 signal: this.currentController.signal,
                 headers: { 'X-Requested-With': 'SkillForge-Turbo' }
             });
-            const html = await res.text();
             
-            // Dispatch 'before-render' for hydration preparation
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            
+            const html = await res.text();
+            const parser = new DOMParser();
+            const newDoc = parser.parseFromString(html, 'text/html');
+            
+            // Prepare for transition
             window.dispatchEvent(new CustomEvent('sf:turbo-before-render'));
 
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
+            // 1. Update Metadata
+            document.title = newDoc.title;
+
+            // 2. Intelligent Body Swap (Preserving core classes)
+            const oldBody = document.body;
+            const newBody = newDoc.body;
             
-            // Efficiently swap content
+            // Preserve specific dashboard classes (like theme or layout modes)
+            const preservedClasses = Array.from(oldBody.classList).filter(cls => 
+                cls.includes('mode') || cls.includes('light') || cls.includes('perf') || cls.includes('glow')
+            );
+
+            // Swap main content (or body if main is missing)
             const oldMain = document.querySelector('main');
-            const newMain = doc.querySelector('main');
+            const newMain = newDoc.querySelector('main');
+            
             if (oldMain && newMain) {
                 oldMain.innerHTML = newMain.innerHTML;
-                
-                // Update specific page classes or metadata
-                document.title = doc.title;
-                
-                // Re-initialize scripts for the new content
-                this.rehydrate();
+                // Sync main attributes (like track/lesson IDs)
+                Array.from(newMain.attributes).forEach(attr => oldMain.setAttribute(attr.name, attr.value));
             } else {
-                // Fallback for non-dashboard pages
-                window.location.href = url;
+                // Fallback: Full body replacement if structure differs significantly
+                document.body.innerHTML = newBody.innerHTML;
+                document.body.className = newBody.className;
             }
 
-            window.history.pushState({}, '', url);
+            // Restore preserved state classes
+            preservedClasses.forEach(cls => document.body.classList.add(cls));
+
+            // 3. Update URL
+            if (pushState) window.history.pushState({}, '', url);
+
+            // 4. Critical Rehydration
+            await this.rehydrate(newDoc);
+
+            this.hideProgressBar();
             window.dispatchEvent(new CustomEvent('sf:turbo-render'));
+            window.scrollTo({ top: 0, behavior: 'auto' });
+
         } catch (err) {
             if (err.name !== 'AbortError') {
-                console.error("[Turbo] Engine stall:", err);
-                window.location.href = url;
+                console.error("[Turbo] Neural Stale Detected. Refreshing context...", err);
+                window.location.href = url; // Hard fallback
             }
+        } finally {
+            this.isNavigating = false;
         }
     }
 
-    rehydrate() {
-        console.log("[Turbo] Hydrating neural nodes...");
-        
-        // 1. Re-initialize Lucide icons
-        if (window.lucide) window.lucide.createIcons();
-        
-        // 2. Re-trigger theme application
-        if (window.themeManager) window.themeManager.init();
-        
-        // 3. Re-initialize page-specific logic
-        // Any <script> inside <main> will be executed if manually handled
-        const scripts = document.querySelector('main').querySelectorAll('script');
-        scripts.forEach(oldScript => {
+    async rehydrate(newDoc) {
+        console.log("[Turbo] Re-hydrating Neural Matrix...");
+
+        // A. Re-execute Page-Specific Scripts
+        // We find all scripts that were in the NEW page's main/body and re-run them
+        const scripts = (document.querySelector('main') || document.body).querySelectorAll('script');
+        for (const oldScript of scripts) {
             const newScript = document.createElement('script');
             Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-            newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-            oldScript.parentNode.replaceChild(newScript, oldScript);
-        });
+            
+            if (oldScript.src) {
+                // External script - wait for load if it's a module or important
+                await new Promise((resolve) => {
+                    newScript.onload = resolve;
+                    newScript.onerror = resolve;
+                    document.head.appendChild(newScript);
+                });
+            } else {
+                // Inline script
+                newScript.textContent = oldScript.textContent;
+                document.body.appendChild(newScript);
+            }
+            oldScript.remove(); // Remove original placeholder
+        }
+
+        // B. Re-initialize Core Components
+        if (window.lucide) window.lucide.createIcons();
+        
+        // C. Re-trigger Identity & Theme Sync
+        if (window.themeManager && typeof window.themeManager.init === 'function') {
+            await window.themeManager.init();
+        }
+
+        // D. Re-init SkillForge Core if present
+        if (window.sfCore && typeof window.sfCore.syncRegistryState === 'function') {
+            await window.sfCore.syncRegistryState();
+        }
     }
 
     showProgressBar() {
@@ -156,14 +166,17 @@ class SkillForgeTurbo {
             bar = document.createElement('div');
             bar.id = 'turbo-progress';
             bar.style.cssText = `
-                position: fixed; top: 0; left: 0; height: 2px; 
-                background: #f59e0b; z-index: 9999; transition: width 0.3s ease;
-                box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+                position: fixed; top: 0; left: 0; height: 3px; 
+                background: linear-gradient(to right, #f59e0b, #fbbf24); 
+                z-index: 10000; transition: width 0.4s cubic-bezier(0.1, 0.7, 0.1, 1);
+                box-shadow: 0 0 15px rgba(245, 158, 11, 0.6);
             `;
             document.body.appendChild(bar);
         }
         bar.style.width = '0%';
-        setTimeout(() => bar.style.width = '70%', 10);
+        bar.style.opacity = '1';
+        setTimeout(() => bar.style.width = '40%', 10);
+        setTimeout(() => bar.style.width = '85%', 600);
     }
 
     hideProgressBar() {
@@ -171,12 +184,12 @@ class SkillForgeTurbo {
         if (bar) {
             bar.style.width = '100%';
             setTimeout(() => {
-                bar.style.width = '0%';
-            }, 300);
+                bar.style.opacity = '0';
+                setTimeout(() => bar.style.width = '0%', 400);
+            }, 200);
         }
     }
 }
 
 export const turbo = new SkillForgeTurbo();
 window.sfTurbo = turbo;
-

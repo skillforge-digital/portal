@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -153,7 +153,9 @@
                 const cookieDomain = window.location.hostname.includes('skillforgedigital.com.ng') ? '.skillforgedigital.com.ng' : window.location.hostname;
                 document.cookie = `sf_uid=${trainee.uid}; path=/; domain=${cookieDomain}; max-age=86400; SameSite=Lax; Secure`;
                 
+                // FORCE RELOAD on login to ensure fresh state
                 window.location.href = '../trainee-dashboard/';
+                setTimeout(() => window.location.reload(), 100); 
             } else {
                 alert("Invalid mastery credentials. Please verify your email and password.");
             }

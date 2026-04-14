@@ -35,8 +35,8 @@ class ThemeManager {
         this.init();
         
         // Zero-Refresh Engine (PJAX) Integration
-        window.addEventListener('turbo:load', (e) => {
-            console.log(`[ThemeManager] Neural Re-Sync: ${e.detail.url}`);
+        window.addEventListener('sf:turbo-render', (e) => {
+            console.log(`[ThemeManager] Neural Re-Sync: Performing Layout Hydration`);
             this.applyTheme(this.currentTheme);
             this.applyFont(localStorage.getItem('sf_font_family'));
             this.applyControls(this.controls);

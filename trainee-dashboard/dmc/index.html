@@ -499,6 +499,11 @@ window.toggleSidebar = () => {
   sidebar.classList.toggle('-translate-x-full');
 };
 
+// Re-hydration for Turbo
+window.addEventListener('sf:turbo-render', () => {
+    if (traineeData) updateUI();
+});
+
 init();
 </script>
   <script type="module" src="../../assets/sf-core.js"></script>

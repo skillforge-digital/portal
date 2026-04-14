@@ -320,7 +320,8 @@ onAuthStateChanged(auth, (user) => {
       if (snap.exists()) {
         traineeData = snap.data();
         const firstName = traineeData.name ? traineeData.name.split(' ')[0] : 'Trainee';
-        document.getElementById('user-name-target').innerText = firstName;
+        const nameTarget = document.getElementById('user-name-target');
+        if (nameTarget) nameTarget.innerText = firstName;
         
         const tgLink = TELEGRAM_CHANNELS[traineeData.track] || 'https://t.me/skillforgeorg';
         document.querySelectorAll('.telegram-join-target').forEach(el => el.href = tgLink);
@@ -332,6 +333,11 @@ onAuthStateChanged(auth, (user) => {
   } else {
     window.location.href = '../../trainee-login/';
   }
+});
+
+// Re-hydration for Turbo
+window.addEventListener('sf:turbo-render', () => {
+    if (traineeData) loadVault(traineeData);
 });
 
 async function checkBadgeStatus(userId) {
