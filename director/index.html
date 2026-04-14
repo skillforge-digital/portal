@@ -37,7 +37,8 @@
         </header>
 
         <nav class="flex gap-2 overflow-x-auto pb-4 no-scrollbar">
-            <button onclick="showTab('seasons')" class="tab-btn active px-6 py-3 rounded-xl border border-white/5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all">Seasons</button>
+            <button onclick="showTab('trainees')" class="tab-btn active px-6 py-3 rounded-xl border border-white/5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all">Trainees</button>
+            <button onclick="showTab('seasons')" class="tab-btn px-6 py-3 rounded-xl border border-white/5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all">Seasons</button>
             <button onclick="showTab('tracks')" class="tab-btn px-6 py-3 rounded-xl border border-white/5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all">Tracks</button>
             <button onclick="showTab('passcodes')" class="tab-btn px-6 py-3 rounded-xl border border-white/5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all">Pass-codes</button>
             <button onclick="showTab('fingerprints')" class="tab-btn px-6 py-3 rounded-xl border border-white/5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all">Fingerprints</button>
@@ -49,13 +50,14 @@
     </div>
 
     <script type="module">
-        import { db } from '../assets/firebase-config.js';
-        import { collection, query, getDocs, doc, setDoc, updateDoc, deleteDoc, serverTimestamp, where } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+        import { db, auth } from '../assets/firebase-config.js';
+        import { collection, query, getDocs, doc, setDoc, updateDoc, deleteDoc, serverTimestamp, where, onSnapshot, orderBy } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+        import { onAuthStateChanged, signInAnonymously } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
         import { PassCodeEngine } from '../assets/pass-code-engine.js';
 
         window.verifyDirector = () => {
             const pass = document.getElementById('director-pass').value;
-            if (pass === 'SF-ADMIN-2026') { // Mock secret
+            if (pass === 'SFD-DIRECTOR-2026') { 
                 localStorage.setItem('sf_director_auth', 'true');
                 initHub();
             } else {
@@ -72,24 +74,113 @@
             if (localStorage.getItem('sf_director_auth') === 'true') {
                 document.getElementById('auth-gate').classList.add('hidden');
                 document.getElementById('director-hub').classList.remove('hidden');
-                showTab('seasons');
+                showTab('trainees');
             }
         }
 
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                signInAnonymously(auth).catch(console.error);
+            }
+        });
+
         window.showTab = async (tab) => {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            event.target.classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.classList.remove('active');
+                if (b.getAttribute('onclick').includes(`'${tab}'`)) b.classList.add('active');
+            });
             
             const content = document.getElementById('tab-content');
             content.innerHTML = '<div class="flex items-center justify-center h-64"><div class="w-10 h-10 border-4 border-gold/20 border-t-gold rounded-full animate-spin"></div></div>';
 
             try {
+                if (tab === 'trainees') await renderTrainees(content);
                 if (tab === 'seasons') await renderSeasons(content);
                 if (tab === 'tracks') await renderTracks(content);
                 if (tab === 'passcodes') await renderPasscodes(content);
                 if (tab === 'fingerprints') await renderFingerprints(content);
             } catch (err) {
                 content.innerHTML = `<p class="text-red-400">Error loading registry: ${err.message}</p>`;
+            }
+        };
+
+        async function renderTrainees(container) {
+            const q = query(collection(db, "trainees"), orderBy("created_at", "desc"));
+            
+            // Set up real-time listener
+            onSnapshot(q, (snap) => {
+                let html = `<div class="flex justify-between items-center mb-8">
+                    <h2 class="text-2xl font-black uppercase">Trainee Registry (${snap.size})</h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="text-[10px] font-black uppercase text-slate-500 border-b border-white/10">
+                            <tr>
+                                <th class="pb-4">Mastery Profile</th>
+                                <th class="pb-4">Identity (SFID)</th>
+                                <th class="pb-4">Path/Track</th>
+                                <th class="pb-4">XP/Neural State</th>
+                                <th class="pb-4">Contact</th>
+                                <th class="pb-4">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm">`;
+                
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    html += `<tr class="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                        <td class="py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-white/5 border border-gold/20 overflow-hidden">
+                                    <img src="${data.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + doc.id}" class="w-full h-full object-cover">
+                                </div>
+                                <div>
+                                    <p class="font-bold text-white uppercase text-xs">${data.name || 'Anonymous Trainee'}</p>
+                                    <p class="text-[8px] text-slate-500 uppercase tracking-widest">Joined: ${data.created_at?.toDate().toLocaleDateString() || 'N/A'}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-4 font-mono text-[10px] text-gold">${data.sfid || 'PENDING'}</td>
+                        <td class="py-4 uppercase text-[9px] font-black text-slate-300">${data.track || 'Unassigned'}</td>
+                        <td class="py-4">
+                            <div class="flex flex-col gap-1">
+                                <p class="text-[10px] font-black text-white">${data.xp || 0} XP</p>
+                                <div class="w-20 h-1 bg-white/5 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gold" style="width: ${Math.min((data.xp || 0) / 10, 100)}%"></div>
+                                </div>
+                                <p class="text-[8px] text-gold/60 uppercase font-bold">${data.tier || 'Novice'}</p>
+                            </div>
+                        </td>
+                        <td class="py-4">
+                            <p class="text-[10px] text-slate-300">${data.email || 'N/A'}</p>
+                            <p class="text-[10px] text-slate-500">${data.phone || 'N/A'}</p>
+                        </td>
+                        <td class="py-4">
+                            <div class="flex gap-2">
+                                <button onclick="viewTrainee('${doc.id}')" class="p-2 hover:text-gold transition-colors"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                                <button onclick="deleteTrainee('${doc.id}')" class="p-2 hover:text-red-400 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            </div>
+                        </td>
+                    </tr>`;
+                });
+                html += `</tbody></table></div>`;
+                container.innerHTML = html;
+                if (window.lucide) window.lucide.createIcons();
+            });
+        }
+
+        window.viewTrainee = async (uid) => {
+            const snap = await getDoc(doc(db, "trainees", uid));
+            if (snap.exists()) {
+                const data = snap.data();
+                alert(`Trainee Detail:\n\nName: ${data.name}\nSFID: ${data.sfid}\nTrack: ${data.track}\nEmail: ${data.email}\nPhone: ${data.phone}\nXP: ${data.xp}\nTier: ${data.tier}\nJoined: ${data.created_at?.toDate().toLocaleString()}`);
+            }
+        };
+
+        window.deleteTrainee = async (uid) => {
+            if (confirm("Permanently delete this trainee from the registry?")) {
+                await deleteDoc(doc(db, "trainees", uid));
+                alert("Trainee removed from registry.");
             }
         };
 

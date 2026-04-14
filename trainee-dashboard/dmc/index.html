@@ -5,13 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SkillForge — Academy Membership Card (DMC)</title>
 <script>
+  // Immediate UI Preparation - Hide content until Neural Core is ready
   (function() {
-    const uid = localStorage.getItem('skillforge_mock_uid');
-    if (!uid) {
-      window.stop();
-      const base = window.location.pathname.split('/trainee-dashboard')[0] || '';
-      window.location.href = base + '/trainee-login/';
-    }
+    document.documentElement.style.visibility = 'hidden';
   })();
 </script>
 <script src="https://cdn.tailwindcss.com"></script>
@@ -51,9 +47,8 @@ tailwind.config = {
 
   /* Redesigned Membership Card - Half Top Photo */
   .membership-card {
-    width: 100%;
-    max-width: 400px;
-    aspect-ratio: 2/3;
+    width: 400px; /* Fixed width for consistent export */
+    height: 600px; /* Fixed height for consistent export */
     background: var(--card-bg);
     border-radius: 40px;
     position: relative;
@@ -62,11 +57,12 @@ tailwind.config = {
     border: 1px solid rgba(255,255,255,0.1);
     display: flex;
     flex-direction: column;
+    transform: translateZ(0); /* Force hardware acceleration */
   }
   
   .card-photo-section {
     width: 100%;
-    height: 50%; /* Adjusted to exactly half */
+    height: 300px; /* Fixed half height */
     position: relative;
     background: #111;
     overflow: hidden;
@@ -76,21 +72,24 @@ tailwind.config = {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    display: block;
   }
   
   .card-overlay {
     position: absolute;
     inset: 0;
     background: linear-gradient(to bottom, transparent 60%, var(--card-bg));
+    pointer-events: none;
   }
   
   .card-details-section {
     flex: 1;
-    padding: 2.5rem; /* Increased padding for beauty */
+    padding: 2.5rem;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     z-index: 10;
+    position: relative;
   }
   
   .card-accent-bar {
@@ -123,6 +122,17 @@ tailwind.config = {
     color: white;
     text-shadow: 0 2px 4px rgba(0,0,0,0.5);
     z-index: 20;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .profile-name-target {
+    line-height: 1.1;
+    margin-bottom: 0.25rem;
+    word-break: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   .color-swatch {
@@ -297,23 +307,10 @@ tailwind.config = {
 
 <script type="module">
 import { themeManager } from '../../assets/theme-manager.js';
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js';
-import { getFirestore, doc, onSnapshot, updateDoc } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
-import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+import { db, auth } from '../../assets/firebase-config.js';
+import { doc, onSnapshot, updateDoc } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-
-const firebaseConfig = { 
-  apiKey: "AIzaSyAODtfZDqeR8DH7YRaiDlRwPOBlxxMfFnY", 
-  authDomain: "skillfoge-ecosystem.firebaseapp.com", 
-  projectId: "skillfoge-ecosystem", 
-  storageBucket: "skillfoge-ecosystem.firebasestorage.app", 
-  messagingSenderId: "279055501952", 
-  appId: "1:279055501952:web:45e741d2e8b23af698f465", 
-  measurementId: "G-YZNF8273RC" 
-};
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
 
 const supabaseUrl = 'https://luxubaqztmbcpskyfgdp.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1eHViYXF6dG1iY3Bza3lmZ2RwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDYzNTcsImV4cCI6MjA5MTQyMjM1N30.Kmon8jh22u5KgWWpXf-7cdZ4qxlKXuUbVm6Mh-GHd8Q';
@@ -492,8 +489,8 @@ window.downloadCard = async () => {
   }
 };
 
-window.logout = () => {
-  localStorage.removeItem('skillforge_mock_uid');
+window.logout = async () => {
+  await signOut(auth);
   window.location.href = '../../trainee-login/';
 };
 
