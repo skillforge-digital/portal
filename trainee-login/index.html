@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Trainee Academy Center Login • SkillForge Digital & Co. Ltd</title>
   <script>
+    // Immediate UI Preparation - Hide content until Neural Core is ready
+    (function() {
+      document.documentElement.style.visibility = 'hidden';
+    })();
+  </script>
+  <script>
     (function() {
       if (localStorage.getItem('skillforge_mock_uid')) {
         window.location.href = '../trainee-dashboard/';
@@ -197,6 +203,11 @@
     }
     new Sundust();
     if (window.lucide) window.lucide.createIcons();
+    
+    // Reveal content once the UI has been hydrated
+    setTimeout(() => {
+        document.documentElement.style.visibility = 'visible';
+    }, 100);
   </script>
   <script type="module" src="../assets/sf-turbo.js"></script>
   <script type="module" src="../assets/sf-atmosphere-3d.js"></script>
