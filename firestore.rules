@@ -3,67 +3,91 @@ service cloud.firestore {
   match /databases/{database}/documents {
     
     // Helper Functions
-    function isDirector() {
+    function isStaff() {
       return request.auth != null && 
-             exists(/databases/$(database)/documents/specialists/$(request.auth.uid)) && 
-             get(/databases/$(database)/documents/specialists/$(request.auth.uid)).data.level == 'Director';
+             exists(/databases/$(database)/documents/staffs/$(request.auth.uid));
+    }
+
+    function getStaffData() {
+      return get(/databases/$(database)/documents/staffs/$(request.auth.uid)).data;
+    }
+
+    function isDirector() {
+      return request.auth != null && (
+        (exists(/databases/$(database)/documents/specialists/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/specialists/$(request.auth.uid)).data.level == 'Director') ||
+        (exists(/databases/$(database)/documents/staffs/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/staffs/$(request.auth.uid)).data.primaryRole == 'Director')
+      );
     }
     
     function isSpecialist() {
-      return request.auth != null && 
-             exists(/databases/$(database)/documents/specialists/$(request.auth.uid));
+      return request.auth != null && (
+        exists(/databases/$(database)/documents/specialists/$(request.auth.uid)) ||
+        (exists(/databases/$(database)/documents/staffs/$(request.auth.uid)) && 
+         'Specialist' in get(/databases/$(database)/documents/staffs/$(request.auth.uid)).data.roles)
+      );
     }
 
     function isOwner(userId) {
       return request.auth != null && request.auth.uid == userId;
     }
 
+    // ROLE Codes Subsystem
+    match /role_codes/{codeId} {
+      allow read: if true; // Required for verification during registration
+      allow write: if isDirector();
+    }
+
+    // Staff Registry
+    match /staffs/{staffId} {
+      allow read: if request.auth != null && (isOwner(staffId) || isStaff());
+      allow create: if request.auth != null;
+      allow update: if isOwner(staffId) || isDirector();
+      allow delete: if isDirector();
+    }
+
     // Trainee Registry
     match /trainees/{traineeId} {
-      allow read: if request.auth != null; // Allow all authenticated users to read
+      allow read: if request.auth != null; 
       allow list: if request.auth != null;
       allow create: if request.auth != null;
-      
-      // Update logic: Prevent unauthorized track changes if already set
       allow update: if request.auth != null && (
         isOwner(traineeId) || 
         resource.data.uid == request.auth.uid ||
-        (!('uid' in resource.data) && request.resource.data.uid == request.auth.uid) ||
-        true // Temporarily allow for director access until role-based is implemented
+        isStaff()
       );
-      
-      allow delete: if request.auth != null; // Temporarily allow for director access
+      allow delete: if isDirector();
     }
     
-    // Presence & Tracking (Stricter Isolation)
+    // Presence & Tracking
     match /presence/{userId} {
-      allow read: if request.auth != null; // Allow all authenticated users to read
+      allow read: if request.auth != null;
       allow write: if isOwner(userId) && (
-        // Rate limiting: Ensure pulses are at least 55 seconds apart to prevent multi-tab inflation
         !('server_lastActive' in resource.data) || 
         request.time > resource.data.server_lastActive + duration.value(55, 's')
       );
     }
 
     match /tracking/{userId} {
-      allow read: if request.auth != null && (isOwner(userId) || isSpecialist());
+      allow read: if request.auth != null && (isOwner(userId) || isStaff());
       allow write: if isOwner(userId);
     }
 
     // Password Resets Subsystem
     match /password_resets/{requestId} {
-      allow create: if true; // Anonymous requests allowed
+      allow create: if true;
       allow read: if isDirector();
-      allow update: if true; // Allow token invalidation
+      allow update: if true;
     }
 
-    // Email Dispatch (Trigger Email Extension)
+    // Email Dispatch
     match /mail/{mailId} {
-      allow create: if true; // Allowed for system-triggered emails
+      allow create: if true;
       allow read: if isDirector();
     }
 
-    // Audit Logs (Stricter Create Logic)
+    // Audit Logs
     match /academy_audit_logs/{logId} {
       allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
       allow read: if isDirector();
@@ -81,11 +105,11 @@ service cloud.firestore {
 
     // Feedback Collection
     match /feedback/{feedbackId} {
-      allow create: if true; // Anonymous feedback allowed
-      allow read: if isSpecialist();
+      allow create: if true;
+      allow read: if isStaff();
     }
 
-    // Specialist Registry
+    // Specialist Registry (Legacy Support)
     match /specialists/{specialistId} {
       allow read: if request.auth != null;
       allow create: if isDirector();
@@ -102,7 +126,6 @@ service cloud.firestore {
       allow read: if request.auth != null;
       allow write: if isDirector();
       
-      // Exception for counters during registration
       match /artifacts/trainees/counters/tracks {
         allow read, write: if request.auth != null;
       }
@@ -111,7 +134,7 @@ service cloud.firestore {
     // Announcements & News
     match /announcements/{announcementId} {
       allow read, list: if true;
-      allow write: if isSpecialist();
+      allow write: if isStaff();
     }
   }
 }

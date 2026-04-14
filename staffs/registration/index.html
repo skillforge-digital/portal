@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Personnel Registration — SkillForge Digital</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: '#040810',
+            gold: '#C9A84C',
+            orange: '#E87722',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+    body { font-family:'Plus Jakarta Sans',sans-serif; background:#040810; color:#f1f5f9; overflow-x:hidden; min-height: 100dvh; }
+    #sundust-canvas { position:fixed; inset:0; width:100%; height:100dvh; z-index:0; pointer-events:none }
+    .glass { background: rgba(255,255,255,0.02); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
+    input { background: rgba(255,255,255,0.03) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; }
+    input:focus { border-color: #C9A84C !important; outline: none !important; background: rgba(255,255,255,0.05) !important; }
+    @keyframes slide-up { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .animate-slide-up { animation: slide-up 0.8s ease-out forwards; }
+  </style>
+</head>
+<body class="min-h-screen py-20 px-4">
+  <canvas id="sundust-canvas"></canvas>
+
+  <div class="relative z-10 max-w-xl mx-auto">
+    <header class="text-center mb-16 space-y-4 animate-slide-up">
+        <a href="../" class="inline-flex items-center gap-2 text-gold font-black text-[10px] uppercase tracking-[0.3em] mb-8 hover:text-white transition-all">
+            <i data-lucide="arrow-left" class="w-3 h-3"></i> Back to Staff Gateway
+        </a>
+        <h1 class="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter">Personnel Registry</h1>
+        <p class="text-slate-500 text-[10px] md:text-xs font-black uppercase tracking-[0.4em]">Secure Command Onboarding</p>
+    </header>
+
+    <main class="animate-slide-up" style="animation-delay: 0.2s;">
+        <!-- Step 1: ROLE Code Verification -->
+        <section id="code-step" class="glass p-10 rounded-[40px] border-white/10 space-y-8">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-gold/10 rounded-2xl flex items-center justify-center text-gold border border-gold/20">
+                    <i data-lucide="key" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-black text-white uppercase tracking-tight">Access Authorization</h2>
+                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Enter Assigned ROLE Code</p>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <input type="text" id="role-code-input" placeholder="ENTER ROLE CODE..." class="w-full p-5 rounded-2xl text-sm font-black tracking-widest uppercase">
+                <button onclick="verifyRoleCode()" id="verify-btn" class="w-full py-5 bg-white text-navy font-black rounded-2xl uppercase text-[10px] tracking-[0.2em] shadow-xl hover:bg-gold transition-all flex items-center justify-center gap-2">
+                    Verify Authorization <i data-lucide="shield-check" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- Step 2: Registration Form (Hidden Initially) -->
+        <section id="reg-step" class="hidden glass p-10 rounded-[40px] border-white/10 space-y-8">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-orange/10 rounded-2xl flex items-center justify-center text-orange border border-orange/20">
+                        <i data-lucide="user-plus" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-black text-white uppercase tracking-tight">Personnel Profile</h2>
+                        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Complete Secure Registration</p>
+                    </div>
+                </div>
+                <div id="role-badge" class="px-4 py-2 rounded-full bg-gold/10 border border-gold/20 text-gold text-[8px] font-black uppercase tracking-widest">
+                    Role Assigned
+                </div>
+            </div>
+
+            <form id="staff-reg-form" class="space-y-6">
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Full Command Name</label>
+                    <input required name="name" type="text" placeholder="FIRSTNAME LASTNAME" class="w-full p-4 rounded-2xl text-sm uppercase">
+                </div>
+                
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Personnel Email</label>
+                    <input required name="email" type="email" placeholder="personnel@skillforgedigital.com.ng" class="w-full p-4 rounded-2xl text-sm">
+                </div>
+
+                <div class="space-y-2 relative">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Secure Password</label>
+                    <div class="relative">
+                        <input required id="password" name="password" type="password" placeholder="********" class="w-full p-4 rounded-2xl text-sm pr-12">
+                        <button type="button" onclick="togglePassword('password')" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-gold transition-colors">
+                            <i data-lucide="eye" class="w-4 h-4" id="eye-password"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" id="reg-btn" class="w-full py-5 bg-white text-navy font-black rounded-2xl uppercase text-[10px] tracking-[0.2em] shadow-xl hover:bg-orange transition-all flex items-center justify-center gap-2">
+                    Register Personnel <i data-lucide="save" class="w-4 h-4"></i>
+                </button>
+            </form>
+        </section>
+
+        <!-- Success Section -->
+        <section id="success-step" class="hidden glass p-12 rounded-[40px] border-gold/20 text-center space-y-8">
+            <div class="w-20 h-20 bg-gold/10 rounded-full flex items-center justify-center mx-auto text-gold border border-gold/20">
+                <i data-lucide="party-popper" class="w-10 h-10"></i>
+            </div>
+            <div>
+                <h2 class="text-3xl font-black text-white uppercase tracking-tighter">Registration Confirmed</h2>
+                <p class="text-slate-400 text-sm mt-2">Welcome to the SkillForge Command Center. Your neural access has been authorized.</p>
+            </div>
+            <a href="../login/" class="block w-full py-5 bg-gold text-navy font-black rounded-2xl uppercase text-[10px] tracking-[0.2em] shadow-xl hover:bg-white transition-all">
+                Access Personnel Hub
+            </a>
+        </section>
+    </main>
+  </div>
+
+  <script type="module">
+    import { db, auth } from '../../assets/firebase-config.js';
+    import { doc, getDoc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+    import { createUserWithEmailAndPassword, updateProfile } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+
+    let assignedRoles = [];
+    let assignedCode = '';
+
+    const ROLE_HIERARCHY = [
+        'Director',
+        'HOD',
+        'Specialist',
+        'Digital Marketing',
+        'Support Staff'
+    ];
+
+    window.verifyRoleCode = async () => {
+        const codeInput = document.getElementById('role-code-input').value.trim();
+        if (!codeInput) return;
+
+        const btn = document.getElementById('verify-btn');
+        btn.disabled = true;
+        btn.innerHTML = 'Authorizing...';
+
+        try {
+            const codeRef = doc(db, 'role_codes', codeInput);
+            const codeSnap = await getDoc(codeRef);
+
+            if (codeSnap.exists()) {
+                const data = codeSnap.data();
+                if (data.used) {
+                    alert("Authorization Stale: This code has already been claimed.");
+                } else {
+                    assignedRoles = data.roles || [];
+                    assignedCode = codeInput;
+                    
+                    // Show assigned roles in badge
+                    document.getElementById('role-badge').innerText = assignedRoles.join(' | ');
+                    
+                    document.getElementById('code-step').classList.add('hidden');
+                    document.getElementById('reg-step').classList.remove('hidden');
+                }
+            } else {
+                alert("Unauthorized: Invalid ROLE code detected.");
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Connection error. Command registry unreachable.");
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = 'Verify Authorization <i data-lucide="shield-check" class="w-4 h-4"></i>';
+            if (window.lucide) window.lucide.createIcons();
+        }
+    };
+
+    document.getElementById('staff-reg-form').onsubmit = async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('reg-btn');
+        const formData = new FormData(e.target);
+        const { name, email, password } = Object.fromEntries(formData.entries());
+
+        btn.disabled = true;
+        btn.innerHTML = 'Onboarding Personnel...';
+
+        try {
+            // 1. Create User in Auth
+            const userCred = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCred.user;
+
+            // 2. Update Auth Profile
+            await updateProfile(user, { displayName: name });
+
+            // 3. Determine Highest Role
+            const highestRole = assignedRoles.sort((a, b) => 
+                ROLE_HIERARCHY.indexOf(a) - ROLE_HIERARCHY.indexOf(b)
+            )[0] || 'Staff';
+
+            // 4. Create Staff Document
+            await setDoc(doc(db, 'staffs', user.uid), {
+                uid: user.uid,
+                name: name.toUpperCase(),
+                email: email.toLowerCase(),
+                roles: assignedRoles,
+                primaryRole: highestRole,
+                roleCode: assignedCode,
+                created_at: serverTimestamp(),
+                lastLogin: serverTimestamp(),
+                status: 'active'
+            });
+
+            // 5. Mark code as used
+            await setDoc(doc(db, 'role_codes', assignedCode), { used: true, usedBy: user.uid }, { merge: true });
+
+            // 6. Success!
+            document.getElementById('reg-step').classList.add('hidden');
+            document.getElementById('success-step').classList.remove('hidden');
+        } catch (err) {
+            console.error(err);
+            alert("Onboarding failed: " + err.message);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = 'Register Personnel <i data-lucide="save" class="w-4 h-4"></i>';
+            if (window.lucide) window.lucide.createIcons();
+        }
+    };
+
+    window.togglePassword = (id) => {
+        const input = document.getElementById(id);
+        const icon = document.getElementById('eye-' + id);
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.setAttribute('data-lucide', 'eye-off');
+        } else {
+            input.type = 'password';
+            icon.setAttribute('data-lucide', 'eye');
+        }
+        if (window.lucide) window.lucide.createIcons();
+    };
+
+    // Sundust Background
+    class Sundust {
+      constructor() {
+        this.canvas = document.getElementById('sundust-canvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.particles = [];
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+        this.initParticles();
+        this.animate();
+      }
+      resize(){ this.canvas.width=window.innerWidth; this.canvas.height=window.innerHeight }
+      initParticles(){ for(let i=0;i<40;i++) this.particles.push(this.createParticle()) }
+      createParticle(){ return { x:Math.random()*this.canvas.width,y:Math.random()*this.canvas.height,size:Math.random()*1.2+0.5,alpha:Math.random()*0.3+0.1,vx:(Math.random()-0.5)*0.2,vy:(Math.random()-0.5)*0.2,p:Math.random()*Math.PI*2 } }
+      animate(){
+        this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
+        this.particles.forEach(p=>{
+          p.x+=p.vx; p.y+=p.vy; p.p+=0.01;
+          if(p.x<0)p.x=this.canvas.width; if(p.x>this.canvas.width)p.x=0;
+          if(p.y<0)p.y=this.canvas.height; if(p.y>this.canvas.height)p.y=0;
+          this.ctx.fillStyle=`rgba(201,168,76,${p.alpha+Math.sin(p.p)*0.1})`;
+          this.ctx.beginPath(); this.ctx.arc(p.x,p.y,p.size,0,Math.PI*2); this.ctx.fill();
+        });
+        requestAnimationFrame(()=>this.animate());
+      }
+    }
+    new Sundust();
+    if (window.lucide) window.lucide.createIcons();
+  </script>
+</body>
+</html>

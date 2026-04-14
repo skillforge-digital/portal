@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Specialist Hub — SkillForge Digital</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: '#040810',
+            gold: '#C9A84C',
+            orange: '#E87722',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+    body { font-family:'Plus Jakarta Sans',sans-serif; background:#040810; color:#f1f5f9; overflow-x:hidden; min-height: 100dvh; }
+    #sundust-canvas { position:fixed; inset:0; width:100%; height:100dvh; z-index:0; pointer-events:none }
+    .glass { background: rgba(255,255,255,0.02); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
+    .glass-strong { background: rgba(255,255,255,0.05); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.1); }
+    @keyframes slide-up { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .animate-slide-up { animation: slide-up 0.8s ease-out forwards; }
+    .nav-link.active { background: rgba(232,119,34,0.1); color: #E87722; border-right: 4px solid #E87722; }
+  </style>
+</head>
+<body class="flex flex-col md:flex-row">
+  <canvas id="sundust-canvas"></canvas>
+
+  <!-- Sidebar -->
+  <aside class="w-72 glass-strong border-r border-white/5 flex flex-col fixed inset-y-0 z-50 transition-all duration-500 md:translate-x-0 -translate-x-full" id="sidebar">
+    <div class="p-8 flex-1 overflow-y-auto">
+      <div class="flex items-center gap-3 mb-12">
+        <div class="w-12 h-12 rounded-2xl bg-orange/10 flex items-center justify-center text-orange border border-orange/20">
+          <i data-lucide="zap" class="w-6 h-6"></i>
+        </div>
+        <div class="flex flex-col leading-none">
+          <span class="font-black text-sm tracking-tighter uppercase">SkillForge</span>
+          <span class="text-[8px] text-orange font-bold tracking-[0.3em] uppercase">Specialist Hub</span>
+        </div>
+      </div>
+
+      <nav class="space-y-1">
+        <p class="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Command Nodes</p>
+        <a href="#" class="nav-link active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Path Overview
+        </a>
+        <a href="#" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+          <i data-lucide="user-check" class="w-4 h-4"></i> Trainee Registry
+        </a>
+        <a href="#" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+          <i data-lucide="award" class="w-4 h-4"></i> Badge Validation
+        </a>
+      </nav>
+    </div>
+
+    <div class="p-8 border-t border-white/5">
+        <div class="flex items-center gap-4 mb-6 p-4 rounded-2xl bg-white/5 border border-white/5">
+            <div class="w-10 h-10 rounded-xl bg-orange/10 flex items-center justify-center text-orange font-black text-xs" id="user-initials">S</div>
+            <div class="min-w-0">
+                <p class="text-[10px] font-black text-white uppercase truncate" id="user-name">Loading...</p>
+                <p class="text-[8px] text-orange font-bold uppercase tracking-widest truncate" id="user-role">Specialist Access</p>
+            </div>
+        </div>
+        <button onclick="window.staffCore.logout()" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-red-400/70 hover:text-red-400 hover:bg-red-400/10 transition-all">
+            <i data-lucide="log-out" class="w-4 h-4"></i> Sign Out
+        </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 md:ml-72 p-6 md:p-12 pt-24 md:pt-20">
+    <div class="max-w-6xl mx-auto space-y-12 animate-slide-up">
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
+            <div>
+                <p class="text-orange text-xs font-black tracking-[0.4em] uppercase">Specialist Command Node</p>
+                <h1 class="text-4xl md:text-6xl font-black mt-2 uppercase tracking-tighter">Path Registry</h1>
+            </div>
+            <div class="flex gap-4">
+                <div class="glass px-6 py-3 rounded-2xl border border-white/5">
+                    <p class="text-[8px] font-black text-white/30 uppercase tracking-widest">Active Pulse</p>
+                    <p class="text-xl font-bold text-orange" id="pulse-count">ACTIVE</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="glass p-8 rounded-[40px] border border-white/5">
+                <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-4">Assigned Path Trainees</p>
+                <p class="text-5xl font-black text-orange" id="trainee-count">0</p>
+                <p class="text-[8px] text-white/20 uppercase tracking-[0.3em] mt-2">Active registry entries</p>
+            </div>
+            <div class="glass p-8 rounded-[40px] border border-white/5">
+                <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-4">Pending Validations</p>
+                <p class="text-5xl font-black text-orange" id="badge-count">0</p>
+                <p class="text-[8px] text-white/20 uppercase tracking-[0.3em] mt-2">Badges awaiting review</p>
+            </div>
+        </div>
+
+        <!-- Main Workspace -->
+        <div class="glass-strong rounded-[40px] p-10 border border-white/5 min-h-[400px]">
+            <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40 mb-8">Recent Path Activity</h2>
+            <div class="flex items-center justify-center h-64 text-white/20 italic">
+                Scanning assigned path pulse for activity...
+            </div>
+        </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import StaffCore from '../../assets/staff-core.js';
+    import { db } from '../../assets/firebase-config.js';
+    import { collection, query, getDocs, onSnapshot, doc, getDoc, where } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+
+    window.addEventListener('DOMContentLoaded', async () => {
+        const checkCore = setInterval(() => {
+            if (window.staffCore && window.staffCore.profile) {
+                clearInterval(checkCore);
+                const profile = window.staffCore.profile;
+                document.getElementById('user-name').innerText = profile.name || 'SPECIALIST';
+                document.getElementById('user-role').innerText = profile.primaryRole + ' Access';
+                document.getElementById('user-initials').innerText = (profile.name || 'S').charAt(0);
+                
+                initDashboard();
+            }
+        }, 100);
+    });
+
+    async function initDashboard() {
+        // Real-time Trainee Count for assigned track (placeholder logic)
+        onSnapshot(collection(db, "trainees"), (snap) => {
+            document.getElementById('trainee-count').innerText = snap.size;
+        });
+
+        // Real-time Badge Requests
+        onSnapshot(collection(db, "badge_requests"), (snap) => {
+            let pending = 0;
+            snap.forEach(doc => { if (doc.data().status === 'pending') pending++ });
+            document.getElementById('badge-count').innerText = pending;
+        });
+    }
+
+    // Sundust Background
+    class Sundust {
+      constructor() {
+        this.canvas = document.getElementById('sundust-canvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.particles = [];
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+        this.initParticles();
+        this.animate();
+      }
+      resize(){ this.canvas.width=window.innerWidth; this.canvas.height=window.innerHeight }
+      initParticles(){ for(let i=0;i<40;i++) this.particles.push(this.createParticle()) }
+      createParticle(){ return { x:Math.random()*this.canvas.width,y:Math.random()*this.canvas.height,size:Math.random()*1.2+0.5,alpha:Math.random()*0.3+0.1,vx:(Math.random()-0.5)*0.2,vy:(Math.random()-0.5)*0.2,p:Math.random()*Math.PI*2 } }
+      animate(){
+        this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
+        this.particles.forEach(p=>{
+          p.x+=p.vx; p.y+=p.vy; p.p+=0.01;
+          if(p.x<0)p.x=this.canvas.width; if(p.x>this.canvas.width)p.x=0;
+          if(p.y<0)p.y=this.canvas.height; if(p.y>this.canvas.height)p.y=0;
+          this.ctx.fillStyle=`rgba(232,119,34,${p.alpha+Math.sin(p.p)*0.1})`;
+          this.ctx.beginPath(); this.ctx.arc(p.x,p.y,p.size,0,Math.PI*2); this.ctx.fill();
+        });
+        requestAnimationFrame(()=>this.animate());
+      }
+    }
+    new Sundust();
+    if (window.lucide) window.lucide.createIcons();
+  </script>
+</body>
+</html>
