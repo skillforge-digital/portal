@@ -4,45 +4,54 @@ service cloud.firestore {
     
     // Helper Functions
     function isDirector() {
-      return exists(/databases/$(database)/documents/specialists/$(request.auth.uid)) && 
+      return request.auth != null && 
+             exists(/databases/$(database)/documents/specialists/$(request.auth.uid)) && 
              get(/databases/$(database)/documents/specialists/$(request.auth.uid)).data.level == 'Director';
     }
     
     function isSpecialist() {
-      return exists(/databases/$(database)/documents/specialists/$(request.auth.uid));
+      return request.auth != null && 
+             exists(/databases/$(database)/documents/specialists/$(request.auth.uid));
+    }
+
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
     }
 
     // Trainee Registry
     match /trainees/{traineeId} {
-      allow read, list: if request.auth != null;
+      allow read: if request.auth != null && (isOwner(traineeId) || isSpecialist());
+      allow list: if isSpecialist();
       allow create: if request.auth != null;
       
       // Update logic: Prevent unauthorized track changes if already set
       allow update: if request.auth != null && (
-        request.auth.uid == traineeId || 
+        isOwner(traineeId) || 
         resource.data.uid == request.auth.uid ||
         (!('uid' in resource.data) && request.resource.data.uid == request.auth.uid)
       ) && (
         // Directors can update anything
         isDirector() ||
         // Trainees cannot change their own track if it's already defined
-        (!('track' in request.resource.data) || request.resource.data.track == resource.data.track)
+        (!('track' in request.resource.data) || !('track' in resource.data) || request.resource.data.track == resource.data.track)
       );
       
       allow delete: if false;
     }
     
-    // Presence, Tracking & Stats
-    match /{collection}/{userId} {
-      allow read, list: if request.auth != null;
-      allow write: if request.auth != null && (request.auth.uid == userId || resource.data.uid == request.auth.uid);
-      allow create: if request.auth != null;
-      match /{collection} {
-        allow read, write: if request.auth != null;
-      }
-      // Apply to presence and tracking specifically
-      match /presence/{userId} { allow read, write: if request.auth != null; }
-      match /tracking/{userId} { allow read, write: if request.auth != null; }
+    // Presence & Tracking (Stricter Isolation)
+    match /presence/{userId} {
+      allow read: if request.auth != null && (isOwner(userId) || isSpecialist());
+      allow write: if isOwner(userId) && (
+        // Rate limiting: Ensure pulses are at least 55 seconds apart to prevent multi-tab inflation
+        !('server_lastActive' in resource.data) || 
+        request.time > resource.data.server_lastActive + duration.value(55, 's')
+      );
+    }
+
+    match /tracking/{userId} {
+      allow read: if request.auth != null && (isOwner(userId) || isSpecialist());
+      allow write: if isOwner(userId);
     }
 
     // Password Resets Subsystem
@@ -54,19 +63,24 @@ service cloud.firestore {
 
     // Email Dispatch (Trigger Email Extension)
     match /mail/{mailId} {
-      allow create: if true; // Allowed for system-triggered emails (reset, etc.)
+      allow create: if true; // Allowed for system-triggered emails
       allow read: if isDirector();
     }
 
-    // Audit Logs (Academy, Gate, Security)
-    match /{collection}/{logId} {
-      allow create: if request.auth != null;
+    // Audit Logs (Stricter Create Logic)
+    match /academy_audit_logs/{logId} {
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
       allow read: if isDirector();
-      
-      // Specify log collections
-      match /academy_audit_logs/{logId} { allow create: if request.auth != null; }
-      match /gate_audit_logs/{logId} { allow create: if request.auth != null; }
-      match /audit_logs/{logId} { allow create: if request.auth != null; }
+    }
+    
+    match /gate_audit_logs/{logId} {
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+      allow read: if isDirector();
+    }
+    
+    match /audit_logs/{logId} {
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+      allow read: if isDirector();
     }
 
     // Feedback Collection
@@ -78,7 +92,7 @@ service cloud.firestore {
     // Specialist Registry
     match /specialists/{specialistId} {
       allow read: if request.auth != null;
-      allow create: if request.auth != null;
+      allow create: if isDirector();
       allow update, delete: if isDirector();
     }
 

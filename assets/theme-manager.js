@@ -1,31 +1,13 @@
-﻿﻿import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js';
-import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
-import { getAuth, onAuthStateChanged, signInAnonymously } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+import { db, auth, app } from './firebase-config.js';
+import { doc, getDoc, setDoc, updateDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+import { onAuthStateChanged, signInAnonymously } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-storage.js';
 
-const firebaseConfig = { 
-  apiKey: "AIzaSyAODtfZDqeR8DH7YRaiDlRwPOBlxxMfFnY", 
-  authDomain: "skillfoge-ecosystem.firebaseapp.com", 
-  projectId: "skillfoge-ecosystem", 
-  storageBucket: "skillfoge-ecosystem.firebasestorage.app", 
-  messagingSenderId: "279055501952", 
-  appId: "1:279055501952:web:45e741d2e8b23af698f465", 
-  measurementId: "G-YZNF8273RC" 
-};
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
 const storage = getStorage(app);
 
 class ThemeManager {
     constructor() {
-        this.uid = localStorage.getItem('skillforge_mock_uid');
-        const isProtectedPage = window.location.pathname.includes('trainee-dashboard');
-        const isAuthPage = window.location.pathname.includes('login') || window.location.pathname.includes('registration');
-        
-        if (!this.uid && isProtectedPage && !isAuthPage) {
-            const base = window.location.pathname.split('/trainee-dashboard')[0] || '';
-            window.location.href = `${base}/trainee-login/`;
-        }
+        this.uid = null;
         this.currentTheme = JSON.parse(localStorage.getItem('sf_global_theme') || '{}');
         this.controls = {
             glow: localStorage.getItem('sf_glow_mode') === 'true',
@@ -49,6 +31,7 @@ class ThemeManager {
             { name: 'General Sans', family: "'General Sans', sans-serif" },
             { name: 'Plus Jakarta Sans', family: "'Plus Jakarta Sans', sans-serif" }
         ];
+        
         this.init();
         
         // Zero-Refresh Engine (PJAX) Integration
@@ -65,28 +48,32 @@ class ThemeManager {
         this.applyTheme(this.currentTheme);
         this.applyControls(this.controls);
 
-        if (!this.uid) {
-            console.warn('ThemeManager: No UID found, skipping realtime sync.');
-            return;
-        }
-
-        const auth = getAuth(app);
-        
-        // Use onAuthStateChanged to ensure we only sync when authenticated
         onAuthStateChanged(auth, (user) => {
+            const isProtectedPage = window.location.pathname.includes('trainee-dashboard');
+            const isAuthPage = window.location.pathname.includes('login') || window.location.pathname.includes('registration');
+
             if (user) {
+                this.uid = user.uid;
                 console.log('ThemeManager: Connection confirmed, loading preferences...');
                 this.startSync();
             } else {
-                console.log('ThemeManager: Initializing session...');
-                signInAnonymously(auth).catch(err => {
-                    console.error('ThemeManager: Session initialization failed:', err);
-                });
+                if (isProtectedPage && !isAuthPage) {
+                    console.warn('ThemeManager: Protected page detected without auth. Redirecting...');
+                    const base = window.location.pathname.split('/trainee-dashboard')[0] || '';
+                    window.location.href = `${base}/trainee-login/`;
+                } else {
+                    console.log('ThemeManager: Initializing session...');
+                    signInAnonymously(auth).catch(err => {
+                        console.error('ThemeManager: Session initialization failed:', err);
+                    });
+                }
             }
         });
     }
 
     startSync() {
+        if (!this.uid) return;
+        
         onSnapshot(doc(db, 'trainees', this.uid), (doc) => {
             console.log('ThemeManager: Received registry snapshot update');
             if (doc.exists()) {
@@ -119,9 +106,6 @@ class ThemeManager {
             }
         }, (err) => {
             console.error('ThemeManager Snapshot failed:', err);
-            if (window.sf_report_error) {
-                window.sf_report_error(`Registry Sync Failed: ${err.message}`, err.stack);
-            }
         });
     }
 
@@ -133,15 +117,12 @@ class ThemeManager {
 
     applyTheme(theme) {
         if (!theme || Object.keys(theme).length === 0) {
-            console.warn("[ThemeManager] Attempted to apply empty theme. Falling back to defaults.");
             theme = { type: 'solid-pair', primary: '#040810', secondary: '#f59e0b' };
         }
         
-        console.log(`[ThemeManager] Applying atmosphere matrix: ${theme.type}`);
         const root = document.documentElement;
         const body = document.body;
         
-        // Save current theme to memory
         this.currentTheme = theme;
         localStorage.setItem('sf_global_theme', JSON.stringify(theme));
 
@@ -179,7 +160,6 @@ class ThemeManager {
             document.body.style.background = grad;
             document.body.style.backgroundAttachment = 'fixed';
             autoContrast(theme.c1);
-            // Global background particles sync
             window.dispatchEvent(new CustomEvent('sf:bg_update', { detail: { colors: [theme.c1, theme.c2] } }));
         } else if (theme.type === 'premium-gradient') {
             const grad = `linear-gradient(135deg, ${theme.colors.join(', ')})`;
@@ -240,10 +220,10 @@ class ThemeManager {
     }
 
     async saveLayout(layoutNum, source = 'LAYOUT_ENGINE') {
+        if (!this.uid) return false;
         try {
             const themeUpdate = { ...this.currentTheme, layout: layoutNum };
-            await setDoc(doc(db, 'trainees', this.uid), { theme: themeUpdate }, { merge: true });
-            await this.logChange('LAYOUT_UPDATE', { source, old: this.currentTheme.layout, new: layoutNum });
+            await updateDoc(doc(db, 'trainees', this.uid), { theme: themeUpdate });
             this.currentTheme = themeUpdate;
             localStorage.setItem('sf_global_theme', JSON.stringify(themeUpdate));
             this.applyTheme(themeUpdate);
@@ -253,112 +233,7 @@ class ThemeManager {
             return false;
         }
     }
-
-    async saveTheme(theme, source = 'UNKNOWN') {
-        try {
-            await setDoc(doc(db, 'trainees', this.uid), { theme }, { merge: true });
-            await this.logChange('THEME_UPDATE', { source, old: this.currentTheme, new: theme, type: theme.type });
-            this.currentTheme = theme;
-            localStorage.setItem('sf_global_theme', JSON.stringify(theme));
-            this.applyTheme(theme);
-            return true;
-        } catch (err) {
-            console.error('Theme Save Failed:', err);
-            return false;
-        }
-    }
-
-    async saveCardTheme(cardTheme, source = 'DMC_DESIGNER') {
-        try {
-            await setDoc(doc(db, 'trainees', this.uid), { cardTheme }, { merge: true });
-            await this.logChange('CARD_THEME_UPDATE', { source, cardTheme });
-            return true;
-        } catch (err) {
-            console.error('Card Theme Save Failed:', err);
-            return false;
-        }
-    }
-
-    async saveControls(controls, source = 'SETTINGS') {
-        try {
-            const update = { 'controls.glow': controls.glow, isLightMode: controls.light, performanceMode: controls.performance };
-            await setDoc(doc(db, 'trainees', this.uid), update, { merge: true });
-            await this.logChange('CONTROLS_UPDATE', { source, controls });
-            this.controls = controls;
-            this.applyControls(controls);
-            return true;
-        } catch (err) {
-            console.error('Controls Save Failed:', err);
-            return false;
-        }
-    }
-
-    async saveFont(fontFamily, source = 'CUSTOMIZE') {
-        try {
-            await setDoc(doc(db, 'trainees', this.uid), { fontFamily }, { merge: true });
-            await this.logChange('FONT_UPDATE', { source, fontFamily });
-            this.applyFont(fontFamily);
-            return true;
-        } catch (err) {
-            console.error('Font Save Failed:', err);
-            return false;
-        }
-    }
-
-    async saveWallpaper(fileOrUrl, source = 'CUSTOMIZE', isPublic = false) {
-        try {
-            let url = fileOrUrl;
-            if (fileOrUrl instanceof File || fileOrUrl instanceof Blob) {
-                const fileRef = ref(storage, `wallpapers/${this.uid}/${Date.now()}_${fileOrUrl.name || 'wallpaper'}`);
-                await uploadBytes(fileRef, fileOrUrl);
-                url = await getDownloadURL(fileRef);
-            }
-            const update = { wallpaper: url };
-            if (isPublic) update.isPublicWallpaper = true;
-            await setDoc(doc(db, 'trainees', this.uid), update, { merge: true });
-            await this.logChange('WALLPAPER_UPDATE', { source, url, isPublic });
-            this.applyWallpaper(url);
-            return url;
-        } catch (err) {
-            console.error('Wallpaper Save Failed:', err);
-            return false;
-        }
-    }
-
-    async saveProfileData(profileData, source = 'REGISTRATION') {
-        try {
-            const dataToSave = { ...profileData };
-            // If avatar is a File, upload it first
-            if (profileData.avatar instanceof File || profileData.avatar instanceof Blob) {
-                const fileRef = ref(storage, `avatars/${this.uid}_${Date.now()}`);
-                await uploadBytes(fileRef, profileData.avatar);
-                dataToSave.avatar = await getDownloadURL(fileRef);
-            }
-            await setDoc(doc(db, 'trainees', this.uid), dataToSave, { merge: true });
-            await this.logChange('PROFILE_UPDATE', { source, profileData: dataToSave });
-            return true;
-        } catch (err) {
-            console.error('Profile Update Failed:', err);
-            return false;
-        }
-    }
-
-    async logChange(action, modifications) {
-        try {
-            await addDoc(collection(db, 'audit_logs'), {
-                userId: this.uid,
-                action,
-                modifications,
-                timestamp: serverTimestamp(),
-                userAgent: navigator.userAgent,
-                page: window.location.pathname
-            });
-        } catch (err) {
-            console.warn('Logging failed:', err);
-        }
-    }
 }
 
 export const themeManager = new ThemeManager();
 window.themeManager = themeManager;
-

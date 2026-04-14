@@ -1,64 +1,103 @@
-﻿﻿﻿/**
- * SkillForge Core Engine (v2.0.0)
+/**
+ * SkillForge Core Engine (v2.1.0)
  * Unified Tracking, Identity, and Neural Sync
- * Replaces: presence.js, academy-tracker.js, presence_site.js
+ * Optimized for Security, Performance, and Multi-tab Synchronization
  */
 
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js';
-import { getAuth, onAuthStateChanged, signInAnonymously } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
-import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp, onSnapshot, addDoc, collection } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
-
-const firebaseConfig = { 
-  apiKey: "AIzaSyAODtfZDqeR8DH7YRaiDlRwPOBlxxMfFnY", 
-  authDomain: "skillfoge-ecosystem.firebaseapp.com", 
-  projectId: "skillfoge-ecosystem", 
-  storageBucket: "skillfoge-ecosystem.firebasestorage.app", 
-  messagingSenderId: "279055501952", 
-  appId: "1:279055501952:web:45e741d2e8b23af698f465", 
-  measurementId: "G-YZNF8273RC" 
-};
+import { db, auth } from './firebase-config.js';
+import { onAuthStateChanged, signInAnonymously } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+import { doc, getDoc, setDoc, updateDoc, increment, serverTimestamp, addDoc, collection } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 
 class SkillForgeCore {
     constructor() {
-        this.app = initializeApp(firebaseConfig);
-        this.auth = getAuth(this.app);
-        this.db = getFirestore(this.app);
+        this.db = db;
+        this.auth = auth;
         
-        this.uid = localStorage.getItem('skillforge_mock_uid');
+        this.uid = null;
         this.sessionStart = Date.now();
         this.isTracking = false;
         this.lastPulse = Date.now();
+        this.isMasterTab = false;
         
-        this.init();
-        
-        // Zero-Refresh Engine (PJAX) Integration
-        window.addEventListener('turbo:load', () => {
-            console.log("[NeuralCore] Turbo Load: Re-initializing registry listeners");
-            this.uid = localStorage.getItem('skillforge_mock_uid');
-            this.syncRegistryState();
+        // Master Tab Logic via BroadcastChannel
+        this.channel = new BroadcastChannel('sf_neural_sync');
+        this.setupMasterTabLogic();
+
+        // Content Protection: Hide content until authorized
+        this.protectContent();
+    }
+
+    /**
+     * Static Factory Method to ensure async initialization
+     */
+    static async start() {
+        const core = new SkillForgeCore();
+        await core.init();
+        return core;
+    }
+
+    async init() {
+        return new Promise((resolve) => {
+            onAuthStateChanged(this.auth, async (user) => {
+                if (user) {
+                    this.uid = user.uid;
+                    console.log(`[NeuralCore] Session verified for: ${this.uid}`);
+                    await this.syncRegistryState();
+                    this.revealContent();
+                    resolve();
+                } else {
+                    console.warn("[NeuralCore] No session detected. Initializing anonymous connection...");
+                    signInAnonymously(this.auth).catch(err => {
+                        console.error("[NeuralCore] Auth failed:", err);
+                    });
+                }
+            });
+
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) this.stopPulse();
+                else this.startPulse();
+            });
+
+            window.addEventListener('beforeunload', () => {
+                this.pulse();
+                this.channel.postMessage({ type: 'TAB_CLOSING' });
+                this.channel.close();
+            });
         });
     }
 
-    init() {
-        onAuthStateChanged(this.auth, async (user) => {
-            if (user) {
-                this.uid = localStorage.getItem('skillforge_mock_uid') || user.uid;
-                console.log(`[NeuralCore] Session verified for: ${this.uid}`);
-                this.syncRegistryState();
-            } else {
-                console.warn("[NeuralCore] No session detected. Initializing anonymous connection...");
-                signInAnonymously(this.auth).catch(err => {
-                    console.error("[NeuralCore] Auth failed:", err);
-                });
+    protectContent() {
+        // Only protect academy tracks
+        if (window.location.pathname.includes('/academy/')) {
+            const mainContent = document.querySelector('main') || document.body;
+            if (mainContent) {
+                this.originalDisplay = mainContent.style.display;
+                mainContent.style.display = 'none';
             }
-        });
+        }
+    }
 
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) this.stopPulse();
-            else this.startPulse();
-        });
+    revealContent() {
+        const mainContent = document.querySelector('main') || document.body;
+        if (mainContent) {
+            mainContent.style.display = this.originalDisplay || 'block';
+        }
+    }
 
-        window.addEventListener('beforeunload', () => this.pulse());
+    setupMasterTabLogic() {
+        this.channel.onmessage = (event) => {
+            if (event.data.type === 'PULSE_HEARTBEAT') {
+                // Another tab is already pulsing
+                if (this.isMasterTab) {
+                    console.log("[NeuralCore] Relinquishing Master Status to newer tab.");
+                    this.isMasterTab = false;
+                    this.stopPulseInterval();
+                }
+            }
+        };
+
+        // Claim master status if no heartbeat detected
+        this.isMasterTab = true;
     }
 
     async syncRegistryState() {
@@ -71,21 +110,32 @@ class SkillForgeCore {
                               !path.includes('gate.html');
 
         if (isAcademyTrack) {
-            const trackId = this.getCurrentTrack();
+            const { trackId, lessonId } = this.getPathContext();
             const hasPasscodeSession = this.verifyPasscodeSession(trackId);
 
             if (hasPasscodeSession) {
                 console.log(`[NeuralCore] Academy Access Confirmed: ${trackId}. Activating Trackers.`);
                 this.startNeuralSync();
                 this.handleAcademyActivity();
-                this.trackCurrentLesson();
+                this.trackCurrentLesson(trackId, lessonId);
             } else {
                 console.log("[NeuralCore] Academy track detected but no active passcode session. Tracking suspended.");
+                // Optional: Redirect to gate if session missing
+                // window.location.href = '/academy/gate.html';
             }
         } else {
             console.log("[NeuralCore] Outside Academy Scope. Neural trackers in standby.");
             this.stopPulse();
         }
+    }
+
+    getPathContext() {
+        // Use data attributes if available, otherwise fallback to robust path parsing
+        const body = document.body;
+        const trackId = body.getAttribute('data-track-id') || this.getCurrentTrack();
+        const lessonId = body.getAttribute('data-lesson-id') || window.location.pathname.split('/').filter(p => p).pop();
+        
+        return { trackId, lessonId };
     }
 
     getCurrentTrack() {
@@ -103,7 +153,6 @@ class SkillForgeCore {
             const token = parts.pop().split(';').shift();
             try {
                 const [fingerprint, timestamp] = atob(token).split('|');
-                // Check if session is less than 24 hours old
                 return (Date.now() - parseInt(timestamp)) < 24 * 60 * 60 * 1000;
             } catch (e) { return false; }
         }
@@ -116,12 +165,10 @@ class SkillForgeCore {
         const trackRef = doc(this.db, 'tracking', this.uid);
         const traineeRef = doc(this.db, 'trainees', this.uid);
 
-        // This tracks Academy Login Days and Total Academy Accesses
         const snap = await getDoc(trackRef);
         const data = snap.exists() ? snap.data() : { lastAcademyAccess: '', academyLoginDays: 0 };
 
         if (data.lastAcademyAccess !== today) {
-            console.log("[NeuralCore] New Academy Day Access detected.");
             await setDoc(trackRef, {
                 lastAcademyAccess: today,
                 academyLoginDays: increment(1),
@@ -129,17 +176,13 @@ class SkillForgeCore {
             }, { merge: true });
 
             await updateDoc(traineeRef, {
-                totalLogins: increment(1) // Renamed internally to Academy Logins per user requirement
+                totalLogins: increment(1)
             });
         }
     }
 
-    async trackCurrentLesson() {
-        if (!this.uid || !window.location.pathname.includes('/academy/')) return;
-        
-        const track = this.getCurrentTrack();
-        const lesson = window.location.pathname.split('/').slice(-2, -1)[0]; // Simplified lesson extraction
-        if (!lesson || lesson === track) return;
+    async trackCurrentLesson(track, lesson) {
+        if (!this.uid || !lesson || lesson === track) return;
 
         console.log(`[NeuralCore] Tracking: ${track} > ${lesson}`);
         const traineeRef = doc(this.db, 'trainees', this.uid);
@@ -148,11 +191,11 @@ class SkillForgeCore {
             if (snap.exists()) {
                 const data = snap.data();
                 const completed = data.completedLessons || [];
-                const lessonId = `${track}:${lesson}`;
+                const lessonKey = `${track}:${lesson}`;
                 
-                if (!completed.includes(lessonId)) {
+                if (!completed.includes(lessonKey)) {
                     await updateDoc(traineeRef, {
-                        completedLessons: [...completed, lessonId],
+                        completedLessons: [...completed, lessonKey],
                         lastLesson: { track, lesson, timestamp: Date.now() }
                     });
                 } else {
@@ -169,20 +212,28 @@ class SkillForgeCore {
         this.isTracking = true;
         this.lastPulse = Date.now();
         
-        // Pulse every 60 seconds
-        this.pulseInterval = setInterval(() => this.pulse(), 60000);
+        this.startPulseInterval();
         
-        // Check for Birthday
         const snap = await getDoc(doc(this.db, 'trainees', this.uid));
         if (snap.exists()) {
             this.checkBirthday(snap.data());
         }
     }
 
+    startPulseInterval() {
+        this.stopPulseInterval();
+        // Pulse every 60 seconds
+        this.pulseInterval = setInterval(() => this.pulse(), 60000);
+    }
+
+    stopPulseInterval() {
+        if (this.pulseInterval) clearInterval(this.pulseInterval);
+    }
+
     stopPulse() {
         if (!this.isTracking) return;
         this.pulse();
-        clearInterval(this.pulseInterval);
+        this.stopPulseInterval();
         this.isTracking = false;
     }
 
@@ -193,17 +244,14 @@ class SkillForgeCore {
     }
 
     async pulse() {
-        if (!this.uid || !this.isTracking) return;
+        if (!this.uid || !this.isTracking || !this.isMasterTab) return;
         
         const path = window.location.pathname;
         const isAcademyLesson = path.includes('/academy/') && 
                                 !path.endsWith('/academy/') && 
                                 !path.endsWith('/academy/index.html');
         
-        if (!isAcademyLesson) {
-            console.log("[NeuralCore] Pulse skipped: Not in a verified Academy Lesson track.");
-            return;
-        }
+        if (!isAcademyLesson) return;
 
         const now = Date.now();
         const elapsed = now - this.lastPulse;
@@ -212,20 +260,21 @@ class SkillForgeCore {
         const minutes = Math.floor(elapsed / 60000);
         if (minutes < 1 && elapsed < 30000) return; 
 
+        // Broadcast heartbeat to other tabs
+        this.channel.postMessage({ type: 'PULSE_HEARTBEAT', timestamp: now });
+
         const now_date = new Date();
         const todayDate = now_date.toISOString().split('T')[0];
         const dayName = now_date.toLocaleDateString('en-US', { weekday: 'long' });
         const monthName = now_date.toLocaleDateString('en-US', { month: 'long' });
         const currentHour = now_date.getHours();
         
-        // Calculate Week Number
         const startOfYear = new Date(now_date.getFullYear(), 0, 1);
         const pastDaysOfYear = (now_date - startOfYear) / 86400000;
         const weekNumber = Math.ceil((pastDaysOfYear + startOfYear.getDay() + 1) / 7);
         const weekKey = `${now_date.getFullYear()}-W${weekNumber}`;
 
-        const trackId = this.getCurrentTrack();
-        
+        const { trackId } = this.getPathContext();
         const traineeRef = doc(this.db, 'trainees', this.uid);
         const presenceRef = doc(this.db, 'presence', this.uid);
 
@@ -285,7 +334,6 @@ class SkillForgeCore {
         const currentLevel = Math.floor(xp / 1000) + 1;
         const lastLevel = data.lastNotifiedLevel || 1;
 
-        // 1. Tier Upgrade Logic
         let tier = 'Novice';
         if (xp >= 5000) tier = 'Intermediate';
         else if (xp >= 2500) tier = 'Beginner';
@@ -293,12 +341,9 @@ class SkillForgeCore {
 
         if (data.tier !== tier) {
             await updateDoc(ref, { tier: tier });
-            console.log(`[NeuralCore] Tier Upgraded to ${tier}!`);
         }
 
-        // 2. Level Milestone Logic
         if (currentLevel > lastLevel) {
-            console.log(`[NeuralCore] Level Milestone Reached: ${currentLevel}`);
             await updateDoc(ref, { lastNotifiedLevel: currentLevel });
             this.showMilestoneModal(currentLevel, tier);
         }
@@ -308,10 +353,9 @@ class SkillForgeCore {
         if (document.getElementById('milestone-modal')) return;
         const modalHtml = `
         <div id="milestone-modal" class="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-navy/95 backdrop-blur-2xl">
-            <div class="relative max-w-xl w-full bg-navy border border-gold/30 rounded-[50px] p-12 text-center shadow-4K overflow-hidden">
-                <div class="absolute inset-0 bg-gradient-to-br from-gold/10 via-transparent to-transparent opacity-50"></div>
+            <div class="relative max-w-xl w-full bg-navy border border-gold/30 rounded-[50px] p-12 text-center shadow-2xl overflow-hidden">
                 <div class="relative z-10">
-                    <div class="w-28 h-28 bg-gradient-to-br from-gold to-orange-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-2xl animate-bounce">
+                    <div class="w-28 h-28 bg-gradient-to-br from-gold to-orange-600 rounded-full flex items-center justify-center mx-auto mb-8 animate-bounce">
                         <i class="fa-solid fa-bolt-lightning text-5xl text-navy"></i>
                     </div>
                     <p class="text-gold font-black uppercase tracking-[0.5em] text-[10px] mb-4">Neural Advancement Detected</p>
@@ -340,7 +384,7 @@ class SkillForgeCore {
         const modalHtml = `
         <div id="birthday-modal" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-navy/90 backdrop-blur-xl">
             <div class="relative max-w-lg w-full bg-gradient-to-br from-gold/20 to-navy border border-gold/30 rounded-[40px] p-12 text-center shadow-2xl overflow-hidden">
-                <div class="w-24 h-24 bg-gold rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg">
+                <div class="w-24 h-24 bg-gold rounded-full flex items-center justify-center mx-auto mb-8">
                     <i class="fa-solid fa-gift text-4xl text-navy"></i>
                 </div>
                 <h2 class="text-4xl font-black text-white mb-4 uppercase tracking-tighter">Happy Birthday, <br><span class="text-gold">${name.split(' ')[0]}</span>!</h2>
@@ -352,11 +396,9 @@ class SkillForgeCore {
     }
 }
 
-// Compatibility Aliases for Legacy Code
-window.startRealtimePresence = () => {
-    console.log("[NeuralCore] startRealtimePresence called (Legacy Alias)");
-    if (window.sfCore) window.sfCore.pulse();
-};
+// Initialize via static factory method
+SkillForgeCore.start().then(core => {
+    window.sfCore = core;
+});
+
 export default SkillForgeCore;
-export const sfCore = new SkillForgeCore();
-window.sfCore = sfCore;
