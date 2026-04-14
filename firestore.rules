@@ -8,10 +8,6 @@ service cloud.firestore {
              exists(/databases/$(database)/documents/staffs/$(request.auth.uid));
     }
 
-    function getStaffData() {
-      return get(/databases/$(database)/documents/staffs/$(request.auth.uid)).data;
-    }
-
     function isDirector() {
       return request.auth != null && (
         (exists(/databases/$(database)/documents/specialists/$(request.auth.uid)) && 
@@ -35,7 +31,7 @@ service cloud.firestore {
 
     // ROLE Codes Subsystem
     match /role_codes/{codeId} {
-      allow read: if true; // Required for verification during registration
+      allow read: if true; 
       allow write: if isDirector();
     }
 
