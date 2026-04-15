@@ -10,6 +10,9 @@ import { doc, getDoc, setDoc, updateDoc, increment, serverTimestamp, addDoc, col
 
 class SkillForgeCore {
     constructor() {
+        if (window._sfCore) return;
+        window._sfCore = this;
+
         this.db = db;
         this.auth = auth;
         
@@ -38,15 +41,11 @@ class SkillForgeCore {
 
     async init() {
         return new Promise((resolve) => {
-            const authTimeout = setTimeout(() => {
-                console.warn("[NeuralCore] Auth initialization timeout. Proceeding...");
-                resolve();
-            }, 5000);
-
             onAuthStateChanged(this.auth, async (user) => {
-                if (user) {
-                    clearTimeout(authTimeout);
-                    this.uid = user.uid;
+                // UID Resolution following rule-compliant pattern
+                this.uid = (user ? user.uid : null) || localStorage.getItem('skillforge_mock_uid');
+
+                if (this.uid) {
                     console.log(`[NeuralCore] Session verified for: ${this.uid}`);
                     await this.syncRegistryState();
                     this.revealContent();
@@ -55,8 +54,6 @@ class SkillForgeCore {
                     console.warn("[NeuralCore] No session detected. Initializing anonymous connection...");
                     signInAnonymously(this.auth).catch(err => {
                         console.error("[NeuralCore] Auth failed:", err);
-                        clearTimeout(authTimeout);
-                        resolve(); // Resolve anyway to prevent infinite loading
                     });
                 }
             });

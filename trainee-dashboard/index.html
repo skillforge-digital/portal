@@ -13,19 +13,6 @@
       const loader = document.getElementById('loading-screen');
       if (loader) loader.classList.remove('hidden');
     });
-
-    // Emergency failsafe: Reveal content after 8 seconds if initialization hangs
-    setTimeout(() => {
-      const loader = document.getElementById('loading-screen');
-      if (loader && (loader.style.display !== 'none' || loader.classList.contains('hidden') === false)) {
-        console.warn("[Dashboard] Emergency neural bypass: Manual UI reveal triggered.");
-        loader.style.opacity = '0';
-        setTimeout(() => {
-            loader.style.display = 'none';
-            document.documentElement.style.visibility = 'visible';
-        }, 500);
-      }
-    }, 8000);
   })();
 </script>
 <script src="https://cdn.tailwindcss.com"></script>
@@ -313,7 +300,7 @@ tailwind.config = {
           <div class="absolute top-0 right-0 w-32 h-32 bg-gold-500/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
           <div>
             <div class="w-16 h-16 rounded-2xl bg-black flex items-center justify-center text-navy-950 font-bold text-2xl relative pulse-ring shadow-xl profile-initials-target overflow-hidden border border-gold-500/30">
-              <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=1" class="profile-avatar-target w-full h-full object-contain">
+              <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=1" alt="Trainee Avatar" class="profile-avatar-target w-full h-full object-contain">
             </div>
             <h2 class="text-xl md:text-2xl font-bold mt-4 profile-name-target truncate w-full">Loading...</h2>
             <p class="text-white/50 text-xs md:text-sm profile-track-target truncate w-full">Academy Trainee</p>
@@ -356,15 +343,15 @@ tailwind.config = {
           <div class="space-y-6">
             <div class="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
               <p class="text-[10px] font-black uppercase tracking-widest text-white/60">Atmospheric Glow</p>
-              <button onclick="toggleControl('glow')" class="ctrl-glow-btn w-12 h-6 rounded-full bg-white/10 relative transition-all"><div class="absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-all"></div></button>
+              <button onclick="toggleControl('glow')" aria-label="Toggle Atmospheric Glow" class="ctrl-glow-btn w-12 h-6 rounded-full bg-white/10 relative transition-all"><div class="absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-all"></div></button>
             </div>
             <div class="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
               <p class="text-[10px] font-black uppercase tracking-widest text-white/60">High-Contrast Light</p>
-              <button onclick="toggleControl('light')" class="ctrl-light-btn w-12 h-6 rounded-full bg-white/10 relative transition-all"><div class="absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-all"></div></button>
+              <button onclick="toggleControl('light')" aria-label="Toggle High-Contrast Light" class="ctrl-light-btn w-12 h-6 rounded-full bg-white/10 relative transition-all"><div class="absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-all"></div></button>
             </div>
             <div class="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
               <p class="text-[10px] font-black uppercase tracking-widest text-white/60">Atmospheric Canvas</p>
-              <button onclick="toggleControl('canvas')" class="ctrl-canvas-btn w-12 h-6 rounded-full bg-white/10 relative transition-all"><div class="absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-all"></div></button>
+              <button onclick="toggleControl('canvas')" aria-label="Toggle Atmospheric Canvas" class="ctrl-canvas-btn w-12 h-6 rounded-full bg-white/10 relative transition-all"><div class="absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-all"></div></button>
             </div>
           </div>
         </div>
@@ -917,20 +904,19 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 let traineeData = null;
 
-// Listen for auth state change directly to avoid race conditions with themeManager
+// UID Resolution following rule-compliant pattern
 onAuthStateChanged(auth, (user) => {
-  if (user) {
-    console.log("[Dashboard] Neural connection confirmed:", user.uid);
-    startRegistrySync(user.uid);
-  } else {
-    // If truly no user after a short delay (to allow for anonymous auth to kick in)
-    setTimeout(() => {
-      if (!auth.currentUser) {
-        console.warn("[Dashboard] No session detected. Redirecting to login...");
-        window.location.href = '../trainee-login/';
-      }
-    }, 2000);
+  const mockUid = localStorage.getItem('skillforge_mock_uid');
+  const lookupUid = user ? user.uid : mockUid;
+
+  if (!lookupUid) {
+    console.warn("[Dashboard] No valid session or mock identity found. Redirecting...");
+    window.location.href = '../trainee-login/';
+    return;
   }
+
+  console.log("[Dashboard] Neural connection established:", lookupUid);
+  startRegistrySync(lookupUid);
 });
 
 function startRegistrySync(targetUid) {
@@ -938,25 +924,27 @@ function startRegistrySync(targetUid) {
   
   onSnapshot(doc(db, 'trainees', targetUid), (snap) => {
     if (snap.exists()) {
-          const newData = snap.data();
-          const newDataString = JSON.stringify(newData);
-          
-          // Only update if data actually changed to prevent render loops
-          if (newDataString !== lastDataString) {
-            console.log('[Dashboard] Registry updated, refreshing UI...');
-            traineeData = newData;
-            lastDataString = newDataString;
-            initDashboard();
-            updateNeuralResume(newData);
-            loadNewsTicker();
-          }
-        } else {
-      console.warn("[Dashboard] Trainee data not found for UID:", targetUid);
-      // Failsafe: hide loader even if data missing
-      const loader = document.getElementById('loading-screen');
-      if (loader) {
-          loader.style.opacity = '0';
-          setTimeout(() => loader.style.display = 'none', 500);
+      const newData = snap.data();
+      const newDataString = JSON.stringify(newData);
+      
+      // Only update if data actually changed to prevent render loops
+      if (newDataString !== lastDataString) {
+        console.log('[Dashboard] Registry updated, refreshing UI...');
+        traineeData = newData;
+        lastDataString = newDataString;
+        initDashboard(targetUid);
+        updateNeuralResume(newData);
+        loadNewsTicker();
+      }
+    } else {
+      // Fallback: If Firebase user exists but Firestore doc doesn't, try mock UID
+      const mockUid = localStorage.getItem('skillforge_mock_uid');
+      if (mockUid && targetUid !== mockUid) {
+        console.warn("[Dashboard] Firestore registry missing for Auth UID. Retrying with mock UID...");
+        startRegistrySync(mockUid);
+      } else {
+        console.warn("[Dashboard] Trainee registry not found for identity:", targetUid);
+        window.location.href = '../trainee-login/';
       }
     }
   }, (err) => {
@@ -1011,7 +999,7 @@ function applyControlState(controls) {
   document.documentElement.classList.toggle('light', !!controls.light);
 }
 
-function initDashboard() {
+function initDashboard(targetUid) {
   const loader = document.getElementById('loading-screen');
   if (loader) {
     loader.style.opacity = '0';
@@ -1024,7 +1012,7 @@ function initDashboard() {
     light: traineeData.isLightMode,
     canvas: localStorage.getItem('sf_canvas_enabled') !== 'false'
   });
-  startRealtimePresence();
+  startRealtimePresence(targetUid);
   loadLeaderboard();
   
   if (traineeData.theme?.layout) showLayout(traineeData.theme.layout);
@@ -1078,7 +1066,7 @@ function updateDynamicUI() {
     "Cyber Security": "CYB"
   };
   const trackCode = TRACK_CODES[track] || "SFD";
-  const pin = traineeData.pin || "0000";
+  const pin = traineeData.pin || "000000";
   const accessKey = `${trackCode}-${pin}`;
   document.querySelectorAll('.access-pin-target').forEach(el => el.innerText = accessKey);
   
@@ -1187,9 +1175,8 @@ window.toggleSidebar = () => {
   sidebar.classList.toggle('-translate-x-full');
 };
 
-function startRealtimePresence() {
-  const uid = themeManager.uid;
-  onSnapshot(doc(db, 'presence', uid), (snap) => {
+function startRealtimePresence(targetUid) {
+  onSnapshot(doc(db, 'presence', targetUid), (snap) => {
     if (!snap.exists()) return;
     const p = snap.data();
     const d_val = Math.floor(p.totalTime / 86400000);

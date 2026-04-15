@@ -1,13 +1,13 @@
-import app, { db, auth } from './firebase-config.js';
+import { db, auth } from './firebase-config.js';
 import { doc, getDoc, setDoc, updateDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 import { onAuthStateChanged, signInAnonymously } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-storage.js';
-
-const storage = getStorage(app);
 
 class ThemeManager {
     constructor() {
-        this.uid = null;
+        if (window._sfThemeManager) return;
+        window._sfThemeManager = this;
+        
+        this.uid = localStorage.getItem('skillforge_mock_uid');
         this.currentTheme = JSON.parse(localStorage.getItem('sf_global_theme') || '{}');
         this.controls = {
             glow: localStorage.getItem('sf_glow_mode') === 'true',
@@ -52,20 +52,17 @@ class ThemeManager {
             const isProtectedPage = window.location.pathname.includes('trainee-dashboard');
             const isAuthPage = window.location.pathname.includes('login') || window.location.pathname.includes('registration');
 
-            if (user) {
-                this.uid = user.uid;
+            // UID Resolution: Rule-compliant check
+            this.uid = (user ? user.uid : null) || localStorage.getItem('skillforge_mock_uid');
+
+            if (this.uid) {
                 console.log('ThemeManager: Connection confirmed, loading preferences...');
                 this.startSync();
             } else {
                 if (isProtectedPage && !isAuthPage) {
-                    // Wait a moment for anonymous auth to kick in if it's supposed to
-                    setTimeout(() => {
-                        if (!auth.currentUser) {
-                            console.warn('ThemeManager: Protected page detected without auth. Redirecting...');
-                            const base = window.location.pathname.split('/trainee-dashboard')[0] || '';
-                            window.location.href = `${base}/trainee-login/`;
-                        }
-                    }, 2500);
+                    console.warn('ThemeManager: Protected page detected without auth. Redirecting...');
+                    const base = window.location.pathname.split('/trainee-dashboard')[0] || '';
+                    window.location.href = `${base}/trainee-login/`;
                 } else {
                     console.log('ThemeManager: Initializing session...');
                     signInAnonymously(auth).catch(err => {
@@ -122,7 +119,7 @@ class ThemeManager {
 
     applyTheme(theme) {
         if (!theme || Object.keys(theme).length === 0) {
-            theme = { type: 'solid-pair', primary: '#f59e0b', secondary: '#f59e0b' };
+            theme = { type: 'solid-pair', primary: '#040810', secondary: '#f59e0b' };
         }
         
         const root = document.documentElement;
@@ -178,13 +175,8 @@ class ThemeManager {
             autoContrast(theme.colors[0]);
             window.dispatchEvent(new CustomEvent('sf:bg_update', { detail: { colors: theme.colors } }));
         } else if (theme.type === 'solid-pair' || theme.type === 'dual') {
-            let primary = theme.primary || theme.color || '#f59e0b';
-            let secondary = theme.secondary || primary;
-            
-            // Safeguard: If primary is the background color, force it to Gold
-            if (primary === '#040810') primary = '#f59e0b';
-            if (secondary === '#040810' && theme.type !== 'dual') secondary = primary;
-
+            const primary = theme.primary || theme.color;
+            const secondary = theme.secondary || primary;
             root.style.setProperty('--accent-color', primary);
             root.style.setProperty('--accent-color-secondary', secondary);
             root.style.setProperty('--accent-color-rgb', hexToRgb(primary));
@@ -194,15 +186,12 @@ class ThemeManager {
             autoContrast(secondary);
             window.dispatchEvent(new CustomEvent('sf:bg_update', { detail: { colors: [primary, secondary] } }));
         } else if (theme.type === 'accent') {
-            let color = theme.color || '#f59e0b';
-            if (color === '#040810') color = '#f59e0b';
-            
-            root.style.setProperty('--accent-color', color);
-            root.style.setProperty('--accent-color-rgb', hexToRgb(color));
-            root.style.setProperty('--accent-gradient', `linear-gradient(135deg, ${color}, ${color})`);
+            root.style.setProperty('--accent-color', theme.color);
+            root.style.setProperty('--accent-color-rgb', hexToRgb(theme.color));
+            root.style.setProperty('--accent-gradient', `linear-gradient(135deg, ${theme.color}, ${theme.color})`);
             root.style.setProperty('--global-bg', '#040810');
             document.body.style.background = '#040810';
-            autoContrast(color);
+            autoContrast(theme.color);
         }
 
         if (theme.layout && (window.location.pathname.endsWith('trainee-dashboard/') || window.location.pathname.endsWith('trainee-dashboard/index.html'))) {

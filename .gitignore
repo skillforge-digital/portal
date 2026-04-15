@@ -1,3 +1,11 @@
+# Dependencies
+node_modules/
+dist/
+build/
+.next/
+.turbo/
+.cache/
+
 # SkillForge Academy Main Site (Exclude from Portal Repo)
 skill forge site/
 
