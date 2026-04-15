@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+﻿﻿﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -20,9 +20,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-</head>
-<script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
     tailwind.config = {
       darkMode: 'class',
       theme: {
@@ -147,17 +146,18 @@
                 const traineeDoc = querySnapshot.docs[0];
                 const trainee = traineeDoc.data();
                 
-                // Link doc to current anonymous session to ensure write permissions
+                // Update the UID field to current session for rule-compliance, 
+                // but use the permanent Document ID for local session tracking.
                 if (trainee.uid !== auth.currentUser.uid) {
                     await updateDoc(doc(db, "trainees", traineeDoc.id), { uid: auth.currentUser.uid });
-                    trainee.uid = auth.currentUser.uid;
                 }
                 
-                localStorage.setItem('skillforge_mock_uid', trainee.uid);
+                // CRITICAL: Save the permanent Document ID as the mock_uid
+                localStorage.setItem('skillforge_mock_uid', traineeDoc.id);
                 
                 // Set cross-subdomain cookie for seamless academy access
                 const cookieDomain = window.location.hostname.includes('skillforgedigital.com.ng') ? '.skillforgedigital.com.ng' : window.location.hostname;
-                document.cookie = `sf_uid=${trainee.uid}; path=/; domain=${cookieDomain}; max-age=86400; SameSite=Lax; Secure`;
+                document.cookie = `sf_uid=${traineeDoc.id}; path=/; domain=${cookieDomain}; max-age=86400; SameSite=Lax; Secure`;
                 
                 // Redirect to dashboard
                 window.location.href = '../trainee-dashboard/';
@@ -166,7 +166,8 @@
             }
         } catch (err) {
             console.error(err);
-            alert("Connection error. Our pages are temporarily desynced.");
+            const errorMsg = err.message || "Unknown anomaly detected.";
+            alert(`Connection error: ${errorMsg}. Please try refreshing or clearing your cache.`);
         } finally {
             btn.disabled = false;
             btn.innerHTML = 'Access Hub <i data-lucide="shield-check" class="w-4 h-4"></i>';

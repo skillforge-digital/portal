@@ -52,8 +52,8 @@ class ThemeManager {
             const isProtectedPage = window.location.pathname.includes('trainee-dashboard');
             const isAuthPage = window.location.pathname.includes('login') || window.location.pathname.includes('registration');
 
-            // UID Resolution: Rule-compliant check
-            this.uid = (user ? user.uid : null) || localStorage.getItem('skillforge_mock_uid');
+            // UID Resolution: Prioritize stable doc ID from localStorage
+            this.uid = localStorage.getItem('skillforge_mock_uid') || (user ? user.uid : null);
 
             if (this.uid) {
                 console.log('ThemeManager: Connection confirmed, loading preferences...');

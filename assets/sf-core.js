@@ -42,8 +42,8 @@ class SkillForgeCore {
     async init() {
         return new Promise((resolve) => {
             onAuthStateChanged(this.auth, async (user) => {
-                // UID Resolution following rule-compliant pattern
-                this.uid = (user ? user.uid : null) || localStorage.getItem('skillforge_mock_uid');
+                // UID Resolution: Prioritize mock UID (stable doc ID) over dynamic session UID
+                this.uid = localStorage.getItem('skillforge_mock_uid') || (user ? user.uid : null);
 
                 if (this.uid) {
                     console.log(`[NeuralCore] Session verified for: ${this.uid}`);
