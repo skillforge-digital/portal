@@ -56,12 +56,22 @@
 
         let passCodeEngine = null;
 
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             if (!user) {
-                signInAnonymously(auth).catch(console.error);
-            }
-            if (user && passCodeEngine === null) {
-                passCodeEngine = new PassCodeEngine(db, auth);
+                try {
+                    await signInAnonymously(auth);
+                } catch (err) {
+                    console.error("Anonymous auth failed:", err);
+                }
+            } else {
+                console.log("Director Hub Auth Ready:", user.uid);
+                if (passCodeEngine === null) {
+                    passCodeEngine = new PassCodeEngine(db, auth);
+                }
+                // If we are already authorized via password, refresh the view
+                if (localStorage.getItem('sf_director_auth') === 'true') {
+                    initHub();
+                }
             }
         });
 
@@ -84,7 +94,14 @@
             if (localStorage.getItem('sf_director_auth') === 'true') {
                 document.getElementById('auth-gate').classList.add('hidden');
                 document.getElementById('director-hub').classList.remove('hidden');
-                window.showTab('trainees');
+                
+                // Only show tab if auth is actually ready
+                if (auth.currentUser) {
+                    window.showTab('trainees');
+                } else {
+                    const content = document.getElementById('tab-content');
+                    content.innerHTML = '<div class="flex items-center justify-center h-64"><p class="text-gold animate-pulse">Establishing Secure Connection...</p></div>';
+                }
             }
         }
 
@@ -300,9 +317,12 @@
             let html = `<h2 class="text-2xl font-black uppercase mb-8">System Fingerprints</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">`;
             
+            const currentUid = auth.currentUser ? auth.currentUser.uid : "No Identity Found";
+            
             html += `<div class="p-6 rounded-2xl bg-white/5 border border-white/5 space-y-4">
                 <h3 class="font-black text-gold uppercase">Portal Identity</h3>
                 <div class="space-y-2 text-[10px] font-mono">
+                    <p class="text-slate-400">UID: <span class="text-white break-all">${currentUid}</span></p>
                     <p class="text-slate-400">Version: <span class="text-white">2.1.0</span></p>
                     <p class="text-slate-400">Build: <span class="text-white">Neural-Stable</span></p>
                     <p class="text-slate-400">Registry: <span class="text-green-400">Connected</span></p>

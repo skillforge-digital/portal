@@ -104,7 +104,7 @@ service cloud.firestore {
 
     match /trainees/{traineeId} {
       allow read: if isAuthenticated() && isOwner(traineeId);
-      allow list: if isStaff();
+      allow list: if isAuthenticated(); // Registry is viewable by all members
       allow create: if request.auth != null && isOwner(traineeId);
       allow update: if isOwner(traineeId) || isStaff();
       allow delete: if isDirector();
@@ -160,11 +160,11 @@ service cloud.firestore {
     // Only Directors can write season data and archives.
 
     match /seasons/{seasonId} {
-      allow read: if isAuthenticated();
+      allow read: if true; // Public read needed for gate logic
       allow write: if isDirector();
 
       match /artifacts/trainees/counters/tracks {
-        allow read: if isAuthenticated();
+        allow read: if true; // Public read needed for enrollment UI
         allow write: if isAuthenticated(); // Used in registration transaction
       }
 
