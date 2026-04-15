@@ -97,7 +97,12 @@
     </div>
   </main>
 
-  <script>
+  <script type="module">
+    import StaffCore from '../../assets/staff-core.js';
+    import { db, auth } from '../../assets/firebase-config.js';
+    import { collection, query, getDocs, doc, getDoc, setDoc, addDoc, deleteDoc, serverTimestamp, orderBy, onSnapshot, writeBatch, limit } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+
     // Global state
     let currentTab = 'overview';
     
@@ -105,7 +110,7 @@
     document.querySelectorAll('.nav-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const tab = btn.getAttribute('data-tab');
-        showTab(tab);
+        window.showTab(tab);
       });
     });
     
@@ -113,7 +118,7 @@
       window.staffCore.logout();
     });
 
-    async function showTab(tab) {
+    window.showTab = async function(tab) {
       currentTab = tab;
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active', 'text-gold', 'bg-gold/10', 'border-r-4', 'border-gold'));
       document.querySelector(`[data-tab="${tab}"]`).classList.add('active', 'text-gold', 'bg-gold/10', 'border-r-4', 'border-gold');
@@ -135,7 +140,7 @@
       if (window.lucide) window.lucide.createIcons();
     }
 
-    async function renderOverview(container) {
+    window.renderOverview = async function(container) {
       const traineeSnap = await getDocs(collection(db, 'trainees'));
       const staffSnap = await getDocs(collection(db, 'staffs'));
       const seasonSnap = await getDoc(doc(db, 'system', 'config'));
@@ -196,7 +201,7 @@
       `;
     }
 
-    async function renderTrainees(container) {
+    window.renderTrainees = async function(container) {
       const snap = await getDocs(query(collection(db, 'trainees'), orderBy('created_at', 'desc')));
       
       let html = `
@@ -263,7 +268,7 @@
       container.innerHTML = html;
     }
 
-    async function renderStaff(container) {
+    window.renderStaff = async function(container) {
       const snap = await getDocs(query(collection(db, 'staffs'), orderBy('created_at', 'desc')));
       
       let html = `
@@ -300,7 +305,7 @@
       container.innerHTML = html;
     }
 
-    async function renderAnnouncements(container) {
+    window.renderAnnouncements = async function(container) {
       const snap = await getDocs(query(collection(db, 'announcements'), orderBy('timestamp', 'desc')));
       
       container.innerHTML = `
@@ -318,19 +323,19 @@
           ${snap.empty ? '<p class="text-center text-white/40 py-12 italic">No announcements posted yet.</p>' : ''}
           ${snap.docs.map(doc => {
             const d = doc.data();
-            return `<div class="p-6 rounded-2xl bg-white/5 border border-white/5">
+            return \`<div class="p-6 rounded-2xl bg-white/5 border border-white/5">
               <div class="flex justify-between items-start mb-4">
                 <div>
-                  <h3 class="font-black uppercase text-lg">${d.title || 'Untitled'}</h3>
-                  <p class="text-[10px] text-slate-500 uppercase tracking-widest">${d.timestamp?.toDate().toLocaleString() || 'N/A'}</p>
+                  <h3 class="font-black uppercase text-lg">\${d.title || 'Untitled'}</h3>
+                  <p class="text-[10px] text-slate-500 uppercase tracking-widest">\${d.timestamp?.toDate().toLocaleString() || 'N/A'}</p>
                 </div>
                 <div class="flex gap-2">
-                  <span class="px-3 py-1 rounded-full bg-gold/10 text-gold text-[8px] font-black uppercase">${d.scope || 'global'}</span>
-                  <button onclick="deleteAnnouncement('${doc.id}')" class="p-2 hover:text-red-400"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                  <span class="px-3 py-1 rounded-full bg-gold/10 text-gold text-[8px] font-black uppercase">\${d.scope || 'global'}</span>
+                  <button onclick="deleteAnnouncement('\${doc.id}')" class="p-2 hover:text-red-400"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                 </div>
               </div>
-              <p class="text-sm text-slate-300">${d.content || ''}</p>
-            </div>`;
+              <p class="text-sm text-slate-300">\${d.content || ''}</p>
+            </div>\`;
           }).join('')}
         </div>
 
@@ -368,7 +373,7 @@
       `;
     }
 
-    async function renderSeasons(container) {
+    window.renderSeasons = async function(container) {
       const configSnap = await getDoc(doc(db, 'system', 'config'));
       const currentSeason = configSnap.exists() ? configSnap.data().currentSeason : '2026';
       
@@ -407,17 +412,17 @@
             ${archivesSnap.empty ? '<p class="text-center text-white/40 py-8 italic">No archived seasons yet.</p>' : ''}
             ${archivesSnap.docs.map(doc => {
               const d = doc.data();
-              return `<div class="p-6 rounded-2xl bg-white/5 border border-white/5 flex justify-between items-center">
+              return \`<div class="p-6 rounded-2xl bg-white/5 border border-white/5 flex justify-between items-center">
                 <div>
-                  <h3 class="font-black uppercase">${doc.id}</h3>
-                  <p class="text-[10px] text-slate-500 mt-1">${d.traineeCount || 0} trainees archived</p>
+                  <h3 class="font-black uppercase">\${doc.id}</h3>
+                  <p class="text-[10px] text-slate-500 mt-1">\${d.traineeCount || 0} trainees archived</p>
                 </div>
                 <div class="flex gap-2">
-                  <button onclick="restoreSeason('${doc.id}')" class="px-4 py-2 rounded-xl bg-gold/10 text-gold text-[10px] font-black uppercase hover:bg-gold/20 transition-all">
+                  <button onclick="restoreSeason('\${doc.id}')" class="px-4 py-2 rounded-xl bg-gold/10 text-gold text-[10px] font-black uppercase hover:bg-gold/20 transition-all">
                     <i data-lucide="archive-restore" class="w-4 h-4 inline mr-1"></i> Restore
                   </button>
                 </div>
-              </div>`;
+              </div>\`;
             }).join('')}
           </div>
         </div>
@@ -446,7 +451,7 @@
       `;
     }
 
-    async function renderCodes(container) {
+    window.renderCodes = async function(container) {
       container.innerHTML = `
         <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-8">
           <div>
@@ -470,7 +475,7 @@
       loadRoleCodes();
     }
 
-    async function renderAudit(container) {
+    window.renderAudit = async function(container) {
       const snap = await getDocs(query(collection(db, 'staff_audit_logs'), orderBy('timestamp', 'desc'), limit(100)));
       
       container.innerHTML = `
@@ -485,14 +490,14 @@
           ${snap.empty ? '<p class="text-center text-white/40 py-12 italic">No audit logs recorded yet.</p>' : ''}
           ${snap.docs.map(doc => {
             const d = doc.data();
-            return `<div class="py-4 border-b border-white/5">
+            return \`<div class="py-4 border-b border-white/5">
               <div class="flex justify-between items-start mb-2">
-                <span class="px-3 py-1 rounded-full bg-gold/10 text-gold text-[8px] font-black uppercase">${d.action}</span>
-                <span class="text-[10px] text-slate-500">${d.timestamp?.toDate().toLocaleString() || 'N/A'}</span>
+                <span class="px-3 py-1 rounded-full bg-gold/10 text-gold text-[8px] font-black uppercase">\${d.action}</span>
+                <span class="text-[10px] text-slate-500">\${d.timestamp?.toDate().toLocaleString() || 'N/A'}</span>
               </div>
-              <p class="text-sm text-white font-bold">${d.name} (${d.role})</p>
-              <p class="text-[10px] text-slate-400 mt-1">${JSON.stringify(d.details || {})}</p>
-            </div>`;
+              <p class="text-sm text-white font-bold">\${d.name} (\${d.role})</p>
+              <p class="text-[10px] text-slate-400 mt-1">\${JSON.stringify(d.details || {})}</p>
+            </div>\`;
           }).join('')}
         </div>
       `;
@@ -528,13 +533,13 @@
       
       await window.staffCore.logAnnouncementEdit('new', null, content, scope);
       closeAnnouncementModal();
-      showTab('announcements');
+      window.showTab('announcements');
     };
     
     window.deleteAnnouncement = async function(id) {
       if (!confirm('Delete this announcement?')) return;
       await deleteDoc(doc(db, 'announcements', id));
-      showTab('announcements');
+      window.showTab('announcements');
     };
     
     window.initializeNewSeason = function() {
@@ -596,7 +601,7 @@
       
       alert(`Season "${name}" has been initialized. ${traineeCount} trainees archived.`);
       closeSeasonModal();
-      showTab('seasons');
+      window.showTab('seasons');
     };
     
     window.restoreSeason = async function(seasonName) {
@@ -625,7 +630,7 @@
       await window.staffCore.logDataRestoration(seasonName, data.trainees.length);
       
       alert(`${data.trainees.length} trainees restored from "${seasonName}".`);
-      showTab('seasons');
+      window.showTab('seasons');
     };
     
     window.generateRoleCode = async function() {
@@ -653,6 +658,8 @@
       const snap = await getDocs(collection(db, 'role_codes'));
       const container = document.getElementById('codes-list');
       
+      if (!container) return;
+      
       if (snap.empty) {
         container.innerHTML = '<p class="text-center text-white/40 py-8 italic">No role codes generated yet.</p>';
         return;
@@ -665,8 +672,8 @@
             <p class="font-mono font-black text-lg">${doc.id}</p>
             <p class="text-[10px] text-slate-500 mt-1">Roles: ${(d.roles || []).join(', ')}</p>
           </div>
-          <span class="px-3 py-1 rounded-full ${d.used ? 'bg-red-500/10 text-red-400' : 'bg-green-500/10 text-green-400'} text-[8px] font-black uppercase">
-            ${d.used ? 'Used' : 'Available'}
+          <span class="px-3 py-1 rounded-full \${d.used ? 'bg-red-500/10 text-red-400' : 'bg-green-500/10 text-green-400'} text-[8px] font-black uppercase">
+            \${d.used ? 'Used' : 'Available'}
           </span>
         </div>`;
       }).join('');
@@ -676,34 +683,27 @@
       const snap = await getDoc(doc(db, 'trainees', uid));
       if (!snap.exists()) return;
       const d = snap.data();
-      alert(`Trainee Details:\n\nName: ${d.name}\nSFID: ${d.sfid}\nTrack: ${d.track}\nXP: ${d.xp}\nTier: ${d.tier}\nEmail: ${d.email}\nPhone: ${d.phone}`);
+      alert(`Trainee Details:\n\nName: \${d.name}\nSFID: \${d.sfid}\nTrack: \${d.track}\nXP: \${d.xp}\nTier: \${d.tier}\nEmail: \${d.email}\nPhone: \${d.phone}`);
     };
     
     window.deleteTrainee = async function(uid) {
       if (!confirm('Permanently delete this trainee?')) return;
       await deleteDoc(doc(db, 'trainees', uid));
-      showTab('trainees');
+      window.showTab('trainees');
     };
 
     // Initialize
-    window.addEventListener('DOMContentLoaded', () => {
+    window.addEventListener('load', () => {
       const checkCore = setInterval(() => {
         if (window.staffCore && window.staffCore.profile) {
           clearInterval(checkCore);
           document.getElementById('user-name').textContent = window.staffCore.profile.name || 'DIRECTOR';
           document.getElementById('user-role').textContent = window.staffCore.profile.primaryRole + ' Access';
           document.getElementById('user-initials').textContent = (window.staffCore.profile.name || 'D').charAt(0);
-          showTab('overview');
+          window.showTab('overview');
         }
       }, 100);
     });
-  </script>
-
-  <script type="module">
-    import StaffCore from '../../assets/staff-core.js';
-    import { db, auth } from '../../assets/firebase-config.js';
-    import { collection, query, getDocs, doc, getDoc, setDoc, addDoc, deleteDoc, serverTimestamp, orderBy, onSnapshot, writeBatch } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
-    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
 
     // Sundust Background
     class Sundust {
@@ -725,7 +725,7 @@
           p.x+=p.vx; p.y+=p.vy; p.p+=0.01;
           if(p.x<0)p.x=this.canvas.width; if(p.x>this.canvas.width)p.x=0;
           if(p.y<0)p.y=this.canvas.height; if(p.y>this.canvas.height)p.y=0;
-          this.ctx.fillStyle=`rgba(201,168,76,${p.alpha+Math.sin(p.p)*0.1})`;
+          this.ctx.fillStyle=`rgba(201,168,76,\${p.alpha+Math.sin(p.p)*0.1})`;
           this.ctx.beginPath(); this.ctx.arc(p.x,p.y,p.size,0,Math.PI*2); this.ctx.fill();
         });
         requestAnimationFrame(()=>this.animate());

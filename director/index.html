@@ -113,7 +113,7 @@
     <!-- Module Script: Firebase imports, runs after DOM is ready -->
     <script type="module">
         import { db, auth } from '../assets/firebase-config.js';
-        import { collection, query, getDocs, doc, setDoc, updateDoc, deleteDoc, serverTimestamp, where, onSnapshot, orderBy } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+        import { collection, query, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, serverTimestamp, where, onSnapshot, orderBy, limit } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
         import { onAuthStateChanged, signInAnonymously } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
         import { PassCodeEngine } from '../assets/pass-code-engine.js';
 
@@ -123,7 +123,7 @@
             }
         });
 
-        async function renderTrainees(container) {
+        window.renderTrainees = async function(container) {
             const q = query(collection(db, "trainees"), orderBy("created_at", "desc"));
             
             onSnapshot(q, (snap) => {
@@ -202,7 +202,7 @@
             }
         };
 
-        async function renderSeasons(container) {
+        window.renderSeasons = async function(container) {
             const q = query(collection(db, "seasons"));
             const snap = await getDocs(q);
             let html = `<div class="flex justify-between items-center mb-8">
@@ -245,7 +245,7 @@
             }
         };
 
-        async function renderTracks(container) {
+        window.renderTracks = async function(container) {
             const q = query(collection(db, "seasons", "2026", "artifacts", "trainees", "counters", "tracks"));
             const snap = await getDocs(q);
             let html = `<div class="flex justify-between items-center mb-8">
@@ -294,7 +294,7 @@
             alert("Generated Passcode: " + code);
         };
 
-        async function renderFingerprints(container) {
+        window.renderFingerprints = async function(container) {
             const q = query(collection(db, "trainees"), limit(5));
             const snap = await getDocs(q);
             let html = `<h2 class="text-2xl font-black uppercase mb-8">System Fingerprints</h2>
