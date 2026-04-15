@@ -903,6 +903,7 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 let traineeData = null;
+let activeUid = null;
 
 // UID Resolution following rule-compliant pattern
 onAuthStateChanged(auth, (user) => {
@@ -915,9 +916,20 @@ onAuthStateChanged(auth, (user) => {
     return;
   }
 
-  console.log("[Dashboard] Neural connection established:", lookupUid);
-  startRegistrySync(lookupUid);
+  activeUid = lookupUid;
+  console.log("[Dashboard] Neural connection established:", activeUid);
+  startRegistrySync(activeUid);
 });
+
+// Failsafe: Remove loading screen after 10 seconds if it hangs
+setTimeout(() => {
+  const loader = document.getElementById('loading-screen');
+  if (loader && loader.style.display !== 'none') {
+    console.warn("[Dashboard] Loading timeout reached. Forcing reveal...");
+    loader.style.opacity = '0';
+    setTimeout(() => loader.style.display = 'none', 500);
+  }
+}, 10000);
 
 function startRegistrySync(targetUid) {
   let lastDataString = null;
@@ -943,8 +955,11 @@ function startRegistrySync(targetUid) {
         console.warn("[Dashboard] Firestore registry missing for Auth UID. Retrying with mock UID...");
         startRegistrySync(mockUid);
       } else {
-        console.warn("[Dashboard] Trainee registry not found for identity:", targetUid);
-        window.location.href = '../trainee-login/';
+        console.error("[Dashboard] Trainee registry not found for identity:", targetUid);
+        // CRITICAL: Clear invalid session to prevent infinite redirect loop
+        localStorage.removeItem('skillforge_mock_uid');
+        document.cookie = "sf_uid=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+        window.location.href = '../trainee-login/?error=registry_not_found';
       }
     }
   }, (err) => {
@@ -970,7 +985,7 @@ window.toggleControl = async (type) => {
   else if (type === 'light') update.isLightMode = controls.light;
   else if (type === 'canvas') localStorage.setItem('sf_canvas_enabled', controls.canvas);
   
-  if (type !== 'canvas') await updateDoc(doc(db, 'trainees', uid), update);
+  if (type !== 'canvas') await updateDoc(doc(db, 'trainees', activeUid), update);
   applyControlState(controls);
 };
 
@@ -1438,6 +1453,7 @@ window.addEventListener('sf:turbo-render', () => {
 });
 
 window.logout = async () => { 
+    localStorage.removeItem('skillforge_mock_uid');
     await signOut(auth);
     
     // Clear cross-subdomain cookie

@@ -76,10 +76,10 @@ class ThemeManager {
     startSync() {
         if (!this.uid) return;
         
-        onSnapshot(doc(db, 'trainees', this.uid), (doc) => {
+        onSnapshot(doc(db, 'trainees', this.uid), (docSnap) => {
             console.log('ThemeManager: Received registry snapshot update');
-            if (doc.exists()) {
-                const data = doc.data();
+            if (docSnap.exists()) {
+                const data = docSnap.data();
                 if (data.theme) {
                     console.log('ThemeManager: Applying remote theme:', data.theme.type);
                     this.currentTheme = data.theme;
@@ -104,6 +104,13 @@ class ThemeManager {
                 if (data.wallpaper) {
                     console.log('ThemeManager: Applying remote wallpaper');
                     this.applyWallpaper(data.wallpaper);
+                }
+            } else {
+                console.warn('ThemeManager: Registry document missing for identity:', this.uid);
+                // We don't trigger redirect here to avoid race conditions with dashboard logic,
+                // but we do clear local cache to be safe.
+                if (window.location.pathname.includes('trainee-dashboard')) {
+                    // Let dashboard handle the redirect to maintain single source of truth
                 }
             }
         }, (err) => {
