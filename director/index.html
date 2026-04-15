@@ -124,7 +124,8 @@
         };
 
         window.renderTrainees = async function(container) {
-            const q = query(collection(db, "trainees"), orderBy("created_at", "desc"));
+            // Simplified query - remove orderBy to avoid index permission issues
+            const q = query(collection(db, "trainees"));
             const snap = await getDocs(q);
             
             let html = `<div class="flex justify-between items-center mb-8">
@@ -148,7 +149,14 @@
                 html += `<tr><td colspan="6" class="py-12 text-center text-white/40 italic">No trainees registered yet.</td></tr>`;
             }
             
-            snap.forEach(d => {
+            // Local sort by created_at since we removed the Firestore orderBy
+            const docs = snap.docs.sort((a, b) => {
+                const dateA = a.data().created_at?.toDate() || new Date(0);
+                const dateB = b.data().created_at?.toDate() || new Date(0);
+                return dateB - dateA;
+            });
+            
+            docs.forEach(d => {
                 const data = d.data();
                 html += `<tr class="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
                     <td class="py-4">
