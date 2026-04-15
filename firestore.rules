@@ -100,11 +100,12 @@ service cloud.firestore {
     // ==================== TRAINEE REGISTRY ====================
     // Core trainee records. Each trainee owns their doc.
     // Staff (specialist/HOD/Director) can list and read all for management.
+    // Anonymous Director (via password gate) can list registry.
     // Only Directors can delete trainee accounts.
 
     match /trainees/{traineeId} {
-      allow read: if isAuthenticated() && isOwner(traineeId);
-      allow list: if isAuthenticated(); // Registry is viewable by all members
+      allow list: if isAuthenticated(); // Any logged-in member can view registry
+      allow get: if isAuthenticated() && (isOwner(traineeId) || isStaff());
       allow create: if request.auth != null && isOwner(traineeId);
       allow update: if isOwner(traineeId) || isStaff();
       allow delete: if isDirector();
