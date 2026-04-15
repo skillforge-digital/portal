@@ -207,9 +207,13 @@
         };
 
         window.deleteTrainee = async (uid) => {
-            if (confirm("Permanently delete this trainee from the registry?")) {
-                await deleteDoc(doc(db, "trainees", uid));
-                alert("Trainee removed from registry.");
+            if (confirm("CRITICAL ACTION: Are you sure you want to permanently terminate this trainee's registry entry? This action cannot be undone.")) {
+                try {
+                    await deleteDoc(doc(db, "trainees", uid));
+                    alert("Trainee registry terminated successfully.");
+                } catch (err) {
+                    alert("Authorization Error: " + err.message);
+                }
             }
         };
 
@@ -217,7 +221,7 @@
             const snap = await getDocs(collection(db, "seasons"));
             let html = `<div class="flex justify-between items-center mb-8">
                 <h2 class="text-2xl font-black uppercase">Season Registry</h2>
-                <button onclick="window.createSeason()" class="bg-gold text-navy-950 px-6 py-2 rounded-xl font-bold text-[10px] uppercase">New Season</button>
+                <button onclick="window.createSeason()" class="bg-gold text-navy-950 px-6 py-2 rounded-xl font-bold text-[10px] uppercase">Initialize Season</button>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
             
@@ -244,36 +248,47 @@
         }
 
         window.createSeason = async () => {
-            const name = prompt("Enter Season Name (e.g., 2026-Q2):");
+            if (!confirm("Confirm authorization to initialize a new training season?")) return;
+            
+            const name = prompt("Enter Season Designation (e.g., 2026-V1):");
             if (name) {
-                await setDoc(doc(db, "seasons", name), {
-                    status: 'active',
-                    traineeCount: 0,
-                    created_at: serverTimestamp()
-                });
-                alert("Season created: " + name);
-                window.showTab('seasons');
+                try {
+                    await setDoc(doc(db, "seasons", name), {
+                        status: 'active',
+                        traineeCount: 0,
+                        created_at: serverTimestamp(),
+                        initializedBy: auth.currentUser.uid
+                    });
+                    alert("New season successfully initialized: " + name);
+                    window.showTab('seasons');
+                } catch (err) {
+                    alert("Authorization Error: " + err.message);
+                }
             }
         };
 
         window.renderTracks = async function(container) {
-            const snap = await getDocs(collection(db, "seasons", "2026", "artifacts", "trainees", "counters", "tracks"));
+            const docRef = doc(db, "seasons", "2026", "artifacts", "trainees", "counters", "tracks");
+            const snap = await getDoc(docRef);
+            
             let html = `<div class="flex justify-between items-center mb-8">
                 <h2 class="text-2xl font-black uppercase">Track Registry</h2>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">`;
             
-            if (snap.empty) {
-                html += '<p class="text-white/40 col-span-full text-center py-12 italic">No tracks enrolled yet.</p>';
+            if (!snap.exists()) {
+                html += '<p class="text-white/40 col-span-full text-center py-12 italic">No track enrollment data found for 2026.</p>';
+            } else {
+                const data = snap.data();
+                // Firestore doc fields are track names, values are counts
+                Object.entries(data).forEach(([trackName, count]) => {
+                    html += `<div class="p-6 rounded-2xl bg-white/5 border border-white/5 space-y-2">
+                        <h3 class="font-black uppercase">${trackName}</h3>
+                        <p class="text-3xl font-black text-gold">${count}</p>
+                        <p class="text-[10px] text-slate-500 uppercase tracking-widest">Enrolled Trainees</p>
+                    </div>`;
+                });
             }
-
-            snap.forEach(d => {
-                html += `<div class="p-6 rounded-2xl bg-white/5 border border-white/5 space-y-2">
-                    <h3 class="font-black uppercase">${d.id}</h3>
-                    <p class="text-3xl font-black text-gold">${d.data().count || d.data()[d.id] || 0}</p>
-                    <p class="text-[10px] text-slate-500 uppercase tracking-widest">Enrolled Trainees</p>
-                </div>`;
-            });
             html += '</div>';
             container.innerHTML = html;
         }
@@ -304,21 +319,31 @@
         }
 
         window.generatePasscode = async () => {
+            if (!confirm("Confirm authorization to generate a new unique access pass-code?")) return;
+            
             const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
             let code = 'ACADEMY-';
             for (let i = 0; i < 4; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
             code += '-2026';
-            const track = prompt("Enter track name for this code:");
+            
+            const track = prompt("Assign this code to which track?");
             if (!track) return;
-            const uid = prompt("Enter trainee UID for this code (or leave blank to generate free code):");
-            await setDoc(doc(db, "track_access", code), {
-                track,
-                uid: uid || null,
-                used: !!uid,
-                createdAt: serverTimestamp()
-            });
-            alert(`Passcode generated: ${code}\nTrack: ${track}`);
-            window.showTab('passcodes');
+            
+            const uid = prompt("Enter specific Trainee UID (leave blank for any-user code):");
+            
+            try {
+                await setDoc(doc(db, "track_access", code), {
+                    track,
+                    uid: uid || null,
+                    used: !!uid,
+                    createdAt: serverTimestamp(),
+                    generatedBy: auth.currentUser.uid
+                });
+                alert(`Pass-code successfully encrypted and stored: ${code}\nAssigned Track: ${track}`);
+                window.showTab('passcodes');
+            } catch (err) {
+                alert("Authorization Error: " + err.message);
+            }
         };
 
         window.renderFingerprints = async function(container) {
