@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https:; font-src 'self' https: data:; connect-src 'self' https:;">
   <title>SkillForge Digital • Official Trainee Portal</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -76,9 +77,9 @@
             </a>
         </div>
         <div class="hidden lg:flex items-center gap-8">
-            <a href="trainee-registration/" class="text-[10px] font-black uppercase tracking-widest text-gold hover:text-white transition-all">Academy Registry</a>
-            <a href="trainee-login/" class="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-all">Academy Center</a>
-            <a href="trainee-correction/" class="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-all">Mastery Update</a>
+            <a href="/trainee-registration/" class="text-[10px] font-black uppercase tracking-widest text-gold hover:text-white transition-all">Academy Registry</a>
+            <a href="/trainee-login/" class="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-all">Academy Center</a>
+            <a href="/trainee-correction/" class="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-all">Mastery Update</a>
         </div>
         <div class="flex items-center gap-3 md:gap-4">
             <button onclick="toggleTheme()" class="p-2.5 md:p-3 glass rounded-xl hover:text-gold transition-all" title="Toggle Theme">
@@ -88,7 +89,7 @@
             <button onclick="toggleMobileMenu()" class="lg:hidden p-2.5 glass rounded-xl text-slate-400 hover:text-gold transition-all">
                 <i data-lucide="menu" class="w-5 h-5"></i>
             </button>
-            <a href="trainee-registration/" class="hidden sm:block bg-gold text-navy px-5 md:px-8 py-2.5 md:py-3 rounded-full font-black text-[9px] md:text-[10px] uppercase tracking-widest hover:bg-white transition-all whitespace-nowrap">Enroll</a>
+            <a href="/trainee-registration/" class="hidden sm:block bg-gold text-navy px-5 md:px-8 py-2.5 md:py-3 rounded-full font-black text-[9px] md:text-[10px] uppercase tracking-widest hover:bg-white transition-all whitespace-nowrap">Enroll</a>
         </div>
     </nav>
 
@@ -97,10 +98,10 @@
         <button onclick="toggleMobileMenu()" class="absolute top-8 right-8 p-3 glass rounded-2xl text-gold">
             <i data-lucide="x" class="w-6 h-6"></i>
         </button>
-        <a href="trainee-registration/" class="text-xl font-black uppercase tracking-[0.2em] text-gold">Academy Registry</a>
-        <a href="trainee-login/" class="text-xl font-black uppercase tracking-[0.2em] text-white">Academy Center</a>
-        <a href="trainee-correction/" class="text-xl font-black uppercase tracking-[0.2em] text-white">Mastery Update</a>
-        <a href="trainee-registration/" class="bg-gold text-navy px-12 py-4 rounded-2xl font-black uppercase text-xs tracking-widest">Enroll Now</a>
+        <a href="/trainee-registration/" class="text-xl font-black uppercase tracking-[0.2em] text-gold">Academy Registry</a>
+        <a href="/trainee-login/" class="text-xl font-black uppercase tracking-[0.2em] text-white">Academy Center</a>
+        <a href="/trainee-correction/" class="text-xl font-black uppercase tracking-[0.2em] text-white">Mastery Update</a>
+        <a href="/trainee-registration/" class="bg-gold text-navy px-12 py-4 rounded-2xl font-black uppercase text-xs tracking-widest">Enroll Now</a>
     </div>
 
     <!-- Info Update Marquee -->
@@ -138,7 +139,7 @@
                 <p class="text-slate-400 text-sm md:text-xl font-medium leading-relaxed max-w-xl mx-auto lg:mx-0">Welcome to Skillforge Digital & Co. Ltd. A 3-week immersive journey designed to transform your passion into mastery.</p>
                 
                 <div class="flex flex-col sm:flex-row gap-4 max-w-md mx-auto lg:mx-0">
-                    <a href="trainee-registration/" class="flex-1 text-center bg-gold text-navy px-8 md:px-12 py-4 md:py-5 rounded-2xl font-black uppercase text-[10px] md:text-xs tracking-widest shadow-2xl shadow-gold/20 hover:scale-105 transition-all">Start Your Journey</a>
+                    <a href="/trainee-registration/" class="flex-1 text-center bg-gold text-navy px-8 md:px-12 py-4 md:py-5 rounded-2xl font-black uppercase text-[10px] md:text-xs tracking-widest shadow-2xl shadow-gold/20 hover:scale-105 transition-all">Start Your Journey</a>
                     <a href="#schedule" class="flex-1 text-center glass px-8 md:px-12 py-4 md:py-5 rounded-2xl font-black uppercase text-[10px] md:text-xs tracking-widest border border-white/10 hover:bg-white/5 transition-all">Mastery Schedule</a>
                 </div>
             </div>
@@ -175,10 +176,10 @@
                         </div>
                         
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <a href="trainee-login/" class="flex items-center justify-center gap-3 bg-gold text-navy py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl shadow-gold/10 hover:bg-white transition-all">
+                            <a href="/trainee-login/" class="flex items-center justify-center gap-3 bg-gold text-navy py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl shadow-gold/10 hover:bg-white transition-all">
                                 Enter Academy <i data-lucide="shield-check" class="w-4 h-4"></i>
                             </a>
-                            <a href="trainee-registration/" class="flex items-center justify-center gap-3 glass border border-gold/20 text-gold py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-gold/10 transition-all">
+                            <a href="/trainee-registration/" class="flex items-center justify-center gap-3 glass border border-gold/20 text-gold py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-gold/10 transition-all">
                                 Register Now <i data-lucide="user-plus" class="w-4 h-4"></i>
                             </a>
                         </div>
@@ -424,7 +425,6 @@
     new Sundust();
     if (window.lucide) window.lucide.createIcons();
   </script>
-  <script type="module" src="assets/sf-turbo.js"></script>
   <script type="module" src="assets/sf-atmosphere-3d.js"></script>
   <script src="assets/error-reporter.js"></script>
 </body>

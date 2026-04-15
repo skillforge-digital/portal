@@ -1,15 +1,10 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https:; font-src 'self' https: data:; connect-src 'self' https:;">
   <title>Trainee Academy Center Login • SkillForge Digital & Co. Ltd</title>
-  <script>
-    // Immediate UI Preparation - Hide content until Neural Core is ready
-    (function() {
-      document.documentElement.style.visibility = 'hidden';
-    })();
-  </script>
   <script>
     (function() {
       if (localStorage.getItem('skillforge_mock_uid')) {
@@ -209,16 +204,5 @@
 </script>
   <script type="module" src="../assets/sf-atmosphere-3d.js"></script>
   <script src="../assets/error-reporter.js"></script>
-  <script>
-    // Reliable show — run AFTER all modules/scripts have finished loading
-    function showContent() {
-      document.documentElement.style.visibility = 'visible';
-    }
-    if (document.readyState === 'complete') {
-      showContent();
-    } else {
-      window.addEventListener('load', showContent);
-    }
-  </script>
 </body>
 </html>
