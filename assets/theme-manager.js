@@ -117,7 +117,7 @@ class ThemeManager {
 
     applyTheme(theme) {
         if (!theme || Object.keys(theme).length === 0) {
-            theme = { type: 'solid-pair', primary: '#040810', secondary: '#f59e0b' };
+            theme = { type: 'solid-pair', primary: '#f59e0b', secondary: '#f59e0b' };
         }
         
         const root = document.documentElement;
@@ -173,8 +173,13 @@ class ThemeManager {
             autoContrast(theme.colors[0]);
             window.dispatchEvent(new CustomEvent('sf:bg_update', { detail: { colors: theme.colors } }));
         } else if (theme.type === 'solid-pair' || theme.type === 'dual') {
-            const primary = theme.primary || theme.color;
-            const secondary = theme.secondary || primary;
+            let primary = theme.primary || theme.color || '#f59e0b';
+            let secondary = theme.secondary || primary;
+            
+            // Safeguard: If primary is the background color, force it to Gold
+            if (primary === '#040810') primary = '#f59e0b';
+            if (secondary === '#040810' && theme.type !== 'dual') secondary = primary;
+
             root.style.setProperty('--accent-color', primary);
             root.style.setProperty('--accent-color-secondary', secondary);
             root.style.setProperty('--accent-color-rgb', hexToRgb(primary));
@@ -184,12 +189,15 @@ class ThemeManager {
             autoContrast(secondary);
             window.dispatchEvent(new CustomEvent('sf:bg_update', { detail: { colors: [primary, secondary] } }));
         } else if (theme.type === 'accent') {
-            root.style.setProperty('--accent-color', theme.color);
-            root.style.setProperty('--accent-color-rgb', hexToRgb(theme.color));
-            root.style.setProperty('--accent-gradient', `linear-gradient(135deg, ${theme.color}, ${theme.color})`);
+            let color = theme.color || '#f59e0b';
+            if (color === '#040810') color = '#f59e0b';
+            
+            root.style.setProperty('--accent-color', color);
+            root.style.setProperty('--accent-color-rgb', hexToRgb(color));
+            root.style.setProperty('--accent-gradient', `linear-gradient(135deg, ${color}, ${color})`);
             root.style.setProperty('--global-bg', '#040810');
             document.body.style.background = '#040810';
-            autoContrast(theme.color);
+            autoContrast(color);
         }
 
         if (theme.layout && (window.location.pathname.endsWith('trainee-dashboard/') || window.location.pathname.endsWith('trainee-dashboard/index.html'))) {
