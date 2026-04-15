@@ -38,8 +38,14 @@ class SkillForgeCore {
 
     async init() {
         return new Promise((resolve) => {
+            const authTimeout = setTimeout(() => {
+                console.warn("[NeuralCore] Auth initialization timeout. Proceeding...");
+                resolve();
+            }, 5000);
+
             onAuthStateChanged(this.auth, async (user) => {
                 if (user) {
+                    clearTimeout(authTimeout);
                     this.uid = user.uid;
                     console.log(`[NeuralCore] Session verified for: ${this.uid}`);
                     await this.syncRegistryState();
@@ -49,6 +55,8 @@ class SkillForgeCore {
                     console.warn("[NeuralCore] No session detected. Initializing anonymous connection...");
                     signInAnonymously(this.auth).catch(err => {
                         console.error("[NeuralCore] Auth failed:", err);
+                        clearTimeout(authTimeout);
+                        resolve(); // Resolve anyway to prevent infinite loading
                     });
                 }
             });

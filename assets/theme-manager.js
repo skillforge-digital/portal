@@ -58,9 +58,14 @@ class ThemeManager {
                 this.startSync();
             } else {
                 if (isProtectedPage && !isAuthPage) {
-                    console.warn('ThemeManager: Protected page detected without auth. Redirecting...');
-                    const base = window.location.pathname.split('/trainee-dashboard')[0] || '';
-                    window.location.href = `${base}/trainee-login/`;
+                    // Wait a moment for anonymous auth to kick in if it's supposed to
+                    setTimeout(() => {
+                        if (!auth.currentUser) {
+                            console.warn('ThemeManager: Protected page detected without auth. Redirecting...');
+                            const base = window.location.pathname.split('/trainee-dashboard')[0] || '';
+                            window.location.href = `${base}/trainee-login/`;
+                        }
+                    }, 2500);
                 } else {
                     console.log('ThemeManager: Initializing session...');
                     signInAnonymously(auth).catch(err => {

@@ -13,6 +13,19 @@
       const loader = document.getElementById('loading-screen');
       if (loader) loader.classList.remove('hidden');
     });
+
+    // Emergency failsafe: Reveal content after 8 seconds if initialization hangs
+    setTimeout(() => {
+      const loader = document.getElementById('loading-screen');
+      if (loader && (loader.style.display !== 'none' || loader.classList.contains('hidden') === false)) {
+        console.warn("[Dashboard] Emergency neural bypass: Manual UI reveal triggered.");
+        loader.style.opacity = '0';
+        setTimeout(() => {
+            loader.style.display = 'none';
+            document.documentElement.style.visibility = 'visible';
+        }, 500);
+      }
+    }, 8000);
   })();
 </script>
 <script src="https://cdn.tailwindcss.com"></script>
@@ -904,20 +917,21 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 let traineeData = null;
 
-// UID from themeManager handles the primary lookup
-const uid = themeManager.uid;
-
-if (uid) {
-  // ThemeManager handles the global auth state, so we just listen for the data
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      console.log("[Dashboard] Neural connection confirmed:", user.uid);
-      startRegistrySync(uid);
-    }
-  });
-} else {
-    window.location.href = '../trainee-login/';
-}
+// Listen for auth state change directly to avoid race conditions with themeManager
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    console.log("[Dashboard] Neural connection confirmed:", user.uid);
+    startRegistrySync(user.uid);
+  } else {
+    // If truly no user after a short delay (to allow for anonymous auth to kick in)
+    setTimeout(() => {
+      if (!auth.currentUser) {
+        console.warn("[Dashboard] No session detected. Redirecting to login...");
+        window.location.href = '../trainee-login/';
+      }
+    }, 2000);
+  }
+});
 
 function startRegistrySync(targetUid) {
   let lastDataString = null;
