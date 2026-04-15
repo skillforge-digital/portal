@@ -332,10 +332,8 @@
             console.log('[SeasonCheck] Using default season 2026');
         }
         
-        // Reveal content after check
-        setTimeout(() => {
-            document.documentElement.style.visibility = 'visible';
-        }, 100);
+        // Reveal content after all modules and async operations have completed
+        // (The showContent() in the final script block will handle this reliably via window.load)
     }
     
     checkSeasonReset();
@@ -485,26 +483,37 @@
             const result = await runTransaction(db, async (tx) => {
                 const counterRef = doc(db, 'seasons', '2026', 'artifacts', 'trainees', 'counters', 'tracks');
                 const traineeRef = doc(db, 'trainees', user.uid);
-                
+
                 const snap = await tx.get(counterRef);
                 const counts = snap.exists() ? snap.data() : {};
                 const next = (counts[traineeData.track] || 0) + 1;
                 const trackCode = TRACK_CODES[traineeData.track] || 'SFD';
                 const newSFID = `SFID-26-${trackCode}-${String(next).padStart(3, '0')}`;
                 const pin = Math.floor(100000 + Math.random() * 900000).toString();
-                
+
+                const trackAccessRef = doc(db, 'track_access', pin);
+
                 tx.set(traineeRef, {
-                    ...traineeData, 
+                    ...traineeData,
                     avatar: avatarUrl,
-                    sfid: newSFID, 
-                    pin, 
-                    uid: user.uid, 
+                    sfid: newSFID,
+                    pin,
+                    uid: user.uid,
                     xp: 0,
                     created_at: serverTimestamp(),
                     theme: { layout: parseInt(traineeData.layout) || 1, color: '#f59e0b', secondary: '#040810' }
                 }, { merge: true });
-                
+
                 tx.set(counterRef, { [traineeData.track]: next }, { merge: true });
+
+                tx.set(trackAccessRef, {
+                    pin: pin,
+                    track: traineeData.track,
+                    uid: user.uid,
+                    sfid: newSFID,
+                    created_at: serverTimestamp()
+                });
+
                 return { sfid: newSFID, pin };
             });
 
@@ -568,9 +577,17 @@
         document.documentElement.style.visibility = 'visible';
     }, 100);
   </script>
-  <script type="module" src="../assets/sf-core.js"></script>
-  <script type="module" src="../assets/sf-turbo.js"></script>
   <script type="module" src="../assets/sf-atmosphere-3d.js"></script>
+  <script>
+    function showContent() {
+      document.documentElement.style.visibility = 'visible';
+    }
+    if (document.readyState === 'complete') {
+      showContent();
+    } else {
+      window.addEventListener('load', showContent);
+    }
+  </script>
 </body>
 </html>
 

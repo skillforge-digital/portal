@@ -92,24 +92,22 @@
             }
         };
 
-        // Attach event listeners after DOM is ready
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('auth-btn').addEventListener('click', verifyDirector);
-            document.getElementById('director-pass').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') verifyDirector();
-            });
-            document.getElementById('logout-btn').addEventListener('click', logoutDirector);
-            
-            // Navigation tab clicks
-            document.querySelectorAll('.tab-btn').forEach(function(btn) {
-                btn.addEventListener('click', function() {
-                    showTab(this.getAttribute('data-tab'));
-                });
-            });
-
-            // Check if already authenticated
-            initHub();
+        // Attach event listeners immediately (scripts run after body is parsed)
+        document.getElementById('auth-btn').addEventListener('click', verifyDirector);
+        document.getElementById('director-pass').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') verifyDirector();
         });
+        document.getElementById('logout-btn').addEventListener('click', logoutDirector);
+
+        // Navigation tab clicks
+        document.querySelectorAll('.tab-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                showTab(this.getAttribute('data-tab'));
+            });
+        });
+
+        // Check if already authenticated
+        initHub();
     </script>
 
     <!-- Module Script: Firebase imports, runs after DOM is ready -->

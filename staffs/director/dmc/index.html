@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital ID — SkillForge Staff</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: '#040810',
+            gold: '#C9A84C',
+            orange: '#E87722',
+            emerald: '#10B981',
+            purple: '#8B5CF6',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+    body { font-family:'Plus Jakarta Sans',sans-serif; background:#040810; color:#f1f5f9; min-height: 100dvh; }
+    #sundust-canvas { position:fixed; inset:0; width:100%; height:100vh; z-index:0; pointer-events:none }
+    .glass { background: rgba(255,255,255,0.02); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
+    .glass-strong { background: rgba(255,255,255,0.05); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.1); }
+    @keyframes slide-up { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .animate-slide-up { animation: slide-up 0.8s ease-out forwards; }
+    
+    /* Staff Membership Card Styles */
+    .staff-card {
+      width: 420px;
+      height: 660px;
+      background: linear-gradient(135deg, #0a1628 0%, #1a1a2e 50%, #16213e 100%);
+      border-radius: 32px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 25px 80px -12px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.1);
+    }
+    
+    .card-accent-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, #C9A84C, #E87722, #C9A84C);
+    }
+    
+    .card-bg-pattern {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        radial-gradient(circle at 20% 80%, rgba(201,168,76,0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(232,119,34,0.08) 0%, transparent 50%);
+    }
+    
+    .card-content { position: relative; z-index: 10; padding: 2.5rem; height: 100%; display: flex; flex-direction: column; }
+    
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; }
+    
+    .card-logo {
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, #C9A84C, #E87722);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba(201,168,76,0.3);
+    }
+    
+    .card-sfid {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 800;
+      color: #C9A84C;
+      letter-spacing: 0.15em;
+      background: rgba(201,168,76,0.1);
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(201,168,76,0.2);
+    }
+    
+    .card-photo-section {
+      width: 100%;
+      height: 200px;
+      border-radius: 20px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+      background: rgba(255,255,255,0.05);
+      border: 2px solid rgba(255,255,255,0.1);
+    }
+    
+    .card-photo-section img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .card-info { flex: 1; }
+    
+    .card-name {
+      font-size: 1.5rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #fff;
+      line-height: 1.2;
+      margin-bottom: 0.5rem;
+      word-break: break-word;
+    }
+    
+    .card-role {
+      display: inline-block;
+      background: linear-gradient(135deg, rgba(201,168,76,0.2), rgba(232,119,34,0.2));
+      border: 1px solid rgba(201,168,76,0.3);
+      color: #C9A84C;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      padding: 6px 16px;
+      border-radius: 100px;
+      margin-bottom: 1rem;
+    }
+    
+    .card-dept {
+      color: rgba(255,255,255,0.6);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.5rem;
+    }
+    
+    .card-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-top: auto;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .card-meta-item { background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; }
+    .card-meta-label { font-size: 8px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 4px; }
+    .card-meta-value { font-size: 12px; font-weight: 700; color: #fff; }
+    
+    .card-qr {
+      position: absolute;
+      bottom: 2rem;
+      right: 2rem;
+      width: 70px;
+      height: 70px;
+      background: white;
+      border-radius: 8px;
+      padding: 4px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+    
+    .card-qr img { width: 100%; height: 100%; }
+  </style>
+</head>
+<body class="flex flex-col md:flex-row">
+  <canvas id="sundust-canvas"></canvas>
+
+  <!-- Sidebar -->
+  <aside class="w-72 glass-strong border-r border-white/5 flex flex-col fixed inset-y-0 z-50 transition-all duration-500 md:translate-x-0 -translate-x-full" id="sidebar">
+    <div class="p-8 flex-1 overflow-y-auto">
+      <div class="flex items-center gap-3 mb-12">
+        <div class="w-12 h-12 rounded-2xl bg-gold/10 flex items-center justify-center text-gold border border-gold/20">
+          <i data-lucide="shield-check" class="w-6 h-6"></i>
+        </div>
+        <div class="flex flex-col leading-none">
+          <span class="font-black text-sm tracking-tighter uppercase">SkillForge</span>
+          <span class="text-[8px] text-gold font-bold tracking-[0.3em] uppercase">Director Forge</span>
+        </div>
+      </div>
+
+      <nav class="space-y-1">
+        <p class="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Command Nodes</p>
+        <button data-tab="overview" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Overview
+        </button>
+        <button data-tab="profile" class="nav-btn active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+          <i data-lucide="id-card" class="w-4 h-4"></i> My ID Card
+        </button>
+        <button data-tab="customize" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+          <i data-lucide="palette" class="w-4 h-4"></i> Customize
+        </button>
+        <button data-tab="announcements" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+          <i data-lucide="megaphone" class="w-4 h-4"></i> Announcements
+        </button>
+        <button data-tab="seasons" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+          <i data-lucide="calendar" class="w-4 h-4"></i> Season Mgmt
+        </button>
+        <button data-tab="audit" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+          <i data-lucide="scroll-text" class="w-4 h-4"></i> Audit Logs
+        </button>
+      </nav>
+    </div>
+
+    <div class="p-8 border-t border-white/5">
+        <div class="flex items-center gap-4 mb-6 p-4 rounded-2xl bg-white/5 border border-white/5">
+            <div class="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center text-gold font-black text-xs" id="user-initials">D</div>
+            <div class="min-w-0">
+                <p class="text-[10px] font-black text-white uppercase truncate" id="user-name">Loading...</p>
+                <p class="text-[8px] text-gold font-bold uppercase tracking-widest truncate" id="user-role">Director</p>
+            </div>
+        </div>
+        <button id="logout-btn" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-red-400/70 hover:text-red-400 hover:bg-red-400/10 transition-all">
+            <i data-lucide="log-out" class="w-4 h-4"></i> Sign Out
+        </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 md:ml-72 p-6 md:p-12 pt-24 md:pt-20">
+    <div id="tab-content" class="max-w-6xl mx-auto animate-slide-up">
+      <!-- Content loads here -->
+    </div>
+  </main>
+
+  <script>
+    // Navigation
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => showTab(btn.getAttribute('data-tab')));
+    });
+    
+    document.getElementById('logout-btn').addEventListener('click', () => window.staffCore?.logout());
+
+    async function showTab(tab) {
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active', 'text-gold', 'bg-gold/10', 'border-r-4', 'border-gold'));
+      document.querySelector(`[data-tab="${tab}"]`).classList.add('active', 'text-gold', 'bg-gold/10', 'border-r-4', 'border-gold');
+      
+      const content = document.getElementById('tab-content');
+      content.innerHTML = '<div class="flex items-center justify-center h-64"><div class="w-10 h-10 border-4 border-gold/20 border-t-gold rounded-full animate-spin"></div></div>';
+      
+      switch(tab) {
+        case 'overview': content.innerHTML = await renderOverview(); break;
+        case 'profile': content.innerHTML = await renderProfile(); break;
+        case 'customize': content.innerHTML = await renderCustomize(); break;
+        default: content.innerHTML = await renderProfile();
+      }
+      
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function renderProfile() {
+      const p = window.staffCore?.profile || {};
+      return `
+        <header class="mb-12">
+          <p class="text-gold text-xs font-black tracking-[0.4em] uppercase mb-2">Personal Identity</p>
+          <h1 class="text-4xl md:text-5xl font-black uppercase tracking-tighter">My ID Card</h1>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+          <!-- Card Preview -->
+          <div class="flex justify-center">
+            <div id="staff-card-preview" class="staff-card">
+              <div class="card-accent-bar"></div>
+              <div class="card-bg-pattern"></div>
+              <div class="card-content">
+                <div class="card-header">
+                  <div class="card-logo">
+                    <i data-lucide="shield-check" class="w-6 h-6 text-navy"></i>
+                  </div>
+                  <div class="card-sfid">${p.sfid || 'STAFF-' + (p.uid ? p.uid.substring(0,6).toUpperCase() : 'XXXXXX')}</div>
+                </div>
+                
+                <div class="card-photo-section">
+                  <img src="${p.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + (p.uid || 'staff')}" alt="Staff Photo" id="card-photo">
+                </div>
+                
+                <div class="card-info">
+                  <h2 class="card-name" id="card-name">${p.name || 'STAFF NAME'}</h2>
+                  <span class="card-role" id="card-role">${p.primaryRole || 'STAFF'}</span>
+                  <p class="card-dept" id="card-dept">${p.department || 'DEPARTMENT'}</p>
+                </div>
+                
+                <div class="card-meta">
+                  <div class="card-meta-item">
+                    <p class="card-meta-label">Status</p>
+                    <p class="card-meta-value text-green-400">Active</p>
+                  </div>
+                  <div class="card-meta-item">
+                    <p class="card-meta-label">Joined</p>
+                    <p class="card-meta-value">${p.created_at ? new Date(p.created_at).toLocaleDateString() : 'N/A'}</p>
+                  </div>
+                </div>
+                
+                <div class="card-qr">
+                  <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=skillforge://staff/${p.uid || 'unknown'}" alt="QR">
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Card Controls -->
+          <div class="space-y-8">
+            <div class="glass p-8 rounded-[32px] border border-white/5">
+              <h3 class="text-lg font-black uppercase mb-6">Card Customization</h3>
+              
+              <div class="space-y-4">
+                <div>
+                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block">Display Name</label>
+                  <input type="text" id="card-name-input" value="${p.name || ''}" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl text-sm" placeholder="Your Name">
+                </div>
+                
+                <div>
+                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block">Avatar URL</label>
+                  <input type="text" id="card-photo-input" value="${p.avatar || ''}" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl text-sm" placeholder="https://...">
+                </div>
+                
+                <button onclick="updateCardPreview()" class="w-full py-4 bg-gold text-navy-950 rounded-xl font-black uppercase text-[10px] tracking-widest hover:bg-white transition-all">
+                  Update Preview
+                </button>
+              </div>
+            </div>
+            
+            <div class="glass p-8 rounded-[32px] border border-white/5">
+              <h3 class="text-lg font-black uppercase mb-6">Export Options</h3>
+              
+              <div class="grid grid-cols-2 gap-4">
+                <button onclick="exportCard('png')" class="py-4 bg-white text-navy-950 rounded-xl font-black uppercase text-[10px] tracking-widest hover:bg-gold transition-all flex items-center justify-center gap-2">
+                  <i data-lucide="image" class="w-4 h-4"></i> PNG
+                </button>
+                <button onclick="exportCard('jpg')" class="py-4 bg-white text-navy-950 rounded-xl font-black uppercase text-[10px] tracking-widest hover:bg-gold transition-all flex items-center justify-center gap-2">
+                  <i data-lucide="file-image" class="w-4 h-4"></i> JPG
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderOverview() {
+      return `
+        <header class="mb-12">
+          <p class="text-gold text-xs font-black tracking-[0.4em] uppercase mb-2">Command Center</p>
+          <h1 class="text-4xl md:text-5xl font-black uppercase tracking-tighter">Welcome Back</h1>
+        </header>
+        <div class="glass p-12 rounded-[32px] border border-white/5 text-center">
+          <p class="text-slate-400">Select "My ID Card" from the sidebar to view and customize your staff identity card.</p>
+        </div>
+      `;
+    }
+
+    function renderCustomize() {
+      return `
+        <header class="mb-12">
+          <p class="text-gold text-xs font-black tracking-[0.4em] uppercase mb-2">Personal Settings</p>
+          <h1 class="text-4xl md:text-5xl font-black uppercase tracking-tighter">Customize Profile</h1>
+        </header>
+        <div class="glass p-12 rounded-[32px] border border-white/5">
+          <p class="text-slate-400">Theme and layout customization coming soon.</p>
+        </div>
+      `;
+    }
+
+    window.updateCardPreview = function() {
+      const name = document.getElementById('card-name-input')?.value;
+      const photo = document.getElementById('card-photo-input')?.value;
+      
+      const nameEl = document.getElementById('card-name');
+      const photoEl = document.getElementById('card-photo');
+      
+      if (nameEl && name) nameEl.textContent = name.toUpperCase();
+      if (photoEl && photo) photoEl.src = photo;
+    };
+
+    window.exportCard = async function(format) {
+      const card = document.getElementById('staff-card-preview');
+      if (!card) return;
+      
+      try {
+        const canvas = await html2canvas(card, { scale: 3, useCORS: true, backgroundColor: null });
+        
+        if (format === 'jpg') {
+          const link = document.createElement('a');
+          link.download = 'staff-id-card.jpg';
+          link.href = canvas.toDataURL('image/jpeg', 0.95);
+          link.click();
+        } else {
+          const link = document.createElement('a');
+          link.download = 'staff-id-card.png';
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+        }
+      } catch (err) {
+        console.error('Export failed:', err);
+        alert('Export failed. Please try again.');
+      }
+    };
+
+    // Initialize
+    window.addEventListener('DOMContentLoaded', () => {
+      const check = setInterval(() => {
+        if (window.staffCore?.profile) {
+          clearInterval(check);
+          const p = window.staffCore.profile;
+          document.getElementById('user-name').textContent = p.name || 'DIRECTOR';
+          document.getElementById('user-role').textContent = p.primaryRole || 'Staff';
+          document.getElementById('user-initials').textContent = (p.name || 'D').charAt(0);
+          showTab('profile');
+        }
+      }, 100);
+    });
+  </script>
+
+  <script type="module">
+    import StaffCore from '../../assets/staff-core.js';
+    import { db } from '../../assets/firebase-config.js';
+    import { collection, query, getDocs, doc, getDoc } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+
+    // Sundust Background
+    class Sundust {
+      constructor() {
+        this.canvas = document.getElementById('sundust-canvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.particles = [];
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+        this.initParticles();
+        this.animate();
+      }
+      resize(){ this.canvas.width=window.innerWidth; this.canvas.height=window.innerHeight }
+      initParticles(){ for(let i=0;i<40;i++) this.particles.push(this.createParticle()) }
+      createParticle(){ return { x:Math.random()*this.canvas.width,y:Math.random()*this.canvas.height,size:Math.random()*1.2+0.5,alpha:Math.random()*0.3+0.1,vx:(Math.random()-0.5)*0.2,vy:(Math.random()-0.5)*0.2,p:Math.random()*Math.PI*2 } }
+      animate(){
+        this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
+        this.particles.forEach(p=>{
+          p.x+=p.vx; p.y+=p.vy; p.p+=0.01;
+          if(p.x<0)p.x=this.canvas.width; if(p.x>this.canvas.width)p.x=0;
+          if(p.y<0)p.y=this.canvas.height; if(p.y>this.canvas.height)p.y=0;
+          this.ctx.fillStyle=`rgba(201,168,76,${p.alpha+Math.sin(p.p)*0.1})`;
+          this.ctx.beginPath(); this.ctx.arc(p.x,p.y,p.size,0,Math.PI*2); this.ctx.fill();
+        });
+        requestAnimationFrame(()=>this.animate());
+      }
+    }
+    new Sundust();
+  </script>
+</body>
+</html>

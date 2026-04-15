@@ -9,6 +9,21 @@
       ]
     },
     {
+      "collectionGroup": "trainees",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "sfid", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "track_access",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "pin", "order": "ASCENDING" },
+        { "fieldPath": "track", "order": "ASCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "audit_logs",
       "queryScope": "COLLECTION",
       "fields": [

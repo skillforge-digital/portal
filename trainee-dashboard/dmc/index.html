@@ -131,6 +131,7 @@ tailwind.config = {
     word-break: break-word;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
@@ -316,7 +317,7 @@ const supabaseUrl = 'https://luxubaqztmbcpskyfgdp.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1eHViYXF6dG1iY3Bza3lmZ2RwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDYzNTcsImV4cCI6MjA5MTQyMjM1N30.Kmon8jh22u5KgWWpXf-7cdZ4qxlKXuUbVm6Mh-GHd8Q';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-let uid = themeManager.uid;
+let uid = localStorage.getItem('skillforge_mock_uid') || null;
 let traineeData = null;
 let currentCardTheme = { accent: '#f59e0b', bg: '#0c1829' };
 let pendingAvatar = null;
@@ -343,38 +344,56 @@ function init() {
   });
 
   onAuthStateChanged(auth, (user) => {
+    let lookupUid = null;
+
     if (user) {
-      uid = user.uid;
-      onSnapshot(doc(db, 'trainees', uid), (snap) => {
-        if (snap.exists()) {
-          traineeData = snap.data();
-          updateUI();
-          if (traineeData.cardTheme) applyCardTheme(traineeData.cardTheme, false);
-          hideLoading();
-        } else {
-          console.error("Trainee data not found.");
-          hideLoading();
-        }
-      }, (err) => {
-        console.error("Snapshot error:", err);
-        hideLoading();
-      });
+      lookupUid = user.uid;
     } else if (uid) {
-        // Fallback for mock UID if auth is not ready
-        onSnapshot(doc(db, 'trainees', uid), (snap) => {
-            if (snap.exists()) {
-                traineeData = snap.data();
-                updateUI();
-                if (traineeData.cardTheme) applyCardTheme(traineeData.cardTheme, false);
-                hideLoading();
-            }
-        }, (err) => {
-            console.error("Fallback snapshot error:", err);
-            hideLoading();
-        });
+      lookupUid = uid;
     } else {
-        window.location.href = '../../trainee-login/';
+      window.location.href = '../../trainee-login/';
+      return;
     }
+
+    onSnapshot(doc(db, 'trainees', lookupUid), (snap) => {
+      if (snap.exists()) {
+        traineeData = snap.data();
+        updateUI();
+        if (traineeData.cardTheme) applyCardTheme(traineeData.cardTheme, false);
+        hideLoading();
+      } else {
+        if (lookupUid !== uid && uid) {
+          onSnapshot(doc(db, 'trainees', uid), (snap2) => {
+            if (snap2.exists()) {
+              traineeData = snap2.data();
+              updateUI();
+              if (traineeData.cardTheme) applyCardTheme(traineeData.cardTheme, false);
+            } else {
+              window.location.href = '../../trainee-login/';
+            }
+            hideLoading();
+          });
+        } else {
+          window.location.href = '../../trainee-login/';
+        }
+      }
+    }, (err) => {
+      console.error("Firestore read error:", err);
+      if (uid) {
+        onSnapshot(doc(db, 'trainees', uid), (snap) => {
+          if (snap.exists()) {
+            traineeData = snap.data();
+            updateUI();
+            if (traineeData.cardTheme) applyCardTheme(traineeData.cardTheme, false);
+          } else {
+            window.location.href = '../../trainee-login/';
+          }
+          hideLoading();
+        });
+      } else {
+        hideLoading();
+      }
+    });
   });
 
   // Safety timeout for loading screen

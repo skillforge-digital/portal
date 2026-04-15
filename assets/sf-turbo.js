@@ -6,9 +6,14 @@
 
 class SkillForgeTurbo {
     constructor() {
+        if (window._sfTurboInstance) {
+            console.log("[Turbo] Engine already running, skipping duplicate.");
+            return;
+        }
         this.cache = new Map();
         this.isNavigating = false;
         this.currentController = null;
+        window._sfTurboInstance = this;
         this.init();
     }
 
@@ -125,39 +130,39 @@ class SkillForgeTurbo {
         console.log("[Turbo] Re-hydrating Neural Matrix...");
 
         // A. Re-execute Page-Specific Scripts
-        // We find all scripts that were in the NEW page's main/body and re-run them
-        const scripts = (document.querySelector('main') || document.body).querySelectorAll('script');
+        const mainOrBody = document.querySelector('main') || document.body;
+        const scripts = mainOrBody.querySelectorAll('script');
         for (const oldScript of scripts) {
             const newScript = document.createElement('script');
             Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-            
+
             if (oldScript.src) {
-                // External script - wait for load if it's a module or important
                 await new Promise((resolve) => {
                     newScript.onload = resolve;
                     newScript.onerror = resolve;
                     document.head.appendChild(newScript);
                 });
             } else {
-                // Inline script
                 newScript.textContent = oldScript.textContent;
                 document.body.appendChild(newScript);
             }
-            oldScript.remove(); // Remove original placeholder
+            oldScript.remove();
         }
 
         // B. Re-initialize Core Components
         if (window.lucide) window.lucide.createIcons();
-        
-        // C. Re-trigger Identity & Theme Sync
-        if (window.themeManager && typeof window.themeManager.init === 'function') {
-            await window.themeManager.init();
+
+        // C. Re-apply current theme (do NOT re-init — just sync DOM from stored theme)
+        if (window.themeManager && window.themeManager.currentTheme) {
+            window.themeManager.applyTheme(window.themeManager.currentTheme);
         }
 
-        // D. Re-init SkillForge Core if present
+        // D. Sync registry state using existing cached UID
         if (window.sfCore && typeof window.sfCore.syncRegistryState === 'function') {
-            await window.sfCore.syncRegistryState();
+            window.sfCore.syncRegistryState();
         }
+
+        console.log("[Turbo] Hydration complete.");
     }
 
     showProgressBar() {

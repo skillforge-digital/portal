@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -205,12 +205,20 @@
     if (window.lucide) window.lucide.createIcons();
     
     // Reveal content once the UI has been hydrated
-    setTimeout(() => {
-        document.documentElement.style.visibility = 'visible';
-    }, 100);
-  </script>
-  <script type="module" src="../assets/sf-turbo.js"></script>
+    // (Handled by window.load listener at the bottom of body)
+</script>
   <script type="module" src="../assets/sf-atmosphere-3d.js"></script>
   <script src="../assets/error-reporter.js"></script>
+  <script>
+    // Reliable show — run AFTER all modules/scripts have finished loading
+    function showContent() {
+      document.documentElement.style.visibility = 'visible';
+    }
+    if (document.readyState === 'complete') {
+      showContent();
+    } else {
+      window.addEventListener('load', showContent);
+    }
+  </script>
 </body>
 </html>

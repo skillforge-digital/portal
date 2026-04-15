@@ -1,38 +1,34 @@
-﻿﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SkillForge — Design Studio</title>
+<title>Design Studio — SkillForge</title>
 <script>
-  // Immediate UI Preparation - Hide content until Neural Core is ready
-  (function() {
-    document.documentElement.style.visibility = 'hidden';
-  })();
+  (function() { document.documentElement.style.visibility = 'hidden'; })();
 </script>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;700&family=Caveat:wght@400;700&family=Unbounded:wght@400;700&family=Inter:wght@400;700&family=Playfair+Display:wght@400;700&family=Outfit:wght@400;700&family=Syne:wght@400;700&family=Lexend:wght@400;700&family=Plus+Jakarta+Sans:wght@400;700&family=Cinzel:wght@400;700&family=Montserrat:wght@400;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://unpkg.com/lucide@latest"></script>
 <script>
 tailwind.config = {
   theme: {
     extend: {
       colors: {
         navy: { 950:'#040810', 900:'#070d1a', 800:'#0c1829', 700:'#112240', 600:'#1a3358' },
-        gold: { 300:'#fcd34d', 400:'#fbbf24', 500:'#f59e0b', 600:'#d97706', 700:'#b45309' },
+        purple: { 400:'#c084fc', 500:'#a855f7', 600:'#9333ea' },
       }
     }
   }
 }
 </script>
 <style>
-  :root { --font-main: 'Space Grotesk', sans-serif; --accent-color: #f59e0b; --accent-color-rgb: 245, 158, 11; }
+  :root { --font-main: 'Space Grotesk', sans-serif; --accent-color: #a855f7; --accent-color-rgb: 168, 85, 247; --accent-color-light: #c084fc; }
   * { font-family: var(--font-main); transition: all 0.3s ease; }
   body { background: #040810; color: white; min-height: 100dvh; display: flex; flex-direction: column; overflow-x: hidden; }
   .glass { background: rgba(12, 24, 50, 0.55); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
   .glass-strong { background: rgba(12, 24, 50, 0.75); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.1); }
-  .sidebar-link.active { background: rgba(var(--accent-color-rgb), 0.1); color: var(--accent-color); border-right: 3px solid var(--accent-color); }
-  
   .swatch { width: 100%; aspect-ratio: 1; border-radius: 20px; cursor: pointer; border: 2px solid transparent; position: relative; overflow: visible; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
   .swatch:hover { transform: scale(1.05); z-index: 10; }
   .swatch.active { border-color: white; transform: scale(1.1); box-shadow: 0 0 25px rgba(var(--accent-color-rgb), 0.4); }
@@ -40,73 +36,78 @@ tailwind.config = {
   .dual-inner { position: absolute; inset: 0; display: flex; transform: rotate(45deg) scale(1.5); pointer-events: none; }
   .dual-1 { flex: 1; pointer-events: none; }
   .dual-2 { flex: 1; pointer-events: none; }
-
   .wallpaper-swatch { width: 100%; aspect-ratio: 16/9; border-radius: 24px; cursor: pointer; border: 2px solid transparent; background-size: cover; background-position: center; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
   .wallpaper-swatch:hover { transform: translateY(-4px); }
   .wallpaper-swatch.active { border-color: var(--accent-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-
   .font-card { cursor: pointer; border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; padding: 24px; transition: all 0.3s ease; }
   .font-card:hover { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.1); }
   .font-card.active { border-color: var(--accent-color); background: rgba(var(--accent-color-rgb), 0.1); }
-  
   #loading-screen { position: fixed; inset: 0; background: #040810; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease; }
-  
   .tab-btn { padding: 14px 28px; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.2em; border-radius: 18px; transition: all 0.3s ease; color: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.05); }
   .tab-btn.active { background: var(--accent-color); color: #040810; border-color: var(--accent-color); box-shadow: 0 0 20px rgba(var(--accent-color-rgb), 0.3); }
-
   .custom-scrollbar::-webkit-scrollbar { width: 4px; }
   .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--accent-color); border-radius: 10px; }
+  .sidebar-link { transition: all 0.3s ease; }
+  .sidebar-link:hover { background: rgba(255,255,255,0.05); }
+  .sidebar-link.active { background: rgba(var(--accent-color-rgb), 0.1); color: var(--accent-color); border-right: 3px solid var(--accent-color); }
 </style>
 </head>
 <body class="flex flex-col md:flex-row">
 
 <div id="loading-screen">
   <div class="flex flex-col items-center gap-6">
-    <div class="w-16 h-16 border-4 border-gold-500/20 border-t-gold-500 rounded-full animate-spin"></div>
+    <div class="w-16 h-16 border-4 border-purple-500/20 border-t-purple-500 rounded-full animate-spin"></div>
     <div class="text-center">
-      <p class="text-[10px] font-black uppercase tracking-[0.5em] text-gold-400">Loading Dashboard</p>
-      <p class="text-[8px] text-white/20 uppercase tracking-[0.3em] mt-2">Please wait, preparing your workspace...</p>
+      <p class="text-[10px] font-black uppercase tracking-[0.5em] text-purple-400">Loading Design Studio</p>
+      <p class="text-[8px] text-white/20 uppercase tracking-[0.3em] mt-2">Preparing Command Interface...</p>
     </div>
   </div>
 </div>
 
-<!-- Mobile Header -->
 <div class="md:hidden h-20 px-6 flex items-center justify-between glass sticky top-0 z-[100] border-b border-white/5">
   <div class="flex items-center gap-3">
-    <a href="/" class="flex items-center gap-3 group">
-      <div class="w-8 h-8 rounded-lg bg-black flex items-center justify-center border border-gold-500/30 group-hover:border-gold transition-all overflow-hidden">
+    <button onclick="window.history.back()" class="p-2 text-white/50 hover:text-white transition-all"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-lg bg-black flex items-center justify-center border border-purple-500/30 overflow-hidden">
         <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" class="w-full h-full object-cover">
       </div>
       <div class="flex flex-col leading-none">
-        <span class="font-black text-sm tracking-tighter uppercase group-hover:text-gold transition-all">SkillForge</span>
-        <span class="text-[6px] text-gold-400 font-bold tracking-[0.2em] uppercase">Digital & Co. Ltd</span>
+        <span class="font-black text-sm tracking-tighter uppercase">SkillForge</span>
+        <span class="text-[6px] text-purple-400 font-bold tracking-[0.2em] uppercase">HOD Unit</span>
       </div>
-    </a>
+    </div>
   </div>
-  <button onclick="toggleSidebar()" class="p-2 text-white/50 hover:text-white transition-all"><i class="fa-solid fa-bars-staggered text-xl"></i></button>
+  <button onclick="toggleSidebar()" class="p-2 text-white/50 hover:text-white transition-all"><i data-lucide="menu" class="w-5 h-5"></i></button>
 </div>
 
 <aside id="main-sidebar" class="w-72 glass-strong border-r border-white/5 flex flex-col fixed inset-y-0 z-50 transition-all duration-500 -translate-x-full md:translate-x-0">
   <div class="p-8 flex-1 overflow-y-auto custom-scrollbar">
     <div class="flex items-center gap-3 mb-10">
-      <a href="/" class="flex items-center gap-3 group">
-        <div class="w-10 h-10 rounded-xl bg-black flex items-center justify-center border border-gold-500/30 group-hover:border-gold transition-all overflow-hidden">
-          <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" class="w-full h-full object-cover">
-        </div>
-        <div class="flex flex-col leading-none">
-          <span class="font-black text-sm tracking-tighter uppercase group-hover:text-gold transition-all">SkillForge</span>
-          <span class="text-[7px] text-gold-400 font-bold tracking-[0.2em] uppercase">Digital & Co. Ltd</span>
-        </div>
-      </a>
+      <div class="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400 border border-purple-400/20">
+        <i data-lucide="shield" class="w-5 h-5"></i>
+      </div>
+      <div class="flex flex-col leading-none">
+        <span class="font-black text-sm tracking-tighter uppercase">SkillForge</span>
+        <span class="text-[7px] text-purple-400 font-bold tracking-[0.2em] uppercase">HOD Unit</span>
+      </div>
     </div>
     <nav class="space-y-1">
-      <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Academy Hub</p>
-      <a href="../" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-layer-group w-4"></i> Overview</a>
-      <a href="../dmc/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-id-card w-4"></i> Membership Card</a>
-      <a href="../leaderboard/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-ranking-star w-4"></i> Hall of Fame</a>
-      <a href="../vault/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-vault w-4"></i> The Vault</a>
-      <a href="./" class="sidebar-link active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest"><i class="fa-solid fa-wand-magic-sparkles w-4"></i> Customize</a>
+      <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Command Nodes</p>
+      <a href="../" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i data-lucide="layout-dashboard" class="w-4"></i> Unit Overview</a>
+      <a href="./" class="sidebar-link active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest"><i data-lucide="palette" class="w-4"></i> Design Studio</a>
     </nav>
+  </div>
+  <div class="p-8 border-t border-white/5">
+    <div class="flex items-center gap-4 mb-6 p-4 rounded-2xl bg-white/5 border border-white/5">
+      <div class="w-10 h-10 rounded-xl bg-purple-400/10 flex items-center justify-center text-purple-400 font-black text-xs" id="user-initials">H</div>
+      <div class="min-w-0">
+        <p class="text-[10px] font-black text-white uppercase truncate" id="user-name">Loading...</p>
+        <p class="text-[8px] text-purple-400 font-bold uppercase tracking-widest truncate" id="user-role">HOD Access</p>
+      </div>
+    </div>
+    <button onclick="window.staffCore.logout()" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-red-400/70 hover:text-red-400 hover:bg-red-400/10 transition-all">
+      <i data-lucide="log-out" class="w-4"></i> Sign Out
+    </button>
   </div>
 </aside>
 
@@ -114,7 +115,7 @@ tailwind.config = {
   <div class="max-w-6xl mx-auto space-y-12">
     <header class="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8">
       <div>
-        <p class="text-gold-400 text-sm font-medium tracking-widest uppercase">Atmosphere Control</p>
+        <p class="text-purple-400 text-sm font-medium tracking-widest uppercase">Atmosphere Control</p>
         <h1 class="text-4xl md:text-6xl font-black mt-1 uppercase tracking-tighter">Design Studio</h1>
       </div>
       <div class="flex gap-2 p-1.5 glass rounded-[24px]">
@@ -126,61 +127,48 @@ tailwind.config = {
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
       <div class="lg:col-span-2 space-y-16">
-        <!-- Colors Tab -->
         <section id="section-colors" class="space-y-12">
           <div class="space-y-8">
             <div class="flex items-center justify-between">
               <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">35 Premium Dual Color Masters</h2>
-              <span class="text-[8px] font-bold text-gold-500 bg-gold-500/10 px-3 py-1 rounded-full uppercase">Solid Pairs</span>
+              <span class="text-[8px] font-bold text-purple-500 bg-purple-500/10 px-3 py-1 rounded-full uppercase">Solid Pairs</span>
             </div>
             <div class="grid grid-cols-4 md:grid-cols-7 gap-5" id="dual-grid"></div>
           </div>
           <div class="space-y-8">
             <div class="flex items-center justify-between">
               <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">Atmospheric Neural Gradients</h2>
-              <span class="text-[8px] font-bold text-gold-500 bg-gold-500/10 px-3 py-1 rounded-full uppercase">Gradients</span>
+              <span class="text-[8px] font-bold text-purple-500 bg-purple-500/10 px-3 py-1 rounded-full uppercase">Gradients</span>
             </div>
             <div class="grid grid-cols-3 md:grid-cols-5 gap-5" id="gradient-grid"></div>
           </div>
         </section>
-
-        <!-- Wallpapers Tab -->
         <section id="section-wallpapers" class="hidden space-y-12">
-          <div class="space-y-8">
-            <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">20+ Premium Motion Atmosphere</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="wallpaper-grid"></div>
-          </div>
+          <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">20+ Premium Motion Atmosphere</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="wallpaper-grid"></div>
         </section>
-
-        <!-- Fonts Tab -->
         <section id="section-fonts" class="hidden space-y-12">
-          <div class="space-y-8">
-            <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">15 Premium Neural Typography</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="font-grid"></div>
-          </div>
+          <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">15 Premium Neural Typography</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="font-grid"></div>
         </section>
       </div>
-
-      <!-- Settings Sidebar -->
       <div class="space-y-8">
         <div class="glass p-10 rounded-[48px] sticky top-24 space-y-10">
           <div class="space-y-2">
-            <h3 class="text-[11px] font-black uppercase tracking-[0.5em] text-gold-500">Design Identity</h3>
+            <h3 class="text-[11px] font-black uppercase tracking-[0.5em] text-purple-500">Design Identity</h3>
             <p class="text-[9px] text-white/30 uppercase tracking-widest">Active Neural Profile</p>
           </div>
-          
           <div class="p-8 rounded-[32px] bg-white/5 border border-white/5 space-y-6 overflow-hidden relative group" id="preview-box">
             <div class="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-50"></div>
             <div class="relative z-10">
-              <p class="text-gold-400 text-[10px] font-black uppercase tracking-widest mb-1">Atmosphere Preview</p>
-              <h4 class="text-3xl font-black tracking-tighter mb-6" id="preview-text">Academy Center</h4>
+              <p class="text-purple-400 text-[10px] font-black uppercase tracking-widest mb-1">Atmosphere Preview</p>
+              <h4 class="text-3xl font-black tracking-tighter mb-6" id="preview-text">Command Center</h4>
               <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden shadow-inner">
-                <div class="h-full bg-gold-500 w-2/3 transition-all duration-1000" id="preview-bar"></div>
+                <div class="h-full bg-purple-500 w-2/3 transition-all duration-1000" id="preview-bar"></div>
               </div>
               <p class="text-[8px] font-bold text-white/20 uppercase mt-4 tracking-[0.2em]">Neural Registry Sync Active</p>
             </div>
           </div>
-
           <div class="space-y-5 pt-6 border-t border-white/5">
             <div class="flex items-center justify-between p-5 rounded-3xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all cursor-pointer" onclick="toggleCanvas()">
               <div class="flex flex-col">
@@ -191,26 +179,20 @@ tailwind.config = {
                 <div class="absolute top-1 left-1 w-5 h-5 rounded-full bg-white transition-all shadow-lg"></div>
               </button>
             </div>
-
             <label class="w-full glass-strong p-6 rounded-3xl flex items-center justify-between cursor-pointer hover:bg-white/10 transition-all group">
               <div class="flex flex-col">
                 <span class="text-[10px] font-black uppercase tracking-widest text-white/60">Upload Neural Skin</span>
                 <span class="text-[8px] font-bold text-white/20 uppercase mt-1">JPG / PNG / WEBP Assets</span>
               </div>
-              <div class="w-12 h-12 rounded-2xl bg-gold-500/10 flex items-center justify-center text-gold-500 group-hover:bg-gold-500 group-hover:text-navy-950 transition-all shadow-lg">
-                <i class="fa-solid fa-cloud-arrow-up text-xl"></i>
+              <div class="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center text-purple-500 group-hover:bg-purple-500 group-hover:text-navy-950 transition-all shadow-lg">
+                <i data-lucide="cloud-upload" class="w-5 h-5"></i>
               </div>
               <input type="file" id="wallpaper-upload" class="hidden" accept="image/*">
             </label>
           </div>
-
           <div class="grid grid-cols-1 gap-4">
-            <button onclick="saveDesign()" id="save-btn" class="w-full bg-gold-500 text-navy-950 py-7 rounded-[32px] font-black uppercase text-[11px] tracking-[0.4em] shadow-4K hover:bg-white hover:scale-[1.02] active:scale-[0.98] transition-all">
-              Save Atmosphere Matrix
-            </button>
-            <button onclick="restoreDefaults()" class="w-full py-4 rounded-2xl bg-white/5 text-white/20 text-[9px] font-black uppercase tracking-widest hover:text-red-400 hover:bg-red-400/10 transition-all border border-white/5">
-              Restore Default State
-            </button>
+            <button onclick="saveDesign()" id="save-btn" class="w-full bg-purple-500 text-navy-950 py-7 rounded-[32px] font-black uppercase text-[11px] tracking-[0.4em] shadow-4K hover:bg-purple-400 hover:scale-[1.02] active:scale-[0.98] transition-all">Save Atmosphere Matrix</button>
+            <button onclick="restoreDefaults()" class="w-full py-4 rounded-2xl bg-white/5 text-white/20 text-[9px] font-black uppercase tracking-widest hover:text-red-400 hover:bg-red-400/10 transition-all border border-white/5">Restore Default State</button>
           </div>
         </div>
       </div>
@@ -219,22 +201,16 @@ tailwind.config = {
 </main>
 
 <script type="module">
-import { themeManager } from '../../assets/theme-manager.js';
-import { db, auth } from '../../assets/firebase-config.js';
-import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+import { db, auth } from '../../../assets/firebase-config.js';
 import { doc, updateDoc, getDoc } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
 
-const supabaseUrl = 'https://luxubaqztmbcpskyfgdp.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1eHViYXF6dG1iY3Bza3lmZ2RwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDYzNTcsImV4cCI6MjA5MTQyMjM1N30.Kmon8jh22u5KgWWpXf-7cdZ4qxlKXuUbVm6Mh-GHd8Q';
-const supabase = createClient(supabaseUrl, supabaseKey);
-
-let uid = themeManager.uid;
-let currentDesign = { type: 'solid-pair', primary: '#040810', secondary: '#f59e0b', font: 'Space Grotesk' };
+let hodUid = null;
+let currentDesign = { type: 'solid-pair', primary: '#040810', secondary: '#a855f7', fontFamily: 'Space Grotesk' };
 let pendingFile = null;
 
 const dualColors = [
-  { p: '#040810', s: '#f59e0b' }, { p: '#070d1a', s: '#fbbf24' }, { p: '#0c1829', s: '#fcd34d' },
+  { p: '#040810', s: '#a855f7' }, { p: '#070d1a', s: '#c084fc' }, { p: '#0c1829', s: '#d8b4fe' },
   { p: '#112240', s: '#60a5fa' }, { p: '#1a3358', s: '#3b82f6' }, { p: '#1e1b4b', s: '#8b5cf6' },
   { p: '#312e81', s: '#a78bfa' }, { p: '#4c1d95', s: '#c084fc' }, { p: '#581c87', s: '#d8b4fe' },
   { p: '#701a75', s: '#f0abfc' }, { p: '#86198f', s: '#fae8ff' }, { p: '#9d174d', s: '#fbcfe8' },
@@ -251,7 +227,7 @@ const dualColors = [
 ];
 
 const gradients = [
-  { c1: '#040810', c2: '#0c1829' }, { c1: '#0f172a', c2: '#1e293b' }, { c1: '#111827', c2: '#1f2937' },
+  { c1: '#040810', c2: '#312e81' }, { c1: '#0f172a', c2: '#1e293b' }, { c1: '#111827', c2: '#1f2937' },
   { c1: '#0c0a09', c2: '#1c1917' }, { c1: '#171717', c2: '#262626' }, { c1: '#020617', c2: '#0f172a' },
   { c1: '#050505', c2: '#1a1a1a' }, { c1: '#080c14', c2: '#141c2c' }, { c1: '#0a101d', c2: '#162231' },
   { c1: '#000000', c2: '#121212' }, { c1: '#1a365d', c2: '#2a4365' }, { c1: '#1c4532', c2: '#22543d' },
@@ -261,6 +237,24 @@ const gradients = [
   { c1: '#9a3412', c2: '#c2410c' }, { c1: '#b45309', c2: '#d97706' }, { c1: '#854d0e', c2: '#a16207' },
   { c1: '#3f6212', c2: '#4d7c0f' }, { c1: '#166534', c2: '#15803d' }, { c1: '#0f766e', c2: '#115e59' },
   { c1: '#0e7490', c2: '#0369a1' }, { c1: '#1d4ed8', c2: '#1e40af' }, { c1: '#4338ca', c2: '#3730a3' }
+];
+
+const fonts = [
+  { name: 'Space Grotesk', family: "'Space Grotesk', sans-serif", desc: 'Modern tech-forward' },
+  { name: 'Instrument Serif', family: "'Instrument Serif', serif", desc: 'Elegant & classic' },
+  { name: 'JetBrains Mono', family: "'JetBrains Mono', monospace", desc: 'Developer vibes' },
+  { name: 'Unbounded', family: "'Unbounded', sans-serif", desc: 'Bold geometric' },
+  { name: 'Caveat', family: "'Caveat', cursive", desc: 'Handwritten flair' },
+  { name: 'Inter', family: "'Inter', sans-serif", desc: 'Clean readability' },
+  { name: 'Playfair Display', family: "'Playfair Display', serif", desc: 'Editorial elegance' },
+  { name: 'Outfit', family: "'Outfit', sans-serif", desc: 'Minimalist modern' },
+  { name: 'Syne', family: "'Syne', sans-serif", desc: 'Avant-garde edge' },
+  { name: 'Lexend', family: "'Lexend', sans-serif", desc: 'Reading optimized' },
+  { name: 'Plus Jakarta Sans', family: "'Plus Jakarta Sans', sans-serif", desc: 'Versatile clean' },
+  { name: 'Cinzel', family: "'Cinzel', serif", desc: 'Regal authority' },
+  { name: 'Montserrat', family: "'Montserrat', sans-serif", desc: 'Urban geometric' },
+  { name: 'Cabinet Grotesk', family: "'Cabinet Grotesk', sans-serif", desc: 'Premium sans' },
+  { name: 'General Sans', family: "'General Sans', sans-serif", desc: 'Contemporary neutral' }
 ];
 
 const wallpapers = [
@@ -281,127 +275,73 @@ const wallpapers = [
   "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=2674&auto=format&fit=crop"
 ];
 
-async function init() {
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    hodUid = user.uid;
+    const hodDoc = await getDoc(doc(db, 'hods', hodUid));
+    if (hodDoc.exists()) {
+      const data = hodDoc.data();
+      document.getElementById('user-name').innerText = data.name || 'HOD';
+      document.getElementById('user-role').innerText = data.department || 'HOD Access';
+      document.getElementById('user-initials').innerText = (data.name || 'H').charAt(0).toUpperCase();
+      if (data.theme) currentDesign = { ...currentDesign, ...data.theme };
+      applyControlUI({ canvasDaily: localStorage.getItem('sf_canvas_enabled') !== 'false' });
+      updatePreview();
+    }
+    hideLoading();
+    document.documentElement.style.visibility = 'visible';
+  } else {
+    window.location.href = '../../../trainee-login/';
+  }
+});
+
+function hideLoading() {
+  const loader = document.getElementById('loading-screen');
+  if (loader) { loader.style.opacity = '0'; setTimeout(() => loader.classList.add('hidden'), 500); }
+}
+
+function init() {
   const dGrid = document.getElementById('dual-grid');
   if (dGrid) {
     dualColors.forEach(d => {
       const sw = document.createElement('div');
       sw.className = 'swatch';
       sw.innerHTML = `<div class="dual-inner"><div class="dual-1" style="background:${d.p}"></div><div class="dual-2" style="background:${d.s}"></div></div>`;
-      sw.onclick = () => { 
-          currentDesign.primary = d.p; 
-          currentDesign.secondary = d.s; 
-          currentDesign.type = 'solid-pair'; 
-          updatePreview(); 
-      };
+      sw.onclick = () => { currentDesign.primary = d.p; currentDesign.secondary = d.s; currentDesign.type = 'solid-pair'; updatePreview(); };
       dGrid.appendChild(sw);
     });
   }
-
   const gGrid = document.getElementById('gradient-grid');
   if (gGrid) {
     gradients.forEach(g => {
       const sw = document.createElement('div');
       sw.className = 'swatch';
       sw.style.background = `linear-gradient(135deg, ${g.c1}, ${g.c2})`;
-      sw.onclick = () => { 
-          currentDesign.c1 = g.c1; 
-          currentDesign.c2 = g.c2; 
-          currentDesign.type = 'gradient'; 
-          updatePreview(); 
-      };
+      sw.onclick = () => { currentDesign.c1 = g.c1; currentDesign.c2 = g.c2; currentDesign.type = 'gradient'; updatePreview(); };
       gGrid.appendChild(sw);
     });
   }
-
   const wGrid = document.getElementById('wallpaper-grid');
   if (wGrid) {
     wallpapers.forEach(w => {
       const sw = document.createElement('div');
       sw.className = 'wallpaper-swatch';
       sw.style.backgroundImage = `url(${w})`;
-      sw.onclick = () => { 
-          currentDesign.wallpaper = w; 
-          currentDesign.type = 'wallpaper'; 
-          updatePreview(); 
-      };
+      sw.onclick = () => { currentDesign.wallpaper = w; currentDesign.type = 'wallpaper'; updatePreview(); };
       wGrid.appendChild(sw);
     });
   }
-
   const fGrid = document.getElementById('font-grid');
   if (fGrid) {
-    const fontList = (typeof themeManager !== 'undefined' && themeManager.fonts) ? themeManager.fonts : [
-      { name: 'Space Grotesk', family: "'Space Grotesk', sans-serif" },
-      { name: 'Instrument Serif', family: "'Instrument Serif', serif" },
-      { name: 'JetBrains Mono', family: "'JetBrains Mono', monospace" },
-      { name: 'Unbounded', family: "'Unbounded', sans-serif" },
-      { name: 'Caveat', family: "'Caveat', cursive" },
-      { name: 'Inter', family: "'Inter', sans-serif" },
-      { name: 'Playfair Display', family: "'Playfair Display', serif" },
-      { name: 'Outfit', family: "'Outfit', sans-serif" },
-      { name: 'Syne', family: "'Syne', sans-serif" },
-      { name: 'Lexend', family: "'Lexend', sans-serif" },
-      { name: 'Plus Jakarta Sans', family: "'Plus Jakarta Sans', sans-serif" },
-      { name: 'Cinzel', family: "'Cinzel', serif" },
-      { name: 'Montserrat', family: "'Montserrat', sans-serif" },
-      { name: 'Cabinet Grotesk', family: "'Cabinet Grotesk', sans-serif" },
-      { name: 'General Sans', family: "'General Sans', sans-serif" }
-    ];
-    fontList.forEach(f => {
+    fonts.forEach(f => {
       const card = document.createElement('div');
       card.className = 'font-card';
       card.style.fontFamily = f.family;
-      card.innerHTML = `<p class="text-[8px] font-black uppercase tracking-widest text-white/30 mb-2">${f.name}</p><p class="text-xl font-bold">Neural Typography</p>`;
-      card.onclick = () => {
-          currentDesign.fontFamily = f.family;
-          currentDesign.fontName = f.name;
-          updatePreview();
-      };
+      card.innerHTML = `<p class="text-[8px] font-black uppercase tracking-widest text-white/30 mb-2">${f.name}</p><p class="text-xl font-bold mb-2">Command Typography</p><p class="text-[9px] text-white/40">${f.desc}</p>`;
+      card.onclick = () => { currentDesign.fontFamily = f.family; currentDesign.fontName = f.name; updatePreview(); };
       fGrid.appendChild(card);
     });
   }
-
-  let lastDataString = null;
-  
-  onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      // Prioritize the document ID (mock_uid) over the session UID
-      uid = localStorage.getItem('skillforge_mock_uid') || user.uid;
-      console.log('[Customize] Neural connection confirmed for:', uid);
-      
-      try {
-        const snap = await getDoc(doc(db, 'trainees', uid));
-        if (snap.exists()) {
-          const data = snap.data();
-          const dataString = JSON.stringify(data);
-          
-          if (dataString !== lastDataString) {
-            console.log('[Customize] Registry state synchronized');
-            if (data.theme) currentDesign = { ...currentDesign, ...data.theme };
-            updatePreview();
-            applyControlUI(data.controls || {});
-            lastDataString = dataString;
-          }
-        }
-      } catch (err) {
-        console.error("[Customize] Data fetch error:", err);
-        if (window.sf_report_error) window.sf_report_error("Customize Data Fetch Failure", err.stack);
-      } finally {
-        hideLoading();
-      }
-    } else {
-      console.log('[Customize] No session, authenticating anonymously...');
-      signInAnonymously(auth).catch(err => {
-        console.error('[Customize] Auth failed:', err);
-        hideLoading();
-      });
-    }
-  });
-
-  // Safety timeout
-  setTimeout(hideLoading, 5000);
-
   const wpUpload = document.getElementById('wallpaper-upload');
   if (wpUpload) {
     wpUpload.onchange = (e) => {
@@ -412,94 +352,49 @@ async function init() {
         const reader = new FileReader();
         reader.onload = (ev) => {
           const box = document.getElementById('preview-box');
-          if (box) {
-            box.style.background = `url(${ev.target.result})`;
-            box.style.backgroundSize = 'cover';
-          }
+          if (box) { box.style.background = `url(${ev.target.result})`; box.style.backgroundSize = 'cover'; }
         };
         reader.readAsDataURL(file);
       }
     };
   }
-}
-
-function hideLoading() {
-    const loader = document.getElementById('loading-screen');
-    if (loader) {
-        loader.style.opacity = '0';
-        setTimeout(() => loader.classList.add('hidden'), 500);
-    }
+  setTimeout(hideLoading, 5000);
 }
 
 function updatePreview() {
   const box = document.getElementById('preview-box');
   const text = document.getElementById('preview-text');
   const bar = document.getElementById('preview-bar');
-  
-  if (!box || !text || !bar) {
-    console.warn('[Customize] Preview elements not found in DOM');
-    return;
-  }
-  
-  // Clear active states
+  if (!box || !text || !bar) return;
   document.querySelectorAll('.swatch, .wallpaper-swatch, .font-card').forEach(el => el.classList.remove('active'));
-
-  console.log('[Customize] Updating preview for type:', currentDesign.type);
-
   try {
     if (currentDesign.type === 'solid-pair' || currentDesign.type === 'dual') {
       const p = currentDesign.primary || currentDesign.c1;
       const s = currentDesign.secondary || currentDesign.c2;
-      box.style.background = p;
-      box.style.backgroundImage = 'none';
+      box.style.background = p; box.style.backgroundImage = 'none';
       bar.style.backgroundColor = s;
       document.documentElement.style.setProperty('--accent-color', s);
-      
-      // Highlight active solid pair
-      const rgbP = hexToRgb(p);
-      document.querySelectorAll('#dual-grid .swatch').forEach(sw => {
-          const inner = sw.querySelector('.dual-1');
-          if (inner && (inner.style.backgroundColor === rgbP || inner.style.background === rgbP)) sw.classList.add('active');
-      });
+      document.documentElement.style.setProperty('--accent-color-rgb', hexToRgb(s));
     } else if (currentDesign.type === 'gradient') {
-      const grad = `linear-gradient(135deg, ${currentDesign.c1}, ${currentDesign.c2})`;
-      box.style.background = grad;
+      box.style.background = `linear-gradient(135deg, ${currentDesign.c1}, ${currentDesign.c2})`;
       box.style.backgroundImage = 'none';
       bar.style.backgroundColor = currentDesign.c1;
       document.documentElement.style.setProperty('--accent-color', currentDesign.c1);
-      
-      // Highlight active gradient
-      document.querySelectorAll('#gradient-grid .swatch').forEach(sw => {
-          if (sw.style.background.includes(currentDesign.c1) || sw.style.backgroundImage.includes(currentDesign.c1)) sw.classList.add('active');
-      });
+      document.documentElement.style.setProperty('--accent-color-rgb', hexToRgb(currentDesign.c1));
     } else if (currentDesign.type === 'wallpaper') {
-      const wpUrl = currentDesign.wallpaper || '';
-      box.style.background = `url(${wpUrl})`;
-      box.style.backgroundSize = 'cover';
-      box.style.backgroundPosition = 'center';
-      bar.style.backgroundColor = '#f59e0b';
-      
-      // Highlight active wallpaper
-      document.querySelectorAll('.wallpaper-swatch').forEach(sw => {
-          if (sw.style.backgroundImage.includes(wpUrl)) sw.classList.add('active');
-      });
+      box.style.background = `url(${currentDesign.wallpaper || ''})`;
+      box.style.backgroundSize = 'cover'; box.style.backgroundPosition = 'center';
+      bar.style.backgroundColor = '#a855f7';
+      document.documentElement.style.setProperty('--accent-color', '#a855f7');
+      document.documentElement.style.setProperty('--accent-color-rgb', '168, 85, 247');
     }
-    
-    if (currentDesign.fontFamily) {
-      text.style.fontFamily = currentDesign.fontFamily;
-      // Highlight active font
-      document.querySelectorAll('.font-card').forEach(card => {
-          if (card.style.fontFamily.replace(/['"]/g, '') === currentDesign.fontFamily.replace(/['"]/g, '')) card.classList.add('active');
-      });
-    }
-  } catch (err) {
-    console.error('[Customize] Preview update failed:', err);
-  }
+    if (currentDesign.fontFamily) text.style.fontFamily = currentDesign.fontFamily;
+  } catch (err) { console.error('[Design Studio] Preview update failed:', err); }
 }
 
 function hexToRgb(hex) {
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? `rgb(${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)})` : hex;
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '168, 85, 247';
 }
 
 window.setTab = (tab) => {
@@ -518,88 +413,40 @@ window.toggleCanvas = () => {
 function applyControlUI(controls) {
   const toggle = document.getElementById('canvas-toggle');
   if (!toggle) return;
-  const isEnabled = localStorage.getItem('sf_canvas_enabled') !== 'false';
-  toggle.classList.toggle('bg-gold-500', isEnabled);
+  const isEnabled = controls.canvasDaily !== false;
+  toggle.classList.toggle('bg-purple-500', isEnabled);
   toggle.querySelector('div').style.left = isEnabled ? '1.75rem' : '0.25rem';
 }
 
 window.saveDesign = async () => {
   const btn = document.getElementById('save-btn');
-  if (btn.disabled || !uid) return;
-  
-  btn.disabled = true; 
-  btn.innerText = "Saving Atmosphere Matrix...";
-  
-  console.log(`[Customize] Saving design for registry: ${uid}`);
-
+  if (btn.disabled || !hodUid) return;
+  btn.disabled = true; btn.innerText = "Saving Atmosphere Matrix...";
   try {
-    const themeToSave = { ...currentDesign };
-    
-    // Handle Custom Wallpaper Upload
-    if (pendingFile) {
-      btn.innerText = "Uploading Atmosphere...";
-      const fileName = `wallpapers/${uid}_${Date.now()}.jpg`;
-      const { error } = await supabase.storage.from('avatars').upload(fileName, pendingFile);
-      if (error) throw error;
-      const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(fileName);
-      themeToSave.wallpaper = publicUrl;
-      themeToSave.type = 'wallpaper';
-      pendingFile = null;
-    }
-
-    // Standardize theme structure for theme-manager
     const finalTheme = {
-      type: themeToSave.type || 'solid-pair',
-      primary: themeToSave.primary || themeToSave.c1 || '#040810',
-      secondary: themeToSave.secondary || themeToSave.c2 || '#f59e0b',
-      c1: themeToSave.c1 || themeToSave.primary || '#040810',
-      c2: themeToSave.c2 || themeToSave.secondary || '#f59e0b',
-      wallpaper: themeToSave.wallpaper || '',
-      fontFamily: themeToSave.fontFamily || 'Space Grotesk',
-      fontName: themeToSave.fontName || 'Modern Grotesk'
+      type: currentDesign.type || 'solid-pair',
+      primary: currentDesign.primary || currentDesign.c1 || '#040810',
+      secondary: currentDesign.secondary || currentDesign.c2 || '#a855f7',
+      c1: currentDesign.c1 || currentDesign.primary || '#040810',
+      c2: currentDesign.c2 || currentDesign.secondary || '#a855f7',
+      wallpaper: currentDesign.wallpaper || '',
+      fontFamily: currentDesign.fontFamily || 'Space Grotesk',
+      fontName: currentDesign.fontName || 'Space Grotesk'
     };
-
-    // Update Registry using the document ID (uid)
-    const traineeRef = doc(db, 'trainees', uid);
-    await updateDoc(traineeRef, { 
-        theme: finalTheme,
-        uid: auth.currentUser.uid // Ensure the document is claimed by the current session
-    });
-    
-    // Immediate Apply to Local State
-    themeManager.applyTheme(finalTheme);
-    
-    // Notify ecosystem
-    window.dispatchEvent(new CustomEvent('sf:theme_updated', { detail: finalTheme }));
-    
+    await updateDoc(doc(db, 'hods', hodUid), { theme: finalTheme });
     btn.innerText = "Atmosphere Saved";
-    setTimeout(() => {
-        btn.innerText = "Save Atmosphere Matrix";
-        btn.disabled = false;
-    }, 2000);
-
-    alert("Atmosphere Saved. Your custom matrix is now active across all nodes.");
-
+    setTimeout(() => { btn.innerText = "Save Atmosphere Matrix"; btn.disabled = false; }, 2000);
+    alert("Atmosphere Saved. Your command center matrix is now active.");
   } catch (err) {
-    console.error('[Customize] Save failed:', err);
-    btn.innerText = "Save Interrupted";
-    btn.disabled = false;
-    alert("Save failed. Neural sync interrupted. Please check your connection.");
+    console.error('[Design Studio] Save failed:', err);
+    btn.innerText = "Save Interrupted"; btn.disabled = false;
+    alert("Save failed. Neural sync interrupted.");
   }
 };
 
 window.restoreDefaults = async () => {
-  if (!confirm("Are you sure you want to restore the default Academy atmosphere? This will reset your colors and fonts.")) return;
-  
-  currentDesign = {
-    type: 'solid-pair',
-    primary: '#040810',
-    secondary: '#f59e0b',
-    fontFamily: 'Space Grotesk',
-    fontName: 'Modern Grotesk',
-    wallpaper: ''
-  };
-  
+  if (!confirm("Restore default atmosphere? This will reset your colors and fonts.")) return;
+  currentDesign = { type: 'solid-pair', primary: '#040810', secondary: '#a855f7', fontFamily: 'Space Grotesk', fontName: 'Space Grotesk', wallpaper: '' };
   updatePreview();
   await saveDesign();
 };
@@ -609,16 +456,8 @@ window.toggleSidebar = () => {
   if (sidebar) sidebar.classList.toggle('-translate-x-full');
 };
 
-// Handle re-initialization on Turbo loads
-window.addEventListener('sf:turbo-render', () => {
-    console.log("[Customize] Re-initializing Design Studio...");
-    init();
-});
-
 init();
+window.addEventListener('load', () => { if (window.lucide) window.lucide.createIcons(); });
 </script>
-  <script type="module" src="../../assets/sf-core.js"></script>
-  <script type="module" src="../../assets/sf-turbo.js"></script>
 </body>
 </html>
-
