@@ -76,6 +76,8 @@ class ThemeManager {
     startSync() {
         if (!this.uid) return;
         
+        console.log('ThemeManager: Syncing with registry using identity:', this.uid);
+        
         onSnapshot(doc(db, 'trainees', this.uid), (docSnap) => {
             console.log('ThemeManager: Received registry snapshot update');
             if (docSnap.exists()) {
@@ -106,11 +108,12 @@ class ThemeManager {
                     this.applyWallpaper(data.wallpaper);
                 }
             } else {
-                console.warn('ThemeManager: Registry document missing for identity:', this.uid);
-                // We don't trigger redirect here to avoid race conditions with dashboard logic,
-                // but we do clear local cache to be safe.
+                console.warn('ThemeManager: Registry document missing for identity:', this.uid, '. Clearing stale session.');
+                // Clear stale session data to prevent infinite loops
+                localStorage.removeItem('skillforge_mock_uid');
+                // If on dashboard, trigger redirect to login
                 if (window.location.pathname.includes('trainee-dashboard')) {
-                    // Let dashboard handle the redirect to maintain single source of truth
+                    window.location.href = '../trainee-login/?error=stale_session';
                 }
             }
         }, (err) => {

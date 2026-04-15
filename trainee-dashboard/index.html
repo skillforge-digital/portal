@@ -905,10 +905,11 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 let traineeData = null;
 let activeUid = null;
 
-// UID Resolution following rule-compliant pattern
+// UID Resolution: Prioritize stable Document ID from localStorage over dynamic Firebase UID
 onAuthStateChanged(auth, (user) => {
   const mockUid = localStorage.getItem('skillforge_mock_uid');
-  const lookupUid = user ? user.uid : mockUid;
+  // Priority: 1. Stable Document ID (mockUid), 2. Firebase Auth UID (user.uid), 3. None
+  const lookupUid = mockUid || (user ? user.uid : null);
 
   if (!lookupUid) {
     console.warn("[Dashboard] No valid session or mock identity found. Redirecting...");
