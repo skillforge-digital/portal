@@ -53,12 +53,18 @@
 
     <script type="module">
         import { db, auth } from '../assets/firebase-config.js';
-        import { collection, query, getDocs, doc, getDoc, setDoc, deleteDoc, serverTimestamp, orderBy } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+        import { collection, query, getDocs, doc, getDoc, setDoc, deleteDoc, serverTimestamp, orderBy, onSnapshot, updateDoc } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
         import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
         import { PassCodeEngine } from '../assets/pass-code-engine.js';
 
         let passCodeEngine = null;
         let directorData = null;
+        let activeSnapshots = [];
+
+        function clearSnapshots() {
+            activeSnapshots.forEach(unsub => unsub());
+            activeSnapshots = [];
+        }
 
         onAuthStateChanged(auth, async (user) => {
             const statusEl = document.getElementById('auth-status');
@@ -73,38 +79,31 @@
             } else {
                 statusEl.innerText = "Verifying Authorization...";
                 try {
-                    // Check multiple collections for Director status
-                    const results = await Promise.all([
-                        getDoc(doc(db, 'directors', user.uid)),
-                        getDoc(doc(db, 'specialists', user.uid)),
-                        getDoc(doc(db, 'staffs', user.uid))
-                    ]);
-
-                    const directorDoc = results[0];
-                    const specialistDoc = results[1];
-                    const staffDoc = results[2];
-
-                    let isDirector = false;
+                    // Prioritize dedicated directors collection
+                    const directorDoc = await getDoc(doc(db, 'directors', user.uid));
+                    
                     if (directorDoc.exists()) {
-                        isDirector = true;
                         directorData = directorDoc.data();
-                    } else if (specialistDoc.exists() && specialistDoc.data().level === 'Director') {
-                        isDirector = true;
-                        directorData = specialistDoc.data();
-                    } else if (staffDoc.exists() && staffDoc.data().primaryRole === 'Director') {
-                        isDirector = true;
-                        directorData = staffDoc.data();
-                    }
-
-                    if (isDirector) {
                         initHub();
                     } else {
-                        statusEl.innerText = "Access Denied: Non-Director Identity Detected";
-                        actionsEl.innerHTML = `
-                            <button id="switch-account" class="w-full bg-white/5 border border-white/10 text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-white/10 transition-all">Switch Account</button>
-                            <p class="text-[8px] text-red-400/60 uppercase tracking-widest mt-4">This account lacks command clearance.</p>
-                        `;
-                        document.getElementById('switch-account').onclick = () => signOut(auth).then(() => location.reload());
+                        // Fallback to other staff roles with Director clearance
+                        const specialistDoc = await getDoc(doc(db, 'specialists', user.uid));
+                        const staffDoc = await getDoc(doc(db, 'staffs', user.uid));
+
+                        if (specialistDoc.exists() && specialistDoc.data().level === 'Director') {
+                            directorData = specialistDoc.data();
+                            initHub();
+                        } else if (staffDoc.exists() && staffDoc.data().primaryRole === 'Director') {
+                            directorData = staffDoc.data();
+                            initHub();
+                        } else {
+                            statusEl.innerText = "Access Denied: Non-Director Identity Detected";
+                            actionsEl.innerHTML = `
+                                <button id="switch-account" class="w-full bg-white/5 border border-white/10 text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-white/10 transition-all">Switch Account</button>
+                                <p class="text-[8px] text-red-400/60 uppercase tracking-widest mt-4">This account lacks command clearance.</p>
+                            `;
+                            document.getElementById('switch-account').onclick = () => signOut(auth).then(() => location.reload());
+                        }
                     }
                 } catch (err) {
                     console.error("Auth verification failed:", err);
@@ -114,6 +113,7 @@
         });
 
         window.logoutDirector = function() {
+            clearSnapshots();
             signOut(auth).then(() => {
                 location.reload();
             });
@@ -135,6 +135,7 @@
         }
 
         window.showTab = async function(tab) {
+            clearSnapshots();
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             const tabBtn = document.querySelector(`[data-tab="${tab}"]`);
             if (tabBtn) tabBtn.classList.add('active');
@@ -157,78 +158,76 @@
         };
 
         window.renderTrainees = async function(container) {
-            // Simplified query - remove orderBy to avoid index permission issues
-            const q = query(collection(db, "trainees"));
-            const snap = await getDocs(q);
-            
-            let html = `<div class="flex justify-between items-center mb-8">
-                <h2 class="text-2xl font-black uppercase">Trainee Registry (${snap.size})</h2>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left">
-                    <thead class="text-[10px] font-black uppercase text-slate-500 border-b border-white/10">
-                        <tr>
-                            <th class="pb-4">Mastery Profile</th>
-                            <th class="pb-4">Identity (SFID)</th>
-                            <th class="pb-4">Path/Track</th>
-                            <th class="pb-4">XP/Neural State</th>
-                            <th class="pb-4">Contact</th>
-                            <th class="pb-4">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="text-sm">`;
-            
-            if (snap.empty) {
-                html += `<tr><td colspan="6" class="py-12 text-center text-white/40 italic">No trainees registered yet.</td></tr>`;
-            }
-            
-            // Local sort by created_at since we removed the Firestore orderBy
-            const docs = snap.docs.sort((a, b) => {
-                const dateA = a.data().created_at?.toDate() || new Date(0);
-                const dateB = b.data().created_at?.toDate() || new Date(0);
-                return dateB - dateA;
+            const unsub = onSnapshot(collection(db, "trainees"), (snap) => {
+                let html = `<div class="flex justify-between items-center mb-8">
+                    <h2 class="text-2xl font-black uppercase">Trainee Registry (${snap.size})</h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="text-[10px] font-black uppercase text-slate-500 border-b border-white/10">
+                            <tr>
+                                <th class="pb-4">Mastery Profile</th>
+                                <th class="pb-4">Identity (SFID)</th>
+                                <th class="pb-4">Path/Track</th>
+                                <th class="pb-4">XP/Neural State</th>
+                                <th class="pb-4">Contact</th>
+                                <th class="pb-4">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm">`;
+                
+                if (snap.empty) {
+                    html += `<tr><td colspan="6" class="py-12 text-center text-white/40 italic">No trainees registered yet.</td></tr>`;
+                }
+                
+                const docs = snap.docs.sort((a, b) => {
+                    const dateA = a.data().created_at?.toDate() || new Date(0);
+                    const dateB = b.data().created_at?.toDate() || new Date(0);
+                    return dateB - dateA;
+                });
+                
+                docs.forEach(d => {
+                    const data = d.data();
+                    html += `<tr class="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                        <td class="py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-white/5 border border-gold/20 overflow-hidden">
+                                    <img src="${data.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + d.id}" class="w-full h-full object-cover">
+                                </div>
+                                <div>
+                                    <p class="font-bold text-white uppercase text-xs">${data.name || 'Anonymous Trainee'}</p>
+                                    <p class="text-[8px] text-slate-500 uppercase tracking-widest">Joined: ${data.created_at?.toDate().toLocaleDateString() || 'N/A'}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-4 font-mono text-[10px] text-gold">${data.sfid || 'PENDING'}</td>
+                        <td class="py-4 uppercase text-[9px] font-black text-slate-300">${data.track || 'Unassigned'}</td>
+                        <td class="py-4">
+                            <div class="flex flex-col gap-1">
+                                <p class="text-[10px] font-black text-white">${data.xp || 0} XP</p>
+                                <div class="w-20 h-1 bg-white/5 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gold" style="width: ${Math.min((data.xp || 0) / 10, 100)}%"></div>
+                                </div>
+                                <p class="text-[8px] text-gold/60 uppercase font-bold">${data.tier || 'Novice'}</p>
+                            </div>
+                        </td>
+                        <td class="py-4">
+                            <p class="text-[10px] text-slate-300">${data.email || 'N/A'}</p>
+                            <p class="text-[10px] text-slate-500">${data.phone || 'N/A'}</p>
+                        </td>
+                        <td class="py-4">
+                            <div class="flex gap-2">
+                                <button onclick="window.viewTrainee('${d.id}')" class="p-2 hover:text-gold transition-colors"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                                <button onclick="window.deleteTrainee('${d.id}')" class="p-2 hover:text-red-400 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            </div>
+                        </td>
+                    </tr>`;
+                });
+                html += `</tbody></table></div>`;
+                container.innerHTML = html;
+                if (window.lucide) window.lucide.createIcons();
             });
-            
-            docs.forEach(d => {
-                const data = d.data();
-                html += `<tr class="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                    <td class="py-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-white/5 border border-gold/20 overflow-hidden">
-                                <img src="${data.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + d.id}" class="w-full h-full object-cover">
-                            </div>
-                            <div>
-                                <p class="font-bold text-white uppercase text-xs">${data.name || 'Anonymous Trainee'}</p>
-                                <p class="text-[8px] text-slate-500 uppercase tracking-widest">Joined: ${data.created_at?.toDate().toLocaleDateString() || 'N/A'}</p>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="py-4 font-mono text-[10px] text-gold">${data.sfid || 'PENDING'}</td>
-                    <td class="py-4 uppercase text-[9px] font-black text-slate-300">${data.track || 'Unassigned'}</td>
-                    <td class="py-4">
-                        <div class="flex flex-col gap-1">
-                            <p class="text-[10px] font-black text-white">${data.xp || 0} XP</p>
-                            <div class="w-20 h-1 bg-white/5 rounded-full overflow-hidden">
-                                <div class="h-full bg-gold" style="width: ${Math.min((data.xp || 0) / 10, 100)}%"></div>
-                            </div>
-                            <p class="text-[8px] text-gold/60 uppercase font-bold">${data.tier || 'Novice'}</p>
-                        </div>
-                    </td>
-                    <td class="py-4">
-                        <p class="text-[10px] text-slate-300">${data.email || 'N/A'}</p>
-                        <p class="text-[10px] text-slate-500">${data.phone || 'N/A'}</p>
-                    </td>
-                    <td class="py-4">
-                        <div class="flex gap-2">
-                            <button onclick="window.viewTrainee('${d.id}')" class="p-2 hover:text-gold transition-colors"><i data-lucide="eye" class="w-4 h-4"></i></button>
-                            <button onclick="window.deleteTrainee('${d.id}')" class="p-2 hover:text-red-400 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                        </div>
-                    </td>
-                </tr>`;
-            });
-            html += `</tbody></table></div>`;
-            container.innerHTML = html;
-            if (window.lucide) window.lucide.createIcons();
+            activeSnapshots.push(unsub);
         }
 
         window.viewTrainee = async (uid) => {
@@ -251,34 +250,60 @@
         };
 
         window.renderSeasons = async function(container) {
-            const snap = await getDocs(collection(db, "seasons"));
-            let html = `<div class="flex justify-between items-center mb-8">
-                <h2 class="text-2xl font-black uppercase">Season Registry</h2>
-                <button onclick="window.createSeason()" class="bg-gold text-navy-950 px-6 py-2 rounded-xl font-bold text-[10px] uppercase">Initialize Season</button>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
-            
-            if (snap.empty) {
-                html += '<p class="text-white/40 col-span-full text-center py-12 italic">No seasons configured yet.</p>';
-            }
+            const unsub = onSnapshot(collection(db, "seasons"), (snap) => {
+                let html = `<div class="flex justify-between items-center mb-8">
+                    <h2 class="text-2xl font-black uppercase">Season Registry</h2>
+                    <button onclick="window.createSeason()" class="bg-gold text-navy-950 px-6 py-2 rounded-xl font-bold text-[10px] uppercase">Initialize Season</button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
+                
+                if (snap.empty) {
+                    html += '<p class="text-white/40 col-span-full text-center py-12 italic">No seasons configured yet.</p>';
+                }
 
-            snap.forEach(d => {
-                const data = d.data();
-                html += `<div class="p-6 rounded-2xl bg-white/5 border border-white/5 space-y-4">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h3 class="font-black text-lg uppercase">${d.id}</h3>
-                            <p class="text-[10px] text-slate-500 uppercase tracking-widest">${data.status || 'Inactive'}</p>
+                snap.forEach(d => {
+                    const data = d.data();
+                    html += `<div class="p-6 rounded-2xl bg-white/5 border border-white/5 space-y-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-black text-lg uppercase">${d.id}</h3>
+                                <p class="text-[10px] text-slate-500 uppercase tracking-widest">${data.status || 'Inactive'}</p>
+                            </div>
+                            <button onclick="window.toggleSeasonStatus('${d.id}', '${data.status}')" class="px-3 py-1 rounded-full text-[8px] font-black uppercase ${data.status === 'active' ? 'bg-green-500/20 text-green-400' : 'bg-white/10 text-white/40'} hover:bg-gold/20 hover:text-gold transition-all">${data.status || 'Inactive'}</button>
                         </div>
-                        <span class="px-3 py-1 rounded-full text-[8px] font-black uppercase ${data.status === 'active' ? 'bg-green-500/20 text-green-400' : 'bg-white/10 text-white/40'}">${data.status || 'Inactive'}</span>
-                    </div>
-                    <p class="text-[10px] text-slate-400">Trainees: ${data.traineeCount || 0}</p>
-                </div>`;
+                        <p class="text-[10px] text-slate-400">Trainees: ${data.traineeCount || 0}</p>
+                        <div class="pt-4 border-t border-white/5 flex gap-2">
+                            <button onclick="window.setCurrentSeason('${d.id}')" class="text-[8px] font-black uppercase tracking-widest text-gold hover:text-white transition-all">Set as Global Current</button>
+                        </div>
+                    </div>`;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+                if (window.lucide) window.lucide.createIcons();
             });
-            html += '</div>';
-            container.innerHTML = html;
-            if (window.lucide) window.lucide.createIcons();
+            activeSnapshots.push(unsub);
         }
+
+        window.toggleSeasonStatus = async (id, currentStatus) => {
+            const nextStatus = currentStatus === 'active' ? 'inactive' : 'active';
+            try {
+                await updateDoc(doc(db, "seasons", id), { status: nextStatus });
+            } catch (err) {
+                alert("Operation Failed: " + err.message);
+            }
+        };
+
+        window.setCurrentSeason = async (id) => {
+            try {
+                await setDoc(doc(db, "system", "config"), { 
+                    currentSeason: id,
+                    lastInitialized: serverTimestamp() 
+                }, { merge: true });
+                alert("System Config Updated: Current Season set to " + id);
+            } catch (err) {
+                alert("Operation Failed: " + err.message);
+            }
+        };
 
         window.createSeason = async () => {
             if (!confirm("Confirm authorization to initialize a new training season?")) return;
@@ -293,7 +318,6 @@
                         initializedBy: auth.currentUser.uid
                     });
                     alert("New season successfully initialized: " + name);
-                    window.showTab('seasons');
                 } catch (err) {
                     alert("Authorization Error: " + err.message);
                 }
@@ -307,55 +331,69 @@
                 if (configSnap.exists()) currentSeason = configSnap.data().currentSeason || '2026';
             } catch (e) { console.warn("Failed to fetch system config, defaulting to 2026"); }
 
-            const docRef = doc(db, "seasons", currentSeason, "artifacts", "trainees", "counters", "tracks");
-            const snap = await getDoc(docRef);
-            
-            let html = `<div class="flex justify-between items-center mb-8">
-                <h2 class="text-2xl font-black uppercase">Track Registry (${currentSeason})</h2>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">`;
-            
-            if (!snap.exists()) {
-                html += `<p class="text-white/40 col-span-full text-center py-12 italic">No track enrollment data found for ${currentSeason}.</p>`;
-            } else {
-                const data = snap.data();
-                // Firestore doc fields are track names, values are counts
-                Object.entries(data).forEach(([trackName, count]) => {
-                    html += `<div class="p-6 rounded-2xl bg-white/5 border border-white/5 space-y-2">
-                        <h3 class="font-black uppercase text-xs text-slate-400">${trackName}</h3>
-                        <p class="text-3xl font-black text-gold">${count}</p>
-                        <p class="text-[8px] text-slate-500 uppercase tracking-widest">Enrolled Trainees</p>
-                    </div>`;
-                });
-            }
-            html += '</div>';
-            container.innerHTML = html;
+            const unsub = onSnapshot(doc(db, "seasons", currentSeason, "artifacts", "trainees", "counters", "tracks"), (snap) => {
+                let html = `<div class="flex justify-between items-center mb-8">
+                    <h2 class="text-2xl font-black uppercase">Track Registry (${currentSeason})</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">`;
+                
+                if (!snap.exists()) {
+                    html += `<p class="text-white/40 col-span-full text-center py-12 italic">No track enrollment data found for ${currentSeason}.</p>`;
+                } else {
+                    const data = snap.data();
+                    Object.entries(data).forEach(([trackName, count]) => {
+                        html += `<div class="p-6 rounded-2xl bg-white/5 border border-white/5 space-y-2">
+                            <h3 class="font-black uppercase text-xs text-slate-400">${trackName}</h3>
+                            <p class="text-3xl font-black text-gold">${count}</p>
+                            <p class="text-[8px] text-slate-500 uppercase tracking-widest">Enrolled Trainees</p>
+                        </div>`;
+                    });
+                }
+                html += '</div>';
+                container.innerHTML = html;
+            });
+            activeSnapshots.push(unsub);
         }
 
         window.renderPasscodes = async function(container) {
-            const snap = await getDocs(collection(db, "track_access"));
-            let html = `<div class="flex justify-between items-center mb-8">
-                <h2 class="text-2xl font-black uppercase">Access Pass-codes</h2>
-                <button onclick="window.generatePasscode()" class="bg-gold text-navy-950 px-6 py-2 rounded-xl font-bold text-[10px] uppercase">Generate New</button>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">`;
-            
-            if (snap.empty) {
-                html += '<p class="text-white/40 col-span-full text-center py-12 italic">No passcodes generated yet.</p>';
-            }
+            const unsub = onSnapshot(collection(db, "track_access"), (snap) => {
+                let html = `<div class="flex justify-between items-center mb-8">
+                    <h2 class="text-2xl font-black uppercase">Access Pass-codes</h2>
+                    <button onclick="window.generatePasscode()" class="bg-gold text-navy-950 px-6 py-2 rounded-xl font-bold text-[10px] uppercase">Generate New</button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">`;
+                
+                if (snap.empty) {
+                    html += '<p class="text-white/40 col-span-full text-center py-12 italic">No passcodes generated yet.</p>';
+                }
 
-            snap.forEach(d => {
-                const data = d.data();
-                html += `<div class="p-6 rounded-2xl bg-white/5 border border-white/5 space-y-2">
-                    <p class="font-mono font-black text-lg">${d.id}</p>
-                    <p class="text-[10px] text-slate-400">Track: ${data.track || 'N/A'}</p>
-                    <p class="text-[10px] ${data.used ? 'text-red-400' : 'text-green-400'} uppercase tracking-widest">${data.used ? 'Used' : 'Available'}</p>
-                </div>`;
+                snap.forEach(d => {
+                    const data = d.data();
+                    html += `<div class="p-6 rounded-2xl bg-white/5 border border-white/5 space-y-2 relative group">
+                        <button onclick="window.deletePasscode('${d.id}')" class="absolute top-4 right-4 text-white/20 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+                        <p class="font-mono font-black text-lg">${d.id}</p>
+                        <p class="text-[10px] text-slate-400 uppercase tracking-tighter">${data.track || 'N/A'}</p>
+                        <div class="flex justify-between items-center pt-2">
+                            <p class="text-[10px] ${data.used ? 'text-red-400' : 'text-green-400'} uppercase tracking-widest font-black">${data.used ? 'Used' : 'Available'}</p>
+                            <p class="text-[8px] text-slate-600">${data.season || 'Legacy'}</p>
+                        </div>
+                    </div>`;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+                if (window.lucide) window.lucide.createIcons();
             });
-            html += '</div>';
-            container.innerHTML = html;
-            if (window.lucide) window.lucide.createIcons();
+            activeSnapshots.push(unsub);
         }
+
+        window.deletePasscode = async (id) => {
+            if (!confirm("Permanently purge this pass-code?")) return;
+            try {
+                await deleteDoc(doc(db, "track_access", id));
+            } catch (err) {
+                alert("Operation Failed: " + err.message);
+            }
+        };
 
         window.generatePasscode = async () => {
             if (!confirm("Confirm authorization to generate a new unique access pass-code?")) return;
@@ -363,7 +401,9 @@
             const track = prompt("Assign this code to which track? (e.g., 'Web Development')");
             if (!track) return;
             
-            const season = prompt("Enter Season Code (e.g., '2026'):", "2026");
+            const configSnap = await getDoc(doc(db, "system", "config"));
+            const currentSeason = configSnap.exists() ? configSnap.data().currentSeason : '2026';
+            const season = prompt("Enter Season Code (e.g., '2026'):", currentSeason);
             if (!season) return;
 
             const code = PassCodeEngine.generate();
@@ -378,7 +418,6 @@
                     season: season
                 });
                 alert(`Pass-code successfully encrypted and stored: ${code}\nAssigned Track: ${track}`);
-                window.showTab('passcodes');
             } catch (err) {
                 alert("Authorization Error: " + err.message);
             }
@@ -393,18 +432,18 @@
             html += `<div class="p-6 rounded-2xl bg-white/5 border border-white/5 space-y-4">
                 <h3 class="font-black text-gold uppercase">Portal Identity</h3>
                 <div class="space-y-2 text-[10px] font-mono">
+                    <p class="text-slate-400">Role: <span class="text-green-400 font-black">Founding Director</span></p>
                     <p class="text-slate-400">UID: <span class="text-white break-all">${currentUid}</span></p>
-                    <p class="text-slate-400">Version: <span class="text-white">2.1.0</span></p>
-                    <p class="text-slate-400">Build: <span class="text-white">Neural-Stable</span></p>
-                    <p class="text-slate-400">Registry: <span class="text-green-400">Connected</span></p>
+                    <p class="text-slate-400">Version: <span class="text-white">2.2.0</span></p>
+                    <p class="text-slate-400">Registry: <span class="text-green-400">Active Node</span></p>
                 </div>
             </div>
             <div class="p-6 rounded-2xl bg-white/5 border border-white/5 space-y-4">
                 <h3 class="font-black text-gold uppercase">Security Status</h3>
                 <div class="space-y-2 text-[10px] font-mono">
-                    <p class="text-slate-400">Auth: <span class="text-green-400">Firebase Auth Active</span></p>
-                    <p class="text-slate-400">Rules: <span class="text-green-400">v2 Compiled</span></p>
-                    <p class="text-slate-400">SSL: <span class="text-green-400">Enforced</span></p>
+                    <p class="text-slate-400">Auth: <span class="text-green-400">Verified Identity</span></p>
+                    <p class="text-slate-400">Access: <span class="text-green-400">Master Level</span></p>
+                    <p class="text-slate-400">SSL: <span class="text-green-400">Secured</span></p>
                 </div>
             </div>`;
             html += '</div>';
