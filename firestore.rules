@@ -8,87 +8,104 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // ==================== OPERATIONAL RULES (V2) ====================
-    // These rules are designed for cross-platform consistency and "Mock UID" support.
-    // They allow all authenticated sessions (including anonymous) to:
-    // 1. Read all core data (necessary for Director Hub listing and Trainee login).
-    // 2. Write to their own profiles and manage registry data.
-
-    // Core Registries (Trainees, Staff, Specialists, etc.)
-    match /trainees/{id} {
-      allow read, write: if isAuthenticated();
-    }
-    match /staffs/{id} {
-      allow read, write: if isAuthenticated();
-    }
-    match /specialists/{id} {
-      allow read, write: if isAuthenticated();
-    }
-    match /hods/{id} {
-      allow read, write: if isAuthenticated();
-    }
-    match /directors/{id} {
-      allow read, write: if isAuthenticated();
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
     }
 
-    // Academy Infrastructure (Seasons, Config, etc.)
-    match /seasons/{id} {
-      allow read, write: if isAuthenticated();
+    // ==================== CLOUD-FIRST SECURITY ====================
+    // These rules rely on stable Firebase Auth UIDs (Email/Password Auth).
+    // Access is strictly limited to the owner of the data or authorized staff.
+
+    // Trainee Registry
+    match /trainees/{traineeId} {
+      allow read: if isAuthenticated() && (isOwner(traineeId) || isStaff());
+      allow create: if isAuthenticated() && isOwner(traineeId);
+      allow update: if isAuthenticated() && (isOwner(traineeId) || isStaff());
+      allow delete: if isDirector() || isOwner(traineeId) || (isAuthenticated() && resource.data.email == request.auth.token.email);
+    }
+
+    // Staff Collections (Staff, Specialists, HODs, Directors)
+    match /staffs/{staffId} {
+      allow read: if isAuthenticated();
+      allow write: if isDirector() || isOwner(staffId);
+    }
+    match /specialists/{specialistId} {
+      allow read: if isAuthenticated();
+      allow write: if isDirector() || isOwner(specialistId);
+    }
+    match /hods/{hodId} {
+      allow read: if isAuthenticated();
+      allow write: if isDirector() || isOwner(hodId);
+    }
+    match /directors/{directorId} {
+      allow read: if isAuthenticated();
+      allow write: if isDirector() || isOwner(directorId);
+    }
+
+    // Academy Infrastructure
+    match /seasons/{seasonId} {
+      allow read: if isAuthenticated();
+      allow write: if isDirector();
       match /{document=**} {
-        allow read, write: if isAuthenticated();
+        allow read: if isAuthenticated();
+        allow write: if isDirector();
       }
     }
-    match /system/{id} {
-      allow read, write: if isAuthenticated();
+    match /system/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isDirector();
     }
-    match /role_codes/{id} {
-      allow read, write: if isAuthenticated();
-    }
-    match /track_access/{id} {
-      allow read: if true;
-      allow write: if isAuthenticated();
+    match /track_access/{pin} {
+      allow read: if true; // Public gate lookup
+      allow write: if isDirector();
     }
 
     // Activity & Presence
-    match /presence/{id} {
-      allow read, write: if isAuthenticated();
+    match /presence/{userId} {
+      allow read: if isAuthenticated() && (isOwner(userId) || isDirector());
+      allow write: if isAuthenticated() && isOwner(userId);
+      allow delete: if isDirector() || isOwner(userId) || (isAuthenticated() && resource.data.email == request.auth.token.email);
     }
-    match /tracking/{id} {
-      allow read, write: if isAuthenticated();
-    }
-    match /audit_logs/{id} {
-      allow read, write: if isAuthenticated();
-    }
-    match /academy_audit_logs/{id} {
-      allow read, write: if isAuthenticated();
-    }
-    match /gate_audit_logs/{id} {
-      allow read, write: if isAuthenticated();
-    }
-    match /staff_audit_logs/{id} {
-      allow read, write: if isAuthenticated();
+    match /tracking/{userId} {
+      allow read: if isAuthenticated() && (isOwner(userId) || isDirector());
+      allow write: if isAuthenticated() && isOwner(userId);
+      allow delete: if isDirector() || isOwner(userId) || (isAuthenticated() && resource.data.email == request.auth.token.email);
     }
 
-    // Communication & Community
-    match /announcements/{id} {
-      allow read, write: if isAuthenticated();
+    // Communication & Logs
+    match /audit_logs/{id} { allow read, write: if isDirector(); }
+    match /academy_audit_logs/{id} { allow read: if isDirector(); allow create: if isAuthenticated(); }
+    match /feedback/{id} { allow read: if isStaff(); allow create: if isAuthenticated(); }
+    match /announcements/{id} { allow read: if isAuthenticated(); allow write: if isDirector(); }
+    match /badge_requests/{id} { 
+      allow read: if isStaff() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+      allow create: if isAuthenticated();
+      allow update: if isStaff();
+      allow delete: if isDirector();
     }
-    match /feedback/{id} {
-      allow read, write: if isAuthenticated();
+
+    // ==================== STAFF ROLES ====================
+    
+    function inSpecialists() { return exists(/databases/$(database)/documents/specialists/$(request.auth.uid)); }
+    function inHODs() { return exists(/databases/$(database)/documents/hods/$(request.auth.uid)); }
+    function inDirectors() { return exists(/databases/$(database)/documents/directors/$(request.auth.uid)); }
+    function inStaffs() { return exists(/databases/$(database)/documents/staffs/$(request.auth.uid)); }
+
+    function isStaff() {
+      return isAuthenticated() && (inSpecialists() || inHODs() || inDirectors() || inStaffs());
     }
-    match /badge_requests/{id} {
-      allow read, write: if isAuthenticated();
-    }
-    match /mail/{id} {
-      allow read, write: if true; // Public contact form
-    }
-    match /password_resets/{id} {
-      allow read, write: if true; // Public forgot password flow
+
+    function isDirector() {
+      return isAuthenticated() && (
+        inDirectors() || 
+        (inSpecialists() && get(/databases/$(database)/documents/specialists/$(request.auth.uid)).data.level == 'Director') ||
+        (inStaffs() && get(/databases/$(database)/documents/staffs/$(request.auth.uid)).data.primaryRole == 'Director')
+      );
     }
 
     // ==================== CATCH-ALL ====================
     match /{document=**} {
-      allow read, write: if isAuthenticated();
+      allow read, write: if isDirector();
     }
   }
 }

@@ -1,4 +1,4 @@
-﻿﻿﻿<!DOCTYPE html>
+﻿﻿﻿﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -6,15 +6,9 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https:; font-src 'self' https: data:; connect-src 'self' https:;">
   <title>Trainee Academy Center Login • SkillForge Digital & Co. Ltd</title>
   <script>
+    // Immediate UI Preparation - Hide content until cloud session is verified
     (function() {
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.has('error')) {
-        console.warn("[Auth] Redirected with error:", urlParams.get('error'));
-        return; // Stop automatic redirect if we were just sent here with an error
-      }
-      if (localStorage.getItem('skillforge_mock_uid')) {
-        window.location.href = '../trainee-dashboard/';
-      }
+      document.documentElement.style.visibility = 'hidden';
     })();
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -75,7 +69,7 @@
         <p class="text-slate-500 text-[10px] md:text-xs font-black uppercase tracking-[0.4em]">Secure Mastery Authentication</p>
     </div>
 
-    <main class="glass p-8 md:p-10 rounded-[32px] md:rounded-[40px] border-white/10">
+    <main id="login-container" class="glass p-8 md:p-10 rounded-[32px] md:rounded-[40px] border-white/10">
         <form id="login-form" class="space-y-6">
             <div class="space-y-2">
                 <label class="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Email Address</label>
@@ -101,14 +95,34 @@
             <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Forgot Access? <a href="./forgot-password.html" class="text-gold hover:text-white transition-all">Reset Password</a></p>
         </div>
     </main>
+
+    <!-- Duplicate Resolution UI -->
+    <main id="resolution-container" class="hidden glass p-8 md:p-10 rounded-[32px] md:rounded-[40px] border-white/10 space-y-8 animate-slide-up">
+        <div class="text-center space-y-2">
+            <div class="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto text-red-500 border border-red-500/20 mb-4">
+                <i data-lucide="alert-triangle" class="w-8 h-8"></i>
+            </div>
+            <h2 class="text-xl font-black text-white uppercase tracking-tighter">Neural Collision Detected</h2>
+            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Multiple identities found for this email</p>
+        </div>
+
+        <div id="duplicate-list" class="space-y-4">
+            <!-- Duplicates injected here -->
+        </div>
+
+        <p class="text-[8px] text-slate-600 font-bold uppercase tracking-widest text-center leading-relaxed">
+            Firebase only allows one login, but legacy data remnants were detected. <br>
+            Please purge the redundant identity to stabilize your neural link.
+        </p>
+    </main>
   </div>
 
   <!-- Firebase SDKs -->
 
   <script type="module">
     import { db, auth } from '../assets/firebase-config.js';
-    import { collection, query, where, getDocs, doc, updateDoc } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
-    import { signInAnonymously } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+    import { doc, getDoc, deleteDoc, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+    import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
 
     window.togglePassword = (id) => {
         const input = document.getElementById(id);
@@ -126,52 +140,113 @@
     document.getElementById('login-form').onsubmit = async (e) => {
         e.preventDefault();
         const btn = document.getElementById('login-btn');
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
+        const emailInput = document.getElementById('email').value;
+        const passwordInput = document.getElementById('password').value;
         
         btn.disabled = true;
         btn.innerHTML = "Authenticating...";
 
         try {
-            // Ensure we are signed in anonymously before querying
-            if (!auth.currentUser) {
-                await signInAnonymously(auth);
-            }
-            
-            // Query Firestore to verify email and password
-            const q = query(collection(db, "trainees"), where("email", "==", email), where("password", "==", password));
-            const querySnapshot = await getDocs(q);
+            // Step 1: Sign in with Firebase Auth (Cloud Session)
+            const userCredential = await signInWithEmailAndPassword(auth, emailInput, passwordInput);
+            const user = userCredential.user;
 
-            if (!querySnapshot.empty) {
-                const traineeDoc = querySnapshot.docs[0];
-                const trainee = traineeDoc.data();
-                
-                // Update the UID field to current session for rule-compliance, 
-                // but use the permanent Document ID for local session tracking.
-                if (trainee.uid !== auth.currentUser.uid) {
-                    await updateDoc(doc(db, "trainees", traineeDoc.id), { uid: auth.currentUser.uid });
-                }
-                
-                // CRITICAL: Save the permanent Document ID as the mock_uid
-                localStorage.setItem('skillforge_mock_uid', traineeDoc.id);
-                
-                // Set cross-subdomain cookie for seamless academy access
-                const cookieDomain = window.location.hostname.includes('skillforgedigital.com.ng') ? '.skillforgedigital.com.ng' : window.location.hostname;
-                document.cookie = `sf_uid=${traineeDoc.id}; path=/; domain=${cookieDomain}; max-age=86400; SameSite=Lax; Secure`;
-                
-                // Redirect to dashboard
-                window.location.href = '../trainee-dashboard/';
+            // Step 2: Check for Duplicate Identities in Firestore
+            const q = query(collection(db, "trainees"), where("email", "==", emailInput));
+            const querySnap = await getDocs(q);
+            
+            if (querySnap.size > 1) {
+                console.warn("[Auth] Neural Collision: Multiple registries found.");
+                handleResolution(user, querySnap.docs);
+                return;
+            }
+
+            // Step 3: Standard Login Flow
+            const traineeDoc = await getDoc(doc(db, "trainees", user.uid));
+
+            if (traineeDoc.exists()) {
+                finalizeLogin(user.uid);
             } else {
-                alert("Invalid mastery credentials. Please verify your email and password.");
+                console.error("[Auth] Firestore registry missing for Auth UID.");
+                alert("Identity verified, but Academy profile missing. Contact Command Center.");
+                await signOut(auth);
+                location.reload();
             }
         } catch (err) {
             console.error(err);
-            const errorMsg = err.message || "Unknown anomaly detected.";
-            alert(`Connection error: ${errorMsg}. Please try refreshing or clearing your cache.`);
+            alert(`Authentication failed: ${err.message}`);
         } finally {
             btn.disabled = false;
             btn.innerHTML = 'Access Hub <i data-lucide="shield-check" class="w-4 h-4"></i>';
             if (window.lucide) window.lucide.createIcons();
+        }
+    };
+
+    function finalizeLogin(uid) {
+        const cookieDomain = window.location.hostname.includes('skillforgedigital.com.ng') ? '.skillforgedigital.com.ng' : window.location.hostname;
+        document.cookie = `sf_uid=${uid}; path=/; domain=${cookieDomain}; max-age=86400; SameSite=Lax; Secure`;
+        window.location.href = '../trainee-dashboard/';
+    }
+
+    async function handleResolution(currentUser, docs) {
+        document.getElementById('login-container').classList.add('hidden');
+        const resContainer = document.getElementById('resolution-container');
+        resContainer.classList.remove('hidden');
+        
+        const list = document.getElementById('duplicate-list');
+        list.innerHTML = '';
+
+        docs.forEach(d => {
+            const data = d.data();
+            const isCurrent = d.id === currentUser.uid;
+            
+            const card = document.createElement('div');
+            card.className = `p-5 rounded-3xl glass border ${isCurrent ? 'border-gold/30 bg-gold/5' : 'border-white/5'} flex items-center justify-between group`;
+            card.innerHTML = `
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-slate-400">
+                        <i data-lucide="${isCurrent ? 'shield-check' : 'ghost'}" class="w-5 h-5 ${isCurrent ? 'text-gold' : ''}"></i>
+                    </div>
+                    <div class="text-left">
+                        <p class="text-[10px] font-black text-white uppercase tracking-widest">${data.name || 'Unknown Trainee'}</p>
+                        <p class="text-[8px] text-slate-500 font-bold uppercase tracking-widest">${data.sfid || 'NO SFID'} • ID: ${d.id.substring(0,8)}...</p>
+                    </div>
+                </div>
+                ${isCurrent ? 
+                    `<button onclick="window.finalizeLogin('${d.id}')" class="px-4 py-2 bg-gold text-navy rounded-xl font-black text-[8px] uppercase tracking-widest hover:bg-white transition-all">Keep & Enter</button>` :
+                    `<button id="del-${d.id}" onclick="window.purgeIdentity('${d.id}')" class="px-4 py-2 bg-red-500/10 text-red-500 rounded-xl font-black text-[8px] uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all border border-red-500/20">Purge</button>`
+                }
+            `;
+            list.appendChild(card);
+        });
+        
+        if (window.lucide) window.lucide.createIcons();
+    }
+
+    window.finalizeLogin = finalizeLogin;
+
+    window.purgeIdentity = async (id) => {
+        if (!confirm("CRITICAL: This identity and all associated activity logs will be permanently purged from the Neural Registry. Proceed?")) return;
+        
+        const btn = document.getElementById(`del-${id}`);
+        btn.disabled = true;
+        btn.innerText = "Purging...";
+
+        try {
+            // Batch delete trainee doc and related data
+            await Promise.all([
+                deleteDoc(doc(db, "trainees", id)),
+                deleteDoc(doc(db, "presence", id)).catch(() => {}), // Ignore if not exists
+                deleteDoc(doc(db, "tracking", id)).catch(() => {})   // Ignore if not exists
+            ]);
+            
+            alert("Identity and linked telemetry purged successfully. Link stabilized.");
+            location.reload(); // Refresh to check remaining accounts
+        } catch (err) {
+            console.error(err);
+            alert("Purge failed: Access denied or network error.");
+            btn.disabled = false;
+            btn.innerText = "Purge";
         }
     };
 
@@ -207,6 +282,9 @@
     // Reveal content once the UI has been hydrated
     // (Handled by window.load listener at the bottom of body)
 </script>
+  <script type="module">
+    import { themeManager } from '../assets/theme-manager.js';
+  </script>
   <script type="module" src="../assets/sf-atmosphere-3d.js"></script>
   <script src="../assets/error-reporter.js"></script>
 </body>

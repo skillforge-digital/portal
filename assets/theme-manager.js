@@ -7,12 +7,12 @@ class ThemeManager {
         if (window._sfThemeManager) return;
         window._sfThemeManager = this;
         
-        this.uid = localStorage.getItem('skillforge_mock_uid');
-        this.currentTheme = JSON.parse(localStorage.getItem('sf_global_theme') || '{}');
+        this.uid = null;
+        this.currentTheme = { type: 'solid-pair', primary: '#040810', secondary: '#f59e0b' };
         this.controls = {
-            glow: localStorage.getItem('sf_glow_mode') === 'true',
-            light: localStorage.getItem('sf_light_mode') === 'true',
-            performance: localStorage.getItem('sf_performance_mode') === 'true'
+            glow: false,
+            light: false,
+            performance: false
         };
         this.fonts = [
             { name: 'Space Grotesk', family: "'Space Grotesk', sans-serif" },
@@ -38,9 +38,15 @@ class ThemeManager {
         window.addEventListener('sf:turbo-render', (e) => {
             console.log(`[ThemeManager] Neural Re-Sync: Performing Layout Hydration`);
             this.applyTheme(this.currentTheme);
-            this.applyFont(localStorage.getItem('sf_font_family'));
             this.applyControls(this.controls);
-            this.applyWallpaper(localStorage.getItem('sf_wallpaper_url'));
+        });
+
+        // Event listener for theme updates from Customize page
+        window.addEventListener('sf:theme_updated', (e) => {
+            if (e.detail) {
+                this.currentTheme = e.detail;
+                this.applyTheme(e.detail);
+            }
         });
     }
 
@@ -52,22 +58,17 @@ class ThemeManager {
             const isProtectedPage = window.location.pathname.includes('trainee-dashboard');
             const isAuthPage = window.location.pathname.includes('login') || window.location.pathname.includes('registration');
 
-            // UID Resolution: Prioritize stable doc ID from localStorage
-            this.uid = localStorage.getItem('skillforge_mock_uid') || (user ? user.uid : null);
+            // Cloud-First Session: Always use the permanent Firebase Auth UID
+            this.uid = user ? user.uid : null;
 
             if (this.uid) {
-                console.log('ThemeManager: Connection confirmed, loading preferences...');
+                console.log('ThemeManager: Cloud session active for:', this.uid);
                 this.startSync();
             } else {
                 if (isProtectedPage && !isAuthPage) {
-                    console.warn('ThemeManager: Protected page detected without auth. Redirecting...');
+                    console.warn('ThemeManager: Protected page detected without auth. Redirecting to cloud portal...');
                     const base = window.location.pathname.split('/trainee-dashboard')[0] || '';
                     window.location.href = `${base}/trainee-login/`;
-                } else {
-                    console.log('ThemeManager: Initializing session...');
-                    signInAnonymously(auth).catch(err => {
-                        console.error('ThemeManager: Session initialization failed:', err);
-                    });
                 }
             }
         });
@@ -85,7 +86,6 @@ class ThemeManager {
                 if (data.theme) {
                     console.log('ThemeManager: Applying remote theme:', data.theme.type);
                     this.currentTheme = data.theme;
-                    localStorage.setItem('sf_global_theme', JSON.stringify(data.theme));
                     this.applyTheme(data.theme);
                 }
                 if (data.fontFamily) {
@@ -98,9 +98,6 @@ class ThemeManager {
                         light: !!data.isLightMode,
                         performance: !!data.performanceMode
                     };
-                    localStorage.setItem('sf_glow_mode', this.controls.glow);
-                    localStorage.setItem('sf_light_mode', this.controls.light);
-                    localStorage.setItem('sf_performance_mode', this.controls.performance);
                     this.applyControls(this.controls);
                 }
                 if (data.wallpaper) {
@@ -108,9 +105,7 @@ class ThemeManager {
                     this.applyWallpaper(data.wallpaper);
                 }
             } else {
-                console.warn('ThemeManager: Registry document missing for identity:', this.uid, '. Clearing stale session.');
-                // Clear stale session data to prevent infinite loops
-                localStorage.removeItem('skillforge_mock_uid');
+                console.warn('ThemeManager: Registry document missing for identity:', this.uid);
                 // If on dashboard, trigger redirect to login
                 if (window.location.pathname.includes('trainee-dashboard')) {
                     window.location.href = '../trainee-login/?error=stale_session';
@@ -124,7 +119,6 @@ class ThemeManager {
     applyFont(fontFamily) {
         if (!fontFamily) return;
         document.documentElement.style.setProperty('--font-main', fontFamily);
-        localStorage.setItem('sf_font_family', fontFamily);
     }
 
     applyTheme(theme) {
@@ -136,7 +130,6 @@ class ThemeManager {
         const body = document.body;
         
         this.currentTheme = theme;
-        localStorage.setItem('sf_global_theme', JSON.stringify(theme));
 
         const hexToRgb = (hex) => {
             const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -223,7 +216,6 @@ class ThemeManager {
             document.body.style.backgroundImage = '';
             return;
         }
-        localStorage.setItem('sf_wallpaper_url', url);
         document.body.style.backgroundImage = `url('${url}')`;
         document.body.style.backgroundSize = 'cover';
         document.body.style.backgroundPosition = 'center';
@@ -232,12 +224,11 @@ class ThemeManager {
     }
 
     async saveLayout(layoutNum, source = 'LAYOUT_ENGINE') {
-        if (!this.uid) return false;
+        if (!this.uid) return;
         try {
             const themeUpdate = { ...this.currentTheme, layout: layoutNum };
             await updateDoc(doc(db, 'trainees', this.uid), { theme: themeUpdate });
             this.currentTheme = themeUpdate;
-            localStorage.setItem('sf_global_theme', JSON.stringify(themeUpdate));
             this.applyTheme(themeUpdate);
             return true;
         } catch (err) {

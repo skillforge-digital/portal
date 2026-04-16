@@ -6,12 +6,8 @@
 <title>SkillForge — Academy Vault</title>
 <script>
   (function() {
-    const uid = localStorage.getItem('skillforge_mock_uid');
-    if (!uid) {
-      window.stop();
-      const base = window.location.pathname.split('/trainee-dashboard')[0] || '';
-      window.location.href = base + '/trainee-login/';
-    }
+    // Immediate UI Preparation - Hide content until cloud session is verified
+    document.documentElement.style.visibility = 'hidden';
   })();
 </script>
 <script src="https://cdn.tailwindcss.com"></script>
@@ -200,12 +196,12 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 let traineeData = null;
-const uid = themeManager.uid;
+let activeUid = null;
 
 // Handle File Uploads
 document.getElementById('vault-file-input').addEventListener('change', async (e) => {
   const file = e.target.files[0];
-  if (!file) return;
+  if (!file || !activeUid) return;
 
   if (file.size > 5 * 1024 * 1024) {
     alert("Asset exceeded 5MB registry limit.");
@@ -220,7 +216,7 @@ document.getElementById('vault-file-input').addEventListener('change', async (e)
     text.innerHTML = `<p class="text-[10px] font-black text-gold-400 animate-pulse uppercase tracking-widest">Archiving Asset...</p>`;
     icon.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-gold-500 text-2xl"></i>`;
 
-    const fileName = `vault/${uid}_${Date.now()}_${file.name}`;
+    const fileName = `vault/${activeUid}_${Date.now()}_${file.name}`;
     const { data, error } = await supabase.storage.from('avatars').upload(fileName, file);
     if (error) throw error;
 
@@ -235,7 +231,7 @@ document.getElementById('vault-file-input').addEventListener('change', async (e)
     };
 
     // Registry Logic
-    const traineeRef = doc(db, 'trainees', auth.currentUser.uid);
+    const traineeRef = doc(db, 'trainees', activeUid);
     const snap = await getDoc(traineeRef);
     const currentVault = snap.exists() ? (snap.data().vault || []) : [];
     
@@ -244,7 +240,7 @@ document.getElementById('vault-file-input').addEventListener('change', async (e)
     });
 
     await addDoc(collection(db, 'audit_logs'), {
-      userId: auth.currentUser.uid,
+      userId: activeUid,
       action: 'VAULT_ASSET_ARCHIVED',
       modifications: { fileName: file.name, type: assetData.type },
       timestamp: serverTimestamp()
@@ -267,14 +263,14 @@ document.getElementById('vault-file-input').addEventListener('change', async (e)
 });
 
 window.requestBadge = async () => {
-  if (!traineeData) return;
+  if (!traineeData || !activeUid) return;
   const btn = document.getElementById('badge-request-btn');
   btn.disabled = true;
   btn.innerText = "Transmitting Request...";
   
   try {
     await addDoc(collection(db, 'badge_requests'), {
-      userId: uid,
+      userId: activeUid,
       userName: traineeData.name,
       userSfid: traineeData.sfid || 'N/A',
       track: traineeData.track,
@@ -285,7 +281,7 @@ window.requestBadge = async () => {
     });
     
     await addDoc(collection(db, 'audit_logs'), {
-      userId: uid,
+      userId: activeUid,
       action: 'BADGE_REQUEST_SENT',
       modifications: { type: 'SILVER_BADGE', track: traineeData.track },
       timestamp: serverTimestamp()
@@ -316,7 +312,8 @@ const TELEGRAM_CHANNELS = {
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    onSnapshot(doc(db, 'trainees', uid), (snap) => {
+    activeUid = user.uid;
+    onSnapshot(doc(db, 'trainees', activeUid), (snap) => {
       if (snap.exists()) {
         traineeData = snap.data();
         const firstName = traineeData.name ? traineeData.name.split(' ')[0] : 'Trainee';
@@ -327,9 +324,10 @@ onAuthStateChanged(auth, (user) => {
         document.querySelectorAll('.telegram-join-target').forEach(el => el.href = tgLink);
         
         loadVault(traineeData);
+        document.documentElement.style.visibility = 'visible';
       }
     });
-    checkBadgeStatus(user.uid);
+    checkBadgeStatus(activeUid);
   } else {
     window.location.href = '../../trainee-login/';
   }
@@ -445,7 +443,7 @@ window.deleteAsset = async (index, fileName) => {
   if (!confirm(`Are you sure you want to purge "${fileName}" from the Vault?`)) return;
   
   try {
-    const traineeRef = doc(db, 'trainees', auth.currentUser.uid);
+    const traineeRef = doc(db, 'trainees', activeUid);
     const snap = await getDoc(traineeRef);
     if (snap.exists()) {
       const currentVault = snap.data().vault || [];
@@ -454,7 +452,7 @@ window.deleteAsset = async (index, fileName) => {
       await updateDoc(traineeRef, { vault: updatedVault });
       
       await addDoc(collection(db, 'audit_logs'), {
-        userId: auth.currentUser.uid,
+        userId: activeUid,
         action: 'VAULT_ASSET_PURGED',
         modifications: { fileName },
         timestamp: serverTimestamp()
@@ -473,8 +471,8 @@ window.toggleSidebar = () => {
   sidebar.classList.toggle('-translate-x-full');
 };
 
-window.logout = () => {
-  localStorage.removeItem('skillforge_mock_uid');
+window.logout = async () => {
+  await signOut(auth);
   window.location.href = '../../trainee-login/';
 };
 </script>

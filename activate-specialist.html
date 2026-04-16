@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -45,7 +45,7 @@ window.activate = async () => {
   const btn = document.getElementById('activate-btn');
   const status = document.getElementById('status');
   const keyInput = document.getElementById('command-key');
-  const uid = localStorage.getItem('skillforge_mock_uid') || (auth.currentUser ? auth.currentUser.uid : null);
+  const uid = auth.currentUser ? auth.currentUser.uid : null;
   
   if (!uid) {
     status.innerText = "Error: No active identity found.";

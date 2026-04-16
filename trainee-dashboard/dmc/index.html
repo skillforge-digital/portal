@@ -317,7 +317,7 @@ const supabaseUrl = 'https://luxubaqztmbcpskyfgdp.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1eHViYXF6dG1iY3Bza3lmZ2RwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDYzNTcsImV4cCI6MjA5MTQyMjM1N30.Kmon8jh22u5KgWWpXf-7cdZ4qxlKXuUbVm6Mh-GHd8Q';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-let uid = localStorage.getItem('skillforge_mock_uid') || null;
+let activeUid = null;
 let traineeData = null;
 let currentCardTheme = { accent: '#f59e0b', bg: '#0c1829' };
 let pendingAvatar = null;
@@ -344,55 +344,26 @@ function init() {
   });
 
   onAuthStateChanged(auth, (user) => {
-    let lookupUid = null;
-
-    if (user) {
-      lookupUid = user.uid;
-    } else if (uid) {
-      lookupUid = uid;
-    } else {
+    if (!user) {
       window.location.href = '../../trainee-login/';
       return;
     }
-
-    onSnapshot(doc(db, 'trainees', lookupUid), (snap) => {
+    activeUid = user.uid;
+    console.log("[DMC] Cloud session active:", activeUid);
+    
+    onSnapshot(doc(db, 'trainees', activeUid), (snap) => {
       if (snap.exists()) {
         traineeData = snap.data();
         updateUI();
         if (traineeData.cardTheme) applyCardTheme(traineeData.cardTheme, false);
         hideLoading();
       } else {
-        if (lookupUid !== uid && uid) {
-          onSnapshot(doc(db, 'trainees', uid), (snap2) => {
-            if (snap2.exists()) {
-              traineeData = snap2.data();
-              updateUI();
-              if (traineeData.cardTheme) applyCardTheme(traineeData.cardTheme, false);
-            } else {
-              window.location.href = '../../trainee-login/';
-            }
-            hideLoading();
-          });
-        } else {
-          window.location.href = '../../trainee-login/';
-        }
-      }
-    }, (err) => {
-      console.error("Firestore read error:", err);
-      if (uid) {
-        onSnapshot(doc(db, 'trainees', uid), (snap) => {
-          if (snap.exists()) {
-            traineeData = snap.data();
-            updateUI();
-            if (traineeData.cardTheme) applyCardTheme(traineeData.cardTheme, false);
-          } else {
-            window.location.href = '../../trainee-login/';
-          }
-          hideLoading();
-        });
-      } else {
+        window.location.href = '../../trainee-login/';
         hideLoading();
       }
+    }, (err) => {
+      console.error("Firestore sync error:", err);
+      hideLoading();
     });
   });
 
@@ -445,6 +416,7 @@ function updateUI() {
 }
 
 window.saveCard = async () => {
+  if (!activeUid) return;
   const btn = document.getElementById('save-btn');
   btn.disabled = true;
   btn.innerText = "Synchronizing Identity...";
@@ -453,14 +425,14 @@ window.saveCard = async () => {
     const update = { cardTheme: currentCardTheme };
     
     if (pendingAvatar) {
-      const fileName = `${uid}_${Date.now()}.jpg`;
+      const fileName = `${activeUid}_${Date.now()}.jpg`;
       const { error } = await supabase.storage.from('avatars').upload(fileName, pendingAvatar);
       if (error) throw error;
       const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(fileName);
       update.avatar = publicUrl;
     }
     
-    await updateDoc(doc(db, 'trainees', uid), update);
+    await updateDoc(doc(db, 'trainees', activeUid), update);
     alert("Identity Card Synced Successfully.");
     pendingAvatar = null;
   } catch (err) {

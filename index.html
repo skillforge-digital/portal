@@ -383,14 +383,6 @@
         const isLight = document.documentElement.classList.contains('light');
         document.getElementById('theme-icon-sun').classList.toggle('hidden', !isLight);
         document.getElementById('theme-icon-moon').classList.toggle('hidden', isLight);
-        localStorage.setItem('theme', isLight ? 'light' : 'dark');
-    }
-
-    // Load saved theme
-    if (localStorage.getItem('theme') === 'light') {
-        document.documentElement.classList.add('light');
-        document.getElementById('theme-icon-sun').classList.remove('hidden');
-        document.getElementById('theme-icon-moon').classList.add('hidden');
     }
 
     // Sundust Background

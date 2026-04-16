@@ -434,7 +434,6 @@ window.updateRequest = async (id, status) => {
 
 window.logout = () => {
   signOut(auth).then(() => {
-    localStorage.removeItem('skillforge_mock_uid');
     window.location.href = '../trainee-login/';
   });
 };

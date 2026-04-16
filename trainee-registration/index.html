@@ -297,7 +297,7 @@
   <script type="module">
     import { db, auth } from '../assets/firebase-config.js';
     import { doc, getDoc, setDoc, runTransaction, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
-    import { signInAnonymously } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+    import { createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
     const supabaseUrl = 'https://luxubaqztmbcpskyfgdp.supabase.co';
@@ -450,8 +450,18 @@
         traineeData.name = traineeData.name.toUpperCase();
         
         try {
-            const user = (await signInAnonymously(auth)).user;
-            localStorage.setItem('skillforge_mock_uid', user.uid);
+            // Pre-Step: Check for existing registry document to prevent duplicates
+            const q = query(collection(db, "trainees"), where("email", "==", traineeData.email));
+            const querySnap = await getDocs(q);
+            if (!querySnap.empty) {
+                alert("NEURAL OVERLAP: This email is already registered in the Academy Registry. Please use the Login portal.");
+                window.location.href = '../trainee-login/';
+                return;
+            }
+
+            // Step 1: Create Firebase Auth User (The Permanent Cloud ID)
+            const userCredential = await createUserWithEmailAndPassword(auth, traineeData.email, traineeData.password);
+            const user = userCredential.user;
 
             let avatarUrl = traineeData.avatar;
             if (uploadedProfileFile) {
@@ -567,7 +577,10 @@
     new Sundust();
     if (window.lucide) window.lucide.createIcons();
   </script>
-  <script type="module" src="../assets/sf-atmosphere-3d.js"></script>
+  <script type="module">
+        import { themeManager } from '../assets/theme-manager.js';
+    </script>
+    <script type="module" src="../assets/sf-atmosphere-3d.js"></script>
 </body>
 </html>
 

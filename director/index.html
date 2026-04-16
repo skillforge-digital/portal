@@ -17,10 +17,13 @@
 <body class="p-6 md:p-12">
     <div id="auth-gate" class="fixed inset-0 z-[100] bg-navy flex items-center justify-center p-6">
         <div class="w-full max-w-md glass p-10 rounded-[40px] border-white/10 text-center space-y-8">
+            <div class="w-20 h-20 bg-gold/10 rounded-[30px] flex items-center justify-center text-gold border border-gold/20 mx-auto">
+                <i data-lucide="shield-alert" class="w-10 h-10"></i>
+            </div>
             <h1 class="text-2xl font-black uppercase tracking-tighter text-gold">Director Access</h1>
-            <div class="space-y-4">
-                <input type="password" id="director-pass" placeholder="Enter Command Secret" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl text-center focus:border-gold outline-none">
-                <button id="auth-btn" class="w-full bg-gold text-navy-950 py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-white transition-all">Authorize</button>
+            <p id="auth-status" class="text-slate-400 text-xs uppercase tracking-widest font-bold">Verifying Neural Signature...</p>
+            <div id="auth-actions" class="space-y-4">
+                <!-- Actions injected by JS -->
             </div>
         </div>
     </div>
@@ -29,7 +32,7 @@
         <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
             <div>
                 <p class="text-gold text-xs font-black uppercase tracking-[0.4em] mb-2">Founding Admin Hub</p>
-                <h1 class="text-4xl md:text-6xl font-black uppercase tracking-tighter">Director Center</h1>
+                <h1 id="director-name" class="text-4xl md:text-6xl font-black uppercase tracking-tighter">Director Center</h1>
             </div>
             <div class="flex gap-4">
                 <button id="logout-btn" class="glass px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest text-red-400 hover:bg-red-400/10 transition-all">Terminate Session</button>
@@ -51,75 +54,105 @@
     <script type="module">
         import { db, auth } from '../assets/firebase-config.js';
         import { collection, query, getDocs, doc, getDoc, setDoc, deleteDoc, serverTimestamp, orderBy } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
-        import { onAuthStateChanged, signInAnonymously } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+        import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
         import { PassCodeEngine } from '../assets/pass-code-engine.js';
 
         let passCodeEngine = null;
+        let directorData = null;
 
         onAuthStateChanged(auth, async (user) => {
+            const statusEl = document.getElementById('auth-status');
+            const actionsEl = document.getElementById('auth-actions');
+
             if (!user) {
-                try {
-                    await signInAnonymously(auth);
-                } catch (err) {
-                    console.error("Anonymous auth failed:", err);
-                }
+                statusEl.innerText = "Authentication Required";
+                actionsEl.innerHTML = `
+                    <a href="../staffs/login/" class="block w-full bg-gold text-navy-950 py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-white transition-all">Personnel Login</a>
+                    <p class="text-[8px] text-slate-500 uppercase tracking-widest mt-4">Authorized Directors Only</p>
+                `;
             } else {
-                console.log("Director Hub Auth Ready:", user.uid);
-                if (passCodeEngine === null) {
-                    passCodeEngine = new PassCodeEngine(db, auth);
-                }
-                // If we are already authorized via password, refresh the view
-                if (localStorage.getItem('sf_director_auth') === 'true') {
-                    initHub();
+                statusEl.innerText = "Verifying Authorization...";
+                try {
+                    // Check multiple collections for Director status
+                    const results = await Promise.all([
+                        getDoc(doc(db, 'directors', user.uid)),
+                        getDoc(doc(db, 'specialists', user.uid)),
+                        getDoc(doc(db, 'staffs', user.uid))
+                    ]);
+
+                    const directorDoc = results[0];
+                    const specialistDoc = results[1];
+                    const staffDoc = results[2];
+
+                    let isDirector = false;
+                    if (directorDoc.exists()) {
+                        isDirector = true;
+                        directorData = directorDoc.data();
+                    } else if (specialistDoc.exists() && specialistDoc.data().level === 'Director') {
+                        isDirector = true;
+                        directorData = specialistDoc.data();
+                    } else if (staffDoc.exists() && staffDoc.data().primaryRole === 'Director') {
+                        isDirector = true;
+                        directorData = staffDoc.data();
+                    }
+
+                    if (isDirector) {
+                        initHub();
+                    } else {
+                        statusEl.innerText = "Access Denied: Non-Director Identity Detected";
+                        actionsEl.innerHTML = `
+                            <button id="switch-account" class="w-full bg-white/5 border border-white/10 text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-white/10 transition-all">Switch Account</button>
+                            <p class="text-[8px] text-red-400/60 uppercase tracking-widest mt-4">This account lacks command clearance.</p>
+                        `;
+                        document.getElementById('switch-account').onclick = () => signOut(auth).then(() => location.reload());
+                    }
+                } catch (err) {
+                    console.error("Auth verification failed:", err);
+                    statusEl.innerText = "System Error: " + err.message;
                 }
             }
         });
 
-        window.verifyDirector = function() {
-            const pass = document.getElementById('director-pass').value;
-            if (pass === 'SFD-DIRECTOR-2026') { 
-                localStorage.setItem('sf_director_auth', 'true');
-                initHub();
-            } else {
-                alert("Unauthorized Command Attempt.");
-            }
-        };
-
         window.logoutDirector = function() {
-            localStorage.removeItem('sf_director_auth');
-            location.reload();
+            signOut(auth).then(() => {
+                location.reload();
+            });
         };
 
         function initHub() {
-            if (localStorage.getItem('sf_director_auth') === 'true') {
-                document.getElementById('auth-gate').classList.add('hidden');
-                document.getElementById('director-hub').classList.remove('hidden');
-                
-                // Only show tab if auth is actually ready
-                if (auth.currentUser) {
-                    window.showTab('trainees');
-                } else {
-                    const content = document.getElementById('tab-content');
-                    content.innerHTML = '<div class="flex items-center justify-center h-64"><p class="text-gold animate-pulse">Establishing Secure Connection...</p></div>';
-                }
+            document.getElementById('auth-gate').classList.add('hidden');
+            document.getElementById('director-hub').classList.remove('hidden');
+            
+            if (directorData) {
+                document.getElementById('director-name').innerText = directorData.name + " Hub";
             }
+
+            if (passCodeEngine === null) {
+                passCodeEngine = new PassCodeEngine(db, auth);
+            }
+            
+            window.showTab('trainees');
         }
 
         window.showTab = async function(tab) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+            const tabBtn = document.querySelector(`[data-tab="${tab}"]`);
+            if (tabBtn) tabBtn.classList.add('active');
             
             const content = document.getElementById('tab-content');
             content.innerHTML = '<div class="flex items-center justify-center h-64"><div class="w-10 h-10 border-4 border-gold/20 border-t-gold rounded-full animate-spin"></div></div>';
 
             try {
                 if (tab === 'trainees') await window.renderTrainees(content);
-                if (tab === 'seasons') await window.renderSeasons(content);
-                if (tab === 'tracks') await window.renderTracks(content);
-                if (tab === 'passcodes') await window.renderPasscodes(content);
-                if (tab === 'fingerprints') await window.renderFingerprints(content);
+                else if (tab === 'seasons') await window.renderSeasons(content);
+                else if (tab === 'tracks') await window.renderTracks(content);
+                else if (tab === 'passcodes') await window.renderPasscodes(content);
+                else if (tab === 'fingerprints') await window.renderFingerprints(content);
             } catch (err) {
-                content.innerHTML = `<p class="text-red-400">Error loading registry: ${err.message}</p>`;
+                content.innerHTML = `<div class="p-12 text-center space-y-4">
+                    <p class="text-red-400 font-bold uppercase tracking-widest text-xs">Registry Connection Failed</p>
+                    <p class="text-slate-500 text-[10px]">${err.message}</p>
+                </div>`;
             }
         };
 
@@ -268,24 +301,30 @@
         };
 
         window.renderTracks = async function(container) {
-            const docRef = doc(db, "seasons", "2026", "artifacts", "trainees", "counters", "tracks");
+            let currentSeason = '2026';
+            try {
+                const configSnap = await getDoc(doc(db, "system", "config"));
+                if (configSnap.exists()) currentSeason = configSnap.data().currentSeason || '2026';
+            } catch (e) { console.warn("Failed to fetch system config, defaulting to 2026"); }
+
+            const docRef = doc(db, "seasons", currentSeason, "artifacts", "trainees", "counters", "tracks");
             const snap = await getDoc(docRef);
             
             let html = `<div class="flex justify-between items-center mb-8">
-                <h2 class="text-2xl font-black uppercase">Track Registry</h2>
+                <h2 class="text-2xl font-black uppercase">Track Registry (${currentSeason})</h2>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">`;
             
             if (!snap.exists()) {
-                html += '<p class="text-white/40 col-span-full text-center py-12 italic">No track enrollment data found for 2026.</p>';
+                html += `<p class="text-white/40 col-span-full text-center py-12 italic">No track enrollment data found for ${currentSeason}.</p>`;
             } else {
                 const data = snap.data();
                 // Firestore doc fields are track names, values are counts
                 Object.entries(data).forEach(([trackName, count]) => {
                     html += `<div class="p-6 rounded-2xl bg-white/5 border border-white/5 space-y-2">
-                        <h3 class="font-black uppercase">${trackName}</h3>
+                        <h3 class="font-black uppercase text-xs text-slate-400">${trackName}</h3>
                         <p class="text-3xl font-black text-gold">${count}</p>
-                        <p class="text-[10px] text-slate-500 uppercase tracking-widest">Enrolled Trainees</p>
+                        <p class="text-[8px] text-slate-500 uppercase tracking-widest">Enrolled Trainees</p>
                     </div>`;
                 });
             }
@@ -321,23 +360,22 @@
         window.generatePasscode = async () => {
             if (!confirm("Confirm authorization to generate a new unique access pass-code?")) return;
             
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let code = 'ACADEMY-';
-            for (let i = 0; i < 4; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
-            code += '-2026';
-            
-            const track = prompt("Assign this code to which track?");
+            const track = prompt("Assign this code to which track? (e.g., 'Web Development')");
             if (!track) return;
             
-            const uid = prompt("Enter specific Trainee UID (leave blank for any-user code):");
+            const season = prompt("Enter Season Code (e.g., '2026'):", "2026");
+            if (!season) return;
+
+            const code = PassCodeEngine.generate();
             
             try {
                 await setDoc(doc(db, "track_access", code), {
                     track,
-                    uid: uid || null,
-                    used: !!uid,
+                    pin: code,
+                    used: false,
                     createdAt: serverTimestamp(),
-                    generatedBy: auth.currentUser.uid
+                    generatedBy: auth.currentUser.uid,
+                    season: season
                 });
                 alert(`Pass-code successfully encrypted and stored: ${code}\nAssigned Track: ${track}`);
                 window.showTab('passcodes');
@@ -373,10 +411,6 @@
             container.innerHTML = html;
         }
 
-        document.getElementById('auth-btn').addEventListener('click', window.verifyDirector);
-        document.getElementById('director-pass').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') window.verifyDirector();
-        });
         document.getElementById('logout-btn').addEventListener('click', window.logoutDirector);
 
         document.querySelectorAll('.tab-btn').forEach(function(btn) {
@@ -385,7 +419,6 @@
             });
         });
 
-        initHub();
         if (window.lucide) window.lucide.createIcons();
     </script>
 </body>

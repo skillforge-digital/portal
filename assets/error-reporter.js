@@ -1,4 +1,4 @@
-﻿﻿﻿/**
+﻿﻿/**
  * SkillForge Digital Error Reporter
  * Captures global errors and provides a way for users to report issues.
  */
@@ -169,7 +169,7 @@
     const timestamp = new Date().toISOString();
     const url = window.location.href;
     const userAgent = navigator.userAgent;
-    const uid = localStorage.getItem('skillforge_mock_uid') || 'Anonymous';
+    const uid = (window.auth && window.auth.currentUser) ? window.auth.currentUser.uid : 'Anonymous';
     
     // Clean up the error message for the title
     let displayTitle = "System Anomaly Detected";

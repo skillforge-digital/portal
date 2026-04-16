@@ -905,20 +905,16 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 let traineeData = null;
 let activeUid = null;
 
-// UID Resolution: Prioritize stable Document ID from localStorage over dynamic Firebase UID
+// Cloud-First Session: Always rely on Firebase Auth UID
 onAuthStateChanged(auth, (user) => {
-  const mockUid = localStorage.getItem('skillforge_mock_uid');
-  // Priority: 1. Stable Document ID (mockUid), 2. Firebase Auth UID (user.uid), 3. None
-  const lookupUid = mockUid || (user ? user.uid : null);
-
-  if (!lookupUid) {
-    console.warn("[Dashboard] No valid session or mock identity found. Redirecting...");
+  if (!user) {
+    console.warn("[Dashboard] No active cloud session. Redirecting...");
     window.location.href = '../trainee-login/';
     return;
   }
 
-  activeUid = lookupUid;
-  console.log("[Dashboard] Neural connection established:", activeUid);
+  activeUid = user.uid;
+  console.log("[Dashboard] Cloud session confirmed:", activeUid);
   startRegistrySync(activeUid);
 });
 
@@ -950,18 +946,10 @@ function startRegistrySync(targetUid) {
         loadNewsTicker();
       }
     } else {
-      // Fallback: If Firebase user exists but Firestore doc doesn't, try mock UID
-      const mockUid = localStorage.getItem('skillforge_mock_uid');
-      if (mockUid && targetUid !== mockUid) {
-        console.warn("[Dashboard] Firestore registry missing for Auth UID. Retrying with mock UID...");
-        startRegistrySync(mockUid);
-      } else {
-        console.error("[Dashboard] Trainee registry not found for identity:", targetUid);
-        // CRITICAL: Clear invalid session to prevent infinite redirect loop
-        localStorage.removeItem('skillforge_mock_uid');
-        document.cookie = "sf_uid=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-        window.location.href = '../trainee-login/?error=registry_not_found';
-      }
+      console.error("[Dashboard] Trainee registry not found for identity:", targetUid);
+      // CRITICAL: Clear invalid session to prevent infinite redirect loop
+      document.cookie = "sf_uid=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+      window.location.href = '../trainee-login/?error=registry_not_found';
     }
   }, (err) => {
     console.error("[Dashboard] Snapshot error:", err);
@@ -984,15 +972,15 @@ window.toggleControl = async (type) => {
   const update = {};
   if (type === 'glow') update['controls.glow'] = controls.glow;
   else if (type === 'light') update.isLightMode = controls.light;
-  else if (type === 'canvas') localStorage.setItem('sf_canvas_enabled', controls.canvas);
+  else if (type === 'canvas') update['controls.canvas'] = controls.canvas;
   
-  if (type !== 'canvas') await updateDoc(doc(db, 'trainees', activeUid), update);
+  await updateDoc(doc(db, 'trainees', activeUid), update);
   applyControlState(controls);
 };
 
 function applyControlState(controls) {
   if (!controls) return;
-  const isCanvasOn = localStorage.getItem('sf_canvas_enabled') !== 'false';
+  const isCanvasOn = !!controls.canvas;
 
   document.querySelectorAll('.ctrl-glow-btn').forEach(btn => {
     btn.classList.toggle('bg-gold-500', !!controls.glow);
@@ -1026,13 +1014,12 @@ function initDashboard(targetUid) {
   applyControlState({
     glow: traineeData.controls?.glow,
     light: traineeData.isLightMode,
-    canvas: localStorage.getItem('sf_canvas_enabled') !== 'false'
+    canvas: traineeData.controls?.canvas
   });
   startRealtimePresence(targetUid);
   loadLeaderboard();
   
   if (traineeData.theme?.layout) showLayout(traineeData.theme.layout);
-  else if (localStorage.getItem('sf_preferred_layout')) showLayout(localStorage.getItem('sf_preferred_layout'));
   else showLayout(1); 
   
   if (traineeData.theme) {
@@ -1289,12 +1276,10 @@ window.showLayout = (num) => {
 
     // 2. State Management
     currentLayoutId = num;
-    const savedTheme = JSON.parse(localStorage.getItem('sf_global_theme') || '{}');
-    if (savedTheme.layout != num) {
-      savedTheme.layout = num;
-      localStorage.setItem('sf_global_theme', JSON.stringify(savedTheme));
-      if (window.themeManager) {
-          window.themeManager.currentTheme.layout = num;
+    if (traineeData && traineeData.theme) {
+      if (traineeData.theme.layout != num) {
+        // Update Firestore
+        updateDoc(doc(db, 'trainees', activeUid), { 'theme.layout': num });
       }
     }
 
@@ -1312,7 +1297,6 @@ window.showLayout = (num) => {
 
     target.classList.add('active-template');
     target.style.display = 'block';
-    localStorage.setItem('sf_preferred_layout', num);
       
       // 4. Layout-Specific Injections (T7 ONLY)
       if (num == 7) {
@@ -1454,7 +1438,6 @@ window.addEventListener('sf:turbo-render', () => {
 });
 
 window.logout = async () => { 
-    localStorage.removeItem('skillforge_mock_uid');
     await signOut(auth);
     
     // Clear cross-subdomain cookie
@@ -1474,8 +1457,12 @@ window.registerNextSeason = () => {
     window.location.href = '../trainee-registration/?season=2026B';
 };
 </script>
-<script type="module" src="../assets/sf-core.js"></script>
-<script type="module" src="../assets/sf-turbo.js"></script>
+    <script type="module">
+        import { themeManager } from '../assets/theme-manager.js';
+        // themeManager.init() is called automatically in constructor
+    </script>
+    <script type="module" src="../assets/sf-core.js"></script>
+    <script type="module" src="../assets/sf-turbo.js"></script>
 <script type="module" src="../assets/sf-atmosphere-3d.js"></script>
 <script type="module" src="../assets/canvas-daily.js"></script>
   <script src="../assets/error-reporter.js"></script>

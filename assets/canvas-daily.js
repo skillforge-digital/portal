@@ -1,4 +1,4 @@
-﻿const CANVAS_ID = 'gold-dust';
+const CANVAS_ID = 'gold-dust';
 
 function ensureCanvas() {
   let c = document.getElementById(CANVAS_ID);
@@ -36,7 +36,8 @@ class DailyAtmosphere {
     this.ctx = this.canvas.getContext('2d');
     this.day = new Date().getDay();
     this.particles = [];
-    this.enabled = (localStorage.getItem('sf_canvas_enabled') !== 'false');
+    // Default to true, settings should be fetched from Firestore via themeManager or similar
+    this.enabled = true;
     this.resize = this.resize.bind(this);
     this.draw = this.draw.bind(this);
     this.initParticles = this.initParticles.bind(this);

@@ -42,19 +42,16 @@ class SkillForgeCore {
     async init() {
         return new Promise((resolve) => {
             onAuthStateChanged(this.auth, async (user) => {
-                // UID Resolution: Prioritize mock UID (stable doc ID) over dynamic session UID
-                this.uid = localStorage.getItem('skillforge_mock_uid') || (user ? user.uid : null);
+                // Cloud-First Session: Rely exclusively on Firebase Auth UID
+                this.uid = user ? user.uid : null;
 
                 if (this.uid) {
-                    console.log(`[NeuralCore] Session verified for: ${this.uid}`);
+                    console.log(`[NeuralCore] Cloud Session Verified: ${this.uid}`);
                     await this.syncRegistryState();
                     this.revealContent();
                     resolve();
                 } else {
-                    console.warn("[NeuralCore] No session detected. Initializing anonymous connection...");
-                    signInAnonymously(this.auth).catch(err => {
-                        console.error("[NeuralCore] Auth failed:", err);
-                    });
+                    console.warn("[NeuralCore] Access Denied: No active cloud session.");
                 }
             });
 

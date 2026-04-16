@@ -15,14 +15,17 @@ The Mastery Hub is built on a **True Multi-Page Architecture (MPA)** using vanil
 
 ## 🛠️ Technical Stack
 - **UI**: Tailwind CSS (CDN), Lucide Icons, Glassmorphism.
-- **Backend**: Firebase Auth (SSO) & Firestore (Real-time snapshots).
-- **State**: Hybrid localStorage rehydration with background Firestore sync.
+- **Auth**: Firebase Auth (Real Identity Management).
+- **Database**: Firestore (Primary Source of Truth).
+- **State**: 100% Cloud-First Real-time Sync (No LocalStorage caching).
+- **Security**: Granular Director-Level clearance rules.
 - **Export**: html2canvas for 4K visual card generation.
 
-## 🚀 Setup & Deployment
-1. **Firebase Configuration**: Ensure the `firebaseConfig` object in each HTML file is updated with your specific API keys.
-2. **Mock UID**: For local testing, the system uses a `skillforge_mock_uid` stored in `localStorage`.
-3. **MPA Structure**: All pages are physical `.html` files linked via standard `<a>` tags for optimal SEO and performance.
+### 🛡️ Security & Access Control
+
+1. **Director Hub**: Accessed via `director/` using real identity verification. Only accounts in `directors`, `specialists` (level Director), or `staffs` (role Director) collections are authorized.
+2. **Access Codes**: Consistent 6-digit numeric PINs used for Academy gate verification.
+3. **Registry Sync**: All trainee settings (Theme, Layout, Canvas, Fonts) are stored in Firestore and synced real-time.
 
 ## 📋 Component APIs (JSDoc)
 Interactive functions are globally bound to `window` within their respective module scripts:
