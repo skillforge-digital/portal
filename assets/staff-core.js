@@ -3,8 +3,11 @@
  * Comprehensive Role-Based Access Control (RBAC) Middleware
  */
 
+// @ts-ignore
 import { db, auth } from './firebase-config.js';
+// @ts-ignore
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+// @ts-ignore
 import { doc, getDoc, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 
 class StaffCore {
@@ -56,16 +59,35 @@ class StaffCore {
 
     async init() {
         return new Promise((resolve) => {
+            /** @param {any} user */
             onAuthStateChanged(this.auth, async (user) => {
                 if (user) {
                     this.user = user;
-                    const staffDoc = await getDoc(doc(this.db, 'staffs', user.uid));
                     
-                    if (staffDoc.exists()) {
+                    // Check multiple possible collections for personnel data
+                    const [staffDoc, directorDoc, specialistDoc, hodDoc] = await Promise.all([
+                        getDoc(doc(this.db, 'staffs', user.uid)),
+                        getDoc(doc(this.db, 'directors', user.uid)),
+                        getDoc(doc(this.db, 'specialists', user.uid)),
+                        getDoc(doc(this.db, 'hods', user.uid))
+                    ]);
+                    
+                    if (directorDoc.exists()) {
+                        this.profile = directorDoc.data();
+                        this.profile.roles = this.profile.roles || ['Director'];
+                        this.profile.primaryRole = this.profile.primaryRole || 'Director';
+                    } else if (hodDoc.exists()) {
+                        this.profile = hodDoc.data();
+                    } else if (staffDoc.exists()) {
                         this.profile = staffDoc.data();
+                    } else if (specialistDoc.exists()) {
+                        this.profile = specialistDoc.data();
+                    }
+
+                    if (this.profile) {
                         this.verifyAccess();
                         this.revealContent();
-                        resolve();
+                        resolve(undefined);
                     } else {
                         console.warn("[StaffCore] Identity not found in Personnel Registry.");
                         this.redirectLogin();
@@ -82,6 +104,7 @@ class StaffCore {
         const path = window.location.pathname;
         
         // Access map: path -> allowed roles
+        /** @type {Object.<string, string[]>} */
         const accessMap = {
             '/staffs/director/': ['Director'],
             '/staffs/hod/': ['Director', 'HOD'],
@@ -94,7 +117,8 @@ class StaffCore {
         
         if (requiredRoles) {
             const allowed = accessMap[requiredRoles];
-            const hasAccess = this.profile.roles.some(r => allowed.includes(r));
+            /** @param {any} r */
+            const hasAccess = this.profile.roles.some((r) => allowed.includes(r));
             
             if (!hasAccess) {
                 console.error("[StaffCore] Access Denied: Insufficient Clearances.");
@@ -197,10 +221,12 @@ class StaffCore {
 
     /**
      * Check if user has access to specific dashboard scope
+     * @param {string} dashboardType
      */
     hasDashboardAccess(dashboardType) {
         if (!this.profile) return false;
         
+        /** @type {Object.<string, string[]>} */
         const accessMap = {
             'director': ['Director'],
             'hod': ['Director', 'HOD'],
@@ -239,6 +265,10 @@ class StaffCore {
 
     /**
      * Log an announcement edit
+     * @param {string} announcementId
+     * @param {string} previousContent
+     * @param {string} newContent
+     * @param {string} scope
      */
     async logAnnouncementEdit(announcementId, previousContent, newContent, scope) {
         await this.logAction('ANNOUNCEMENT_EDIT', {
@@ -251,6 +281,8 @@ class StaffCore {
 
     /**
      * Log season initialization
+     * @param {string} seasonName
+     * @param {string} previousSeason
      */
     async logSeasonInit(seasonName, previousSeason) {
         await this.logAction('SEASON_INIT', {
@@ -262,6 +294,8 @@ class StaffCore {
 
     /**
      * Log data restoration
+     * @param {string} seasonName
+     * @param {number} recordCount
      */
     async logDataRestoration(seasonName, recordCount) {
         await this.logAction('DATA_RESTORATION', {
@@ -275,6 +309,7 @@ class StaffCore {
     /**
      * Validate season name format
      * Valid formats: "2026 Season", "2026 Volume 2", "2027 Q1"
+     * @param {string} name
      */
     validateSeasonName(name) {
         if (!name || name.length < 4) return { valid: false, error: 'Season name is too short' };
@@ -332,6 +367,8 @@ class StaffCore {
 
     /**
      * Check if a staff belongs to HOD's department
+     * @param {object} staffData
+     * @param {string} department
      */
     isStaffInDepartment(staffData, department) {
         if (!staffData || !department) return false;
@@ -341,6 +378,7 @@ class StaffCore {
 
     /**
      * Get track specialists for a given department
+     * @param {string} department
      */
     getTrackSpecialists(department) {
         const dept = this.DEPARTMENTS[department];
@@ -360,6 +398,7 @@ class StaffCore {
     /**
      * Check if user can view trainee for a specific track
      * Specialists can only see trainees in their assigned tracks
+     * @param {string} track
      */
     canViewTraineeTrack(track) {
         if (!this.profile) return false;
@@ -380,9 +419,11 @@ class StaffCore {
     }
 }
 
-// Initialize
-StaffCore.start().then(core => {
-    window.staffCore = core;
-});
+// Initialize global engine with singleton guard
+if (!window['staffCore']) {
+    StaffCore.start().then((core) => {
+        window['staffCore'] = core;
+    });
+}
 
 export default StaffCore;

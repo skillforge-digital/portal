@@ -24,11 +24,11 @@
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
     body { font-family:'Plus Jakarta Sans',sans-serif; background:#040810; color:#f1f5f9; overflow-x:hidden; min-height: 100dvh; }
     #sundust-canvas { position:fixed; inset:0; width:100%; height:100dvh; z-index:0; pointer-events:none }
-    .glass { background: rgba(255,255,255,0.02); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
+    .glass { background: rgba(255,255,255,0.02); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
     input { background: rgba(255,255,255,0.03) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; }
     input:focus { border-color: #C9A84C !important; outline: none !important; background: rgba(255,255,255,0.05) !important; }
     @keyframes slide-up { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    .animate-slide-up { animation: slide-up 0.8s ease-out forwards; }
+    .animate-slide-up { animation: slide-up 0.8s ease-out forwards; opacity: 0; }
   </style>
 </head>
 <body class="min-h-screen py-20 px-4">
@@ -43,7 +43,7 @@
         <p class="text-slate-500 text-[10px] md:text-xs font-black uppercase tracking-[0.4em]">Secure Command Authentication</p>
     </header>
 
-    <main class="animate-slide-up" style="animation-delay: 0.2s;">
+    <main class="animate-slide-up opacity-0" style="animation-delay: 0.2s;">
         <section class="glass p-10 rounded-[40px] border-white/10 space-y-8">
             <div class="flex items-center gap-4">
                 <div class="w-12 h-12 bg-gold/10 rounded-2xl flex items-center justify-center text-gold border border-gold/20">
@@ -65,7 +65,7 @@
                     <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Access Password</label>
                     <div class="relative">
                         <input required id="password" name="password" type="password" placeholder="********" class="w-full p-4 rounded-2xl text-sm pr-12">
-                        <button type="button" onclick="togglePassword('password')" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-gold transition-colors">
+                        <button type="button" aria-label="Toggle password visibility" onclick="togglePassword('password')" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-gold transition-colors">
                             <i data-lucide="eye" class="w-4 h-4" id="eye-password"></i>
                         </button>
                     </div>
@@ -110,24 +110,39 @@
             const userCred = await signInWithEmailAndPassword(auth, email, password);
             const user = userCred.user;
 
-            // 2. Fetch Staff Profile
-            const staffDoc = await getDoc(doc(db, 'staffs', user.uid));
+            // 2. Fetch Personnel Profile across all collections
+            const [staffDoc, directorDoc, specialistDoc, hodDoc] = await Promise.all([
+                getDoc(doc(db, 'staffs', user.uid)),
+                getDoc(doc(db, 'directors', user.uid)),
+                getDoc(doc(db, 'specialists', user.uid)),
+                getDoc(doc(db, 'hods', user.uid))
+            ]);
 
-            if (staffDoc.exists()) {
-                const data = staffDoc.data();
-                
+            let profileData = null;
+            let collectionName = '';
+
+            if (directorDoc.exists()) { profileData = directorDoc.data(); collectionName = 'directors'; }
+            else if (hodDoc.exists()) { profileData = hodDoc.data(); collectionName = 'hods'; }
+            else if (specialistDoc.exists()) { profileData = specialistDoc.data(); collectionName = 'specialists'; }
+            else if (staffDoc.exists()) { profileData = staffDoc.data(); collectionName = 'staffs'; }
+
+            if (profileData) {
                 // 3. Update last login
-                await updateDoc(doc(db, 'staffs', user.uid), { lastLogin: serverTimestamp() });
+                await updateDoc(doc(db, collectionName, user.uid), { 
+                    lastLogin: serverTimestamp(),
+                    status: 'active'
+                });
 
-                // 4. Set Session Cookie for Academy Access (optional but good for consistency)
+                // 4. Set Session Cookie for Academy Access
                 const cookieDomain = window.location.hostname.includes('skillforgedigital.com.ng') ? '.skillforgedigital.com.ng' : window.location.hostname;
                 document.cookie = `sf_staff_uid=${user.uid}; path=/; domain=${cookieDomain}; max-age=86400; SameSite=Lax; Secure`;
 
                 // 5. Redirect to Primary Dashboard
-                const target = DASHBOARD_MAP[data.primaryRole] || '../';
+                const target = DASHBOARD_MAP[profileData.primaryRole] || '../';
                 window.location.href = target;
             } else {
                 alert("Unauthorized: Personnel registry profile missing.");
+                await auth.signOut();
             }
         } catch (err) {
             console.error(err);

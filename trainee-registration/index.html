@@ -72,7 +72,7 @@
             <p class="text-slate-400 text-xs max-w-lg mx-auto">A new mastery season has begun. Register to unlock fresh credentials and begin your journey with new pathways to expertise.</p>
         </div>
 
-        <a href="https://skillforgedigital.com.ng/" class="inline-flex items-center gap-2 text-gold font-black text-[10px] uppercase tracking-[0.3em] mb-6 md:mb-8 hover:text-white transition-all">
+        <a href="https://skillforgedigital.com.ng/" aria-label="Back to Gateway" class="inline-flex items-center gap-2 text-gold font-black text-[10px] uppercase tracking-[0.3em] mb-6 md:mb-8 hover:text-white transition-all">
             <i data-lucide="arrow-left" class="w-3 h-3"></i> Back to Gateway
         </a>
         <h1 class="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter">Academy Registry</h1>
@@ -98,8 +98,8 @@
             <form id="reg-form" class="space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                     <div class="space-y-2">
-                        <label class="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Full Legal Name</label>
-                        <input required id="trainee-name" name="name" type="text" placeholder="FIRSTNAME MIDDLENAME SURNAME" class="w-full p-3 md:p-4 rounded-xl md:rounded-2xl text-sm uppercase">
+                        <label class="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Full Name</label>
+                        <input required id="trainee-name" name="name" type="text" placeholder="FIRSTNAME SURNAME" class="w-full p-3 md:p-4 rounded-xl md:rounded-2xl text-sm uppercase">
                     </div>
                     <div class="space-y-2">
                         <label class="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">WhatsApp Number</label>
@@ -142,7 +142,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="space-y-2">
                         <label for="track-select" class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Selected Mastery Track</label>
-                        <select required id="track-select" name="track" class="w-full p-4 rounded-2xl text-sm appearance-none cursor-pointer">
+                        <select required id="track-select" name="track" aria-label="Select Mastery Track" class="w-full p-4 rounded-2xl text-sm appearance-none cursor-pointer">
                             <option value="" disabled selected>Choose Your Path to Mastery...</option>
                             <option value="Forex Synthetic Indices">Forex Synthetic Indices</option>
                             <option value="Forex Currency Pairs">Forex Currency Pairs</option>
@@ -159,8 +159,9 @@
                     <div class="space-y-2">
                         <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Profile Registry Image</label>
                         <div class="flex items-center gap-4">
-                            <div id="upload-preview-container" class="hidden w-12 h-12 rounded-xl bg-white/5 border border-white/10 overflow-hidden flex-shrink-0">
-                                <img id="upload-preview" src="" alt="Profile Preview" class="w-full h-full object-cover">
+                            <div id="upload-preview-container" class="w-12 h-12 rounded-xl bg-white/5 border border-white/10 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                                <img id="upload-preview" src="" alt="Profile Preview" class="hidden w-full h-full object-cover">
+                                <i data-lucide="user" class="w-5 h-5 text-slate-700" id="preview-placeholder"></i>
                             </div>
                             <label class="flex-1 p-4 rounded-2xl text-sm glass flex items-center justify-between cursor-pointer hover:bg-white/5 transition-all">
                                 <span id="file-name-label" class="text-slate-500">Upload Passport (JPG/PNG)</span>
@@ -173,7 +174,7 @@
 
                 <div class="space-y-4">
                     <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 text-center block">Initialize Your Mastery Avatar</label>
-                    <div class="grid grid-cols-4 md:grid-cols-10 gap-4" id="avatar-grid">
+                    <div class="grid grid-cols-4 md:grid-cols-10 gap-4 min-h-[100px] md:min-h-[50px]" id="avatar-grid">
                         <!-- Avatars will be injected here -->
                     </div>
                     <input type="hidden" name="avatar" id="selected-avatar" value="https://api.dicebear.com/7.x/avataaars/svg?seed=1">
@@ -204,7 +205,7 @@
                     <input type="hidden" name="layout" id="selected-layout" value="1">
                 </div>
 
-                <button type="submit" id="reg-btn" class="w-full bg-gold text-navy py-5 rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] shadow-2xl hover:bg-white transition-all flex items-center justify-center gap-2">
+                <button type="submit" id="reg-btn" aria-label="Start Your Mastery Journey" class="w-full bg-gold text-navy py-5 rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] shadow-2xl hover:bg-white transition-all flex items-center justify-center gap-2">
                     Start Your Mastery Journey <i data-lucide="arrow-right" class="w-4 h-4"></i>
                 </button>
             </form>
@@ -375,7 +376,8 @@
             const reader = new FileReader();
             reader.onload = (e) => {
                 uploadPreview.src = e.target.result;
-                uploadPreviewContainer.classList.remove('hidden');
+                uploadPreview.classList.remove('hidden');
+                document.getElementById('preview-placeholder')?.classList.add('hidden');
             };
             reader.readAsDataURL(file);
 
@@ -400,7 +402,8 @@
             selectedAvatarInput.value = url;
             uploadedProfileFile = null;
             fileNameLabel.innerText = "Upload Passport (JPG/PNG)";
-            uploadPreviewContainer.classList.add('hidden');
+            uploadPreview.classList.add('hidden');
+            document.getElementById('preview-placeholder')?.classList.remove('hidden');
         };
         avatarGrid.appendChild(div);
     }
@@ -482,16 +485,6 @@
         delete traineeData.password;
 
         try {
-            console.log("[Registry] Checking for neural overlap...");
-            // Pre-Step: Check for existing registry document to prevent duplicates
-            const q = query(collection(db, "trainees"), where("email", "==", traineeData.email));
-            const querySnap = await getDocs(q);
-            if (!querySnap.empty) {
-                showRegError("NEURAL OVERLAP: This email is already registered in the Academy Registry. Please use the Login portal.");
-                setTimeout(() => window.location.href = '../trainee-login/', 3000);
-                return;
-            }
-
             console.log("[Registry] Forging Firebase Identity...");
             // Step 1: Create Firebase Auth User (The Permanent Cloud ID)
             const userCredential = await createUserWithEmailAndPassword(auth, traineeData.email, registrationPassword);
@@ -551,17 +544,13 @@
                 return { sfid: newSFID, pin };
             });
 
-            console.log("[Registry] Neural link stabilized. Launching onboarding...");
-            const firstName = traineeData.name.trim().split(/\s+/)[0] || 'Human';
-            document.getElementById('welcome-message').innerText = `Welcome to the Future of Mastery, ${firstName}. Your journey starts here.`;
+            console.log("[Registry] Neural link stabilized. Launching Success Node...");
             document.getElementById('final-sfid').innerText = result.sfid;
             document.getElementById('final-pin').innerText = result.pin;
-            document.getElementById('tg-node-btn').href = TELEGRAM_NODES[traineeData.track];
-            document.getElementById('target-track-label').innerText = traineeData.track;
             
-            // Switch steps
+            // Switch steps directly to final success section
             document.getElementById('reg-section').classList.add('hidden');
-            document.getElementById('onboarding-section').classList.remove('hidden');
+            document.getElementById('final-section').classList.remove('hidden');
             window.scrollTo({ top: 0, behavior: 'smooth' });
 
         } catch (err) {

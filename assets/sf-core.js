@@ -4,8 +4,11 @@
  * Optimized for Security, Performance, and Multi-tab Synchronization
  */
 
+// @ts-ignore
 import { db, auth } from './firebase-config.js';
+// @ts-ignore
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+// @ts-ignore
 import { doc, getDoc, setDoc, updateDoc, increment, serverTimestamp, addDoc, collection } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 import { NeuralDebugger } from './neural-debugger.js';
 
@@ -66,7 +69,7 @@ class SkillForgeCore {
             }
         } catch (err) {
             console.error("[NeuralCore] Error during initialization:", err);
-            if (window.sf_report_error) window.sf_report_error("NeuralCore Init Failed", err.stack);
+            if (window['sf_report_error']) window['sf_report_error']("NeuralCore Init Failed", err.stack);
         } finally {
             this.revealContent();
             resolve();

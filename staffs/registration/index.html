@@ -24,11 +24,11 @@
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
     body { font-family:'Plus Jakarta Sans',sans-serif; background:#040810; color:#f1f5f9; overflow-x:hidden; min-height: 100dvh; }
     #sundust-canvas { position:fixed; inset:0; width:100%; height:100dvh; z-index:0; pointer-events:none }
-    .glass { background: rgba(255,255,255,0.02); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
+    .glass { background: rgba(255,255,255,0.02); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
     input { background: rgba(255,255,255,0.03) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; }
     input:focus { border-color: #C9A84C !important; outline: none !important; background: rgba(255,255,255,0.05) !important; }
     @keyframes slide-up { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    .animate-slide-up { animation: slide-up 0.8s ease-out forwards; }
+    .animate-slide-up { animation: slide-up 0.8s ease-out forwards; opacity: 0; }
   </style>
 </head>
 <body class="min-h-screen py-20 px-4">
@@ -43,7 +43,7 @@
         <p class="text-slate-500 text-[10px] md:text-xs font-black uppercase tracking-[0.4em]">Secure Command Onboarding</p>
     </header>
 
-    <main class="animate-slide-up" style="animation-delay: 0.2s;">
+    <main class="animate-slide-up opacity-0" style="animation-delay: 0.2s;">
         <!-- Step 1: ROLE Code Verification -->
         <section id="code-step" class="glass p-10 rounded-[40px] border-white/10 space-y-8">
             <div class="flex items-center gap-4">
@@ -58,7 +58,7 @@
 
             <div class="space-y-4">
                 <input type="text" id="role-code-input" placeholder="ENTER ROLE CODE..." class="w-full p-5 rounded-2xl text-sm font-black tracking-widest uppercase">
-                <button onclick="verifyRoleCode()" id="verify-btn" class="w-full py-5 bg-white text-navy font-black rounded-2xl uppercase text-[10px] tracking-[0.2em] shadow-xl hover:bg-gold transition-all flex items-center justify-center gap-2">
+                <button type="button" onclick="verifyRoleCode()" id="verify-btn" aria-label="Verify Assigned Role Code" class="w-full py-5 bg-white text-navy font-black rounded-2xl uppercase text-[10px] tracking-[0.2em] shadow-xl hover:bg-gold transition-all flex items-center justify-center gap-2">
                     Verify Authorization <i data-lucide="shield-check" class="w-4 h-4"></i>
                 </button>
             </div>
@@ -83,8 +83,8 @@
 
             <form id="staff-reg-form" class="space-y-6">
                 <div class="space-y-2">
-                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Department/Unit Assignment</label>
-                    <select required id="department-select" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10">
+                    <label for="department-select" class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Department/Unit Assignment</label>
+                    <select required id="department-select" aria-label="Select Department or Unit" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10">
                         <option value="">SELECT DEPARTMENT...</option>
                         <option value="Trading Academy">Trading Academy</option>
                         <option value="Digital & Intelligence">Digital & Intelligence</option>
@@ -108,7 +108,7 @@
                     <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Secure Password</label>
                     <div class="relative">
                         <input required id="password" name="password" type="password" placeholder="********" class="w-full p-4 rounded-2xl text-sm pr-12">
-                        <button type="button" onclick="togglePassword('password')" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-gold transition-colors">
+                        <button type="button" aria-label="Toggle password visibility" onclick="togglePassword('password')" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-gold transition-colors">
                             <i data-lucide="eye" class="w-4 h-4" id="eye-password"></i>
                         </button>
                     </div>
@@ -209,13 +209,18 @@
             // 2. Update Auth Profile
             await updateProfile(user, { displayName: name.toUpperCase() });
 
-            // 3. Determine Highest Role
+            // 3. Determine Highest Role & Target Collection
             const highestRole = assignedRoles.sort((a, b) => 
                 ROLE_HIERARCHY.indexOf(a) - ROLE_HIERARCHY.indexOf(b)
             )[0] || 'Staff';
 
-            // 4. Create Staff Document with department
-            await setDoc(doc(db, 'staffs', user.uid), {
+            let collectionName = 'staffs';
+            if (highestRole === 'Director') collectionName = 'directors';
+            else if (highestRole === 'HOD') collectionName = 'hods';
+            else if (highestRole === 'Specialist') collectionName = 'specialists';
+
+            // 4. Create Personnel Document in correct collection
+            await setDoc(doc(db, collectionName, user.uid), {
                 uid: user.uid,
                 name: name.toUpperCase(),
                 email: email.toLowerCase(),

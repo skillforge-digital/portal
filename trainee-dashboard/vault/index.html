@@ -70,7 +70,7 @@ tailwind.config = {
   .noise-bg::before { content:''; position:fixed; inset:0; opacity:0.03; z-index:0; pointer-events:none; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
   
   @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-  .fade-in { animation: fadeUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; will-change: transform, opacity; }
+  .fade-in { animation: fadeUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; will-change: transform, opacity; opacity: 0; }
   .delay-100 { animation-delay: 100ms; }
   .delay-200 { animation-delay: 200ms; }
 
@@ -121,12 +121,12 @@ tailwind.config = {
 
     <nav class="space-y-1">
       <p class="text-[8px] font-black auto-contrast-muted uppercase tracking-[0.4em] mb-4">Academy Pages</p>
-      <a href="../" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest hover:bg-white/5"><i class="fa-solid fa-layer-group w-4"></i> Overview</a>
-      <a href="../quests/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest hover:bg-white/5"><i class="fa-solid fa-scroll w-4"></i> Quests</a>
-      <a href="../dmc/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest hover:bg-white/5"><i class="fa-solid fa-id-card w-4"></i> Membership Card</a>
-      <a href="../leaderboard/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest hover:bg-white/5"><i class="fa-solid fa-ranking-star w-4"></i> Hall of Fame</a>
-      <a href="./" class="sidebar-link active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest"><i class="fa-solid fa-vault w-4"></i> The Vault</a>
-      <a href="../customize/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest hover:bg-white/5"><i class="fa-solid fa-wand-magic-sparkles w-4"></i> Customize</a>
+      <a href="../" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest hover:bg-white/5" aria-label="Go to Overview"><i class="fa-solid fa-layer-group w-4"></i> Overview</a>
+      <a href="../quests/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest hover:bg-white/5" aria-label="Go to Quests"><i class="fa-solid fa-scroll w-4"></i> Quests</a>
+      <a href="../dmc/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest hover:bg-white/5" aria-label="Go to Membership Card"><i class="fa-solid fa-id-card w-4"></i> Membership Card</a>
+      <a href="../leaderboard/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest hover:bg-white/5" aria-label="Go to Hall of Fame"><i class="fa-solid fa-ranking-star w-4"></i> Hall of Fame</a>
+      <a href="./" class="sidebar-link active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest" aria-label="Currently on The Vault"><i class="fa-solid fa-vault w-4"></i> The Vault</a>
+      <a href="../customize/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest hover:bg-white/5" aria-label="Go to Customize"><i class="fa-solid fa-wand-magic-sparkles w-4"></i> Customize</a>
       
       <div class="mt-8 pt-8 border-t border-white/5 space-y-4">
         <a href="#" target="_blank" class="telegram-join-target w-full flex items-center justify-between px-6 py-4 rounded-2xl bg-[#229ED9]/10 text-[#229ED9] hover:bg-[#229ED9]/20 transition-all group">
@@ -137,7 +137,7 @@ tailwind.config = {
     </nav>
   </div>
   <div class="p-8 border-t border-white/5">
-    <button type="button" onclick="logout()" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-red-400/70 hover:text-red-400 hover:bg-red-400/10 transition-all">
+    <button type="button" onclick="logout()" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-red-400/70 hover:text-red-400 hover:bg-red-400/10 transition-all" aria-label="Sign out of your account">
       <i class="fa-solid fa-power-off w-4"></i> Sign Out
     </button>
   </div>
@@ -196,7 +196,7 @@ tailwind.config = {
 <script type="module">
 import { themeManager } from '../../assets/theme-manager.js';
 import { db, auth } from '../../assets/firebase-config.js';
-import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
 import { getFirestore, doc, onSnapshot, collection, addDoc, serverTimestamp, updateDoc, getDoc } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
@@ -245,7 +245,8 @@ document.getElementById('vault-file-input').addEventListener('change', async (e)
     const currentVault = snap.exists() ? (snap.data().vault || []) : [];
     
     await updateDoc(traineeRef, {
-      vault: [assetData, ...currentVault]
+      vault: [assetData, ...currentVault],
+      lastActivity: serverTimestamp()
     });
 
     await addDoc(collection(db, 'audit_logs'), {
