@@ -13,7 +13,6 @@ service cloud.firestore {
     }
 
     // Role-based existence checks
-    function inTrainees(uid) { return exists(/databases/$(database)/documents/trainees/$(uid)); }
     function inSpecialists(uid) { return exists(/databases/$(database)/documents/specialists/$(uid)); }
     function inHODs(uid) { return exists(/databases/$(database)/documents/hods/$(uid)); }
     function inDirectors(uid) { return exists(/databases/$(database)/documents/directors/$(uid)); }

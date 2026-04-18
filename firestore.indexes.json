@@ -9,13 +9,6 @@
       ]
     },
     {
-      "collectionGroup": "trainees",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "sfid", "order": "ASCENDING" }
-      ]
-    },
-    {
       "collectionGroup": "track_access",
       "queryScope": "COLLECTION",
       "fields": [
@@ -61,13 +54,6 @@
       "fields": [
         { "fieldPath": "token_hash", "order": "ASCENDING" },
         { "fieldPath": "used", "order": "ASCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "system_faults",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "timestamp", "order": "DESCENDING" }
       ]
     }
   ],
