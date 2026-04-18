@@ -44,6 +44,7 @@
             <button data-tab="seasons" class="tab-btn px-6 py-3 rounded-xl border border-white/5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all">Seasons</button>
             <button data-tab="tracks" class="tab-btn px-6 py-3 rounded-xl border border-white/5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all">Tracks</button>
             <button data-tab="passcodes" class="tab-btn px-6 py-3 rounded-xl border border-white/5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all">Pass-codes</button>
+            <button data-tab="faults" class="tab-btn px-6 py-3 rounded-xl border border-white/5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all">System Faults</button>
             <button data-tab="fingerprints" class="tab-btn px-6 py-3 rounded-xl border border-white/5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all">Fingerprints</button>
         </nav>
 
@@ -123,13 +124,10 @@
             document.getElementById('auth-gate').classList.add('hidden');
             document.getElementById('director-hub').classList.remove('hidden');
             
-            if (directorData) {
-                document.getElementById('director-name').innerText = directorData.name + " Hub";
-            }
+            const displayName = (directorData && directorData.name) ? directorData.name : "Command";
+            document.getElementById('director-name').innerText = displayName + " Center";
 
-            if (passCodeEngine === null) {
-                passCodeEngine = new PassCodeEngine(db, auth);
-            }
+            // PassCodeEngine uses static methods, no instantiation needed
             
             window.showTab('trainees');
         }
@@ -148,6 +146,7 @@
                 else if (tab === 'seasons') await window.renderSeasons(content);
                 else if (tab === 'tracks') await window.renderTracks(content);
                 else if (tab === 'passcodes') await window.renderPasscodes(content);
+                else if (tab === 'faults') await window.renderFaults(content);
                 else if (tab === 'fingerprints') await window.renderFingerprints(content);
             } catch (err) {
                 content.innerHTML = `<div class="p-12 text-center space-y-4">
@@ -390,6 +389,61 @@
             if (!confirm("Permanently purge this pass-code?")) return;
             try {
                 await deleteDoc(doc(db, "track_access", id));
+            } catch (err) {
+                alert("Operation Failed: " + err.message);
+            }
+        };
+
+        window.renderFaults = async function(container) {
+            const unsub = onSnapshot(query(collection(db, "system_faults"), orderBy("timestamp", "desc")), (snap) => {
+                let html = `<div class="flex justify-between items-center mb-8">
+                    <h2 class="text-2xl font-black uppercase">System Faults (${snap.size})</h2>
+                </div>
+                <div class="space-y-4">`;
+                
+                if (snap.empty) {
+                    html += '<p class="text-white/40 text-center py-12 italic">No active system faults reported.</p>';
+                }
+
+                snap.forEach(d => {
+                    const data = d.data();
+                    html += `<div class="p-6 rounded-3xl glass border ${data.status === 'resolved' ? 'border-green-500/20' : 'border-red-500/20'} space-y-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-[10px] font-black uppercase tracking-widest ${data.status === 'resolved' ? 'text-green-400' : 'text-red-400'}">${data.code || 'UNKNOWN_FAULT'}</p>
+                                <h3 class="font-bold text-lg">${data.fault}</h3>
+                                <p class="text-[8px] text-slate-500 uppercase tracking-widest">Reported by: ${data.userName} (${data.uid.substring(0,8)}...) • ${data.timestamp?.toDate().toLocaleString() || 'N/A'}</p>
+                            </div>
+                            <div class="flex gap-2">
+                                ${data.status !== 'resolved' ? `<button onclick="window.resolveFault('${d.id}')" class="px-4 py-2 bg-green-500/10 text-green-500 rounded-xl font-black text-[8px] uppercase tracking-widest hover:bg-green-500 hover:text-white transition-all">Resolve</button>` : ''}
+                                <button onclick="window.deleteFault('${d.id}')" class="p-2 text-slate-500 hover:text-red-400"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-black/20 rounded-2xl text-[9px] font-mono text-slate-400">
+                            URL: ${data.context?.url}<br>
+                            UA: ${data.context?.userAgent}
+                        </div>
+                    </div>`;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+                if (window.lucide) window.lucide.createIcons();
+            });
+            activeSnapshots.push(unsub);
+        }
+
+        window.resolveFault = async (id) => {
+            try {
+                await updateDoc(doc(db, "system_faults", id), { status: 'resolved' });
+            } catch (err) {
+                alert("Operation Failed: " + err.message);
+            }
+        };
+
+        window.deleteFault = async (id) => {
+            if (!confirm("Permanently purge this fault report?")) return;
+            try {
+                await deleteDoc(doc(db, "system_faults", id));
             } catch (err) {
                 alert("Operation Failed: " + err.message);
             }

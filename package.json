@@ -1,0 +1,22 @@
+{
+  "name": "skillforge-portal",
+  "version": "2.2.0",
+  "description": "Enterprise Mastery Portal for SkillForge Digital",
+  "private": true,
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "audit:security": "npm audit",
+    "rules:deploy": "firebase deploy --only firestore:rules"
+  },
+  "devDependencies": {
+    "vitest": "^1.4.0",
+    "@vitest/coverage-v8": "^1.4.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-html": "^8.0.0",
+    "jsdom": "^24.0.0"
+  }
+}

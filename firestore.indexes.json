@@ -62,6 +62,13 @@
         { "fieldPath": "token_hash", "order": "ASCENDING" },
         { "fieldPath": "used", "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "system_faults",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "timestamp", "order": "DESCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

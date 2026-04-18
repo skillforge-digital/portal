@@ -51,8 +51,8 @@ tailwind.config = {
     min-height: 100dvh;
   }
 
-  .glass { background: rgba(12, 24, 50, 0.55); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
-  .glass-strong { background: rgba(12, 24, 50, 0.75); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.1); }
+  .glass { background: rgba(12, 24, 50, 0.55); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
+  .glass-strong { background: rgba(12, 24, 50, 0.75); -webkit-backdrop-filter: blur(30px); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.1); }
   
   .auto-contrast { color: var(--text-primary) !important; }
   .auto-contrast-muted { color: var(--text-secondary) !important; }
@@ -66,7 +66,9 @@ tailwind.config = {
   .noise-bg::before { content:''; position:fixed; inset:0; opacity:0.03; z-index:0; pointer-events:none; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
   
   @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-  .fade-in { animation: fadeUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+  .fade-in { animation: fadeUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; will-change: transform, opacity; }
+  .delay-100 { animation-delay: 100ms; }
+  .delay-200 { animation-delay: 200ms; }
 
   .badge-silver {
     background: linear-gradient(135deg, #e2e8f0 0%, #94a3b8 50%, #cbd5e1 100%);
@@ -81,7 +83,7 @@ tailwind.config = {
   <div class="flex items-center gap-3">
     <a href="/" class="flex items-center gap-3 group">
       <div class="w-8 h-8 rounded-lg bg-black flex items-center justify-center border border-gold-500/30 group-hover:border-gold transition-all overflow-hidden">
-        <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" class="w-full h-full object-cover">
+        <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" alt="SkillForge Logo" class="w-full h-full object-cover">
       </div>
       <div class="flex flex-col leading-none">
         <span class="font-black text-sm tracking-tighter uppercase group-hover:text-gold transition-all">SkillForge</span>
@@ -89,7 +91,7 @@ tailwind.config = {
       </div>
     </a>
   </div>
-  <button onclick="toggleSidebar()" class="p-2 text-white/50 hover:text-white transition-all">
+  <button type="button" onclick="toggleSidebar()" aria-label="Toggle Sidebar" class="p-2 text-white/50 hover:text-white transition-all">
     <i class="fa-solid fa-bars-staggered text-xl"></i>
   </button>
 </div>
@@ -131,15 +133,15 @@ tailwind.config = {
     </nav>
   </div>
   <div class="p-8 border-t border-white/5">
-    <button onclick="logout()" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-red-400/70 hover:text-red-400 hover:bg-red-400/10 transition-all">
-      <i class="fa-solid fa-right-from-bracket w-4"></i> Sign Out
+    <button type="button" onclick="logout()" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-red-400/70 hover:text-red-400 hover:bg-red-400/10 transition-all">
+      <i class="fa-solid fa-power-off w-4"></i> Sign Out
     </button>
   </div>
 </aside>
 
 <main class="flex-1 md:ml-72 min-h-screen relative z-10 p-6 md:p-10 pt-24 md:pt-20">
   <div class="max-w-7xl mx-auto space-y-12">
-    <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 fade-in" style="animation-delay: 0.1s">
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 fade-in delay-100">
       <div>
         <p class="text-gold-400 text-sm font-medium tracking-widest uppercase">Registry Archives</p>
         <h1 class="text-3xl md:text-5xl font-black mt-1 auto-contrast">The <span class="auto-contrast-muted">Vault</span></h1>
@@ -152,7 +154,7 @@ tailwind.config = {
       </div>
     </header>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 fade-in" style="animation-delay: 0.2s" id="vault-grid">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 fade-in delay-200" id="vault-grid">
       <!-- Silver Badge Section -->
       <div class="glass p-10 rounded-[40px] flex flex-col items-center justify-center text-center space-y-6 border-white/5 relative overflow-hidden group">
         <div id="badge-display" class="w-32 h-32 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shadow-inner relative transition-all duration-700">
@@ -163,7 +165,7 @@ tailwind.config = {
           <h3 class="text-xl font-black uppercase tracking-tighter text-white" id="badge-title">Silver Badge</h3>
           <p class="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]" id="badge-status-text">Certification Locked</p>
         </div>
-        <button onclick="requestBadge()" id="badge-request-btn" class="w-full py-5 rounded-2xl bg-gold-500 text-navy-950 text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl hover:bg-white transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+        <button type="button" onclick="requestBadge()" id="badge-request-btn" class="w-full py-5 rounded-2xl bg-gold-500 text-navy-950 text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl hover:bg-white transition-all disabled:opacity-50 disabled:cursor-not-allowed">
           Request Validation
         </button>
         <p class="text-[8px] font-bold text-white/20 uppercase tracking-widest px-4">Required: Complete Track Mastery & Specialist Approval</p>
@@ -171,7 +173,10 @@ tailwind.config = {
 
       <!-- Upload Section -->
       <div id="upload-zone" class="glass p-10 rounded-[40px] flex flex-col items-center justify-center text-center space-y-4 border-dashed border-white/10 border-2 hover:border-gold-500 transition-all cursor-pointer group relative">
-        <input type="file" id="vault-file-input" class="absolute inset-0 opacity-0 cursor-pointer z-10" accept=".pdf,image/*">
+        <label for="vault-file-input" class="absolute inset-0 cursor-pointer z-10">
+          <span class="sr-only">Upload file to vault</span>
+          <input type="file" id="vault-file-input" class="absolute inset-0 opacity-0 cursor-pointer" accept=".pdf,image/*">
+        </label>
         <div id="upload-status-icon" class="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-white/20 group-hover:text-gold-500 transition-all">
           <i class="fa-solid fa-cloud-arrow-up text-2xl"></i>
         </div>

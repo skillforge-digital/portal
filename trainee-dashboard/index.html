@@ -52,9 +52,9 @@ tailwind.config = {
   .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(245,158,11,0.3); border-radius: 10px; }
   
   body { background: #040810; transition: background 0.5s ease, color 0.5s ease; background-size: cover; background-position: center; background-attachment: fixed; min-height: 100dvh; }
-  .glass { background: rgba(12, 24, 50, 0.55); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
-  .glass-strong { background: rgba(12, 24, 50, 0.85); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.1); }
-  .glass-gold { background: rgba(245, 158, 11, 0.08); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(245, 158, 11, 0.2); }
+  .glass { background: rgba(12, 24, 50, 0.55); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
+  .glass-strong { background: rgba(12, 24, 50, 0.85); -webkit-backdrop-filter: blur(30px); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.1); }
+  .glass-gold { background: rgba(245, 158, 11, 0.08); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border: 1px solid rgba(245, 158, 11, 0.2); }
   .glow-gold { box-shadow: 0 0 30px rgba(245, 158, 11, 0.15), 0 0 60px rgba(245, 158, 11, 0.05); }
   .glow-gold-sm { box-shadow: 0 0 15px rgba(245, 158, 11, 0.12); }
   .text-glow-gold { text-shadow: 0 0 20px rgba(245, 158, 11, 0.4); }
@@ -67,32 +67,36 @@ tailwind.config = {
 
   /* Template Animations & Specifics */
   @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
-  .float-anim { animation: float 4s ease-in-out infinite; }
-  .float-anim-delay { animation: float 4s ease-in-out 1s infinite; }
+  .float-anim { animation: float 4s ease-in-out infinite; will-change: transform; }
+  .float-anim-delay { animation: float 4s ease-in-out 1s infinite; will-change: transform; }
   @keyframes pulseRing { 0%{transform:scale(1);opacity:0.6} 100%{transform:scale(1.8);opacity:0} }
-  .pulse-ring::after { content:''; position:absolute; inset:-4px; border-radius:50%; border:2px solid #f59e0b; animation: pulseRing 2s ease-out infinite; }
+  .pulse-ring::after { content:''; position:absolute; inset:-4px; border-radius:50%; border:2px solid #f59e0b; animation: pulseRing 2s ease-out infinite; will-change: transform, opacity; }
   .dock-item { transition: transform 0.2s ease, margin 0.2s ease; }
   .dock-item:hover { transform: translateY(-12px) scale(1.3); margin: 0 6px; }
   @keyframes orbit1 { 0%{transform:rotate(0deg) translateX(180px) rotate(0deg)} 100%{transform:rotate(360deg) translateX(180px) rotate(-360deg)} }
   @keyframes orbit2 { 0%{transform:rotate(120deg) translateX(180px) rotate(-120deg)} 100%{transform:rotate(480deg) translateX(180px) rotate(-480deg)} }
   @keyframes orbit3 { 0%{transform:rotate(240deg) translateX(180px) rotate(-240deg)} 100%{transform:rotate(600deg) translateX(180px) rotate(-600deg)} }
-  .orbit-1 { animation: orbit1 20s linear infinite; }
-  .orbit-2 { animation: orbit2 25s linear infinite; }
-  .orbit-3 { animation: orbit3 30s linear infinite; }
+  .orbit-1 { animation: orbit1 20s linear infinite; will-change: transform; }
+  .orbit-2 { animation: orbit2 25s linear infinite; will-change: transform; }
+  .orbit-3 { animation: orbit3 30s linear infinite; will-change: transform; }
   
   @keyframes ticker {
     0% { transform: translateX(100%); }
     100% { transform: translateX(-100%); }
   }
-  .animate-ticker { animation: ticker 30s linear infinite; }
+  .animate-ticker { animation: ticker 30s linear infinite; will-change: transform; }
   .animate-ticker:hover { animation-play-state: paused; }
 
   @keyframes blink { 0%,50%{opacity:1} 51%,100%{opacity:0} }
   .cursor-blink { animation: blink 1s step-end infinite; }
   @keyframes fadeInUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
-  .fade-in-1 { animation: fadeInUp 0.6s 0.1s both; }
-  .fade-in-2 { animation: fadeInUp 0.6s 0.2s both; }
-  .fade-in-3 { animation: fadeInUp 0.6s 0.3s both; }
+  .fade-in-1 { animation: fadeInUp 0.6s 0.1s both; will-change: transform, opacity; }
+  .fade-in-2 { animation: fadeInUp 0.6s 0.2s both; will-change: transform, opacity; }
+  .fade-in-3 { animation: fadeInUp 0.6s 0.3s both; will-change: transform, opacity; }
+  .delay-100 { animation-delay: 100ms; }
+  .delay-200 { animation-delay: 200ms; }
+  .delay-300 { animation-delay: 300ms; }
+  .delay-400 { animation-delay: 400ms; }
   .noise-bg::before { content:''; position:fixed; inset:0; opacity:0.03; z-index:0; pointer-events:none; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
   .ambient-blob { position:fixed; border-radius:50%; filter:blur(100px); pointer-events:none; z-index:0; }
   
@@ -105,7 +109,7 @@ tailwind.config = {
   .light { --text-color: #0f172a; --text-muted: rgba(15,23,42,0.5); }
 
   @media (max-width: 768px) {
-    .glass, .glass-strong { backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); }
+    .glass, .glass-strong { -webkit-backdrop-filter: blur(15px); backdrop-filter: blur(15px); }
     .orbit-container { transform: scale(0.6); }
     .dock-item:hover { transform: translateY(-4px) scale(1.1); }
     .template-section { padding-top: 5rem; }
@@ -142,6 +146,7 @@ tailwind.config = {
   .active-template#t7 .orbit-ring { display: block !important; }
   
   #orbit-stage { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; z-index: 5; }
+  .w-0-dynamic { width: 0%; }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
@@ -173,7 +178,7 @@ tailwind.config = {
       </div>
     </a>
   </div>
-  <button onclick="toggleSidebar()" class="p-2 text-white/50 hover:text-white transition-all">
+  <button type="button" onclick="toggleSidebar()" aria-label="Toggle Sidebar" class="p-2 text-white/50 hover:text-white transition-all">
     <i class="fa-solid fa-bars-staggered text-xl"></i>
   </button>
 </div>
@@ -193,23 +198,23 @@ tailwind.config = {
 <!-- Floating Layout Switcher -->
 <div class="fixed top-24 md:top-4 left-1/2 -translate-x-1/2 z-[60] no-print" id="layout-switcher-container">
   <div class="glass-strong rounded-2xl p-1 flex flex-col md:flex-row items-center gap-2 shadow-2xl border border-white/10">
-    <button onclick="toggleLayoutSwitcher()" class="md:hidden w-full px-4 py-2 flex items-center justify-between gap-4 text-gold-400 font-black text-[10px] uppercase tracking-widest">
+    <button type="button" onclick="toggleLayoutSwitcher()" class="md:hidden w-full px-4 py-2 flex items-center justify-between gap-4 text-gold-400 font-black text-[10px] uppercase tracking-widest">
       <span>Architecture Select</span>
       <i class="fa-solid fa-chevron-down" id="switcher-icon" class="w-4 h-4 transition-transform"></i>
     </button>
     
     <div id="layout-buttons" class="hidden md:flex items-center gap-2 px-2 py-1 overflow-x-auto max-w-[85vw] no-scrollbar">
       <span class="text-gold-400 text-[10px] font-black mr-2 tracking-widest uppercase hidden md:inline">Architecture</span>
-      <button onclick="showLayout(1)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="1">1. Bento</button>
-      <button onclick="showLayout(2)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="2">2. Dock</button>
-      <button onclick="showLayout(3)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="3">3. Nav</button>
-      <button onclick="showLayout(4)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="4">4. Side</button>
-      <button onclick="showLayout(5)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="5">5. Split</button>
-      <button onclick="showLayout(6)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="6">6. Stack</button>
-      <button onclick="showLayout(7)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="7">7. Orbit</button>
-      <button onclick="showLayout(8)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="8">8. Console</button>
-      <button onclick="showLayout(9)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="9">9. Mag</button>
-      <button onclick="showLayout(10)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="10">10. Kanban</button>
+      <button type="button" onclick="showLayout(1)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="1">1. Bento</button>
+      <button type="button" onclick="showLayout(2)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="2">2. Dock</button>
+      <button type="button" onclick="showLayout(3)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="3">3. Nav</button>
+      <button type="button" onclick="showLayout(4)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="4">4. Side</button>
+      <button type="button" onclick="showLayout(5)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="5">5. Split</button>
+      <button type="button" onclick="showLayout(6)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="6">6. Stack</button>
+      <button type="button" onclick="showLayout(7)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="7">7. Orbit</button>
+      <button type="button" onclick="showLayout(8)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="8">8. Console</button>
+      <button type="button" onclick="showLayout(9)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="9">9. Mag</button>
+      <button type="button" onclick="showLayout(10)" class="layout-switch-btn text-[9px] px-3 py-1.5 rounded-lg border border-white/5 text-white/40 font-black hover:bg-white/5 transition-all whitespace-nowrap" data-l="10">10. Kanban</button>
     </div>
   </div>
 </div>
@@ -241,7 +246,7 @@ tailwind.config = {
       
       <div id="next-season-container" class="mt-8 pt-8 border-t border-white/5 space-y-4">
         <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Academy Evolution</p>
-        <button id="next-season-btn" onclick="registerNextSeason()" class="w-full flex items-center justify-between p-4 rounded-2xl bg-gold-500/10 border border-gold-500/20 text-gold-400 hover:bg-gold-500/20 transition-all group disabled:opacity-30 disabled:grayscale disabled:pointer-events-none">
+        <button type="button" id="next-season-btn" onclick="registerNextSeason()" class="w-full flex items-center justify-between p-4 rounded-2xl bg-gold-500/10 border border-gold-500/20 text-gold-400 hover:bg-gold-500/20 transition-all group disabled:opacity-30 disabled:grayscale disabled:pointer-events-none">
           <div class="flex flex-col text-left">
             <span class="text-[7px] font-black uppercase tracking-widest opacity-60">Season 2026/B</span>
             <span class="text-[10px] font-bold uppercase">Register for Next Season</span>
@@ -263,15 +268,15 @@ tailwind.config = {
       </div>
 
       <div class="mt-8 pt-8 border-t border-white/5 space-y-4">
-        <a href="#" target="_blank" class="telegram-join-target w-full flex items-center justify-between px-6 py-4 rounded-2xl bg-[#229ED9]/10 text-[#229ED9] hover:bg-[#229ED9]/20 transition-all group opacity-20 pointer-events-none">
+        <a href="#" target="_blank" rel="noopener" class="telegram-join-target w-full flex items-center justify-between px-6 py-4 rounded-2xl bg-[#229ED9]/10 text-[#229ED9] hover:bg-[#229ED9]/20 transition-all group opacity-20 pointer-events-none">
           <span class="font-bold text-[10px] uppercase tracking-widest">Join Telegram</span>
           <i class="fa-brands fa-telegram text-lg group-hover:scale-110 transition-transform"></i>
         </a>
-        <a href="https://wa.me/2349015185711" target="_blank" class="w-full flex items-center justify-between px-6 py-4 rounded-2xl bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366]/20 transition-all group">
+        <a href="https://wa.me/2349015185711" target="_blank" rel="noopener" class="w-full flex items-center justify-between px-6 py-4 rounded-2xl bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366]/20 transition-all group">
           <span class="font-bold text-[10px] uppercase tracking-widest">WhatsApp Support</span>
           <i class="fa-brands fa-whatsapp text-lg group-hover:scale-110 transition-transform"></i>
         </a>
-        <a href="https://discord.gg/zVCDMNAh8E" target="_blank" class="w-full flex items-center justify-between px-6 py-4 rounded-2xl bg-[#5865F2]/10 text-[#5865F2] hover:bg-[#5865F2]/20 transition-all group">
+        <a href="https://discord.gg/zVCDMNAh8E" target="_blank" rel="noopener" class="w-full flex items-center justify-between px-6 py-4 rounded-2xl bg-[#5865F2]/10 text-[#5865F2] hover:bg-[#5865F2]/20 transition-all group">
           <span class="font-bold text-[10px] uppercase tracking-widest">Discord Support</span>
           <i class="fa-brands fa-discord text-lg group-hover:scale-110 transition-transform"></i>
         </a>
@@ -279,7 +284,7 @@ tailwind.config = {
     </nav>
   </div>
   <div class="p-8 border-t border-white/5">
-    <button onclick="logout()" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-red-400/70 hover:text-red-400 hover:bg-red-400/10 transition-all">
+    <button type="button" onclick="logout()" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-red-400/70 hover:text-red-400 hover:bg-red-400/10 transition-all">
       <i class="fa-solid fa-right-from-bracket w-4"></i> Sign Out
     </button>
   </div>
@@ -320,7 +325,7 @@ tailwind.config = {
               <div class="flex items-center gap-2"><span class="text-gold-400 text-xs font-semibold">Mastery XP</span><span class="text-white/30 text-xs">•</span><span class="text-white/50 text-xs xp-text-target">0 / 1,000</span></div>
               <span class="text-[10px] font-bold text-white/40 uppercase level-target">Lvl 1</span>
             </div>
-            <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden"><div class="progress-fill h-full bg-gradient-to-r from-gold-600 to-gold-400 rounded-full xp-bar-target" style="width:0%"></div></div>
+            <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden"><div class="progress-fill h-full bg-gradient-to-r from-gold-600 to-gold-400 rounded-full xp-bar-target w-0-dynamic"></div></div>
         </div>
 
         <div class="glass rounded-[40px] p-6 col-span-2 flex items-center gap-6 fade-in-2 group">
@@ -335,7 +340,7 @@ tailwind.config = {
           <div class="w-14 h-14 rounded-2xl bg-gold-500/10 flex items-center justify-center text-gold-500"><i class="fa-solid fa-award text-2xl"></i></div>
           <div class="flex-1">
             <div class="flex justify-between items-center mb-2"><p class="text-gold-400 text-xs font-semibold uppercase tracking-wider">Cert Eligibility</p><span class="text-xs font-bold text-white cert-days-target">0 / 14 Days</span></div>
-            <div class="w-full h-2 bg-gold-950/40 rounded-full overflow-hidden shadow-inner"><div class="progress-fill h-full bg-gold-500 rounded-full cert-bar-target" style="width:0%"></div></div>
+            <div class="w-full h-2 bg-gold-950/40 rounded-full overflow-hidden shadow-inner"><div class="progress-fill h-full bg-gold-500 rounded-full cert-bar-target w-0-dynamic"></div></div>
           </div>
         </div>
         <div class="glass rounded-[40px] p-8 col-span-2 row-span-2 flex flex-col gap-6 fade-in-4">
@@ -343,15 +348,15 @@ tailwind.config = {
           <div class="space-y-6">
             <div class="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
               <p class="text-[10px] font-black uppercase tracking-widest text-white/60">Atmospheric Glow</p>
-              <button onclick="toggleControl('glow')" aria-label="Toggle Atmospheric Glow" class="ctrl-glow-btn w-12 h-6 rounded-full bg-white/10 relative transition-all"><div class="absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-all"></div></button>
+              <button type="button" onclick="toggleControl('glow')" aria-label="Toggle Atmospheric Glow" class="ctrl-glow-btn w-12 h-6 rounded-full bg-white/10 relative transition-all"><div class="absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-all"></div></button>
             </div>
             <div class="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
               <p class="text-[10px] font-black uppercase tracking-widest text-white/60">High-Contrast Light</p>
-              <button onclick="toggleControl('light')" aria-label="Toggle High-Contrast Light" class="ctrl-light-btn w-12 h-6 rounded-full bg-white/10 relative transition-all"><div class="absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-all"></div></button>
+              <button type="button" onclick="toggleControl('light')" aria-label="Toggle High-Contrast Light" class="ctrl-light-btn w-12 h-6 rounded-full bg-white/10 relative transition-all"><div class="absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-all"></div></button>
             </div>
             <div class="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
               <p class="text-[10px] font-black uppercase tracking-widest text-white/60">Atmospheric Canvas</p>
-              <button onclick="toggleControl('canvas')" aria-label="Toggle Atmospheric Canvas" class="ctrl-canvas-btn w-12 h-6 rounded-full bg-white/10 relative transition-all"><div class="absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-all"></div></button>
+              <button type="button" onclick="toggleControl('canvas')" aria-label="Toggle Atmospheric Canvas" class="ctrl-canvas-btn w-12 h-6 rounded-full bg-white/10 relative transition-all"><div class="absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-all"></div></button>
             </div>
           </div>
         </div>
@@ -384,7 +389,7 @@ tailwind.config = {
               <span class="text-gold-400 text-[9px] font-bold uppercase tracking-widest">Mastery XP</span>
               <span class="text-white/50 text-[9px] font-bold xp-text-target">0 / 1,000</span>
             </div>
-            <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden"><div class="progress-fill h-full bg-gradient-to-r from-gold-600 to-gold-400 rounded-full xp-bar-target" style="width:0%"></div></div>
+            <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden"><div class="progress-fill h-full bg-gradient-to-r from-gold-600 to-gold-400 rounded-full xp-bar-target w-0-dynamic"></div></div>
             <div class="mt-4 flex justify-between items-center"><span class="text-white/30 text-[8px] font-black uppercase tracking-widest">Logins</span><span class="text-xs font-bold text-gold-400 logins-target">0</span></div>
             <div class="mt-2 flex justify-between items-center"><span class="text-white/30 text-[8px] font-black uppercase tracking-widest">Gender</span><span class="text-[9px] font-bold text-white/60 uppercase gender-target">Unset</span></div>
             <div class="mt-2 flex justify-between items-center"><span class="text-white/30 text-[8px] font-black uppercase tracking-widest">SFID</span><span class="text-[9px] font-mono font-bold text-white/60 sfid-display-target truncate">SFID-26-XXX</span></div>
@@ -393,7 +398,7 @@ tailwind.config = {
         </div>
         <div class="flex flex-col gap-8 md:col-span-1">
           <div class="glass rounded-3xl p-8 float-anim-delay flex flex-col justify-center h-full"><p class="text-white/40 text-[10px] uppercase tracking-widest mb-3 font-bold"><i class="fa-solid fa-hourglass-half text-gold-500/60 mr-2"></i> Study Time</p><p class="text-4xl font-black study-time-target">00D 00H</p></div>
-          <div class="glass-gold rounded-3xl p-8 glow-gold-sm flex flex-col justify-center h-full"><p class="text-gold-400 text-[10px] font-black uppercase tracking-widest mb-2">Certification</p><p class="text-4xl font-black text-gold-300 cert-days-target">0 / 14</p><div class="w-full h-2 bg-gold-950/40 rounded-full mt-4 overflow-hidden"><div class="progress-fill h-full bg-gold-500 rounded-full cert-bar-target" style="width:0%"></div></div></div>
+          <div class="glass-gold rounded-3xl p-8 glow-gold-sm flex flex-col justify-center h-full"><p class="text-gold-400 text-[10px] font-black uppercase tracking-widest mb-2">Certification</p><p class="text-4xl font-black text-gold-300 cert-days-target">0 / 14</p><div class="w-full h-2 bg-gold-950/40 rounded-full mt-4 overflow-hidden"><div class="progress-fill h-full bg-gold-500 rounded-full cert-bar-target w-0-dynamic"></div></div></div>
         </div>
         <div class="glass rounded-3xl p-8 md:col-span-1 flex flex-col gap-6">
           <p class="text-white/40 text-[10px] uppercase tracking-widest mb-6 font-bold"><i class="fa-solid fa-trophy text-gold-500/60 mr-2"></i> Hall of Fame</p>
@@ -404,11 +409,11 @@ tailwind.config = {
             <p class="text-white/30 text-[8px] uppercase tracking-widest font-bold">Control Hub</p>
             <div class="flex items-center justify-between">
               <span class="text-[8px] font-bold text-white/40 uppercase">Glow</span>
-              <button onclick="toggleControl('glow')" class="ctrl-glow-btn w-10 h-5 rounded-full bg-white/10 relative transition-all"><div class="absolute top-1 left-1 w-3 h-3 rounded-full bg-white transition-all"></div></button>
+              <button type="button" onclick="toggleControl('glow')" class="ctrl-glow-btn w-10 h-5 rounded-full bg-white/10 relative transition-all"><div class="absolute top-1 left-1 w-3 h-3 rounded-full bg-white transition-all"></div></button>
             </div>
             <div class="flex items-center justify-between">
               <span class="text-[8px] font-bold text-white/40 uppercase">Light</span>
-              <button onclick="toggleControl('light')" class="ctrl-light-btn w-10 h-5 rounded-full bg-white/10 relative transition-all"><div class="absolute top-1 left-1 w-3 h-3 rounded-full bg-white transition-all"></div></button>
+              <button type="button" onclick="toggleControl('light')" class="ctrl-light-btn w-10 h-5 rounded-full bg-white/10 relative transition-all"><div class="absolute top-1 left-1 w-3 h-3 rounded-full bg-white transition-all"></div></button>
             </div>
           </div>
         </div>
@@ -467,7 +472,7 @@ tailwind.config = {
           </div>
           <div class="space-y-3">
             <div class="w-full h-3 bg-white/5 rounded-full overflow-hidden border border-white/5 shadow-inner">
-              <div class="progress-fill h-full bg-gradient-to-r from-gold-600 via-gold-400 to-white/20 xp-bar-target" style="width:0%"></div>
+              <div class="progress-fill h-full bg-gradient-to-r from-gold-600 via-gold-400 to-white/20 xp-bar-target w-0-dynamic"></div>
             </div>
             <p class="text-[9px] font-black text-white/20 uppercase text-center tracking-[0.5em]">Synchronizing Registry Progression</p>
           </div>
@@ -477,15 +482,15 @@ tailwind.config = {
           <div class="space-y-6 flex-1">
             <div class="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
               <p class="text-[8px] font-black uppercase tracking-widest text-white/40">Glow</p>
-              <button onclick="toggleControl('glow')" class="ctrl-glow-btn w-10 h-5 rounded-full bg-white/10 relative transition-all"><div class="absolute top-1 left-1 w-3 h-3 rounded-full bg-white transition-all"></div></button>
+              <button type="button" onclick="toggleControl('glow')" class="ctrl-glow-btn w-10 h-5 rounded-full bg-white/10 relative transition-all"><div class="absolute top-1 left-1 w-3 h-3 rounded-full bg-white transition-all"></div></button>
             </div>
             <div class="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
               <p class="text-[8px] font-black uppercase tracking-widest text-white/40">Light</p>
-              <button onclick="toggleControl('light')" class="ctrl-light-btn w-10 h-5 rounded-full bg-white/10 relative transition-all"><div class="absolute top-1 left-1 w-3 h-3 rounded-full bg-white transition-all"></div></button>
+              <button type="button" onclick="toggleControl('light')" class="ctrl-light-btn w-10 h-5 rounded-full bg-white/10 relative transition-all"><div class="absolute top-1 left-1 w-3 h-3 rounded-full bg-white transition-all"></div></button>
             </div>
             <div class="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
               <p class="text-[8px] font-black uppercase tracking-widest text-white/40">Canvas</p>
-              <button onclick="toggleControl('canvas')" class="ctrl-canvas-btn w-10 h-5 rounded-full bg-white/10 relative transition-all"><div class="absolute top-1 left-1 w-3 h-3 rounded-full bg-white transition-all"></div></button>
+              <button type="button" onclick="toggleControl('canvas')" class="ctrl-canvas-btn w-10 h-5 rounded-full bg-white/10 relative transition-all"><div class="absolute top-1 left-1 w-3 h-3 rounded-full bg-white transition-all"></div></button>
             </div>
           </div>
         </div>
@@ -522,15 +527,15 @@ tailwind.config = {
         <div class="glass rounded-[40px] p-8 space-y-6">
           <p class="text-[9px] font-black text-white/30 uppercase tracking-[0.3em]">Control Hub</p>
           <div class="grid grid-cols-3 gap-2">
-            <button onclick="toggleControl('glow')" class="ctrl-glow-btn p-3 rounded-2xl bg-white/5 border border-white/5 flex flex-col items-center gap-2">
+            <button type="button" onclick="toggleControl('glow')" class="ctrl-glow-btn p-3 rounded-2xl bg-white/5 border border-white/5 flex flex-col items-center gap-2">
               <div class="w-8 h-4 rounded-full bg-white/10 relative"><div class="absolute top-1 left-1 w-2 h-2 rounded-full bg-white"></div></div>
               <span class="text-[7px] font-black uppercase">Glow</span>
             </button>
-            <button onclick="toggleControl('light')" class="ctrl-light-btn p-3 rounded-2xl bg-white/5 border border-white/5 flex flex-col items-center gap-2">
+            <button type="button" onclick="toggleControl('light')" class="ctrl-light-btn p-3 rounded-2xl bg-white/5 border border-white/5 flex flex-col items-center gap-2">
               <div class="w-8 h-4 rounded-full bg-white/10 relative"><div class="absolute top-1 left-1 w-2 h-2 rounded-full bg-white"></div></div>
               <span class="text-[7px] font-black uppercase">Light</span>
             </button>
-            <button onclick="toggleControl('canvas')" class="ctrl-canvas-btn p-3 rounded-2xl bg-white/5 border border-white/5 flex flex-col items-center gap-2">
+            <button type="button" onclick="toggleControl('canvas')" class="ctrl-canvas-btn p-3 rounded-2xl bg-white/5 border border-white/5 flex flex-col items-center gap-2">
               <div class="w-8 h-4 rounded-full bg-white/10 relative"><div class="absolute top-1 left-1 w-2 h-2 rounded-full bg-white"></div></div>
               <span class="text-[7px] font-black uppercase">Canvas</span>
             </button>
@@ -590,11 +595,11 @@ tailwind.config = {
               </div>
           </div>
           <div class="pt-10 flex gap-4">
-            <button onclick="toggleControl('glow')" class="ctrl-glow-btn p-4 rounded-3xl bg-white/5 border border-white/5 flex flex-col items-center gap-2">
+            <button type="button" onclick="toggleControl('glow')" class="ctrl-glow-btn p-4 rounded-3xl bg-white/5 border border-white/5 flex flex-col items-center gap-2">
               <div class="w-10 h-5 rounded-full bg-white/10 relative transition-all"><div class="absolute top-1 left-1 w-3 h-3 rounded-full bg-white transition-all"></div></div>
               <span class="text-[8px] font-black uppercase">Glow</span>
             </button>
-            <button onclick="toggleControl('light')" class="ctrl-light-btn p-4 rounded-3xl bg-white/5 border border-white/5 flex flex-col items-center gap-2">
+            <button type="button" onclick="toggleControl('light')" class="ctrl-light-btn p-4 rounded-3xl bg-white/5 border border-white/5 flex flex-col items-center gap-2">
               <div class="w-10 h-5 rounded-full bg-white/10 relative transition-all"><div class="absolute top-1 left-1 w-3 h-3 rounded-full bg-white transition-all"></div></div>
               <span class="text-[8px] font-black uppercase">Light</span>
             </button>
@@ -644,15 +649,15 @@ tailwind.config = {
             </div>
         </div>
         <div class="flex justify-center gap-6 pt-4 border-t border-white/5">
-          <button onclick="toggleControl('glow')" class="ctrl-glow-btn flex flex-col items-center gap-2">
+          <button type="button" onclick="toggleControl('glow')" class="ctrl-glow-btn flex flex-col items-center gap-2">
             <div class="w-8 h-4 rounded-full bg-white/10 relative"><div class="absolute top-1 left-1 w-2 h-2 rounded-full bg-white"></div></div>
             <span class="text-[7px] font-black text-white/30 uppercase">Glow</span>
           </button>
-          <button onclick="toggleControl('light')" class="ctrl-light-btn flex flex-col items-center gap-2">
+          <button type="button" onclick="toggleControl('light')" class="ctrl-light-btn flex flex-col items-center gap-2">
             <div class="w-8 h-4 rounded-full bg-white/10 relative"><div class="absolute top-1 left-1 w-2 h-2 rounded-full bg-white"></div></div>
             <span class="text-[7px] font-black text-white/30 uppercase">Light</span>
           </button>
-          <button onclick="toggleControl('canvas')" class="ctrl-canvas-btn flex flex-col items-center gap-2">
+          <button type="button" onclick="toggleControl('canvas')" class="ctrl-canvas-btn flex flex-col items-center gap-2">
             <div class="w-8 h-4 rounded-full bg-white/10 relative"><div class="absolute top-1 left-1 w-2 h-2 rounded-full bg-white"></div></div>
             <span class="text-[7px] font-black text-white/30 uppercase">Canvas</span>
           </button>
@@ -687,7 +692,7 @@ tailwind.config = {
             <p class="text-[9px] md:text-[10px] font-black text-gold-400 level-target">Lvl 1</p>
           </div>
           <div class="w-full h-1 md:h-2 bg-white/5 rounded-full overflow-hidden">
-            <div class="progress-fill h-full bg-gold-500 xp-bar-target" style="width:0%"></div>
+            <div class="progress-fill h-full bg-gold-500 xp-bar-target w-0-dynamic"></div>
           </div>
           <p class="text-[8px] md:text-[10px] font-black text-white/60 xp-text-target">0 / 1,000 XP</p>
         </div>
@@ -695,8 +700,8 @@ tailwind.config = {
         <div class="mt-4 flex flex-col items-center gap-2">
             <span class="text-[7px] text-white/20 font-mono sfid-display-target">SFID-26-XXX</span>
             <div class="flex gap-4">
-              <button onclick="toggleControl('glow')" class="ctrl-glow-btn text-[7px] font-black text-white/20 uppercase hover:text-gold-400 transition-all">Glow</button>
-              <button onclick="toggleControl('light')" class="ctrl-light-btn text-[7px] font-black text-white/20 uppercase hover:text-gold-400 transition-all">Light</button>
+              <button type="button" onclick="toggleControl('glow')" class="ctrl-glow-btn text-[7px] font-black text-white/20 uppercase hover:text-gold-400 transition-all">Glow</button>
+              <button type="button" onclick="toggleControl('light')" class="ctrl-light-btn text-[7px] font-black text-white/20 uppercase hover:text-gold-400 transition-all">Light</button>
             </div>
         </div>
       </div>
@@ -766,9 +771,9 @@ tailwind.config = {
             </div>
         </div>
         <div class="flex gap-6 pt-6">
-          <button onclick="toggleControl('glow')" class="ctrl-glow-btn text-[9px] font-mono text-white/30 hover:text-green-500 transition-all">[ GLOW_TOGGLE ]</button>
-          <button onclick="toggleControl('light')" class="ctrl-light-btn text-[9px] font-mono text-white/30 hover:text-green-500 transition-all">[ LIGHT_TOGGLE ]</button>
-          <button onclick="toggleControl('canvas')" class="ctrl-canvas-btn text-[9px] font-mono text-white/30 hover:text-green-500 transition-all">[ CANVAS_TOGGLE ]</button>
+          <button type="button" onclick="toggleControl('glow')" class="ctrl-glow-btn text-[9px] font-mono text-white/30 hover:text-green-500 transition-all">[ GLOW_TOGGLE ]</button>
+          <button type="button" onclick="toggleControl('light')" class="ctrl-light-btn text-[9px] font-mono text-white/30 hover:text-green-500 transition-all">[ LIGHT_TOGGLE ]</button>
+          <button type="button" onclick="toggleControl('canvas')" class="ctrl-canvas-btn text-[9px] font-mono text-white/30 hover:text-green-500 transition-all">[ CANVAS_TOGGLE ]</button>
         </div>
       </div>
     </div>
@@ -803,8 +808,8 @@ tailwind.config = {
             <div class="flex flex-col gap-4">
               <div class="text-right"><p class="text-[10px] font-black uppercase tracking-widest">Logins</p><p class="text-2xl font-black logins-target">0</p></div>
               <div class="flex gap-4">
-                <button onclick="toggleControl('glow')" class="ctrl-glow-btn w-10 h-5 rounded-full bg-navy-950/10 relative transition-all"><div class="absolute top-1 left-1 w-3 h-3 rounded-full bg-navy-950 transition-all"></div></button>
-                <button onclick="toggleControl('light')" class="ctrl-light-btn w-10 h-5 rounded-full bg-navy-950/10 relative transition-all"><div class="absolute top-1 left-1 w-3 h-3 rounded-full bg-navy-950 transition-all"></div></button>
+                <button type="button" onclick="toggleControl('glow')" class="ctrl-glow-btn w-10 h-5 rounded-full bg-navy-950/10 relative transition-all"><div class="absolute top-1 left-1 w-3 h-3 rounded-full bg-navy-950 transition-all"></div></button>
+                <button type="button" onclick="toggleControl('light')" class="ctrl-light-btn w-10 h-5 rounded-full bg-navy-950/10 relative transition-all"><div class="absolute top-1 left-1 w-3 h-3 rounded-full bg-navy-950 transition-all"></div></button>
               </div>
             </div>
           </div>
@@ -859,11 +864,11 @@ tailwind.config = {
           <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em]">System</p>
           <div class="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/5">
             <span class="text-[8px] font-black uppercase text-white/40">Glow</span>
-            <button onclick="toggleControl('glow')" class="ctrl-glow-btn w-8 h-4 rounded-full bg-white/10 relative transition-all"><div class="absolute top-0.5 left-0.5 w-3 h-3 rounded-full bg-white transition-all"></div></button>
+            <button type="button" onclick="toggleControl('glow')" class="ctrl-glow-btn w-8 h-4 rounded-full bg-white/10 relative transition-all"><div class="absolute top-0.5 left-0.5 w-3 h-3 rounded-full bg-white transition-all"></div></button>
           </div>
           <div class="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/5">
             <span class="text-[8px] font-black uppercase text-white/40">Light</span>
-            <button onclick="toggleControl('light')" class="ctrl-light-btn w-8 h-4 rounded-full bg-white/10 relative transition-all"><div class="absolute top-0.5 left-0.5 w-3 h-3 rounded-full bg-white transition-all"></div></button>
+            <button type="button" onclick="toggleControl('light')" class="ctrl-light-btn w-8 h-4 rounded-full bg-white/10 relative transition-all"><div class="absolute top-0.5 left-0.5 w-3 h-3 rounded-full bg-white transition-all"></div></button>
           </div>
         </div>
       </div>

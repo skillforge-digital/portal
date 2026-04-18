@@ -45,8 +45,8 @@
     .light #sundust-canvas { opacity: 0.2; }
     body { font-family:'Plus Jakarta Sans',sans-serif; background: var(--bg-color); color: var(--text-color); overflow-x:hidden; transition: background 0.5s ease, color 0.5s ease; width: 100%; min-height: 100dvh; }
     #sundust-canvas { position:fixed; inset:0; width:100%; height:100dvh; z-index:0; pointer-events:none }
-    .glass { background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--glass-border); }
-    .glass-strong { background: rgba(10, 25, 49, 0.9); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); border: 1px solid rgba(255,255,255,0.1); }
+    .glass { background: var(--glass-bg); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); }
+    .glass-strong { background: rgba(10, 25, 49, 0.9); -webkit-backdrop-filter: blur(40px); backdrop-filter: blur(40px); border: 1px solid rgba(255,255,255,0.1); }
     .hero-gradient { background: radial-gradient(circle at top right, rgba(201,168,76,0.15), transparent); }
     .animate-float { animation: float 6s ease-in-out infinite; }
     @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
@@ -57,7 +57,7 @@
     .animate-fade-in { animation: fade-in 0.3s ease-out forwards; }
     @media (max-width: 640px) {
         .animate-float { animation: none; }
-        .glass { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+        .glass { -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
     }
   </style>
 </head>
@@ -69,7 +69,7 @@
     <nav class="h-24 px-6 md:px-20 flex items-center justify-between border-b border-white/5 glass sticky top-0 z-[100]">
         <div class="flex items-center gap-3">
             <a href="/" class="flex items-center gap-3 group">
-                <img src="https://i.postimg.cc/fRYD4HSw/Whats-App-Image-2026-01-16-at-1-20-06-PM.jpg" class="w-10 h-10 rounded-xl border border-gold/30 group-hover:border-gold transition-all">
+                <img src="https://i.postimg.cc/fRYD4HSw/Whats-App-Image-2026-01-16-at-1-20-06-PM.jpg" alt="SkillForge Logo" class="w-10 h-10 rounded-xl border border-gold/30 group-hover:border-gold transition-all">
                 <div class="flex flex-col leading-none">
                     <span class="font-black text-lg md:text-xl tracking-tighter uppercase group-hover:text-gold transition-all">SkillForge</span>
                     <span class="text-[7px] md:text-[8px] text-gold font-bold tracking-[0.2em] uppercase">Digital & Co. Ltd</span>
@@ -82,11 +82,11 @@
             <a href="/trainee-correction/" class="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-all">Mastery Update</a>
         </div>
         <div class="flex items-center gap-3 md:gap-4">
-            <button onclick="toggleTheme()" class="p-2.5 md:p-3 glass rounded-xl hover:text-gold transition-all" title="Toggle Theme">
+            <button type="button" onclick="toggleTheme()" class="p-2.5 md:p-3 glass rounded-xl hover:text-gold transition-all" title="Toggle Theme" aria-label="Toggle Theme">
                 <i data-lucide="sun" id="theme-icon-sun" class="w-4 h-4 md:w-5 md:h-5 hidden"></i>
                 <i data-lucide="moon" id="theme-icon-moon" class="w-4 h-4 md:w-5 md:h-5"></i>
             </button>
-            <button onclick="toggleMobileMenu()" class="lg:hidden p-2.5 glass rounded-xl text-slate-400 hover:text-gold transition-all">
+            <button type="button" onclick="toggleMobileMenu()" aria-label="Toggle Mobile Menu" class="lg:hidden p-2.5 glass rounded-xl text-slate-400 hover:text-gold transition-all">
                 <i data-lucide="menu" class="w-5 h-5"></i>
             </button>
             <a href="/trainee-registration/" class="hidden sm:block bg-gold text-navy px-5 md:px-8 py-2.5 md:py-3 rounded-full font-black text-[9px] md:text-[10px] uppercase tracking-widest hover:bg-white transition-all whitespace-nowrap">Enroll</a>
@@ -95,7 +95,7 @@
 
     <!-- Mobile Menu -->
     <div id="mobile-menu" class="fixed inset-0 z-[90] glass-strong hidden flex flex-col items-center justify-center gap-8 lg:hidden animate-fade-in backdrop-blur-3xl">
-        <button onclick="toggleMobileMenu()" class="absolute top-8 right-8 p-3 glass rounded-2xl text-gold">
+        <button type="button" onclick="toggleMobileMenu()" aria-label="Close Mobile Menu" class="absolute top-8 right-8 p-3 glass rounded-2xl text-gold">
             <i data-lucide="x" class="w-6 h-6"></i>
         </button>
         <a href="/trainee-registration/" class="text-xl font-black uppercase tracking-[0.2em] text-gold">Academy Registry</a>
@@ -206,21 +206,21 @@
 
         <!-- App Store Centers -->
         <section class="mt-40 grid grid-cols-1 md:grid-cols-3 gap-8">
-            <a href="https://discord.gg/zVCDMNAh8E" target="_blank" class="glass p-8 md:p-10 rounded-[40px] border-white/5 group hover:border-gold/30 transition-all">
+            <a href="https://discord.gg/zVCDMNAh8E" target="_blank" rel="noopener" class="glass p-8 md:p-10 rounded-[40px] border-white/5 group hover:border-gold/30 transition-all">
                 <div class="w-16 h-16 bg-[#5865F2]/10 rounded-2xl flex items-center justify-center text-[#5865F2] mb-6 group-hover:scale-110 transition-transform">
                     <i class="fa-brands fa-discord text-3xl"></i>
                 </div>
                 <h3 class="text-xl font-black text-white uppercase tracking-tight mb-2">Discord Hub</h3>
                 <p class="text-xs text-slate-500 font-bold uppercase tracking-widest">Global Mastery Community</p>
             </a>
-            <a href="https://t.me/skillforgeorg" target="_blank" class="glass p-8 md:p-10 rounded-[40px] border-white/5 group hover:border-[#0088cc]/30 transition-all">
+            <a href="https://t.me/skillforgeorg" target="_blank" rel="noopener" class="glass p-8 md:p-10 rounded-[40px] border-white/5 group hover:border-[#0088cc]/30 transition-all">
                 <div class="w-16 h-16 bg-[#0088cc]/10 rounded-2xl flex items-center justify-center text-[#0088cc] mb-6 group-hover:scale-110 transition-transform">
                     <i class="fa-brands fa-telegram text-3xl"></i>
                 </div>
                 <h3 class="text-xl font-black text-white uppercase tracking-tight mb-2">Telegram Mastery</h3>
                 <p class="text-xs text-slate-500 font-bold uppercase tracking-widest">Live Mastery Sessions</p>
             </a>
-            <a href="https://wa.me/2349015185711" target="_blank" class="glass p-8 md:p-10 rounded-[40px] border-white/5 group hover:border-green-500/30 transition-all">
+            <a href="https://wa.me/2349015185711" target="_blank" rel="noopener" class="glass p-8 md:p-10 rounded-[40px] border-white/5 group hover:border-green-500/30 transition-all">
                 <div class="w-16 h-16 bg-green-500/10 rounded-2xl flex items-center justify-center text-green-500 mb-6 group-hover:scale-110 transition-transform">
                     <i class="fa-brands fa-whatsapp text-3xl"></i>
                 </div>
@@ -311,17 +311,17 @@
             </div>
             
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-            <a href="https://wa.me/2349015185711" target="_blank" class="p-6 md:p-8 bg-[#25D366]/5 rounded-3xl border border-[#25D366]/10 hover:border-[#25D366]/30 transition-all group flex flex-col items-center">
+            <a href="https://wa.me/2349015185711" target="_blank" rel="noopener" class="p-6 md:p-8 bg-[#25D366]/5 rounded-3xl border border-[#25D366]/10 hover:border-[#25D366]/30 transition-all group flex flex-col items-center">
                 <i class="fa-brands fa-whatsapp text-3xl md:text-4xl text-[#25D366] mb-4 md:mb-6 group-hover:scale-110 transition-transform"></i>
                 <p class="text-[9px] md:text-[10px] font-black text-slate-500 uppercase mb-3 md:mb-4 tracking-widest text-center">Lead Mentor Support</p>
                 <p class="text-base md:text-lg font-black text-white group-hover:text-[#25D366]">WhatsApp Support</p>
             </a>
-            <a href="https://t.me/skillforgeorg" target="_blank" class="p-6 md:p-8 bg-[#229ED9]/5 rounded-3xl border border-[#229ED9]/10 hover:border-[#229ED9]/30 transition-all group flex flex-col items-center">
+            <a href="https://t.me/skillforgeorg" target="_blank" rel="noopener" class="p-6 md:p-8 bg-[#229ED9]/5 rounded-3xl border border-[#229ED9]/10 hover:border-[#229ED9]/30 transition-all group flex flex-col items-center">
                 <i class="fa-brands fa-telegram text-3xl md:text-4xl text-[#229ED9] mb-4 md:mb-6 group-hover:scale-110 transition-transform"></i>
                 <p class="text-[9px] md:text-[10px] font-black text-slate-500 uppercase mb-3 md:mb-4 tracking-widest text-center">Official Telegram Channel</p>
                 <p class="text-base md:text-lg font-black text-white group-hover:text-[#229ED9]">Join Group</p>
             </a>
-            <a href="https://discord.gg/zVCDMNAh8E" target="_blank" class="p-6 md:p-8 bg-[#5865F2]/5 rounded-3xl border border-[#5865F2]/10 hover:border-[#5865F2]/30 transition-all group flex flex-col items-center">
+            <a href="https://discord.gg/zVCDMNAh8E" target="_blank" rel="noopener" class="p-6 md:p-8 bg-[#5865F2]/5 rounded-3xl border border-[#5865F2]/10 hover:border-[#5865F2]/30 transition-all group flex flex-col items-center">
                 <i class="fa-brands fa-discord text-3xl md:text-4xl text-[#5865F2] mb-4 md:mb-6 group-hover:scale-110 transition-transform"></i>
                 <p class="text-[9px] md:text-[10px] font-black text-slate-500 uppercase mb-3 md:mb-4 tracking-widest text-center">Global Discord Server</p>
                 <p class="text-base md:text-lg font-black text-white group-hover:text-[#5865F2]">Access Hub</p>
@@ -340,7 +340,7 @@
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-12 mb-12 md:mb-20">
                 <div class="flex flex-col gap-6 text-center md:text-left">
                     <div class="flex items-center justify-center md:justify-start gap-3">
-                        <img src="https://i.postimg.cc/fRYD4HSw/Whats-App-Image-2026-01-16-at-1-20-06-PM.jpg" class="w-12 h-12 rounded-xl border border-gold/30">
+                        <img src="https://i.postimg.cc/fRYD4HSw/Whats-App-Image-2026-01-16-at-1-20-06-PM.jpg" alt="SkillForge Logo" class="w-12 h-12 rounded-xl border border-gold/30">
                         <div class="flex flex-col leading-none">
                             <span class="font-black text-2xl tracking-tighter uppercase">SkillForge</span>
                             <span class="text-[8px] text-gold font-bold tracking-[0.2em] uppercase">Digital & Co. Ltd</span>
@@ -356,10 +356,10 @@
                     </div>
                     <div class="flex flex-col gap-4">
                         <div class="flex justify-center md:justify-start gap-4">
-                            <a href="https://x.com/Skillforgeorg" target="_blank" class="p-3 bg-white/5 rounded-xl hover:text-gold transition-all"><i class="fa-brands fa-x-twitter text-lg"></i></a>
-                            <a href="https://instagram.com/skillforgeco.digital" target="_blank" class="p-3 bg-white/5 rounded-xl hover:text-gold transition-all"><i class="fa-brands fa-instagram text-lg"></i></a>
-                            <a href="https://facebook.com/skillforgeco.digital" target="_blank" class="p-3 bg-white/5 rounded-xl hover:text-gold transition-all"><i class="fa-brands fa-facebook text-lg"></i></a>
-                            <a href="https://tiktok.com/@skillforge.co.ltd" target="_blank" class="p-3 bg-white/5 rounded-xl hover:text-gold transition-all"><i class="fa-brands fa-tiktok text-lg"></i></a>
+                            <a href="https://x.com/Skillforgeorg" target="_blank" rel="noopener" aria-label="X (Twitter)" class="p-3 bg-white/5 rounded-xl hover:text-gold transition-all"><i class="fa-brands fa-x-twitter text-lg"></i></a>
+                            <a href="https://instagram.com/skillforgeco.digital" target="_blank" rel="noopener" aria-label="Instagram" class="p-3 bg-white/5 rounded-xl hover:text-gold transition-all"><i class="fa-brands fa-instagram text-lg"></i></a>
+                            <a href="https://facebook.com/skillforgeco.digital" target="_blank" rel="noopener" aria-label="Facebook" class="p-3 bg-white/5 rounded-xl hover:text-gold transition-all"><i class="fa-brands fa-facebook text-lg"></i></a>
+                            <a href="https://tiktok.com/@skillforge.co.ltd" target="_blank" rel="noopener" aria-label="TikTok" class="p-3 bg-white/5 rounded-xl hover:text-gold transition-all"><i class="fa-brands fa-tiktok text-lg"></i></a>
                         </div>
                     </div>
                 </div>

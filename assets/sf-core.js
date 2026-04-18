@@ -5,29 +5,37 @@
  */
 
 import { db, auth } from './firebase-config.js';
-import { onAuthStateChanged, signInAnonymously } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
 import { doc, getDoc, setDoc, updateDoc, increment, serverTimestamp, addDoc, collection } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+import { NeuralDebugger } from './neural-debugger.js';
 
 class SkillForgeCore {
     constructor() {
-        if (window._sfCore) return;
-        window._sfCore = this;
+        if (/** @type {any} */(window)._sfCore) return;
+        /** @type {any} */(window)._sfCore = this;
 
         this.db = db;
         this.auth = auth;
-        
         this.uid = null;
-        this.sessionStart = Date.now();
+        this.sessionStart = Date.now(); // Track session start for diagnostics
+        this.registryState = {}; // Exposed for debugging
         this.isTracking = false;
         this.lastPulse = Date.now();
         this.isMasterTab = false;
+        this.escalatedCodes = new Set();
+        this.originalDisplay = 'block';
+        this.engagement = { mouseMoves: 0, keystrokes: 0, startTime: Date.now() };
+        this.faults = [];
+        this.pulseInterval = null;
+        this.detectorInterval = null;
         
         // Master Tab Logic via BroadcastChannel
-        this.channel = new BroadcastChannel('sf_neural_sync');
+        this.channel = new BroadcastChannel('sf_neural_link');
         this.setupMasterTabLogic();
 
         // Content Protection: Hide content until authorized
         this.protectContent();
+        this.debugger = new NeuralDebugger(this);
     }
 
     /**
@@ -39,25 +47,34 @@ class SkillForgeCore {
         return core;
     }
 
+    /**
+     * @param {any} user
+     * @param {Function} resolve
+     */
+    async onAuthChange(user, resolve) {
+        this.uid = user ? user.uid : null;
+
+        if (this.uid) {
+            console.log(`[NeuralCore] Cloud Session Verified: ${this.uid}`);
+            await this.syncRegistryState();
+            await this.initRankEngine(); // Initialize Rank Engine
+            this.setupEngagementTracking(); // Initialize Analytics
+            this.startFaultDetector(); // Initialize Intelligent Fault Detection
+            this.revealContent();
+            resolve();
+        } else {
+            console.warn("[NeuralCore] Access Denied: No active cloud session.");
+        }
+    }
+
     async init() {
         return new Promise((resolve) => {
-            onAuthStateChanged(this.auth, async (user) => {
-                // Cloud-First Session: Rely exclusively on Firebase Auth UID
-                this.uid = user ? user.uid : null;
+            onAuthStateChanged(this.auth, (/** @type {any} */ user) => this.onAuthChange(user, resolve));
 
-                if (this.uid) {
-                    console.log(`[NeuralCore] Cloud Session Verified: ${this.uid}`);
-                    await this.syncRegistryState();
-                    this.revealContent();
-                    resolve();
-                } else {
-                    console.warn("[NeuralCore] Access Denied: No active cloud session.");
-                }
-            });
-
+            // Visibility Pulse
             document.addEventListener('visibilitychange', () => {
-                if (document.hidden) this.stopPulse();
-                else this.startPulse();
+                if (document.hidden) this.stopEngagementPulse();
+                else this.startEngagementPulse();
             });
 
             window.addEventListener('beforeunload', () => {
@@ -66,6 +83,218 @@ class SkillForgeCore {
                 this.channel.close();
             });
         });
+    }
+
+    /**
+     * RANK ENGINE: Deterministic 6-Tier Progression
+     */
+    async initRankEngine() {
+        if (!this.uid) return;
+        
+        const traineeRef = doc(this.db, 'trainees', this.uid);
+        const trackingRef = doc(this.db, 'tracking', this.uid);
+        
+        const [traineeSnap, trackingSnap] = await Promise.all([
+            getDoc(traineeRef),
+            getDoc(trackingRef)
+        ]);
+
+        if (!traineeSnap.exists()) return;
+
+        const traineeData = traineeSnap.data();
+        const trackingData = trackingSnap.exists() ? trackingSnap.data() : { academyLoginDays: 0 };
+        
+        const currentLevel = traineeData.level || 0;
+        let newLevel = currentLevel;
+
+        // TIER GATES LOGIC
+        const loginDays = trackingData.academyLoginDays || 0;
+        const examScores = traineeData.examScores || {}; // Placeholder for real exam system
+        const avgScore = traineeData.averageScore || 0;
+
+        // Tier 1: Beginner (checklist + cooldown)
+        if (currentLevel === 0 && traineeData.onboardingComplete && loginDays >= 1) {
+            newLevel = 1;
+        }
+        // Tier 2: Intermediate 1 (Exam >= 70%)
+        else if (currentLevel === 1 && (examScores.module1 || 0) >= 70) {
+            newLevel = 2;
+        }
+        // Tier 3: Intermediate 2 (Avg >= 80% + 7 days)
+        else if (currentLevel === 2 && avgScore >= 80 && loginDays >= 7) {
+            newLevel = 3;
+        }
+        // Tier 4: Intermediate 3 (Avg >= 90% + 30 days)
+        else if (currentLevel === 3 && avgScore >= 90 && loginDays >= 30) {
+            newLevel = 4;
+        }
+        // Tier 5: Advanced (Avg >= 95% + 90 days)
+        else if (currentLevel === 4 && avgScore >= 95 && loginDays >= 90) {
+            newLevel = 5;
+        }
+
+        if (newLevel > currentLevel) {
+            console.log(`[RankEngine] Promotion Eligibility Detected: Tier ${currentLevel} -> ${newLevel}`);
+            await this.promoteUser(currentLevel, newLevel);
+        }
+    }
+
+    /**
+     * @param {any} oldTier
+     * @param {any} newLevel
+     */
+    async promoteUser(oldTier, newLevel) {
+        const traineeRef = doc(this.db, 'trainees', this.uid);
+        const ledgerRef = collection(this.db, 'audit_logs');
+
+        try {
+            // 1. Update Trainee Document
+            await updateDoc(traineeRef, {
+                level: newLevel,
+                lastPromotionAt: serverTimestamp()
+            });
+
+            // 2. Write Immutable Ledger Entry
+            await addDoc(ledgerRef, {
+                userId: this.uid,
+                old_tier: oldTier,
+                new_tier: newLevel,
+                action: 'RANK_PROMOTION',
+                trigger: 'AUTOMATIC_ENGINE',
+                timestamp: serverTimestamp()
+            });
+
+            console.log(`[RankEngine] Promotion Ledger Committed: Tier ${newLevel}`);
+            
+            // Dispatch event for UI update
+            window.dispatchEvent(new CustomEvent('sf:promotion', { detail: { level: newLevel } }));
+        } catch (err) {
+            console.error("[RankEngine] Promotion Failed:", err);
+        }
+    }
+
+    /**
+     * ANALYTICS: Micro-engagement Tracking
+     */
+    setupEngagementTracking() {
+        // Reset counters for the new tracking session
+        this.engagement.mouseMoves = 0;
+        this.engagement.keystrokes = 0;
+        this.engagement.startTime = Date.now();
+
+        // Track micro-interactions
+        window.addEventListener('mousemove', () => this.engagement.mouseMoves++);
+        window.addEventListener('keydown', () => this.engagement.keystrokes++);
+        
+        this.startEngagementPulse();
+    }
+
+    startEngagementPulse() {
+        this.pulseInterval = setInterval(() => this.pulseEngagement(), 60000); // Pulse every 1 min
+    }
+
+    stopEngagementPulse() {
+        if (this.pulseInterval) clearInterval(this.pulseInterval);
+    }
+
+    async pulseEngagement() {
+        if (!this.uid) return;
+        
+        const duration = Math.floor((Date.now() - this.engagement.startTime) / 1000);
+        const score = this.calculateSatisfactionScore();
+
+        const metricsRef = doc(this.db, 'presence', this.uid);
+        await setDoc(metricsRef, {
+            lastSeen: serverTimestamp(),
+            engagementScore: score,
+            totalActiveSeconds: increment(duration)
+        }, { merge: true });
+
+        // Reset local counters for next window
+        this.engagement.startTime = Date.now();
+    }
+
+    calculateSatisfactionScore() {
+        // Simple heuristic: f(activity density)
+        const density = (this.engagement.mouseMoves + this.engagement.keystrokes) / 60;
+        return Math.min(density / 10, 1.0); // Cap at 1.0
+    }
+
+    /**
+     * INTELLIGENT FAULT DETECTION
+     */
+    startFaultDetector() {
+        if (this.detectorInterval) clearInterval(this.detectorInterval);
+        this.faults = [];
+        this.detectorInterval = setInterval(() => this.runFaultScan(), 300000); // Scan every 5 min
+        this.runFaultScan(); // Immediate initial scan
+    }
+
+    async runFaultScan() {
+        if (!this.uid) return;
+        const newFaults = [];
+
+        try {
+            // 1. Registry Data Consistency
+            const traineeRef = doc(this.db, 'trainees', this.uid);
+            const traineeSnap = await getDoc(traineeRef);
+            
+            if (!traineeSnap.exists()) {
+                newFaults.push({ type: 'CRITICAL', msg: 'Neural profile missing from registry', code: 'REG_MISSING' });
+            } else {
+                const data = traineeSnap.data();
+                if (!data.sfid) newFaults.push({ type: 'WARNING', msg: 'Permanent SFID not yet assigned', code: 'SFID_PENDING' });
+                if (data.email !== this.auth.currentUser.email) newFaults.push({ type: 'CRITICAL', msg: 'Email mismatch between Auth and Registry', code: 'EMAIL_MISMATCH' });
+            }
+
+            // 2. Track Access Verification
+            const pin = traineeSnap.exists() ? traineeSnap.data().pin : null;
+            if (pin) {
+                const accessSnap = await getDoc(doc(this.db, 'track_access', pin));
+                if (!accessSnap.exists()) newFaults.push({ type: 'WARNING', msg: 'Track Access Key invalid or purged', code: 'ACCESS_KEY_VOID' });
+            }
+
+            // 3. Escalation Path
+            const criticalFaults = newFaults.filter(f => f.type === 'CRITICAL');
+            if (criticalFaults.length > 0) {
+                await this.escalateFaults(criticalFaults);
+            }
+
+            this.faults = newFaults;
+            console.log(`[FaultDetector] Scan complete. ${newFaults.length} issues identified.`);
+        } catch (err) {
+            console.error("[FaultDetector] Neural scan interrupted:", err);
+        }
+    }
+
+    /**
+     * @param {any} faults
+     */
+    async escalateFaults(faults) {
+        const faultsRef = collection(this.db, 'system_faults');
+        try {
+            for (const fault of faults) {
+                if (this.escalatedCodes.has(fault.code)) continue;
+
+                await addDoc(faultsRef, {
+                    uid: this.uid,
+                    userName: this.registryState?.name || 'Unknown',
+                    fault: fault.msg,
+                    code: fault.code,
+                    timestamp: serverTimestamp(),
+                    status: 'reported',
+                    context: {
+                        url: window.location.href,
+                        userAgent: navigator.userAgent
+                    }
+                });
+                
+                this.escalatedCodes.add(fault.code);
+            }
+            if (faults.length > 0) console.warn(`[FaultDetector] ${faults.length} critical faults escalated to Command Center.`);
+        } catch (err) {
+            // Silently fail escalation to prevent recursion if Firestore rules are the cause
+        }
     }
 
     protectContent() {
@@ -106,6 +335,12 @@ class SkillForgeCore {
     async syncRegistryState() {
         if (!this.uid) return;
 
+        // Fetch basic registry state for debugging and global access
+        const traineeSnap = await getDoc(doc(this.db, 'trainees', this.uid));
+        if (traineeSnap.exists()) {
+            this.registryState = traineeSnap.data();
+        }
+
         const path = window.location.pathname;
         const isAcademyTrack = path.includes('/academy/') && 
                               !path.endsWith('/academy/') && 
@@ -121,10 +356,6 @@ class SkillForgeCore {
                 this.startNeuralSync();
                 this.handleAcademyActivity();
                 this.trackCurrentLesson(trackId, lessonId);
-            } else {
-                console.log("[NeuralCore] Academy track detected but no active passcode session. Tracking suspended.");
-                // Optional: Redirect to gate if session missing
-                // window.location.href = '/academy/gate.html';
             }
         } else {
             console.log("[NeuralCore] Outside Academy Scope. Neural trackers in standby.");
@@ -147,6 +378,9 @@ class SkillForgeCore {
         return (academyIdx !== -1 && parts.length > academyIdx + 1) ? parts[academyIdx + 1] : null;
     }
 
+    /**
+     * @param {any} trackId
+     */
     verifyPasscodeSession(trackId) {
         if (!trackId) return false;
         const name = `sf_gate_session_${trackId}`;
@@ -155,7 +389,7 @@ class SkillForgeCore {
         if (parts.length === 2) {
             const token = parts.pop().split(';').shift();
             try {
-                const [fingerprint, timestamp] = atob(token).split('|');
+                const [, timestamp] = atob(token).split('|');
                 return (Date.now() - parseInt(timestamp)) < 24 * 60 * 60 * 1000;
             } catch (e) { return false; }
         }
@@ -184,6 +418,10 @@ class SkillForgeCore {
         }
     }
 
+    /**
+     * @param {any} track
+     * @param {any} lesson
+     */
     async trackCurrentLesson(track, lesson) {
         if (!this.uid || !lesson || lesson === track) return;
 
@@ -273,7 +511,7 @@ class SkillForgeCore {
         const currentHour = now_date.getHours();
         
         const startOfYear = new Date(now_date.getFullYear(), 0, 1);
-        const pastDaysOfYear = (now_date - startOfYear) / 86400000;
+        const pastDaysOfYear = (now_date.getTime() - startOfYear.getTime()) / 86400000;
         const weekNumber = Math.ceil((pastDaysOfYear + startOfYear.getDay() + 1) / 7);
         const weekKey = `${now_date.getFullYear()}-W${weekNumber}`;
 
@@ -329,6 +567,9 @@ class SkillForgeCore {
         }
     }
 
+    /**
+     * @param {any} ref
+     */
     async checkTierUpgrade(ref) {
         const snap = await getDoc(ref);
         if (!snap.exists()) return;
@@ -352,6 +593,10 @@ class SkillForgeCore {
         }
     }
 
+    /**
+     * @param {any} level
+     * @param {any} tier
+     */
     showMilestoneModal(level, tier) {
         if (document.getElementById('milestone-modal')) return;
         const modalHtml = `
@@ -373,6 +618,9 @@ class SkillForgeCore {
         document.body.insertAdjacentHTML('beforeend', modalHtml);
     }
 
+    /**
+     * @param {any} data
+     */
     checkBirthday(data) {
         if (!data.dob) return;
         const today = new Date();
@@ -382,6 +630,9 @@ class SkillForgeCore {
         }
     }
 
+    /**
+     * @param {any} name
+     */
     showBirthdayModal(name) {
         if (document.getElementById('birthday-modal')) return;
         const modalHtml = `
@@ -401,7 +652,7 @@ class SkillForgeCore {
 
 // Initialize via static factory method
 SkillForgeCore.start().then(core => {
-    window.sfCore = core;
+    /** @type {any} */(window).sfCore = core;
 });
 
 export default SkillForgeCore;

@@ -1,7 +1,7 @@
 const CANVAS_ID = 'gold-dust';
 
 function ensureCanvas() {
-  let c = document.getElementById(CANVAS_ID);
+  let c = /** @type {HTMLCanvasElement|null} */ (document.getElementById(CANVAS_ID));
   if (!c) {
     c = document.createElement('canvas');
     c.id = CANVAS_ID;
@@ -14,6 +14,9 @@ function ensureCanvas() {
   return c;
 }
 
+/**
+ * @param {string} hex
+ */
 function hexToRgb(hex) {
   const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return m ? { r: parseInt(m[1], 16), g: parseInt(m[2], 16), b: parseInt(m[3], 16) } : { r: 245, g: 158, b: 11 };
@@ -30,10 +33,13 @@ function getAccentColor() {
   return hexToRgb(hex);
 }
 
-class DailyAtmosphere {
+export class DailyAtmosphere {
   constructor() {
+    if (window['_dailyAtmosphere']) return;
+    window['_dailyAtmosphere'] = this;
+
     this.canvas = ensureCanvas();
-    this.ctx = this.canvas.getContext('2d');
+    this.ctx = this.canvas ? this.canvas.getContext('2d') : null;
     this.day = new Date().getDay();
     this.particles = [];
     // Default to true, settings should be fetched from Firestore via themeManager or similar
@@ -216,7 +222,5 @@ class DailyAtmosphere {
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  window.dailyAtmosphere = new DailyAtmosphere();
-});
+window['dailyAtmosphere'] = new DailyAtmosphere();
 

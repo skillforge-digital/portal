@@ -1,11 +1,11 @@
 import { db, auth } from './firebase-config.js';
-import { doc, getDoc, setDoc, updateDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
-import { onAuthStateChanged, signInAnonymously } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+import { doc, updateDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
 
 class ThemeManager {
     constructor() {
-        if (window._sfThemeManager) return;
-        window._sfThemeManager = this;
+        if (/** @type {any} */(window)._sfThemeManager) return;
+        /** @type {any} */(window)._sfThemeManager = this;
         
         this.uid = null;
         this.currentTheme = { type: 'solid-pair', primary: '#040810', secondary: '#f59e0b' };
@@ -35,14 +35,14 @@ class ThemeManager {
         this.init();
         
         // Zero-Refresh Engine (PJAX) Integration
-        window.addEventListener('sf:turbo-render', (e) => {
+        window.addEventListener('sf:turbo-render', () => {
             console.log(`[ThemeManager] Neural Re-Sync: Performing Layout Hydration`);
             this.applyTheme(this.currentTheme);
             this.applyControls(this.controls);
         });
 
         // Event listener for theme updates from Customize page
-        window.addEventListener('sf:theme_updated', (e) => {
+        window.addEventListener('sf:theme_updated', (/** @type {any} */ e) => {
             if (e.detail) {
                 this.currentTheme = e.detail;
                 this.applyTheme(e.detail);
@@ -54,7 +54,7 @@ class ThemeManager {
         this.applyTheme(this.currentTheme);
         this.applyControls(this.controls);
 
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, (/** @type {any} */ user) => {
             const isProtectedPage = window.location.pathname.includes('trainee-dashboard');
             const isAuthPage = window.location.pathname.includes('login') || window.location.pathname.includes('registration');
 
@@ -79,7 +79,7 @@ class ThemeManager {
         
         console.log('ThemeManager: Syncing with registry using identity:', this.uid);
         
-        onSnapshot(doc(db, 'trainees', this.uid), (docSnap) => {
+        onSnapshot(doc(db, 'trainees', this.uid), (/** @type {any} */ docSnap) => {
             console.log('ThemeManager: Received registry snapshot update');
             if (docSnap.exists()) {
                 const data = docSnap.data();
@@ -111,17 +111,17 @@ class ThemeManager {
                     window.location.href = '../trainee-login/?error=stale_session';
                 }
             }
-        }, (err) => {
+        }, (/** @type {any} */ err) => {
             console.error('ThemeManager Snapshot failed:', err);
         });
     }
 
-    applyFont(fontFamily) {
+    applyFont(/** @type {any} */ fontFamily) {
         if (!fontFamily) return;
         document.documentElement.style.setProperty('--font-main', fontFamily);
     }
 
-    applyTheme(theme) {
+    applyTheme(/** @type {any} */ theme) {
         if (!theme || Object.keys(theme).length === 0) {
             theme = { type: 'solid-pair', primary: '#040810', secondary: '#f59e0b' };
         }
@@ -131,17 +131,19 @@ class ThemeManager {
         
         this.currentTheme = theme;
 
-        const hexToRgb = (hex) => {
+        const hexToRgb = (/** @type {any} */ hex) => {
+            if (!hex || typeof hex !== 'string') return '245, 158, 11';
             const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
             return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '245, 158, 11';
         };
-        const hexToLum = (hex) => {
+        const hexToLum = (/** @type {any} */ hex) => {
+            if (!hex || typeof hex !== 'string') return 0.2;
             const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
             if (!m) return 0.2;
             const srgb = [parseInt(m[1],16)/255, parseInt(m[2],16)/255, parseInt(m[3],16)/255].map(v => v<=0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4));
             return 0.2126*srgb[0]+0.7152*srgb[1]+0.0722*srgb[2];
         };
-        const autoContrast = (bgHex) => {
+        const autoContrast = (/** @type {any} */ bgHex) => {
             if (this.controls.light) return;
             const lum = hexToLum(bgHex);
             if (lum > 0.6) {
@@ -198,20 +200,20 @@ class ThemeManager {
         }
 
         if (theme.layout && (window.location.pathname.endsWith('trainee-dashboard/') || window.location.pathname.endsWith('trainee-dashboard/index.html'))) {
-            if (typeof window.showLayout === 'function') {
-                window.showLayout(theme.layout);
+            if (typeof (/** @type {any} */(window)).showLayout === 'function') {
+                (/** @type {any} */(window)).showLayout(theme.layout);
             }
         }
     }
 
-    applyControls(controls) {
+    applyControls(/** @type {any} */ controls) {
         const body = document.body;
         controls.glow ? body.classList.add('glow-mode') : body.classList.remove('glow-mode');
         controls.light ? body.classList.add('light') : body.classList.remove('light');
         controls.performance ? body.classList.add('perf-mode') : body.classList.remove('perf-mode');
     }
 
-    applyWallpaper(url) {
+    applyWallpaper(/** @type {any} */ url) {
         if (!url) {
             document.body.style.backgroundImage = '';
             return;
@@ -223,7 +225,7 @@ class ThemeManager {
         if (!this.controls.light) document.body.classList.remove('light');
     }
 
-    async saveLayout(layoutNum, source = 'LAYOUT_ENGINE') {
+    async saveLayout(/** @type {any} */ layoutNum) {
         if (!this.uid) return;
         try {
             const themeUpdate = { ...this.currentTheme, layout: layoutNum };
@@ -231,7 +233,7 @@ class ThemeManager {
             this.currentTheme = themeUpdate;
             this.applyTheme(themeUpdate);
             return true;
-        } catch (err) {
+        } catch (/** @type {any} */ err) {
             console.error('Layout Save Failed:', err);
             return false;
         }
@@ -239,4 +241,5 @@ class ThemeManager {
 }
 
 export const themeManager = new ThemeManager();
-window.themeManager = themeManager;
+/** @type {any} */(window).themeManager = themeManager;
+/** @type {any} */(window).showLayout = (/** @type {any} */ l) => themeManager.saveLayout(l);

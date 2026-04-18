@@ -1,4 +1,4 @@
-﻿﻿/**
+﻿﻿﻿﻿﻿﻿﻿﻿﻿/**
  * SkillForge Digital Error Reporter
  * Captures global errors and provides a way for users to report issues.
  */
@@ -165,11 +165,57 @@
   const copyBtn = document.getElementById('sf-copy-error');
   const closeBtn = document.getElementById('sf-close-error');
 
+  // NEURAL CONTEXT CAPTURE
+  const actionBuffer = [];
+  const maxActions = 10;
+
+  function captureAction(type, target, details = {}) {
+    actionBuffer.push({
+      timestamp: new Date().toLocaleTimeString(),
+      type,
+      target: target ? (target.tagName + (target.id ? `#${target.id}` : '') + (target.className ? `.${target.className.split(' ')[0]}` : '')) : 'unknown',
+      details
+    });
+    if (actionBuffer.length > maxActions) actionBuffer.shift();
+  }
+
+  // Click Tracker
+  document.addEventListener('click', (e) => {
+    const target = e.target;
+    const text = target instanceof HTMLElement ? target.innerText?.substring(0, 20) : '';
+    captureAction('CLICK', target, { text });
+  }, true);
+
+  // Form Submission Tracker
+  document.addEventListener('submit', (e) => {
+    const target = e.target;
+    const action = target instanceof HTMLFormElement ? target.action : '';
+    captureAction('SUBMIT', target, { action });
+  }, true);
+
+  // Navigation Tracker
+  let lastPath = window.location.pathname;
+  setInterval(() => {
+    if (window.location.pathname !== lastPath) {
+      captureAction('NAVIGATE', null, { from: lastPath, to: window.location.pathname });
+      lastPath = window.location.pathname;
+    }
+  }, 1000);
+
+  function getReproductionSteps() {
+    return actionBuffer.map((a, i) => `${i + 1}. [${a.timestamp}] ${a.type} on ${a.target} ${JSON.stringify(a.details)}`).join('\n');
+  }
+
   function showErrorReport(errorMsg, stack = "", isCritical = false) {
     const timestamp = new Date().toISOString();
     const url = window.location.href;
     const userAgent = navigator.userAgent;
-    const uid = (window.auth && window.auth.currentUser) ? window.auth.currentUser.uid : 'Anonymous';
+    
+    // Support for both window.auth and direct auth imports
+    const authInstance = window['auth'] || (window['_sfCore'] ? window['_sfCore'].auth : null);
+    const uid = (authInstance && authInstance.currentUser) ? authInstance.currentUser.uid : 'Anonymous';
+    
+    const reproduction = getReproductionSteps();
     
     // Clean up the error message for the title
     let displayTitle = "System Anomaly Detected";
@@ -186,14 +232,21 @@
       displayDesc = "Your identity could not be verified. Please return to the login center to restore your session.";
     }
 
-    const debugData = `--- SKILLFORGE DEBUG REPORT ---
+    const debugData = `--- SKILLFORGE NEURAL DIAGNOSTIC ---
 Timestamp: ${timestamp}
 URL: ${url}
 User ID: ${uid}
 Message: ${errorMsg}
-Stack: ${stack}
+
+[REPRODUCTION STEPS]
+${reproduction}
+
+[STACK TRACE]
+${stack}
+
+[SYSTEM]
 UA: ${userAgent}
-------------------------------`;
+-----------------------------------`;
 
     console.error(`[SkillForge Error] ${errorMsg}`, stack);
 
@@ -240,7 +293,7 @@ UA: ${userAgent}
   };
 
   // Export to window for manual calls
-  window.sf_report_error = showErrorReport;
+  window['sf_report_error'] = showErrorReport;
   console.log("🛠️ SkillForge Error Reporter Initialized");
 })();
 

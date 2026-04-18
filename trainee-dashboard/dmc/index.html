@@ -41,8 +41,8 @@ tailwind.config = {
   * { font-family: var(--font-main); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
   body { background: #040810; min-height: 100dvh; display: flex; flex-direction: column; overflow-x: hidden; }
   
-  .glass { background: rgba(12, 24, 50, 0.55); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
-  .glass-strong { background: rgba(12, 24, 50, 0.75); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.1); }
+  .glass { background: rgba(12, 24, 50, 0.55); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
+    .glass-strong { background: rgba(12, 24, 50, 0.85); -webkit-backdrop-filter: blur(30px); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.1); }
   .sidebar-link.active { background: rgba(var(--accent-color-rgb), 0.1); color: var(--card-accent); border-right: 3px solid var(--card-accent); }
 
   /* Redesigned Membership Card - Half Top Photo */
@@ -126,14 +126,32 @@ tailwind.config = {
   }
 
   .profile-name-target {
-    line-height: 1.1;
+    line-height: 0.9;
     margin-bottom: 0.25rem;
-    word-break: break-word;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    word-break: break-all; /* Ensure long tokens don't overflow */
+    white-space: nowrap; /* Start with nowrap for auto-scaling calculation */
+    font-size: 2.25rem; /* Base size 36px */
+    display: block;
+    width: 100%;
+    overflow: visible;
+  }
+
+  /* Stacking Context Hardening */
+  .membership-card {
+    isolation: isolate;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  
+  .card-details-section {
+    contain: layout style;
+  }
+
+  /* Vector Sharpness for Export */
+  canvas {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
   }
 
   .color-swatch {
@@ -403,16 +421,53 @@ function applyCardTheme(theme, isManual = true) {
 
 function updateUI() {
   if (!traineeData) return;
-  document.querySelectorAll('.profile-name-target').forEach(el => el.innerText = traineeData.name);
+  
+  // New Deterministic 6-Tier Ladder
+  const TIER_MAP = {
+    0: 'Trainee',
+    1: 'Beginner',
+    2: 'Intermediate 1',
+    3: 'Intermediate 2',
+    4: 'Intermediate 3',
+    5: 'Advanced'
+  };
+  
+  const currentTier = traineeData.level || 0;
+  const tierLabel = TIER_MAP[currentTier] || 'Trainee';
+  
+  document.querySelectorAll('.profile-name-target').forEach(el => {
+    el.innerText = traineeData.name;
+    adjustFontSize(el);
+  });
+  
   document.querySelectorAll('.profile-sfid-target').forEach(el => el.innerText = traineeData.sfid || 'SFID-26-XXX');
   document.querySelectorAll('.profile-track-target').forEach(el => el.innerText = traineeData.track || 'Academy Trainee');
   document.querySelectorAll('.gender-target').forEach(el => el.innerText = traineeData.gender || 'Set Gender');
+  document.querySelectorAll('.tier-target').forEach(el => el.innerText = tierLabel);
   
   let avatarUrl = traineeData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${traineeData.name}`;
   if (avatarUrl.includes('supabase.co')) {
     avatarUrl = `https://res.cloudinary.com/db8pknwmz/image/fetch/f_auto,q_auto,w_800/${encodeURIComponent(avatarUrl)}`;
   }
   if (!pendingAvatar) document.getElementById('dmc-avatar-target').src = avatarUrl;
+}
+
+function adjustFontSize(el) {
+  const container = el.parentElement;
+  let fontSize = 36; // Initial 2.25rem in px
+  el.style.fontSize = fontSize + 'px';
+  
+  // Auto-scale down to 6pt (8px)
+  while (el.scrollWidth > container.offsetWidth && fontSize > 8) {
+    fontSize -= 1;
+    el.style.fontSize = fontSize + 'px';
+  }
+  
+  // If still overflowing, allow wrapping or ellipsis
+  if (el.scrollWidth > container.offsetWidth) {
+    el.style.whiteSpace = 'normal';
+    el.style.lineHeight = '1';
+  }
 }
 
 window.saveCard = async () => {
@@ -447,34 +502,45 @@ window.saveCard = async () => {
 window.downloadCard = async () => {
   const btn = document.querySelector('button[onclick="downloadCard()"]');
   const originalText = btn.innerHTML;
-  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Rendering...';
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Forging High-Res Identity...';
   
   const card = document.getElementById('membership-card');
   const img = document.getElementById('dmc-avatar-target');
   
-  // Force CORS for proxy if using supabase/external
-  if (img.src.includes('supabase.co') && !img.src.includes('cloudinary')) {
-    img.src = `https://res.cloudinary.com/db8pknwmz/image/fetch/f_auto,q_auto,w_800/${encodeURIComponent(img.src)}`;
-  }
-  
-  // Small delay to ensure proxy is loaded
-  await new Promise(r => setTimeout(r, 500));
+  // Stacking Context & Rendering Hardening
+  const options = {
+    scale: 4, // ~300 DPI equivalent
+    useCORS: true,
+    allowTaint: false,
+    backgroundColor: null,
+    logging: false,
+    onclone: (clonedDoc) => {
+      const clonedCard = clonedDoc.getElementById('membership-card');
+      clonedCard.style.transform = 'none';
+      clonedCard.style.boxShadow = 'none';
+      clonedCard.style.border = 'none'; // Clean edge for export
+      
+      // Ensure fonts are applied in the clone
+      clonedDoc.fonts.ready.then(() => {
+        console.log("Fonts ready for clone rendering");
+      });
+    }
+  };
 
   try {
-    const canvas = await html2canvas(card, { 
-      scale: 3, 
-      useCORS: true, 
-      allowTaint: false,
-      backgroundColor: null,
-      logging: false
-    });
-    const link = document.createElement('a');
-    link.download = `SkillForge_DMC_${(traineeData.name || 'Trainee').replace(/\s+/g, '_')}.png`;
-    link.href = canvas.toDataURL('image/png', 1.0);
-    link.click();
+    // Wait for images to be fully ready
+    if (img.complete) {
+      const canvas = await html2canvas(card, options);
+      const link = document.createElement('a');
+      link.download = `SkillForge_DMC_${(traineeData.name || 'Trainee').replace(/\s+/g, '_')}.png`;
+      link.href = canvas.toDataURL('image/png', 1.0);
+      link.click();
+    } else {
+      throw new Error("Neural Profile Photo not yet fully synchronized.");
+    }
   } catch (err) {
     console.error("Export Error:", err);
-    alert("Export failed. Please try 'Commit Changes' first to sync your photo to our 4K relay.");
+    alert("Export failed: " + err.message);
   } finally {
     btn.innerHTML = originalText;
   }

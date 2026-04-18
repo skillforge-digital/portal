@@ -1,9 +1,29 @@
-﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+﻿﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SkillForge — Design Studio</title>
+<meta name="description" content="Personalize your SkillForge experience. Customize colors, wallpapers, and typography in the Design Studio.">
+<meta name="keywords" content="SkillForge, Design Studio, Personalization, Dashboard, Theme, Typography">
+<meta name="author" content="SkillForge Digital & Co. Ltd">
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://skillforge.com/trainee-dashboard/customize/">
+<meta property="og:title" content="SkillForge — Design Studio">
+<meta property="og:description" content="Personalize your SkillForge experience. Customize colors, wallpapers, and typography in the Design Studio.">
+<meta property="og:image" content="https://files.fm/thumb_show.php?i=sebxcfvhb7">
+
+<!-- Twitter -->
+<meta property="twitter:card" content="summary_large_image">
+<meta property="twitter:url" content="https://skillforge.com/trainee-dashboard/customize/">
+<meta property="twitter:title" content="SkillForge — Design Studio">
+<meta property="twitter:description" content="Personalize your SkillForge experience. Customize colors, wallpapers, and typography in the Design Studio.">
+<meta property="twitter:image" content="https://files.fm/thumb_show.php?i=sebxcfvhb7">
+
+<!-- Favicon -->
+<link rel="icon" type="image/png" href="https://files.fm/thumb_show.php?i=sebxcfvhb7">
 <script>
   // Immediate UI Preparation - Hide content until Neural Core is ready
   (function() {
@@ -29,8 +49,8 @@ tailwind.config = {
   :root { --font-main: 'Space Grotesk', sans-serif; --accent-color: #f59e0b; --accent-color-rgb: 245, 158, 11; }
   * { font-family: var(--font-main); transition: all 0.3s ease; }
   body { background: #040810; color: white; min-height: 100dvh; display: flex; flex-direction: column; overflow-x: hidden; }
-  .glass { background: rgba(12, 24, 50, 0.55); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
-  .glass-strong { background: rgba(12, 24, 50, 0.75); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.1); }
+  .glass { background: rgba(12, 24, 50, 0.55); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
+  .glass-strong { background: rgba(12, 24, 50, 0.75); -webkit-backdrop-filter: blur(30px); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.1); }
   .sidebar-link.active { background: rgba(var(--accent-color-rgb), 0.1); color: var(--accent-color); border-right: 3px solid var(--accent-color); }
   
   .swatch { width: 100%; aspect-ratio: 1; border-radius: 20px; cursor: pointer; border: 2px solid transparent; position: relative; overflow: visible; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
@@ -73,9 +93,9 @@ tailwind.config = {
 <!-- Mobile Header -->
 <div class="md:hidden h-20 px-6 flex items-center justify-between glass sticky top-0 z-[100] border-b border-white/5">
   <div class="flex items-center gap-3">
-    <a href="/" class="flex items-center gap-3 group">
+    <a href="/" class="flex items-center gap-3 group" aria-label="SkillForge Home">
       <div class="w-8 h-8 rounded-lg bg-black flex items-center justify-center border border-gold-500/30 group-hover:border-gold transition-all overflow-hidden">
-        <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" class="w-full h-full object-cover">
+        <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" class="w-full h-full object-cover" alt="SkillForge Logo">
       </div>
       <div class="flex flex-col leading-none">
         <span class="font-black text-sm tracking-tighter uppercase group-hover:text-gold transition-all">SkillForge</span>
@@ -83,15 +103,15 @@ tailwind.config = {
       </div>
     </a>
   </div>
-  <button onclick="toggleSidebar()" class="p-2 text-white/50 hover:text-white transition-all"><i class="fa-solid fa-bars-staggered text-xl"></i></button>
+  <button type="button" onclick="toggleSidebar()" class="p-2 text-white/50 hover:text-white transition-all" aria-label="Toggle Navigation Menu"><i class="fa-solid fa-bars-staggered text-xl"></i></button>
 </div>
 
-<aside id="main-sidebar" class="w-72 glass-strong border-r border-white/5 flex flex-col fixed inset-y-0 z-50 transition-all duration-500 -translate-x-full md:translate-x-0">
+<aside id="main-sidebar" class="w-72 glass-strong border-r border-white/5 flex flex-col fixed inset-y-0 z-50 transition-all duration-500 -translate-x-full md:translate-x-0" aria-label="Main Sidebar Navigation">
   <div class="p-8 flex-1 overflow-y-auto custom-scrollbar">
     <div class="flex items-center gap-3 mb-10">
-      <a href="/" class="flex items-center gap-3 group">
+      <a href="/" class="flex items-center gap-3 group" aria-label="SkillForge Home">
         <div class="w-10 h-10 rounded-xl bg-black flex items-center justify-center border border-gold-500/30 group-hover:border-gold transition-all overflow-hidden">
-          <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" class="w-full h-full object-cover">
+          <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" class="w-full h-full object-cover" alt="SkillForge Logo">
         </div>
         <div class="flex flex-col leading-none">
           <span class="font-black text-sm tracking-tighter uppercase group-hover:text-gold transition-all">SkillForge</span>
@@ -101,11 +121,11 @@ tailwind.config = {
     </div>
     <nav class="space-y-1">
       <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Academy Hub</p>
-      <a href="../" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-layer-group w-4"></i> Overview</a>
-      <a href="../dmc/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-id-card w-4"></i> Membership Card</a>
-      <a href="../leaderboard/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-ranking-star w-4"></i> Hall of Fame</a>
-      <a href="../vault/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-vault w-4"></i> The Vault</a>
-      <a href="./" class="sidebar-link active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest"><i class="fa-solid fa-wand-magic-sparkles w-4"></i> Customize</a>
+      <a href="../" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white" aria-label="Academy Overview"><i class="fa-solid fa-layer-group w-4"></i> Overview</a>
+      <a href="../dmc/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white" aria-label="Membership Card"><i class="fa-solid fa-id-card w-4"></i> Membership Card</a>
+      <a href="../leaderboard/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white" aria-label="Leaderboard Hall of Fame"><i class="fa-solid fa-ranking-star w-4"></i> Hall of Fame</a>
+      <a href="../vault/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white" aria-label="Vault Resources"><i class="fa-solid fa-vault w-4"></i> The Vault</a>
+      <a href="./" class="sidebar-link active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest" aria-label="Customize Design Studio" aria-current="page"><i class="fa-solid fa-wand-magic-sparkles w-4"></i> Customize</a>
     </nav>
   </div>
 </aside>
@@ -117,46 +137,46 @@ tailwind.config = {
         <p class="text-gold-400 text-sm font-medium tracking-widest uppercase">Atmosphere Control</p>
         <h1 class="text-4xl md:text-6xl font-black mt-1 uppercase tracking-tighter">Design Studio</h1>
       </div>
-      <div class="flex gap-2 p-1.5 glass rounded-[24px]">
-        <button onclick="setTab('colors')" id="tab-colors" class="tab-btn active">Colors</button>
-        <button onclick="setTab('wallpapers')" id="tab-wallpapers" class="tab-btn">Wallpapers</button>
-        <button onclick="setTab('fonts')" id="tab-fonts" class="tab-btn">Fonts</button>
+      <div class="flex gap-2 p-1.5 glass rounded-[24px]" role="tablist">
+        <button type="button" onclick="setTab('colors')" id="tab-colors" class="tab-btn active" role="tab" aria-selected="true" aria-controls="section-colors">Colors</button>
+        <button type="button" onclick="setTab('wallpapers')" id="tab-wallpapers" class="tab-btn" role="tab" aria-selected="false" aria-controls="section-wallpapers">Wallpapers</button>
+        <button type="button" onclick="setTab('fonts')" id="tab-fonts" class="tab-btn" role="tab" aria-selected="false" aria-controls="section-fonts">Fonts</button>
       </div>
     </header>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
       <div class="lg:col-span-2 space-y-16">
         <!-- Colors Tab -->
-        <section id="section-colors" class="space-y-12">
+        <section id="section-colors" class="space-y-12" role="tabpanel" aria-labelledby="tab-colors">
           <div class="space-y-8">
             <div class="flex items-center justify-between">
               <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">35 Premium Dual Color Masters</h2>
               <span class="text-[8px] font-bold text-gold-500 bg-gold-500/10 px-3 py-1 rounded-full uppercase">Solid Pairs</span>
             </div>
-            <div class="grid grid-cols-4 md:grid-cols-7 gap-5" id="dual-grid"></div>
+            <div class="grid grid-cols-4 md:grid-cols-7 gap-5" id="dual-grid" aria-label="Dual Color Selection"></div>
           </div>
           <div class="space-y-8">
             <div class="flex items-center justify-between">
               <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">Atmospheric Neural Gradients</h2>
               <span class="text-[8px] font-bold text-gold-500 bg-gold-500/10 px-3 py-1 rounded-full uppercase">Gradients</span>
             </div>
-            <div class="grid grid-cols-3 md:grid-cols-5 gap-5" id="gradient-grid"></div>
+            <div class="grid grid-cols-3 md:grid-cols-5 gap-5" id="gradient-grid" aria-label="Gradient Selection"></div>
           </div>
         </section>
 
         <!-- Wallpapers Tab -->
-        <section id="section-wallpapers" class="hidden space-y-12">
+        <section id="section-wallpapers" class="hidden space-y-12" role="tabpanel" aria-labelledby="tab-wallpapers">
           <div class="space-y-8">
             <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">20+ Premium Motion Atmosphere</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="wallpaper-grid"></div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="wallpaper-grid" aria-label="Wallpaper Selection"></div>
           </div>
         </section>
 
         <!-- Fonts Tab -->
-        <section id="section-fonts" class="hidden space-y-12">
+        <section id="section-fonts" class="hidden space-y-12" role="tabpanel" aria-labelledby="tab-fonts">
           <div class="space-y-8">
             <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">15 Premium Neural Typography</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="font-grid"></div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="font-grid" aria-label="Font Selection"></div>
           </div>
         </section>
       </div>
@@ -187,7 +207,7 @@ tailwind.config = {
                 <span class="text-[10px] font-black uppercase tracking-widest text-white/60">7-Day Dynamic Canvas</span>
                 <span class="text-[8px] font-bold text-white/20 uppercase mt-1">Automatic Daily Updates</span>
               </div>
-              <button id="canvas-toggle" class="w-14 h-7 rounded-full bg-white/10 relative transition-all pointer-events-none">
+              <button type="button" id="canvas-toggle" class="w-14 h-7 rounded-full bg-white/10 relative transition-all pointer-events-none" aria-label="Toggle Dynamic Canvas">
                 <div class="absolute top-1 left-1 w-5 h-5 rounded-full bg-white transition-all shadow-lg"></div>
               </button>
             </div>
@@ -205,10 +225,10 @@ tailwind.config = {
           </div>
 
           <div class="grid grid-cols-1 gap-4">
-            <button onclick="saveDesign()" id="save-btn" class="w-full bg-gold-500 text-navy-950 py-7 rounded-[32px] font-black uppercase text-[11px] tracking-[0.4em] shadow-4K hover:bg-white hover:scale-[1.02] active:scale-[0.98] transition-all">
+            <button type="button" onclick="saveDesign()" id="save-btn" class="w-full bg-gold-500 text-navy-950 py-7 rounded-[32px] font-black uppercase text-[11px] tracking-[0.4em] shadow-4K hover:bg-white hover:scale-[1.02] active:scale-[0.98] transition-all">
               Save Atmosphere Matrix
             </button>
-            <button onclick="restoreDefaults()" class="w-full py-4 rounded-2xl bg-white/5 text-white/20 text-[9px] font-black uppercase tracking-widest hover:text-red-400 hover:bg-red-400/10 transition-all border border-white/5">
+            <button type="button" onclick="restoreDefaults()" class="w-full py-4 rounded-2xl bg-white/5 text-white/20 text-[9px] font-black uppercase tracking-widest hover:text-red-400 hover:bg-red-400/10 transition-all border border-white/5">
               Restore Default State
             </button>
           </div>
@@ -284,16 +304,21 @@ function init() {
   const dGrid = document.getElementById('dual-grid');
   if (dGrid) {
     dGrid.innerHTML = '';
-    dualColors.forEach(d => {
+    dualColors.forEach((d, idx) => {
       const sw = document.createElement('div');
       sw.className = 'swatch';
+      sw.setAttribute('role', 'button');
+      sw.setAttribute('tabindex', '0');
+      sw.setAttribute('aria-label', `Color Pair ${idx + 1}: ${d.p} and ${d.s}`);
       sw.innerHTML = `<div class="dual-inner"><div class="dual-1" style="background:${d.p}"></div><div class="dual-2" style="background:${d.s}"></div></div>`;
-      sw.onclick = () => { 
+      const select = () => { 
           currentDesign.primary = d.p; 
           currentDesign.secondary = d.s; 
           currentDesign.type = 'solid-pair'; 
           updatePreview(); 
       };
+      sw.onclick = select;
+      sw.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') select(); };
       dGrid.appendChild(sw);
     });
   }
@@ -301,16 +326,21 @@ function init() {
   const gGrid = document.getElementById('gradient-grid');
   if (gGrid) {
     gGrid.innerHTML = '';
-    gradients.forEach(g => {
+    gradients.forEach((g, idx) => {
       const sw = document.createElement('div');
       sw.className = 'swatch';
+      sw.setAttribute('role', 'button');
+      sw.setAttribute('tabindex', '0');
+      sw.setAttribute('aria-label', `Gradient ${idx + 1}: ${g.c1} to ${g.c2}`);
       sw.style.background = `linear-gradient(135deg, ${g.c1}, ${g.c2})`;
-      sw.onclick = () => { 
+      const select = () => { 
           currentDesign.c1 = g.c1; 
           currentDesign.c2 = g.c2; 
           currentDesign.type = 'gradient'; 
           updatePreview(); 
       };
+      sw.onclick = select;
+      sw.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') select(); };
       gGrid.appendChild(sw);
     });
   }
@@ -318,15 +348,20 @@ function init() {
   const wGrid = document.getElementById('wallpaper-grid');
   if (wGrid) {
     wGrid.innerHTML = '';
-    wallpapers.forEach(w => {
+    wallpapers.forEach((w, idx) => {
       const sw = document.createElement('div');
       sw.className = 'wallpaper-swatch';
+      sw.setAttribute('role', 'button');
+      sw.setAttribute('tabindex', '0');
+      sw.setAttribute('aria-label', `Wallpaper ${idx + 1}`);
       sw.style.backgroundImage = `url(${w})`;
-      sw.onclick = () => { 
+      const select = () => { 
           currentDesign.wallpaper = w; 
           currentDesign.type = 'wallpaper'; 
           updatePreview(); 
       };
+      sw.onclick = select;
+      sw.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') select(); };
       wGrid.appendChild(sw);
     });
   }
@@ -337,13 +372,18 @@ function init() {
     themeManager.fonts.forEach(f => {
       const card = document.createElement('div');
       card.className = 'font-card';
+      card.setAttribute('role', 'button');
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('aria-label', `Font: ${f.name}`);
       card.style.fontFamily = f.family;
       card.innerHTML = `<p class="text-[8px] font-black uppercase tracking-widest text-white/30 mb-2">${f.name}</p><p class="text-xl font-bold">Neural Typography</p>`;
-      card.onclick = () => {
+      const select = () => {
           currentDesign.fontFamily = f.family;
           currentDesign.fontName = f.name;
           updatePreview();
       };
+      card.onclick = select;
+      card.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') select(); };
       fGrid.appendChild(card);
     });
   }
@@ -438,8 +478,13 @@ function updatePreview() {
 
 window.setTab = (tab) => {
   ['colors', 'wallpapers', 'fonts'].forEach(t => {
-    document.getElementById(`section-${t}`).classList.toggle('hidden', t !== tab);
-    document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
+    const section = document.getElementById(`section-${t}`);
+    const tabBtn = document.getElementById(`tab-${t}`);
+    if (section) section.classList.toggle('hidden', t !== tab);
+    if (tabBtn) {
+      tabBtn.classList.toggle('active', t === tab);
+      tabBtn.setAttribute('aria-selected', t === tab ? 'true' : 'false');
+    }
   });
 };
 
