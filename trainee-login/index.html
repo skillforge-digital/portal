@@ -9,6 +9,10 @@
     // Immediate UI Preparation - Hide content until cloud session is verified
     (function() {
       document.documentElement.style.visibility = 'hidden';
+      // Failsafe: reveal content after 3 seconds regardless of script status
+      setTimeout(() => {
+        document.documentElement.style.visibility = 'visible';
+      }, 3000);
     })();
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -303,7 +307,9 @@
     if (window.lucide) window.lucide.createIcons();
     
     // Reveal content once the UI has been hydrated
-    // (Handled by window.load listener at the bottom of body)
+    window.addEventListener('load', () => {
+      document.documentElement.style.visibility = 'visible';
+    });
 </script>
   <script type="module">
     import { themeManager } from '../assets/theme-manager.js';

@@ -8,6 +8,10 @@
   // Immediate UI Preparation - Hide content until Neural Core is ready
   (function() {
     document.documentElement.style.visibility = 'hidden';
+    // Failsafe: reveal content after 3 seconds regardless of script status
+    setTimeout(() => {
+      document.documentElement.style.visibility = 'visible';
+    }, 3000);
   })();
 </script>
 <script src="https://cdn.tailwindcss.com"></script>

@@ -5,16 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SkillForge Digital — Academy Center</title>
 <script>
-  // Immediate UI Preparation - Hide content until Neural Core is ready
-  (function() {
-    document.documentElement.style.visibility = 'hidden';
-    window.addEventListener('DOMContentLoaded', () => {
-      // Show loading overlay if it exists
-      const loader = document.getElementById('loading-screen');
-      if (loader) loader.classList.remove('hidden');
-    });
-  })();
-</script>
+    // Immediate UI Preparation - Hide content until data is verified
+    (function() {
+      document.documentElement.style.visibility = 'hidden';
+      // Failsafe: reveal content after 3 seconds regardless of script status
+      setTimeout(() => {
+        document.documentElement.style.visibility = 'visible';
+      }, 3000);
+      window.addEventListener('DOMContentLoaded', () => {
+        // Show loading overlay if it exists
+        const loader = document.getElementById('loading-screen');
+        if (loader) loader.classList.remove('hidden');
+      });
+    })();
+  </script>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;700&family=Caveat:wght@400;700&family=Unbounded:wght@400;700&family=Inter:wght@400;700&family=Playfair+Display:wght@400;700&family=Outfit:wght@400;700&family=Syne:wght@400;700&family=Lexend:wght@400;700&family=Plus+Jakarta+Sans:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -928,6 +932,7 @@ setTimeout(() => {
   const loader = document.getElementById('loading-screen');
   if (loader && loader.style.display !== 'none') {
     console.warn("[Dashboard] Loading timeout reached. Forcing reveal...");
+    document.documentElement.style.visibility = 'visible';
     loader.style.opacity = '0';
     setTimeout(() => loader.style.display = 'none', 500);
   }
@@ -959,6 +964,10 @@ function startRegistrySync(targetUid) {
   }, (err) => {
     console.error("[Dashboard] Snapshot error:", err);
     if (window.sf_report_error) window.sf_report_error("Dashboard Registry Sync Failed", err.stack);
+    
+    // Reveal content even on error to prevent blank screen
+    document.documentElement.style.visibility = 'visible';
+    
     // Failsafe: hide loader on error
     const loader = document.getElementById('loading-screen');
     if (loader) {
@@ -1009,6 +1018,9 @@ function applyControlState(controls) {
 }
 
 function initDashboard(targetUid) {
+  // Reveal content once data is ready
+  document.documentElement.style.visibility = 'visible';
+
   const loader = document.getElementById('loading-screen');
   if (loader) {
     loader.style.opacity = '0';

@@ -54,16 +54,22 @@ class SkillForgeCore {
     async onAuthChange(user, resolve) {
         this.uid = user ? user.uid : null;
 
-        if (this.uid) {
-            console.log(`[NeuralCore] Cloud Session Verified: ${this.uid}`);
-            await this.syncRegistryState();
-            await this.initRankEngine(); // Initialize Rank Engine
-            this.setupEngagementTracking(); // Initialize Analytics
-            this.startFaultDetector(); // Initialize Intelligent Fault Detection
+        try {
+            if (this.uid) {
+                console.log(`[NeuralCore] Cloud Session Verified: ${this.uid}`);
+                await this.syncRegistryState();
+                await this.initRankEngine(); // Initialize Rank Engine
+                this.setupEngagementTracking(); // Initialize Analytics
+                this.startFaultDetector(); // Initialize Intelligent Fault Detection
+            } else {
+                console.warn("[NeuralCore] Access Denied: No active cloud session.");
+            }
+        } catch (err) {
+            console.error("[NeuralCore] Error during initialization:", err);
+            if (window.sf_report_error) window.sf_report_error("NeuralCore Init Failed", err.stack);
+        } finally {
             this.revealContent();
             resolve();
-        } else {
-            console.warn("[NeuralCore] Access Denied: No active cloud session.");
         }
     }
 

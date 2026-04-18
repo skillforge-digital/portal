@@ -9,6 +9,16 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    // Immediate UI Preparation - Hide content until modules are loaded
+    (function() {
+      document.documentElement.style.visibility = 'hidden';
+      // Failsafe: reveal content after 3 seconds regardless of script status
+      setTimeout(() => {
+        document.documentElement.style.visibility = 'visible';
+      }, 3000);
+    })();
+  </script>
 </head>
 <script>
     tailwind.config = {
@@ -605,6 +615,11 @@
     }
     new Sundust();
     if (window.lucide) window.lucide.createIcons();
+    
+    // Reveal content once the UI has been hydrated
+    window.addEventListener('load', () => {
+      document.documentElement.style.visibility = 'visible';
+    });
   </script>
   <script type="module">
         import { themeManager } from '../assets/theme-manager.js';
