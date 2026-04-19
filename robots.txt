@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+Allow: /trainee-registration/
+Allow: /trainee-login/
+Allow: /staffs/
+Allow: /staffs/login/
+Allow: /staffs/registration/
+
+# Protect Private Dashboards
+Disallow: /trainee-dashboard/
+Disallow: /director/
+Disallow: /specialist-dashboard/
+Disallow: /staffs/director/
+Disallow: /staffs/hod/
+Disallow: /staffs/specialist/
+
+Sitemap: https://portal.skillforgedigital.com.ng/sitemap.xml

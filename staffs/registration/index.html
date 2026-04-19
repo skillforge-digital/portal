@@ -201,6 +201,16 @@
         btn.disabled = true;
         btn.innerHTML = 'Onboarding Personnel...';
 
+        // Strong Password Policy: Min 8 chars, 1 uppercase, 1 lowercase, 1 digit, 1 special char
+        const strongPassRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        if (!strongPassRegex.test(password)) {
+            alert("Password Strength Violation: Must contain at least 8 characters, including uppercase, lowercase, numbers, and symbols (@$!%*?&).");
+            btn.disabled = false;
+            btn.innerHTML = 'Register Personnel <i data-lucide="save" class="w-4 h-4"></i>';
+            if (window.lucide) window.lucide.createIcons();
+            return;
+        }
+
         try {
             // 1. Create User in Auth
             const userCred = await createUserWithEmailAndPassword(auth, email, password);

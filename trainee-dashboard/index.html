@@ -1445,7 +1445,7 @@ function updateNeuralResume(data) {
 window.addEventListener('sf:turbo-render', () => {
     console.log("[Dashboard] Re-hydrating Command Center...");
     if (traineeData) {
-        initDashboard();
+        initDashboard(activeUid);
         updateNeuralResume(traineeData);
         loadNewsTicker();
     } else {

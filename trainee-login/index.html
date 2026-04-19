@@ -74,6 +74,9 @@
     </div>
 
     <main id="login-container" class="glass p-8 md:p-10 rounded-[32px] md:rounded-[40px] border-white/10">
+        <div id="network-status" class="hidden mb-6 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-2xl text-yellow-500 text-[10px] font-black uppercase tracking-widest text-center">
+            <i data-lucide="wifi-off" class="w-3 h-3 inline-block mr-2"></i> Unstable Registry Connection Detected
+        </div>
         <div id="login-error" class="hidden mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-500 text-[10px] font-black uppercase tracking-widest text-center">
             <!-- Error message injected here -->
         </div>
@@ -144,6 +147,12 @@
         if (window.lucide) window.lucide.createIcons();
     };
 
+    // Network Status Logic
+    const netEl = document.getElementById('network-status');
+    window.addEventListener('offline', () => netEl?.classList.remove('hidden'));
+    window.addEventListener('online', () => netEl?.classList.add('hidden'));
+    if (!navigator.onLine) netEl?.classList.remove('hidden');
+
     function showLoginError(msg) {
         const errEl = document.getElementById('login-error');
         if (errEl) {
@@ -160,7 +169,7 @@
     document.getElementById('login-form').onsubmit = async (e) => {
         e.preventDefault();
         const btn = document.getElementById('login-btn');
-        const emailInput = document.getElementById('email').value;
+        const emailInput = document.getElementById('email').value.trim();
         const passwordInput = document.getElementById('password').value;
         
         btn.disabled = true;
@@ -174,20 +183,20 @@
             const user = userCredential.user;
 
             console.log("[Auth] Neural core linked. Checking registry duplicates...");
-            // Step 2: Check for Duplicate Identities in Firestore
+            // Step 2: Check for Registry Desync/Duplicates
             const q = query(collection(db, "trainees"), where("email", "==", emailInput));
             const querySnap = await getDocs(q);
             
-            if (querySnap.size > 1) {
-                console.warn("[Auth] Neural Collision: Multiple registries found.");
+            const hasExactMatch = querySnap.docs.some(d => d.id === user.uid);
+
+            if (querySnap.size > 1 || (querySnap.size === 1 && !hasExactMatch)) {
+                console.warn("[Auth] Registry Desync: Multiple or mismatched records found.");
                 handleResolution(user, querySnap.docs);
                 return;
             }
 
-            // Step 3: Standard Login Flow
-            const traineeDoc = await getDoc(doc(db, "trainees", user.uid));
-
-            if (traineeDoc.exists()) {
+            // Step 3: Final Verification
+            if (hasExactMatch) {
                 console.log("[Auth] Registry entry verified. Synchronizing node...");
                 finalizeLogin(user.uid);
             } else {
@@ -198,8 +207,16 @@
         } catch (err) {
             console.error("[Auth] Connection error:", err);
             let userMsg = "Authentication failed. Verify credentials.";
-            if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') userMsg = "Invalid Email or Master Password.";
-            else if (err.code === 'auth/network-request-failed') userMsg = "Registry Sync Failed. Check Connection.";
+            
+            if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+                userMsg = "Invalid Email or Master Password.";
+            } else if (err.code === 'auth/too-many-requests') {
+                userMsg = "Too many failed attempts. Registry locked. Try again later.";
+            } else if (err.code === 'auth/network-request-failed') {
+                userMsg = "Registry Sync Failed. Check Connection.";
+            } else if (err.message) {
+                userMsg = err.message;
+            }
             
             showLoginError(userMsg);
         } finally {

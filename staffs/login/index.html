@@ -89,7 +89,7 @@
     import { signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
 
     const DASHBOARD_MAP = {
-        'Director': '../director/',
+        'Director': '/director/',
         'HOD': '../hod/',
         'Specialist': '../specialist/',
         'Digital Marketing': '../marketing/',
@@ -110,21 +110,19 @@
             const userCred = await signInWithEmailAndPassword(auth, email, password);
             const user = userCred.user;
 
-            // 2. Fetch Personnel Profile across all collections
-            const [staffDoc, directorDoc, specialistDoc, hodDoc] = await Promise.all([
-                getDoc(doc(db, 'staffs', user.uid)),
-                getDoc(doc(db, 'directors', user.uid)),
-                getDoc(doc(db, 'specialists', user.uid)),
-                getDoc(doc(db, 'hods', user.uid))
-            ]);
-
+            // 2. Fetch Personnel Profile across all collections in order of precedence
+            const collections = ['directors', 'hods', 'specialists', 'staffs'];
             let profileData = null;
             let collectionName = '';
 
-            if (directorDoc.exists()) { profileData = directorDoc.data(); collectionName = 'directors'; }
-            else if (hodDoc.exists()) { profileData = hodDoc.data(); collectionName = 'hods'; }
-            else if (specialistDoc.exists()) { profileData = specialistDoc.data(); collectionName = 'specialists'; }
-            else if (staffDoc.exists()) { profileData = staffDoc.data(); collectionName = 'staffs'; }
+            for (const coll of collections) {
+                const snap = await getDoc(doc(db, coll, user.uid));
+                if (snap.exists()) {
+                    profileData = snap.data();
+                    collectionName = coll;
+                    break;
+                }
+            }
 
             if (profileData) {
                 // 3. Update last login
@@ -138,7 +136,13 @@
                 document.cookie = `sf_staff_uid=${user.uid}; path=/; domain=${cookieDomain}; max-age=86400; SameSite=Lax; Secure`;
 
                 // 5. Redirect to Primary Dashboard
-                const target = DASHBOARD_MAP[profileData.primaryRole] || '../';
+                // Directors always go to the root director portal
+                if (collectionName === 'directors') {
+                    window.location.href = '/director/';
+                    return;
+                }
+
+                const target = DASHBOARD_MAP[profileData.primaryRole || profileData.role] || '../';
                 window.location.href = target;
             } else {
                 alert("Unauthorized: Personnel registry profile missing.");

@@ -479,10 +479,20 @@
         const formData = new FormData(e.target);
         traineeData = Object.fromEntries(formData.entries());
         traineeData.name = traineeData.name.toUpperCase();
+        traineeData.email = traineeData.email.trim();
         
         // Remove password from traineeData before storing in Firestore
         const registrationPassword = traineeData.password;
         delete traineeData.password;
+
+        // Strong Password Policy: Min 8 chars, 1 uppercase, 1 lowercase, 1 digit, 1 special char
+        const strongPassRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        if (!strongPassRegex.test(registrationPassword)) {
+            showRegError("Password Strength Violation: Must contain at least 8 characters, including uppercase, lowercase, numbers, and symbols (@$!%*?&).");
+            btn.disabled = false; btn.innerHTML = "Start Your Mastery Journey <i data-lucide='arrow-right' class='w-4 h-4'></i>";
+            if (window.lucide) window.lucide.createIcons();
+            return;
+        }
 
         try {
             console.log("[Registry] Forging Firebase Identity...");
