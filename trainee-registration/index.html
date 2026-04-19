@@ -544,13 +544,20 @@
                 return { sfid: newSFID, pin };
             });
 
-            console.log("[Registry] Neural link stabilized. Launching Success Node...");
+            console.log("[Registry] Neural link stabilized. Launching Onboarding Node...");
             document.getElementById('final-sfid').innerText = result.sfid;
             document.getElementById('final-pin').innerText = result.pin;
             
-            // Switch steps directly to final success section
+            // Set track-specific Telegram node
+            const tgBtn = document.getElementById('tg-node-btn');
+            if (tgBtn) {
+                tgBtn.href = TELEGRAM_NODES[traineeData.track] || "https://t.me/skillforgeorg";
+                document.getElementById('target-track-label').innerText = `${traineeData.track} Mastery Group`;
+            }
+
+            // Switch steps to onboarding section
             document.getElementById('reg-section').classList.add('hidden');
-            document.getElementById('final-section').classList.remove('hidden');
+            document.getElementById('onboarding-section').classList.remove('hidden');
             window.scrollTo({ top: 0, behavior: 'smooth' });
 
         } catch (err) {

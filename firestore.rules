@@ -29,11 +29,7 @@ service cloud.firestore {
     }
 
     function isDirector() {
-      return isAuthenticated() && (
-        inDirectors(request.auth.uid) || 
-        (inSpecialists(request.auth.uid) && get(/databases/$(database)/documents/specialists/$(request.auth.uid)).data.level == 'Director') ||
-        (inStaffs(request.auth.uid) && get(/databases/$(database)/documents/staffs/$(request.auth.uid)).data.primaryRole == 'Director')
-      );
+      return isAuthenticated() && inDirectors(request.auth.uid);
     }
 
     // ==================== COLLECTION RULES ====================
