@@ -182,26 +182,28 @@
             const userCredential = await signInWithEmailAndPassword(auth, emailInput, passwordInput);
             const user = userCredential.user;
 
-            console.log("[Auth] Neural core linked. Checking registry duplicates...");
-            // Step 2: Check for Registry Desync/Duplicates
-            const q = query(collection(db, "trainees"), where("email", "==", emailInput));
-            const querySnap = await getDocs(q);
+            console.log("[Auth] Neural core linked. Checking registry for UID:", user.uid);
             
-            const hasExactMatch = querySnap.docs.some(d => d.id === user.uid);
-
-            if (querySnap.size > 1 || (querySnap.size === 1 && !hasExactMatch)) {
-                console.warn("[Auth] Registry Desync: Multiple or mismatched records found.");
-                handleResolution(user, querySnap.docs);
+            // Step 2: Check for Registry Match (Direct UID lookup)
+            const traineeDoc = await getDoc(doc(db, "trainees", user.uid));
+            
+            if (traineeDoc.exists()) {
+                console.log("[Auth] Registry entry verified. Synchronizing node...");
+                finalizeLogin(user.uid);
                 return;
             }
 
-            // Step 3: Final Verification
-            if (hasExactMatch) {
-                console.log("[Auth] Registry entry verified. Synchronizing node...");
-                finalizeLogin(user.uid);
+            // Step 3: Handle Registry Desync/Legacy Collision
+            console.warn("[Auth] UID Mismatch. Checking for email-based legacy records...");
+            const q = query(collection(db, "trainees"), where("email", "==", emailInput));
+            const querySnap = await getDocs(q);
+            
+            if (!querySnap.empty) {
+                console.warn("[Auth] Registry Desync: Legacy record found for email.");
+                handleResolution(user, querySnap.docs);
             } else {
-                console.error("[Auth] Firestore registry missing for Auth UID.");
-                showLoginError("Identity verified, but Academy profile missing. Contact Command Center.");
+                console.error("[Auth] Firestore registry completely missing for Auth UID and Email.");
+                showLoginError("Identity verified, but Academy profile missing. Please register or contact support.");
                 await signOut(auth);
             }
         } catch (err) {
