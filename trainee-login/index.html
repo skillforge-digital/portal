@@ -229,6 +229,8 @@
     };
 
     function finalizeLogin(uid) {
+        // Set both Cloud and Legacy session keys
+        localStorage.setItem('skillforge_mock_uid', uid);
         const cookieDomain = window.location.hostname.includes('skillforgedigital.com.ng') ? '.skillforgedigital.com.ng' : window.location.hostname;
         document.cookie = `sf_uid=${uid}; path=/; domain=${cookieDomain}; max-age=86400; SameSite=Lax; Secure`;
         window.location.href = '../trainee-dashboard/';

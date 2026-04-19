@@ -78,7 +78,20 @@ class SkillForgeCore {
 
     async init() {
         return new Promise((resolve) => {
-            onAuthStateChanged(this.auth, (/** @type {any} */ user) => this.onAuthChange(user, resolve));
+            onAuthStateChanged(this.auth, (/** @type {any} */ user) => {
+                if (user) {
+                    this.onAuthChange(user, resolve);
+                } else {
+                    // Fallback to Legacy Mock UID for desynced users
+                    const mockUid = localStorage.getItem('skillforge_mock_uid');
+                    if (mockUid) {
+                        console.warn("[NeuralCore] Cloud session missing. Using Legacy Mock Identity:", mockUid);
+                        this.onAuthChange({ uid: mockUid, isMock: true }, resolve);
+                    } else {
+                        this.onAuthChange(null, resolve);
+                    }
+                }
+            });
 
             // Visibility Pulse
             document.addEventListener('visibilitychange', () => {

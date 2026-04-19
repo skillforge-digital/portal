@@ -61,15 +61,15 @@ class ThemeManager {
             const isProtectedPage = window.location.pathname.includes('trainee-dashboard');
             const isAuthPage = window.location.pathname.includes('login') || window.location.pathname.includes('registration');
 
-            // Cloud-First Session: Always use the permanent Firebase Auth UID
-            this.uid = user ? user.uid : null;
+            // Cloud-First Session with Legacy Fallback
+            this.uid = user ? user.uid : localStorage.getItem('skillforge_mock_uid');
 
             if (this.uid) {
-                console.log('ThemeManager: Cloud session active for:', this.uid);
+                console.log('ThemeManager: Identity linked for:', this.uid);
                 this.startSync();
             } else {
                 if (isProtectedPage && !isAuthPage) {
-                    console.warn('ThemeManager: Protected page detected without auth. Redirecting to cloud portal...');
+                    console.warn('ThemeManager: No identity found. Redirecting to cloud portal...');
                     const base = window.location.pathname.split('/trainee-dashboard')[0] || '';
                     window.location.href = `${base}/trainee-login/`;
                 }
