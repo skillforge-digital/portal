@@ -1,17 +1,24 @@
-﻿/**
- * SkillForge Offline Matrix (v1.0.0)
+/**
+ * SkillForge Offline Matrix (v1.1.0)
  * Service Worker for Offline Access
  */
 
-const CACHE_NAME = 'sf-neural-matrix-v1';
+const CACHE_NAME = 'sf-neural-matrix-v2';
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
+    '/404.html',
+    '/trainee-login/',
+    '/trainee-login/index.html',
+    '/trainee-login/forgot-password.html',
+    '/trainee-registration/',
+    '/trainee-registration/index.html',
     '/assets/sf-core.js',
     '/assets/sf-turbo.js',
     '/assets/sf-atmosphere-3d.js',
     '/assets/theme-manager.js',
-    '/assets/error-reporter.js'
+    '/assets/error-reporter.js',
+    '/assets/firebase-config.js'
 ];
 
 // External assets that might not support CORS for pre-caching
@@ -56,23 +63,24 @@ self.addEventListener('fetch', (event) => {
     }
 
     event.respondWith(
-        caches.match(event.request).then((response) => {
-            // Return cached asset or fetch from network
-            return response || fetch(event.request).then((fetchResponse) => {
-                // Optionally cache new successful GET requests
-                if (fetchResponse.status === 200) {
-                    const responseClone = fetchResponse.clone();
-                    caches.open(CACHE_NAME).then((cache) => {
-                        cache.put(event.request, responseClone);
-                    });
-                }
-                return fetchResponse;
-            });
-        }).catch(() => {
-            // Fallback for offline pages if not in cache
-            if (event.request.mode === 'navigate') {
-                return caches.match('/index.html');
+        fetch(event.request).then((fetchResponse) => {
+            // Network first, but cache successful responses for future offline use
+            if (fetchResponse.status === 200) {
+                const responseClone = fetchResponse.clone();
+                caches.open(CACHE_NAME).then((cache) => {
+                    cache.put(event.request, responseClone);
+                });
             }
+            return fetchResponse;
+        }).catch(() => {
+            // Network failed, try cache
+            return caches.match(event.request).then((response) => {
+                if (response) return response;
+                // Fallback for offline pages/navigation if not in cache
+                if (event.request.mode === 'navigate') {
+                    return caches.match('/index.html').then(r => r || caches.match('/404.html'));
+                }
+            });
         })
     );
 });
