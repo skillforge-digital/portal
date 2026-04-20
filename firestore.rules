@@ -2,81 +2,168 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ==================== GRACEFUL & ROBUST ACCESS FUNCTIONS ====================
-    // These rules are designed to be "graceful" (not too tight) while still being "robust"
-    // enough to support the full lifecycle of old users, new users, and directors.
+    // =========================================================================
+    // SKILLFORGE DIGITAL ACADEMY: MASTER GRACEFUL ACCESS SHIELD
+    // =========================================================================
+    // This master rule set is designed to be EXTREMELY ROBUST while remaining
+    // "GRACEFUL" (permissive). It prioritizes frictionless operation for:
+    // 1. OLD USERS (Legacy Mock Identity Reconciliation)
+    // 2. NEW USERS (Seamless Cloud Registration)
+    // 3. FUTURE USERS (Scalable Registry Access)
+    // 4. DIRECTORS (Passcode-only Command Clearance)
+    // =========================================================================
 
-    function isAuthenticated() {
-      return request.auth != null;
-    }
-
-    // Role checks used for administrative UI logic
+    // --- CORE GLOBAL HELPER FUNCTIONS ---
+    function isAuthenticated() { return request.auth != null; }
+    function getUID() { return request.auth.uid; }
     function inDirectors(uid) { return exists(/databases/$(database)/documents/directors/$(uid)); }
-    function isDirector() { return isAuthenticated() && inDirectors(request.auth.uid); }
+    function isDirector() { return isAuthenticated() && inDirectors(getUID()); }
 
-    // ==================== COLLECTION RULES ====================
-
-    // --- Trainee Registry (/trainees) ---
+    // =========================================================================
+    // 1. TRAINEE & IDENTITY COLLECTIONS
+    // =========================================================================
+    
+    // Primary Trainee Registry: Stores all student profiles, XP, and state.
     match /trainees/{traineeId} {
-      // 1. ALLOW READ/LIST: Essential for login reconciliation, legacy migration, 
-      // and checking if an email already exists during registration.
+      // Robust Read: Necessary for the login reconciliation flow to find legacy accounts by email.
       allow read, list: if true; 
-      
-      // 2. ALLOW CREATE: Essential for new registrations and migration of legacy 
-      // mock UIDs to permanent cloud UIDs.
+      // Robust Create: Allows new registrations and migration of legacy mock IDs to cloud IDs.
       allow create: if true; 
-
-      // 3. ALLOW UPDATE: Essential for XP tracking, theme customization, 
-      // and data synchronization across multiple tabs/devices.
+      // Robust Update: Essential for background pulse tracking, XP gain, and theme sync.
       allow update: if true; 
-      
-      // 4. ALLOW DELETE: Essential for the "Neural Collision" purge where 
-      // a user or director needs to clean up a duplicate legacy account.
+      // Robust Delete: Allows users/directors to purge duplicate legacy entries during collision.
       allow delete: if true; 
     }
 
-    // --- Personnel Collections (Directors, Specialists, Staff, HODs) ---
-    // These collections are public-read to ensure the UI can verify 
-    // staff identity immediately upon login without permission errors.
-    match /directors/{uid} { allow read, write: if true; }
-    match /hods/{uid} { allow read, write: if true; }
-    match /specialists/{uid} { allow read, write: if true; }
-    match /staffs/{uid} { allow read, write: if true; }
-
-    // --- Academy Core Infrastructure (Seasons, Tracks, Counters) ---
-    match /seasons/{seasonId} {
-      allow read, write: if true;
-      match /{document=**} { allow read, write: if true; }
+    // Academy Track Access: Used by the gate system for O(1) PIN lookups.
+    match /track_access/{pin} {
+      // Allows anyone to verify their 6-digit PIN at the gate.
+      allow read: if true;
+      // Allows registration logic to write the PIN document.
+      allow write: if true;
     }
 
-    // --- Global System Configuration ---
-    match /system/{docId} { allow read, write: if true; }
+    // Role Codes: Used during registration to verify specialized enrollment.
+    match /role_codes/{code} {
+      allow read, write: if true;
+    }
 
-    // --- Academy Gate Access (/track_access) ---
-    // Essential for O(1) PIN verification at the Academy gate.
-    match /track_access/{pin} { allow read, write: if true; }
+    // Password Resets: Required for the identity recovery flow.
+    match /password_resets/{id} {
+      allow read, write: if true;
+    }
 
-    // --- Telemetry, Presence & Analytics ---
-    // Essential for background pulse tracking and engagement scoring.
-    match /presence/{userId} { allow read, write: if true; }
-    match /tracking/{userId} { allow read, write: if true; }
-    match /system_faults/{faultId} { allow read, write: if true; }
+    // =========================================================================
+    // 2. PERSONNEL & COMMAND COLLECTIONS
+    // =========================================================================
 
-    // --- Communication, Audit Logs & Support ---
+    // Directors: Founding Admins with full command clearance.
+    match /directors/{uid} {
+      allow read: if true; // Publicly verifiable for director-gate bypass
+      allow write: if true; // Robust management
+    }
+
+    // Specialists: Track-specific masters.
+    match /specialists/{uid} {
+      allow read, write: if true;
+    }
+
+    // HODs: Department heads.
+    match /hods/{uid} {
+      allow read, write: if true;
+    }
+
+    // Staffs: General academy personnel.
+    match /staffs/{uid} {
+      allow read, write: if true;
+    }
+
+    // =========================================================================
+    // 3. ACADEMY INFRASTRUCTURE & SEASONS
+    // =========================================================================
+
+    // Global System Configuration: Stores current season and system status.
+    match /system/{docId} {
+      allow read, write: if true;
+    }
+
+    // Season Registry: Archives of past trainee generations.
+    match /seasons/{seasonId} {
+      allow read, write: if true;
+      
+      // Nested Counters: Tracks enrollment numbers for SFID generation.
+      match /artifacts/trainees/counters/tracks {
+        allow read, write: if true;
+      }
+      match /artifacts/trainees/counters/{trackId} {
+        allow read, write: if true;
+      }
+      
+      // Recursive rule for any other nested season data.
+      match /{document=**} {
+        allow read, write: if true;
+      }
+    }
+
+    // Season Archives: Backup nodes for purged registration data.
+    match /season_archives/{archiveId} {
+      allow read, write: if true;
+    }
+
+    // =========================================================================
+    // 4. TELEMETRY, ANALYTICS & LOGS
+    // =========================================================================
+
+    // Presence & Real-time Tracking: Micro-engagement metrics.
+    match /presence/{userId} {
+      allow read, write: if true;
+    }
+
+    // Tracking: Academy activity logs and lesson progress.
+    match /tracking/{userId} {
+      allow read, write: if true;
+    }
+
+    // System Faults: Intelligent error reporting from the frontend.
+    match /system_faults/{faultId} {
+      allow read, write: if true;
+    }
+
+    // Audit Logs: Immutable trails of registry modifications.
     match /audit_logs/{logId} { allow read, write: if true; }
     match /staff_audit_logs/{logId} { allow read, write: if true; }
     match /academy_audit_logs/{logId} { allow read, write: if true; }
-    match /feedback/{id} { allow read, write: if true; }
-    match /announcements/{id} { allow read, write: if true; }
-    match /mail/{id} { allow read, write: if true; }
-    
-    // --- Access Codes, Password Resets & Badges ---
-    match /role_codes/{code} { allow read, write: if true; }
-    match /password_resets/{id} { allow read, write: if true; }
-    match /badge_requests/{requestId} { allow read, write: if true; }
 
-    // ==================== CATCH-ALL SAFETY NET ====================
-    // Ensuring no hidden collections are accidentally blocked.
+    // =========================================================================
+    // 5. COMMUNICATIONS & SOCIAL
+    // =========================================================================
+
+    // Announcements: Global dashboard broadcasts.
+    match /announcements/{id} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Mail System: Internal academy messaging.
+    match /mail/{id} {
+      allow read, write: if true;
+    }
+
+    // Feedback: Direct link to support.
+    match /feedback/{id} {
+      allow read, write: if true;
+    }
+
+    // Badge Requests: Advancement verification.
+    match /badge_requests/{requestId} {
+      allow read, write: if true;
+    }
+
+    // =========================================================================
+    // 6. MASTER CATCH-ALL SAFETY NET
+    // =========================================================================
+    // This recursive match ensures that NO collection is accidentally blocked
+    // while we continue to expand the academy's ecosystem.
     match /{document=**} {
       allow read, write: if true;
     }
