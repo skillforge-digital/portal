@@ -1,4 +1,4 @@
-﻿﻿<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -84,55 +84,7 @@ tailwind.config = {
 </head>
 <body class="flex flex-col md:flex-row">
 
-<div id="loading-screen">
-  <div class="flex flex-col items-center gap-6">
-    <div class="w-16 h-16 border-4 border-gold-500/20 border-t-gold-500 rounded-full animate-spin"></div>
-    <div class="text-center">
-      <p class="text-[10px] font-black uppercase tracking-[0.5em] text-gold-400">Loading Dashboard</p>
-      <p class="text-[8px] text-white/20 uppercase tracking-[0.3em] mt-2">Please wait, preparing your workspace...</p>
-    </div>
-  </div>
-</div>
-
-<!-- Mobile Header -->
-<div class="md:hidden h-20 px-6 flex items-center justify-between glass sticky top-0 z-[100] border-b border-white/5">
-  <div class="flex items-center gap-3">
-    <a href="/" class="flex items-center gap-3 group" aria-label="SkillForge Home">
-      <div class="w-8 h-8 rounded-lg bg-black flex items-center justify-center border border-gold-500/30 group-hover:border-gold transition-all overflow-hidden">
-        <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" class="w-full h-full object-cover" alt="SkillForge Logo">
-      </div>
-      <div class="flex flex-col leading-none">
-        <span class="font-black text-sm tracking-tighter uppercase group-hover:text-gold transition-all">SkillForge</span>
-        <span class="text-[6px] text-gold-400 font-bold tracking-[0.2em] uppercase">Digital & Co. Ltd</span>
-      </div>
-    </a>
-  </div>
-  <button type="button" onclick="toggleSidebar()" class="p-2 text-white/50 hover:text-white transition-all" aria-label="Toggle Navigation Menu"><i class="fa-solid fa-bars-staggered text-xl"></i></button>
-</div>
-
-<aside id="main-sidebar" class="w-72 glass-strong border-r border-white/5 flex flex-col fixed inset-y-0 z-50 transition-all duration-500 -translate-x-full md:translate-x-0" aria-label="Main Sidebar Navigation">
-  <div class="p-8 flex-1 overflow-y-auto custom-scrollbar">
-    <div class="flex items-center gap-3 mb-10">
-      <a href="/" class="flex items-center gap-3 group" aria-label="SkillForge Home">
-        <div class="w-10 h-10 rounded-xl bg-black flex items-center justify-center border border-gold-500/30 group-hover:border-gold transition-all overflow-hidden">
-          <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" class="w-full h-full object-cover" alt="SkillForge Logo">
-        </div>
-        <div class="flex flex-col leading-none">
-          <span class="font-black text-sm tracking-tighter uppercase group-hover:text-gold transition-all">SkillForge</span>
-          <span class="text-[7px] text-gold-400 font-bold tracking-[0.2em] uppercase">Digital & Co. Ltd</span>
-        </div>
-      </a>
-    </div>
-    <nav class="space-y-1">
-      <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Academy Hub</p>
-      <a href="../" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white" aria-label="Academy Overview"><i class="fa-solid fa-layer-group w-4"></i> Overview</a>
-      <a href="../dmc/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white" aria-label="Membership Card"><i class="fa-solid fa-id-card w-4"></i> Membership Card</a>
-      <a href="../leaderboard/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white" aria-label="Leaderboard Hall of Fame"><i class="fa-solid fa-ranking-star w-4"></i> Hall of Fame</a>
-      <a href="../vault/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white" aria-label="Vault Resources"><i class="fa-solid fa-vault w-4"></i> The Vault</a>
-      <a href="./" class="sidebar-link active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest" aria-label="Customize Design Studio" aria-current="page"><i class="fa-solid fa-wand-magic-sparkles w-4"></i> Customize</a>
-    </nav>
-  </div>
-</aside>
+<!-- Sub-pages don't need their own sidebar or loading screen when loaded via Turbo -->
 
 <main class="flex-1 md:ml-72 p-6 md:p-10 pt-24 md:pt-20">
   <div class="max-w-6xl mx-auto space-y-12">

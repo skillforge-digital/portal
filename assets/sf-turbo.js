@@ -95,11 +95,21 @@ class SkillForgeTurbo {
             // Swap main content (or body if main is missing)
             const oldMain = document.querySelector('main');
             const newMain = newDoc.querySelector('main');
-            
+            const oldSidebar = document.querySelector('aside#main-sidebar');
+            const newSidebar = newDoc.querySelector('aside#main-sidebar');
+
             if (oldMain && newMain) {
                 oldMain.innerHTML = newMain.innerHTML;
                 // Sync main attributes (like track/lesson IDs)
                 Array.from(newMain.attributes).forEach(attr => oldMain.setAttribute(attr.name, attr.value));
+                
+                // Sync sidebar if structure changed (e.g. new links like Quests)
+                if (oldSidebar && newSidebar) {
+                    oldSidebar.innerHTML = newSidebar.innerHTML;
+                }
+                
+                // Update sidebar active states
+                this.updateActiveLinks(url);
             } else {
                 // Fallback: Full body replacement if structure differs significantly
                 document.body.innerHTML = newBody.innerHTML;
@@ -166,6 +176,9 @@ class SkillForgeTurbo {
             window.sfCore.syncRegistryState();
         }
 
+        // E. Dispatch Render Event for manual initialization
+        window.dispatchEvent(new CustomEvent('sf:turbo-render', { detail: { newDoc } }));
+
         console.log("[Turbo] Hydration complete.");
     }
 
@@ -197,6 +210,23 @@ class SkillForgeTurbo {
                 setTimeout(() => bar.style.width = '0%', 400);
             }, 200);
         }
+    }
+
+    updateActiveLinks(url) {
+        const sidebarLinks = document.querySelectorAll('.sidebar-link');
+        const normalize = (p) => p.replace(/\/index\.html$/, '').replace(/\/$/, '') || '/';
+        const targetPath = normalize(new URL(url, window.location.origin).pathname);
+
+        sidebarLinks.forEach(link => {
+            const linkPath = normalize(new URL(link.href, window.location.origin).pathname);
+            if (linkPath === targetPath) {
+                link.classList.add('active');
+                link.setAttribute('aria-current', 'page');
+            } else {
+                link.classList.remove('active');
+                link.removeAttribute('aria-current');
+            }
+        });
     }
 }
 
