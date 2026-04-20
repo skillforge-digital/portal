@@ -103,8 +103,21 @@
         <div class="mt-8 text-center space-y-4">
             <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">New Trainee? <a href="../trainee-registration/" class="text-gold hover:text-white transition-all">Academy Registry</a></p>
             <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Forgot Access? <a href="./forgot-password.html" class="text-gold hover:text-white transition-all">Reset Password</a></p>
+            <button onclick="toggleDiagnostics()" class="text-[8px] text-white/10 hover:text-gold/40 uppercase tracking-[0.3em] font-black transition-all pt-4">Neural Diagnostic Portal</button>
         </div>
     </main>
+
+    <!-- Diagnostic Portal -->
+    <div id="diagnostic-portal" class="hidden glass p-8 rounded-[40px] border-white/10 mt-6 space-y-6 text-left animate-slide-up">
+        <h3 class="text-xs font-black text-gold uppercase tracking-widest border-b border-white/5 pb-4">Registry Diagnostics</h3>
+        <div class="space-y-3 text-[10px] font-bold uppercase tracking-widest">
+            <div class="flex justify-between border-b border-white/5 pb-2"><span class="text-slate-500">Auth Node:</span> <span id="diag-auth" class="text-white">Scanning...</span></div>
+            <div class="flex justify-between border-b border-white/5 pb-2"><span class="text-slate-500">Registry Doc:</span> <span id="diag-doc" class="text-white">Scanning...</span></div>
+            <div class="flex justify-between border-b border-white/5 pb-2"><span class="text-slate-500">Local Cache ID:</span> <span id="diag-local" class="text-white">Scanning...</span></div>
+            <div class="flex justify-between border-b border-white/5 pb-2"><span class="text-slate-500">Project Link:</span> <span id="diag-project" class="text-white">Scanning...</span></div>
+        </div>
+        <button onclick="runEmergencyReset()" class="w-full py-3 bg-red-500/10 text-red-500 rounded-xl font-black text-[8px] uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all border border-red-500/20">Purge Local Session & Force Sync</button>
+    </div>
 
     <!-- Duplicate Resolution UI -->
     <main id="resolution-container" class="hidden glass p-8 md:p-10 rounded-[32px] md:rounded-[40px] border-white/10 space-y-8 animate-slide-up">
@@ -324,6 +337,32 @@
             alert("Migration failed: " + err.message);
             btn.disabled = false;
             btn.innerText = "Migrate to Cloud";
+        }
+    };
+
+    window.toggleDiagnostics = async () => {
+        const portal = document.getElementById('diagnostic-portal');
+        portal.classList.toggle('hidden');
+        if (!portal.classList.contains('hidden')) {
+            const user = auth.currentUser;
+            document.getElementById('diag-auth').innerText = user ? `${user.email} (${user.uid.substring(0,8)})` : "Offline / Unlinked";
+            document.getElementById('diag-local').innerText = localStorage.getItem('skillforge_mock_uid') || "None";
+            document.getElementById('diag-project').innerText = auth.app.options.projectId;
+            
+            if (user) {
+                const docSnap = await getDoc(doc(db, "trainees", user.uid));
+                document.getElementById('diag-doc').innerText = docSnap.exists() ? "Linked (Verified)" : "Missing from Registry";
+            } else {
+                document.getElementById('diag-doc').innerText = "Requires Login";
+            }
+        }
+    };
+
+    window.runEmergencyReset = () => {
+        if (confirm("This will clear all local cache and sign you out. Proceed?")) {
+            localStorage.clear();
+            document.cookie.split(";").forEach(function(c) { document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); });
+            signOut(auth).then(() => location.reload());
         }
     };
 
