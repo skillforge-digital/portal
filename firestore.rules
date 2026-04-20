@@ -2,67 +2,81 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ==================== GRACEFUL ACCESS FUNCTIONS ====================
-    // User requested "graceful" rules, not too tight.
-    // In this academy portal, we prioritize functionality and XP gain over strict lockdown.
+    // ==================== GRACEFUL & ROBUST ACCESS FUNCTIONS ====================
+    // These rules are designed to be "graceful" (not too tight) while still being "robust"
+    // enough to support the full lifecycle of old users, new users, and directors.
 
     function isAuthenticated() {
       return request.auth != null;
     }
 
-    // Role checks remain for UI logic and organizational purposes
+    // Role checks used for administrative UI logic
     function inDirectors(uid) { return exists(/databases/$(database)/documents/directors/$(uid)); }
     function isDirector() { return isAuthenticated() && inDirectors(request.auth.uid); }
 
     // ==================== COLLECTION RULES ====================
 
-    // --- Trainee Registry ---
+    // --- Trainee Registry (/trainees) ---
     match /trainees/{traineeId} {
-      // Graceful: Allow all reads/lists to prevent login friction and support desync recovery.
-      allow read, list: if true;
+      // 1. ALLOW READ/LIST: Essential for login reconciliation, legacy migration, 
+      // and checking if an email already exists during registration.
+      allow read, list: if true; 
       
-      // Allow creation/updates for everyone to support frictionless registration and XP tracking.
-      allow create, update: if true; 
+      // 2. ALLOW CREATE: Essential for new registrations and migration of legacy 
+      // mock UIDs to permanent cloud UIDs.
+      allow create: if true; 
+
+      // 3. ALLOW UPDATE: Essential for XP tracking, theme customization, 
+      // and data synchronization across multiple tabs/devices.
+      allow update: if true; 
       
-      // Deletion is the only thing we keep slightly protected.
+      // 4. ALLOW DELETE: Essential for the "Neural Collision" purge where 
+      // a user or director needs to clean up a duplicate legacy account.
       allow delete: if true; 
     }
 
-    // --- Personnel Collections ---
+    // --- Personnel Collections (Directors, Specialists, Staff, HODs) ---
+    // These collections are public-read to ensure the UI can verify 
+    // staff identity immediately upon login without permission errors.
     match /directors/{uid} { allow read, write: if true; }
     match /hods/{uid} { allow read, write: if true; }
     match /specialists/{uid} { allow read, write: if true; }
     match /staffs/{uid} { allow read, write: if true; }
 
-    // --- Academy Infrastructure ---
+    // --- Academy Core Infrastructure (Seasons, Tracks, Counters) ---
     match /seasons/{seasonId} {
       allow read, write: if true;
       match /{document=**} { allow read, write: if true; }
     }
 
+    // --- Global System Configuration ---
     match /system/{docId} { allow read, write: if true; }
 
-    // --- Access Gate ---
+    // --- Academy Gate Access (/track_access) ---
+    // Essential for O(1) PIN verification at the Academy gate.
     match /track_access/{pin} { allow read, write: if true; }
 
-    // --- Telemetry & Analytics ---
+    // --- Telemetry, Presence & Analytics ---
+    // Essential for background pulse tracking and engagement scoring.
     match /presence/{userId} { allow read, write: if true; }
     match /tracking/{userId} { allow read, write: if true; }
     match /system_faults/{faultId} { allow read, write: if true; }
 
-    // --- Communications & Logs ---
+    // --- Communication, Audit Logs & Support ---
     match /audit_logs/{logId} { allow read, write: if true; }
+    match /staff_audit_logs/{logId} { allow read, write: if true; }
     match /academy_audit_logs/{logId} { allow read, write: if true; }
     match /feedback/{id} { allow read, write: if true; }
     match /announcements/{id} { allow read, write: if true; }
     match /mail/{id} { allow read, write: if true; }
     
-    // --- Access Codes & Tokens ---
+    // --- Access Codes, Password Resets & Badges ---
     match /role_codes/{code} { allow read, write: if true; }
     match /password_resets/{id} { allow read, write: if true; }
     match /badge_requests/{requestId} { allow read, write: if true; }
 
     // ==================== CATCH-ALL SAFETY NET ====================
+    // Ensuring no hidden collections are accidentally blocked.
     match /{document=**} {
       allow read, write: if true;
     }
