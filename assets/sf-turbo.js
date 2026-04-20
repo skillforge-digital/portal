@@ -26,6 +26,9 @@ class SkillForgeTurbo {
             const url = new URL(link.href, window.location.origin);
             if (url.origin !== window.location.origin) return;
             
+            // Only apply Turbo navigation to /trainee-dashboard/ and its sub-pages
+            if (!url.pathname.startsWith('/trainee-dashboard/')) return;
+
             // Skip downloads, hash links, external targets, or non-html links
             if (link.hasAttribute('download') || url.hash || link.target === '_blank') return;
             

@@ -39,7 +39,7 @@ service cloud.firestore {
     match /trainees/{traineeId} {
       // Access: Owners and Staff can read profiles. 
       // Registration and Forgot Password require list access to check email existence.
-      allow read: if true; 
+      allow read: if isAuthenticated(); 
       allow list: if true; // Required for email-existence checks during registration/login/reset
       
       // Creation: Strictly during registration. 
