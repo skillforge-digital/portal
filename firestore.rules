@@ -43,139 +43,144 @@ service cloud.firestore {
 
     // --- Trainee Registry ---
     match /trainees/{traineeId} {
-      // Access: Anyone can query by email (for registration/forgot password checks)
-      // Anyone can read a specific document if they have the ID (for legacy mock UID support)
-      allow list: if true;
-      allow read: if true;
+      // Access: Owners and Staff can read profiles. 
+      // Registration and Forgot Password require list access to check email existence.
+      allow read: if true; 
+      allow list: if true; // Required for email-existence checks during registration/login/reset
       
       // Creation: Strictly during registration. 
       allow create: if true; 
 
       // Update: Owner (theme, settings) or Staff (admin actions).
-      allow update: if true;
+      allow update: if isOwner(traineeId) || isStaff();
       
-      // Deletion: Restricted to Directors for system integrity.
-      allow delete: if isDirector();
+      // Deletion: Restricted to Directors or the verified email owner (for Neural Collision Purge).
+      allow delete: if isDirector() || (isAuthenticated() && resource.data.email == request.auth.token.email);
     }
 
     // --- Specialized Personnel Collections ---
     match /directors/{uid} {
-      allow read: if true;
-      allow write: if isDirector() || isOwner(uid) || true;
+      allow read: if isOwner(uid) || isStaff();
+      allow create: if true; // Registration
+      allow update: if isOwner(uid) || isDirector();
+      allow delete: if isDirector();
     }
     match /hods/{uid} {
-      allow read: if true;
-      allow write: if isDirector() || isOwner(uid) || true;
+      allow read: if isOwner(uid) || isStaff();
+      allow create: if true; // Registration
+      allow update: if isOwner(uid) || isDirector();
+      allow delete: if isDirector();
     }
     match /specialists/{uid} {
-      allow read: if true;
-      allow write: if isDirector() || isOwner(uid) || true;
+      allow read: if isOwner(uid) || isStaff();
+      allow create: if true; // Registration
+      allow update: if isOwner(uid) || isDirector();
+      allow delete: if isDirector();
     }
     match /staffs/{uid} {
-      allow read: if true;
-      allow write: if isDirector() || isOwner(uid) || true;
+      allow read: if isOwner(uid) || isStaff();
+      allow create: if true; // Registration
+      allow update: if isOwner(uid) || isDirector();
+      allow delete: if isDirector();
     }
 
     // --- Academy Core Infrastructure ---
     match /seasons/{seasonId} {
       allow read: if true;
-      allow write: if true;
+      allow write: if isStaff();
       
       // Nested Artifacts & Counters (Critical for registration flow)
       match /artifacts/trainees/counters/tracks {
         allow read: if true;
-        allow update: if true;
+        allow update: if true; // Needed for registration transaction
       }
 
       match /artifacts/trainees/counters/{trackId} {
         allow read: if true;
-        allow update: if true;
+        allow update: if true; // Needed for registration transaction
       }
 
       match /{document=**} {
         allow read: if true;
-        allow write: if true;
+        allow write: if isStaff();
       }
     }
 
     match /season_archives/{archiveId} {
-      allow read: if true;
+      allow read: if isStaff();
       allow write: if isDirector();
     }
 
     match /system/{docId} {
       allow read: if true;
-      allow write: if isDirector() || true;
+      allow write: if isDirector();
     }
 
     // --- Public/Auth Gate Access ---
     match /track_access/{pin} {
-      allow read: if true; 
-      allow create: if true;
+      allow read: if true; // Academy gate lookup
+      allow create: if true; // Registration
       allow update, delete: if isDirector();
     }
 
     // --- Analytics, Presence & Telemetry ---
     match /presence/{userId} {
-      allow read: if true;
-      allow write: if true;
+      allow read: if isStaff();
+      allow write: if true; // Anonymous tracking
     }
     match /tracking/{userId} {
-      allow read: if true;
-      allow write: if true;
+      allow read: if isStaff();
+      allow write: if true; // Anonymous tracking
     }
     match /system_faults/{faultId} {
-      allow read: if true;
+      allow read: if isStaff();
       allow create: if true;
-      allow update, delete: if true;
     }
 
     // --- Communication & Logs ---
     match /audit_logs/{logId} { 
-      allow read: if true; 
+      allow read: if isStaff(); 
       allow create: if true; 
     }
     match /academy_audit_logs/{logId} { 
-      allow read: if true; 
+      allow read: if isStaff(); 
       allow create: if true; 
     }
     match /feedback/{id} { 
-      allow read: if true; 
+      allow read: if isStaff(); 
       allow create: if true; 
     }
     match /announcements/{id} { 
       allow read: if true; 
-      allow write: if true; 
+      allow write: if isDirector(); 
     }
     match /mail/{id} {
-      allow read: if true;
+      allow read: if isOwner(id) || isStaff();
       allow create: if true;
-      allow update, delete: if true; 
+      allow update, delete: if isOwner(id) || isDirector(); 
     }
     
     // --- Access Codes & Tokens ---
     match /role_codes/{code} {
-      allow read: if true; 
-      allow create: if true;
-      allow update: if true;
-      allow delete: if true;
+      allow read: if true; // Verification during registration
+      allow update: if true; // Marking as used during registration
+      allow create, delete: if isDirector();
     }
 
     match /password_resets/{id} {
-      allow read, write: if true;
+      allow read, write: if true; // Required for recovery flow
     }
 
     match /badge_requests/{requestId} { 
-      allow read: if true;
-      allow create: if true;
-      allow update: if true;
-      allow delete: if true;
+      allow read: if isOwner(request.resource.data.uid) || isStaff();
+      allow create: if isAuthenticated();
+      allow update: if isStaff();
+      allow delete: if isDirector();
     }
 
     // ==================== CATCH-ALL SAFETY NET ====================
     match /{document=**} {
-      allow read: if true;
-      allow write: if true;
+      allow read, write: if false;
     }
   }
 }

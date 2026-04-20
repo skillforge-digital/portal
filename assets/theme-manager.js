@@ -245,4 +245,7 @@ class ThemeManager {
 
 export const themeManager = new ThemeManager();
 /** @type {any} */(window).themeManager = themeManager;
-/** @type {any} */(window).showLayout = (/** @type {any} */ l) => themeManager.saveLayout(l);
+// Only define showLayout if not already present to avoid overriding dashboard UI logic
+if (!(/** @type {any} */(window)).showLayout) {
+    /** @type {any} */(window).showLayout = (/** @type {any} */ l) => themeManager.saveLayout(l);
+}

@@ -119,7 +119,8 @@ class SkillForgeTurbo {
         } catch (err) {
             if (err.name !== 'AbortError') {
                 console.error("[Turbo] Neural Stale Detected. Refreshing context...", err);
-                window.location.href = url; // Hard fallback
+                // On 404 or other errors, let the browser handle it (which will show our new 404.html)
+                window.location.href = url;
             }
         } finally {
             this.isNavigating = false;

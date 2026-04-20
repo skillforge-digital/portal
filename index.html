@@ -421,6 +421,25 @@
     }
     new Sundust();
     if (window.lucide) window.lucide.createIcons();
+
+    // Global Gateway Logic: Redirect logged-in trainees to dashboard
+    function checkSession() {
+        const uid = localStorage.getItem('skillforge_mock_uid') || document.cookie.split('; ').find(row => row.startsWith('sf_uid='))?.split('=')[1];
+        if (uid) {
+            const enterBtns = document.querySelectorAll('a[href="/trainee-login/"]');
+            enterBtns.forEach(btn => {
+                if (btn.innerText.includes('Enter Academy')) {
+                    btn.href = '/trainee-dashboard/';
+                    btn.innerHTML = 'Go to Dashboard <i data-lucide="layout-dashboard" class="w-4 h-4"></i>';
+                } else if (btn.innerText.includes('Academy Center')) {
+                    btn.href = '/trainee-dashboard/';
+                    btn.innerText = 'Dashboard';
+                }
+            });
+            if (window.lucide) window.lucide.createIcons();
+        }
+    }
+    checkSession();
   </script>
   <script type="module" src="assets/sf-atmosphere-3d.js"></script>
   <script src="assets/error-reporter.js"></script>

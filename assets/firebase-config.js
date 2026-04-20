@@ -26,12 +26,10 @@ const secondaryConfig = {
 };
 
 let app;
-try {
-    // Attempt initialization with primary config
-    app = !getApps().length ? initializeApp(primaryConfig) : getApp();
-} catch (err) {
-    console.error("[FirebaseConfig] Primary initialization failed, falling back to secondary...", err);
-    app = initializeApp(secondaryConfig, "failover");
+if (!getApps().length) {
+    app = initializeApp(primaryConfig);
+} else {
+    app = getApp();
 }
 
 const db = getFirestore(app);

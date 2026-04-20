@@ -73,6 +73,7 @@
         import { collection, query, getDocs, doc, getDoc, setDoc, deleteDoc, serverTimestamp, orderBy, onSnapshot, updateDoc } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
         import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
         import { PassCodeEngine } from '../assets/pass-code-engine.js';
+        import StaffCore from '../assets/staff-core.js';
 
         let passCodeEngine = null;
         let directorData = null;
@@ -99,6 +100,9 @@
             }
         };
 
+        // Initialize StaffCore to handle global session and RBAC
+        const core = await StaffCore.start();
+
         onAuthStateChanged(auth, async (user) => {
             const statusEl = document.getElementById('auth-status');
             const actionsEl = document.getElementById('auth-actions');
@@ -123,19 +127,24 @@
             } else {
                 statusEl.innerText = "Verifying Authorization...";
                 try {
-                    // Strictly use dedicated directors collection as per founding mandate
-                    const directorDoc = await getDoc(doc(db, 'directors', user.uid));
-                    
-                    if (directorDoc.exists()) {
-                        directorData = directorDoc.data();
+                    // Check multiple collections via StaffCore or direct lookup
+                    if (core.profile && core.profile.primaryRole === 'Director') {
+                        directorData = core.profile;
                         initHub();
                     } else {
-                        statusEl.innerText = "Access Denied: Non-Director Identity Detected";
-                        actionsEl.innerHTML = `
-                            <button id="switch-account" class="w-full bg-white/5 border border-white/10 text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-white/10 transition-all">Switch Account</button>
-                            <p class="text-[8px] text-red-400/60 uppercase tracking-widest mt-4">This account lacks command clearance.</p>
-                        `;
-                        document.getElementById('switch-account').onclick = () => signOut(auth).then(() => location.reload());
+                        // Fallback check if StaffCore didn't catch it
+                        const directorDoc = await getDoc(doc(db, 'directors', user.uid));
+                        if (directorDoc.exists()) {
+                            directorData = directorDoc.data();
+                            initHub();
+                        } else {
+                            statusEl.innerText = "Access Denied: Non-Director Identity Detected";
+                            actionsEl.innerHTML = `
+                                <button id="switch-account" class="w-full bg-white/5 border border-white/10 text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-white/10 transition-all">Switch Account</button>
+                                <p class="text-[8px] text-red-400/60 uppercase tracking-widest mt-4">This account lacks command clearance.</p>
+                            `;
+                            document.getElementById('switch-account').onclick = () => signOut(auth).then(() => location.reload());
+                        }
                     }
                 } catch (err) {
                     console.error("Auth verification failed:", err);

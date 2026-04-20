@@ -914,16 +914,17 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 let traineeData = null;
 let activeUid = null;
 
-// Cloud-First Session: Always rely on Firebase Auth UID
+// Cloud-First Session with Legacy Fallback
 onAuthStateChanged(auth, (user) => {
-  if (!user) {
-    console.warn("[Dashboard] No active cloud session. Redirecting...");
+  activeUid = user ? user.uid : localStorage.getItem('skillforge_mock_uid');
+
+  if (!activeUid) {
+    console.warn("[Dashboard] No active session detected. Redirecting...");
     window.location.href = '../trainee-login/';
     return;
   }
 
-  activeUid = user.uid;
-  console.log("[Dashboard] Cloud session confirmed:", activeUid);
+  console.log("[Dashboard] Session active for identity:", activeUid);
   startRegistrySync(activeUid);
 });
 
@@ -978,18 +979,37 @@ function startRegistrySync(targetUid) {
 }
 
 window.toggleControl = async (type) => {
-  if (!traineeData) return;
-  const controls = traineeData.controls || {};
-  const key = type === 'glow' ? 'glow' : (type === 'light' ? 'light' : 'canvas');
-  controls[key] = !controls[key];
-  
+  if (!traineeData || !activeUid) {
+    console.warn("[Dashboard] Control toggle ignored: No active session or data.");
+    return;
+  }
+
+  // Correctly derive current states
+  const controls = {
+    glow: !!traineeData.controls?.glow,
+    light: !!traineeData.isLightMode,
+    canvas: !!traineeData.controls?.canvas
+  };
+
+  // Flip the specific target
+  if (type === 'glow') controls.glow = !controls.glow;
+  else if (type === 'light') controls.light = !controls.light;
+  else if (type === 'canvas') controls.canvas = !controls.canvas;
+
+  console.log(`[Dashboard] Toggling ${type} to:`, controls[type === 'light' ? 'light' : type]);
+
   const update = {};
   if (type === 'glow') update['controls.glow'] = controls.glow;
   else if (type === 'light') update.isLightMode = controls.light;
   else if (type === 'canvas') update['controls.canvas'] = controls.canvas;
-  
-  await updateDoc(doc(db, 'trainees', activeUid), update);
-  applyControlState(controls);
+
+  try {
+    await updateDoc(doc(db, 'trainees', activeUid), update);
+    // Local UI update for immediate feedback
+    applyControlState(controls);
+  } catch (err) {
+    console.error("[Dashboard] Control update failed:", err);
+  }
 };
 
 function applyControlState(controls) {

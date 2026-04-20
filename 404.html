@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 — Neural Link Severed • SkillForge Digital</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        :root { --navy: #040810; --gold: #C9A84C; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--navy); color: white; min-height: 100dvh; display: flex; align-items: center; justify-content: center; }
+        .glass { background: rgba(255,255,255,0.02); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
+        #sundust-canvas { position:fixed; inset:0; width:100%; height:100dvh; z-index:0; pointer-events:none }
+    </style>
+</head>
+<body class="p-6 text-center">
+    <canvas id="sundust-canvas"></canvas>
+    
+    <div class="relative z-10 max-w-md w-full space-y-8 animate-fade-in">
+        <div class="w-24 h-24 bg-red-500/10 rounded-[32px] flex items-center justify-center text-red-500 border border-red-500/20 mx-auto mb-8">
+            <i data-lucide="unplug" class="w-12 h-12"></i>
+        </div>
+        
+        <div class="space-y-2">
+            <h1 class="text-6xl font-black text-white uppercase tracking-tighter">404</h1>
+            <p class="text-gold font-black text-xs uppercase tracking-[0.4em]">Neural Link Severed</p>
+        </div>
+        
+        <p class="text-slate-500 text-sm leading-relaxed">
+            The node you are attempting to access does not exist in the SkillForge registry or has been archived.
+        </p>
+        
+        <div class="pt-8">
+            <a href="/" class="inline-flex items-center gap-3 bg-gold text-navy px-12 py-5 rounded-2xl font-black uppercase text-xs tracking-widest shadow-2xl hover:bg-white transition-all">
+                Return to Gateway <i data-lucide="home" class="w-4 h-4"></i>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        class Sundust {
+          constructor() {
+            this.canvas = document.getElementById('sundust-canvas');
+            this.ctx = this.canvas.getContext('2d');
+            this.particles = [];
+            this.resize();
+            window.addEventListener('resize', () => this.resize());
+            this.initParticles();
+            this.animate();
+          }
+          resize(){ this.canvas.width=window.innerWidth; this.canvas.height=window.innerHeight }
+          initParticles(){ for(let i=0;i<40;i++) this.particles.push(this.createParticle()) }
+          createParticle(){ return { x:Math.random()*this.canvas.width,y:Math.random()*this.canvas.height,size:Math.random()*1.2+0.5,alpha:Math.random()*0.3+0.1,vx:(Math.random()-0.5)*0.2,vy:(Math.random()-0.5)*0.2,p:Math.random()*Math.PI*2 } }
+          animate(){
+            this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
+            this.particles.forEach(p=>{
+              p.x+=p.vx; p.y+=p.vy; p.p+=0.01;
+              if(p.x<0)p.x=this.canvas.width; if(p.x>this.canvas.width)p.x=0;
+              if(p.y<0)p.y=this.canvas.height; if(p.y>this.canvas.height)p.y=0;
+              this.ctx.fillStyle=`rgba(201,168,76,${p.alpha+Math.sin(p.p)*0.1})`;
+              this.ctx.beginPath(); this.ctx.arc(p.x,p.y,p.size,0,Math.PI*2); this.ctx.fill();
+            });
+            requestAnimationFrame(()=>this.animate());
+          }
+        }
+        new Sundust();
+        if (window.lucide) window.lucide.createIcons();
+    </script>
+</body>
+</html>
