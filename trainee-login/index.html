@@ -200,7 +200,16 @@
             
             if (!querySnap.empty) {
                 console.warn("[Auth] Registry Desync: Legacy record found for email.");
-                handleResolution(user, querySnap.docs);
+                const legacyDoc = querySnap.docs[0];
+                
+                // Critical Fix: If the Auth UID doesn't match the Firestore Doc ID,
+                // we should offer to migrate the legacy data to the new Cloud UID.
+                if (legacyDoc.id !== user.uid) {
+                    console.log("[Auth] Migration Required: Legacy ID " + legacyDoc.id + " -> Cloud ID " + user.uid);
+                    handleResolution(user, querySnap.docs);
+                } else {
+                    finalizeLogin(user.uid);
+                }
             } else {
                 console.error("[Auth] Firestore registry completely missing for Auth UID and Email.");
                 showLoginError("Identity verified, but Academy profile missing. Please register or contact support.");
@@ -266,7 +275,10 @@
                 </div>
                 ${isCurrent ? 
                     `<button onclick="window.finalizeLogin('${d.id}')" class="px-4 py-2 bg-gold text-navy rounded-xl font-black text-[8px] uppercase tracking-widest hover:bg-white transition-all">Keep & Enter</button>` :
-                    `<button id="del-${d.id}" onclick="window.purgeIdentity('${d.id}')" class="px-4 py-2 bg-red-500/10 text-red-500 rounded-xl font-black text-[8px] uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all border border-red-500/20">Purge</button>`
+                    `<div class="flex gap-2">
+                        <button id="mig-${d.id}" onclick="window.migrateIdentity('${d.id}')" class="px-4 py-2 bg-blue-500/10 text-blue-400 rounded-xl font-black text-[8px] uppercase tracking-widest hover:bg-blue-500 hover:text-white transition-all border border-blue-500/20">Migrate to Cloud</button>
+                        <button id="del-${d.id}" onclick="window.purgeIdentity('${d.id}')" class="px-4 py-2 bg-red-500/10 text-red-500 rounded-xl font-black text-[8px] uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all border border-red-500/20">Purge</button>
+                    </div>`
                 }
             `;
             list.appendChild(card);
@@ -276,6 +288,44 @@
     }
 
     window.finalizeLogin = finalizeLogin;
+
+    window.migrateIdentity = async (legacyId) => {
+        const user = auth.currentUser;
+        if (!user) return;
+        
+        const btn = document.getElementById(`mig-${legacyId}`);
+        btn.disabled = true;
+        btn.innerText = "Migrating...";
+
+        try {
+            console.log("[Migration] Moving legacy data to new Cloud UID...");
+            const legacyRef = doc(db, "trainees", legacyId);
+            const cloudRef = doc(db, "trainees", user.uid);
+            
+            const snap = await getDoc(legacyRef);
+            if (snap.exists()) {
+                const data = snap.data();
+                // Update with new UID and metadata
+                await setDoc(cloudRef, {
+                    ...data,
+                    uid: user.uid,
+                    migratedFrom: legacyId,
+                    lastMigration: serverTimestamp()
+                }, { merge: true });
+                
+                // Delete old mock identity
+                await deleteDoc(legacyRef);
+                
+                alert("Identity Migration Successful! Your legacy profile is now a secured Cloud Profile.");
+                finalizeLogin(user.uid);
+            }
+        } catch (err) {
+            console.error("[Migration] Failed:", err);
+            alert("Migration failed: " + err.message);
+            btn.disabled = false;
+            btn.innerText = "Migrate to Cloud";
+        }
+    };
 
     window.purgeIdentity = async (id) => {
         if (!confirm("CRITICAL: This identity and all associated activity logs will be permanently purged from the Neural Registry. Proceed?")) return;
