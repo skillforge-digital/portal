@@ -210,14 +210,18 @@
             console.error("[Auth] Connection error:", err);
             let userMsg = "Authentication failed. Verify credentials.";
             
-            if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
-                userMsg = "Invalid Email or Master Password.";
+            if (err.code === 'auth/user-not-found') {
+                userMsg = "Identity Error: No master link found for this email. Please register first.";
+            } else if (err.code === 'auth/wrong-password') {
+                userMsg = "Access Denied: Incorrect master password. Try again or reset your password.";
+            } else if (err.code === 'auth/invalid-credential') {
+                userMsg = "Invalid Credentials: The email or password format is incorrect.";
             } else if (err.code === 'auth/too-many-requests') {
-                userMsg = "Too many failed attempts. Registry locked. Try again later.";
+                userMsg = "Registry Locked: Too many failed attempts. Please try again later.";
             } else if (err.code === 'auth/network-request-failed') {
-                userMsg = "Registry Sync Failed. Check Connection.";
+                userMsg = "Registry Sync Failed: Check your internet connection.";
             } else if (err.message) {
-                userMsg = err.message;
+                userMsg = "System Error: " + err.message;
             }
             
             showLoginError(userMsg);
