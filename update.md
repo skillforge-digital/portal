@@ -37,6 +37,7 @@ firebase deploy --only firestore:rules
 - **Relaxed Rules**: Updated `firestore.rules` to be more "graceful" and permissive, prioritizing functionality and XP gain over strict lockdown.
 - **Director Bypass**: The Director Command Center (`/director/`) now only requires the master passcode `SKILLFORGE-DIRECTOR-2026` to unlock, bypassing the full Firebase Auth requirement as requested.
 - **Code Optimization**: Identified and stabilized singleton engines across the portal to prevent duplicate instances and potential crashes.
+- **Auth Fix**: Resolved a `ReferenceError` in the login reconciliation logic by correctly importing `createUserWithEmailAndPassword` in the login portal.
 
 ---
 *Signed, Senior Software Architect & UI/UX Master*
