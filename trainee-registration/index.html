@@ -516,36 +516,37 @@
                 avatarUrl = publicUrl;
             }
 
+            console.log("[Registry] Calculating SFID sequence...");
+            // Pre-transaction read: Check for missing SFID numbers (gap-filling)
+            const traineesQuery = query(
+                collection(db, 'trainees'), 
+                where('track', '==', traineeData.track)
+            );
+            const querySnap = await getDocs(traineesQuery);
+            const existingNumbers = querySnap.docs
+                .map(doc => {
+                    const sfid = doc.data().sfid;
+                    if (!sfid) return null;
+                    const match = sfid.match(/-(\d+)$/);
+                    return match ? parseInt(match[1]) : null;
+                })
+                .filter(num => num !== null)
+                .sort((a, b) => a - b);
+
+            let nextNum = 1;
+            for (const num of existingNumbers) {
+                if (num === nextNum) {
+                    nextNum++;
+                } else if (num > nextNum) {
+                    break; // Found a gap!
+                }
+            }
+
             console.log("[Registry] Committing to Neural core...");
             const result = await runTransaction(db, async (tx) => {
                 const counterRef = doc(db, 'seasons', '2026', 'artifacts', 'trainees', 'counters', 'tracks');
                 const traineeRef = doc(db, 'trainees', user.uid);
                 const trackCode = TRACK_CODES[traineeData.track] || 'SFD';
-
-                // Gap-filling logic: Check for missing SFID numbers
-                const traineesQuery = query(
-                    collection(db, 'trainees'), 
-                    where('track', '==', traineeData.track)
-                );
-                const querySnap = await getDocs(traineesQuery);
-                const existingNumbers = querySnap.docs
-                    .map(doc => {
-                        const sfid = doc.data().sfid;
-                        if (!sfid) return null;
-                        const match = sfid.match(/-(\d+)$/);
-                        return match ? parseInt(match[1]) : null;
-                    })
-                    .filter(num => num !== null)
-                    .sort((a, b) => a - b);
-
-                let nextNum = 1;
-                for (const num of existingNumbers) {
-                    if (num === nextNum) {
-                        nextNum++;
-                    } else if (num > nextNum) {
-                        break; // Found a gap!
-                    }
-                }
 
                 const newSFID = `SFID-26-${trackCode}-${String(nextNum).padStart(3, '0')}`;
                 const pin = Math.floor(100000 + Math.random() * 900000).toString();

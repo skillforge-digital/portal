@@ -110,6 +110,12 @@ class SkillForgeTurbo {
                 
                 // Update sidebar active states
                 this.updateActiveLinks(url);
+
+                // Re-hydrate Lucide Icons
+                if (window.lucide) window.lucide.createIcons();
+
+                // Call sfCore sync if available (prevents duplicate init but syncs state)
+                if (window.sfCore) window.sfCore.syncRegistryState();
             } else {
                 // Fallback: Full body replacement if structure differs significantly
                 document.body.innerHTML = newBody.innerHTML;

@@ -191,13 +191,52 @@
 
         try {
             console.log("[Auth] Initiating master link...");
-            // Step 1: Sign in with Firebase Auth (Cloud Session)
-            const userCredential = await signInWithEmailAndPassword(auth, emailInput, passwordInput);
-            const user = userCredential.user;
+            let user;
+            try {
+                // Step 1: Attempt standard Firebase Auth Cloud Session
+                const userCredential = await signInWithEmailAndPassword(auth, emailInput, passwordInput);
+                user = userCredential.user;
+            } catch (authErr) {
+                // Step 2: Fallback - Check for Legacy Registry Identity (Mock UID system)
+                if (authErr.code === 'auth/user-not-found' || authErr.code === 'auth/invalid-credential') {
+                    console.warn("[Auth] Cloud session not found. Scanning Legacy Registry for email:", emailInput);
+                    const q = query(collection(db, "trainees"), where("email", "==", emailInput));
+                    const querySnap = await getDocs(q);
+                    
+                    if (!querySnap.empty) {
+                        const legacyData = querySnap.docs[0].data();
+                        // Verify legacy password stored in Firestore
+                        if (legacyData.password === passwordInput) {
+                            console.log("[Auth] Legacy Registry Verified. Provisioning Cloud Identity...");
+                            // Auto-migrate to Firebase Auth
+                            const newAuthUser = await createUserWithEmailAndPassword(auth, emailInput, passwordInput);
+                            user = newAuthUser.user;
+                            
+                            // Immediately migrate Firestore document to new Cloud UID
+                            await setDoc(doc(db, "trainees", user.uid), {
+                                ...legacyData,
+                                uid: user.uid,
+                                migratedFrom: querySnap.docs[0].id,
+                                lastMigration: serverTimestamp()
+                            });
+                            
+                            // Delete old legacy mock document
+                            await deleteDoc(doc(db, "trainees", querySnap.docs[0].id));
+                            console.log("[Auth] Migration complete. Neural link established.");
+                        } else {
+                            throw new Error("Access Denied: Legacy password mismatch.");
+                        }
+                    } else {
+                        throw authErr; // No legacy record found, re-throw original auth error
+                    }
+                } else {
+                    throw authErr;
+                }
+            }
 
             console.log("[Auth] Neural core linked. Checking registry for UID:", user.uid);
             
-            // Step 2: Check for Registry Match (Direct UID lookup)
+            // Step 3: Check for Registry Match (Direct UID lookup)
             const traineeDoc = await getDoc(doc(db, "trainees", user.uid));
             
             if (traineeDoc.exists()) {
@@ -206,20 +245,22 @@
                 return;
             }
 
-            // Step 3: Handle Registry Desync/Legacy Collision
-            console.warn("[Auth] UID Mismatch. Checking for email-based legacy records...");
+            // Step 4: Final Reconciliation for Desyncs
             const q = query(collection(db, "trainees"), where("email", "==", emailInput));
             const querySnap = await getDocs(q);
             
             if (!querySnap.empty) {
-                console.warn("[Auth] Registry Desync: Legacy record found for email.");
                 const legacyDoc = querySnap.docs[0];
-                
-                // Critical Fix: If the Auth UID doesn't match the Firestore Doc ID,
-                // we should offer to migrate the legacy data to the new Cloud UID.
                 if (legacyDoc.id !== user.uid) {
-                    console.log("[Auth] Migration Required: Legacy ID " + legacyDoc.id + " -> Cloud ID " + user.uid);
-                    handleResolution(user, querySnap.docs);
+                    console.log("[Auth] Automatic Migration: Syncing " + legacyDoc.id + " -> " + user.uid);
+                    await setDoc(doc(db, "trainees", user.uid), {
+                        ...legacyDoc.data(),
+                        uid: user.uid,
+                        migratedFrom: legacyDoc.id,
+                        lastMigration: serverTimestamp()
+                    });
+                    await deleteDoc(doc(db, "trainees", legacyDoc.id));
+                    finalizeLogin(user.uid);
                 } else {
                     finalizeLogin(user.uid);
                 }

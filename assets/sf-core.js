@@ -361,6 +361,14 @@ class SkillForgeCore {
         const traineeSnap = await getDoc(doc(this.db, 'trainees', this.uid));
         if (traineeSnap.exists()) {
             this.registryState = traineeSnap.data();
+        } else {
+            // CRITICAL: If Auth exists but Firestore profile is missing, force logout/re-login
+            console.error("[NeuralCore] Profile missing from Registry. Forcing re-authentication.");
+            // Only redirect if we are in the dashboard area
+            if (window.location.pathname.includes('/trainee-dashboard/')) {
+                window.location.href = '/trainee-login/?error=profile_missing';
+                return;
+            }
         }
 
         const path = window.location.pathname;

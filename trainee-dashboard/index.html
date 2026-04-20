@@ -1157,10 +1157,10 @@ function updateDynamicUI() {
   const myTrackLink = document.getElementById('my-track-link');
   if (myTrackLink && traineeData.track) {
     const trackIdMap = {
-      'Forex Synthetic Indices': 'forex-synthetic-indices',
-      'Forex Currency Pairs': 'forex-currency-pairs',
+      'Forex Synthetic Indices': 'forex-synthetics',
+      'Forex Currency Pairs': 'forex-currency',
       'AI Content Creation': 'ai-content-creation',
-      'Photography & Editing': 'photography-editing',
+      'Photography & Editing': 'photography-and-editing',
       'Graphic Design': 'graphic-design',
       'Digital Marketing': 'digital-marketing',
       'Mobile Cinematography': 'mobile-cinematography',
@@ -1171,6 +1171,12 @@ function updateDynamicUI() {
     const trackId = trackIdMap[traineeData.track] || traineeData.track.toLowerCase().replace(/\s+/g, '-');
     myTrackLink.href = `https://skillforgedigital.com.ng/academy/gate.html?track=${encodeURIComponent(trackId)}`;
     myTrackLink.classList.remove('opacity-30', 'pointer-events-none');
+    
+    // Update all sidebar links with the same logic for consistency
+    document.querySelectorAll('#my-track-link').forEach(link => {
+        link.href = `https://skillforgedigital.com.ng/academy/gate.html?track=${encodeURIComponent(trackId)}`;
+        link.classList.remove('opacity-30', 'pointer-events-none');
+    });
   }
 
   // Update SFID
