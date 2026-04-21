@@ -82,40 +82,44 @@ class ThemeManager {
         
         console.log('ThemeManager: Syncing with registry using identity:', this.uid);
         
-        onSnapshot(doc(db, 'trainees', this.uid), (/** @type {any} */ docSnap) => {
-            console.log('ThemeManager: Received registry snapshot update');
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                if (data.theme) {
-                    console.log('ThemeManager: Applying remote theme:', data.theme.type);
-                    this.currentTheme = data.theme;
-                    this.applyTheme(data.theme);
-                }
-                if (data.fontFamily) {
-                    console.log('ThemeManager: Applying remote font:', data.fontFamily);
-                    this.applyFont(data.fontFamily);
-                }
-                if (data.controls || data.isLightMode !== undefined) {
-                    this.controls = {
-                        glow: !!data.controls?.glow,
-                        light: !!data.isLightMode,
-                        performance: !!data.performanceMode
-                    };
-                    this.applyControls(this.controls);
-                }
-                if (data.wallpaper) {
-                    console.log('ThemeManager: Applying remote wallpaper');
-                    this.applyWallpaper(data.wallpaper);
-                }
-            } else {
-                console.warn('ThemeManager: Registry document missing for identity:', this.uid);
-                // If on dashboard, trigger redirect to login
-                if (window.location.pathname.includes('trainee-dashboard')) {
-                    window.location.href = '../trainee-login/?error=stale_session';
-                }
+        const syncData = (data) => {
+            if (data.theme) {
+                console.log('ThemeManager: Applying remote theme:', data.theme.type);
+                this.currentTheme = data.theme;
+                this.applyTheme(data.theme);
             }
-        }, (/** @type {any} */ err) => {
-            console.error('ThemeManager Snapshot failed:', err);
+            if (data.fontFamily) {
+                console.log('ThemeManager: Applying remote font:', data.fontFamily);
+                this.applyFont(data.fontFamily);
+            }
+            if (data.controls || data.isLightMode !== undefined) {
+                this.controls = {
+                    glow: !!data.controls?.glow,
+                    light: !!data.isLightMode,
+                    performance: !!data.performanceMode
+                };
+                this.applyControls(this.controls);
+            }
+            if (data.wallpaper) {
+                console.log('ThemeManager: Applying remote wallpaper');
+                this.applyWallpaper(data.wallpaper);
+            }
+        };
+
+        // Try staff registry first, then trainees
+        onSnapshot(doc(db, 'staffs', this.uid), (snap) => {
+            if (snap.exists()) syncData(snap.data());
+            else {
+                onSnapshot(doc(db, 'trainees', this.uid), (tSnap) => {
+                    if (tSnap.exists()) syncData(tSnap.data());
+                    else {
+                        console.warn('ThemeManager: Registry document missing for identity:', this.uid);
+                        if (window.location.pathname.includes('trainee-dashboard')) {
+                            window.location.href = '../trainee-login/?error=stale_session';
+                        }
+                    }
+                });
+            }
         });
     }
 
@@ -232,7 +236,15 @@ class ThemeManager {
         if (!this.uid) return;
         try {
             const themeUpdate = { ...this.currentTheme, layout: layoutNum };
-            await updateDoc(doc(db, 'trainees', this.uid), { theme: themeUpdate });
+            
+            // Determine target collection
+            let userRef = doc(db, 'staffs', this.uid);
+            let userSnap = await getDoc(userRef);
+            if (!userSnap.exists()) {
+                userRef = doc(db, 'trainees', this.uid);
+            }
+
+            await updateDoc(userRef, { theme: themeUpdate });
             this.currentTheme = themeUpdate;
             this.applyTheme(themeUpdate);
             return true;

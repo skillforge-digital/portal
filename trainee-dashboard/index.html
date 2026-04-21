@@ -85,10 +85,15 @@ tailwind.config = {
   .orbit-3 { animation: orbit3 30s linear infinite; will-change: transform; }
   
   @keyframes ticker {
-    0% { transform: translateX(100%); }
-    100% { transform: translateX(-100%); }
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-50%); }
   }
-  .animate-ticker { animation: ticker 30s linear infinite; will-change: transform; }
+  .animate-ticker { 
+    display: flex;
+    width: max-content;
+    animation: ticker 60s linear infinite; 
+    will-change: transform; 
+  }
   .animate-ticker:hover { animation-play-state: paused; }
 
   @keyframes blink { 0%,50%{opacity:1} 51%,100%{opacity:0} }
@@ -116,7 +121,8 @@ tailwind.config = {
     .glass, .glass-strong { -webkit-backdrop-filter: blur(15px); backdrop-filter: blur(15px); }
     .orbit-container { transform: scale(0.6); }
     .dock-item:hover { transform: translateY(-4px) scale(1.1); }
-    .template-section { padding-top: 5rem; }
+    .template-section { padding-top: 5rem; padding-bottom: 5rem; overflow-x: hidden; }
+    .grid { gap: 1rem; }
   }
 
   /* Global Accent Color Overrides */
@@ -153,6 +159,7 @@ tailwind.config = {
   .w-0-dynamic { width: 0%; }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
   <style>
     #loading-screen { position: fixed; inset: 0; background: #040810; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease; }
   </style>
@@ -190,11 +197,12 @@ tailwind.config = {
 <canvas id="gold-dust" class="fixed inset-0 pointer-events-none z-0"></canvas>
 
 <!-- Global News Ticker -->
-<div class="fixed top-0 left-0 right-0 md:left-72 h-8 bg-navy-950/80 backdrop-blur-md border-b border-white/5 z-[55] overflow-hidden flex items-center no-print">
-  <div class="px-4 bg-gold-500 text-navy-950 text-[8px] font-black uppercase tracking-widest h-full flex items-center z-10">Academy Flash</div>
-  <div class="flex-1 overflow-hidden relative h-full">
-    <div id="news-ticker-content" class="absolute whitespace-nowrap flex items-center h-full gap-20 animate-ticker">
-      <span class="text-[9px] font-bold text-white/60 uppercase tracking-widest italic">Loading Dashboard, please wait...</span>
+<div class="fixed top-0 left-0 right-0 md:left-72 h-8 bg-navy-950/90 backdrop-blur-xl border-b border-white/5 z-[60] overflow-hidden flex items-center no-print shadow-2xl">
+  <div class="px-4 bg-gold-500 text-navy-950 text-[10px] font-black uppercase tracking-widest h-full flex items-center z-20">Academy Flash</div>
+  <div class="flex-1 overflow-hidden relative h-full flex items-center">
+    <div id="news-ticker-content" class="animate-ticker flex items-center gap-24">
+      <span class="text-[11px] font-bold text-white/90 uppercase tracking-[0.2em] italic">Welcome to SkillForge Season 2026. Neural Registry is Active.</span>
+      <span class="text-[11px] font-bold text-white/90 uppercase tracking-[0.2em] italic">Welcome to SkillForge Season 2026. Neural Registry is Active.</span>
     </div>
   </div>
 </div>
@@ -305,7 +313,7 @@ tailwind.config = {
         <div class="w-full md:w-auto glass rounded-3xl p-5 pin-reveal cursor-pointer text-right group"><p class="text-white/40 text-[10px] uppercase tracking-wider mb-1"><i class="fa-solid fa-key text-gold-500/60 mr-1"></i> Access Key</p><div class="flex items-center gap-3 justify-end"><span class="access-pin-target text-2xl md:text-3xl font-bold tracking-[0.3em] pin-blur text-gold-300">0000</span></div></div>
       </header>
       <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 auto-rows-[140px] md:auto-rows-[160px]">
-        <div class="glass rounded-[40px] p-6 md:p-8 col-span-2 row-span-2 flex flex-col justify-between glow-gold fade-in-1 relative overflow-hidden group">
+        <div data-widget-id="profile" class="glass rounded-[40px] p-6 md:p-8 col-span-2 row-span-2 flex flex-col justify-between glow-gold fade-in-1 relative overflow-hidden group">
           <div class="absolute top-0 right-0 w-32 h-32 bg-gold-500/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
           <div>
             <div class="w-16 h-16 rounded-2xl bg-black flex items-center justify-center text-navy-950 font-bold text-2xl relative pulse-ring shadow-xl profile-initials-target overflow-hidden border border-gold-500/30">
@@ -324,7 +332,7 @@ tailwind.config = {
           </div>
         </div>
         
-        <div class="glass rounded-[40px] p-6 col-span-2 flex flex-col justify-center fade-in-2">
+        <div data-widget-id="xp" class="glass rounded-[40px] p-6 col-span-2 flex flex-col justify-center fade-in-2">
             <div class="flex items-center justify-between mb-2">
               <div class="flex items-center gap-2"><span class="text-gold-400 text-xs font-semibold">Mastery XP</span><span class="text-white/30 text-xs">•</span><span class="text-white/50 text-xs xp-text-target">0 / 1,000</span></div>
               <span class="text-[10px] font-bold text-white/40 uppercase level-target">Lvl 1</span>
@@ -332,22 +340,22 @@ tailwind.config = {
             <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden"><div class="progress-fill h-full bg-gradient-to-r from-gold-600 to-gold-400 rounded-full xp-bar-target w-0-dynamic"></div></div>
         </div>
 
-        <div class="glass rounded-[40px] p-6 col-span-2 flex items-center gap-6 fade-in-2 group">
+        <div data-widget-id="study-time" class="glass rounded-[40px] p-6 col-span-2 flex items-center gap-6 fade-in-2 group">
           <div class="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-white group-hover:scale-110 transition-transform shadow-inner"><i class="fa-solid fa-clock text-2xl"></i></div>
           <div><p class="text-white/40 text-xs uppercase tracking-wider mb-1">Active Study Time</p><p class="text-4xl font-bold tracking-tight study-time-target">00D 00H</p></div>
         </div>
-        <div class="glass rounded-[40px] p-6 col-span-2 flex items-center gap-6 fade-in-2 group">
+        <div data-widget-id="logins" class="glass rounded-[40px] p-6 col-span-2 flex items-center gap-6 fade-in-2 group">
           <div class="w-14 h-14 rounded-2xl bg-gold-500/10 flex items-center justify-center text-gold-500 group-hover:scale-110 transition-transform shadow-inner"><i class="fa-solid fa-sign-in-alt text-2xl"></i></div>
           <div><p class="text-white/40 text-xs uppercase tracking-wider mb-1">Total Logins</p><p class="text-4xl font-bold tracking-tight logins-target">0</p></div>
         </div>
-        <div class="glass-gold rounded-[40px] p-6 col-span-2 flex items-center gap-6 fade-in-3">
+        <div data-widget-id="cert" class="glass-gold rounded-[40px] p-6 col-span-2 flex items-center gap-6 fade-in-3">
           <div class="w-14 h-14 rounded-2xl bg-gold-500/10 flex items-center justify-center text-gold-500"><i class="fa-solid fa-award text-2xl"></i></div>
           <div class="flex-1">
             <div class="flex justify-between items-center mb-2"><p class="text-gold-400 text-xs font-semibold uppercase tracking-wider">Cert Eligibility</p><span class="text-xs font-bold text-white cert-days-target">0 / 14 Days</span></div>
             <div class="w-full h-2 bg-gold-950/40 rounded-full overflow-hidden shadow-inner"><div class="progress-fill h-full bg-gold-500 rounded-full cert-bar-target w-0-dynamic"></div></div>
           </div>
         </div>
-        <div class="glass rounded-[40px] p-8 col-span-2 row-span-2 flex flex-col gap-6 fade-in-4">
+        <div data-widget-id="controls" class="glass rounded-[40px] p-8 col-span-2 row-span-2 flex flex-col gap-6 fade-in-4">
           <p class="text-white/40 text-xs uppercase tracking-wider mb-2">Control Hub</p>
           <div class="space-y-6">
             <div class="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
@@ -903,112 +911,255 @@ tailwind.config = {
 <script type="module">
 import { themeManager } from '../assets/theme-manager.js';
 import { db, auth } from '../assets/firebase-config.js';
-import { onAuthStateChanged, signOut, signInAnonymously } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
-import { doc, getDoc, setDoc, onSnapshot, collection, query, orderBy, limit, getDocs, updateDoc } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+import { ROLES, getCumulativePermissions, hasPermission } from '../assets/rbac-config.js';
+import { DashboardState } from '../assets/dashboard-state.js';
+import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+import { doc, getDoc, onSnapshot, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 
-const supabaseUrl = 'https://luxubaqztmbcpskyfgdp.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1eHViYXF6dG1iY3Bza3lmZ2RwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDYzNTcsImV4cCI6MjA5MTQyMjM1N30.Kmon8jh22u5KgWWpXf-7cdZ4qxlKXuUbVm6Mh-GHd8Q';
-const supabase = createClient(supabaseUrl, supabaseKey);
-
-let traineeData = null;
+let dashboardState = null;
 let activeUid = null;
 
-// Cloud-First Session with Legacy Fallback
+// Initialize Dashboard State
 onAuthStateChanged(auth, (user) => {
   activeUid = user ? user.uid : localStorage.getItem('skillforge_mock_uid');
 
   if (!activeUid) {
-    console.warn("[Dashboard] No active session detected. Redirecting...");
     window.location.href = '../trainee-login/';
     return;
   }
 
-  console.log("[Dashboard] Session active for identity:", activeUid);
+  dashboardState = new DashboardState(activeUid, db);
+  
+  // Subscribe to state changes to update UI
+  dashboardState.subscribe((userData, permissions) => {
+    if (!userData) return;
+    updateUI(userData, permissions);
+    themeManager.applyTheme(userData.theme || {});
+    hideLoading();
+  });
+
   startRegistrySync(activeUid);
 });
 
-// Failsafe: Remove loading screen after 10 seconds if it hangs
-setTimeout(() => {
-  const loader = document.getElementById('loading-screen');
-  if (loader && loader.style.display !== 'none') {
-    console.warn("[Dashboard] Loading timeout reached. Forcing reveal...");
-    document.documentElement.style.visibility = 'visible';
-    loader.style.opacity = '0';
-    setTimeout(() => loader.style.display = 'none', 500);
-  }
-}, 10000);
-
-function startRegistrySync(targetUid) {
-  let lastDataString = null;
-  
-  onSnapshot(doc(db, 'trainees', targetUid), (snap) => {
+function startRegistrySync(uid) {
+  // Try to find user in 'staffs' first, then 'trainees'
+  onSnapshot(doc(db, 'staffs', uid), (snap) => {
     if (snap.exists()) {
-      const newData = snap.data();
-      const newDataString = JSON.stringify(newData);
-      
-      // Only update if data actually changed to prevent render loops
-      if (newDataString !== lastDataString) {
-        console.log('[Dashboard] Registry updated, refreshing UI...');
-        traineeData = newData;
-        lastDataString = newDataString;
-        initDashboard(targetUid);
-        updateNeuralResume(newData);
-        loadNewsTicker();
-      }
+      dashboardState.update(snap.data());
     } else {
-      console.error("[Dashboard] Trainee registry not found for identity:", targetUid);
-      // CRITICAL: Clear invalid session to prevent infinite redirect loop
-      document.cookie = "sf_uid=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-      window.location.href = '../trainee-login/?error=registry_not_found';
-    }
-  }, (err) => {
-    console.error("[Dashboard] Snapshot error:", err);
-    if (window.sf_report_error) window.sf_report_error("Dashboard Registry Sync Failed", err.stack);
-    
-    // Reveal content even on error to prevent blank screen
-    document.documentElement.style.visibility = 'visible';
-    
-    // Failsafe: hide loader on error
-    const loader = document.getElementById('loading-screen');
-    if (loader) {
-        loader.style.opacity = '0';
-        setTimeout(() => loader.style.display = 'none', 500);
+      // Fallback to trainees
+      onSnapshot(doc(db, 'trainees', uid), (tSnap) => {
+        if (tSnap.exists()) {
+          dashboardState.update(tSnap.data());
+        } else {
+          console.error("User not found in any registry.");
+          window.location.href = '../trainee-login/?error=user_not_found';
+        }
+      });
     }
   });
 }
 
-window.toggleControl = async (type) => {
-  if (!traineeData || !activeUid) {
-    console.warn("[Dashboard] Control toggle ignored: No active session or data.");
-    return;
-  }
+function updateUI(data, permissions) {
+   // Update Common UI Elements
+   document.querySelectorAll('.user-name-target').forEach(el => el.innerText = data.name || 'User');
+   document.querySelectorAll('.profile-name-target').forEach(el => el.innerText = data.name || 'User');
+   document.querySelectorAll('.sfid-display-target').forEach(el => el.innerText = data.sfid || 'SFID-PENDING');
+   
+   // Update Role Badges
+   const roleDisplay = (data.roles || ['Trainee']).join(' | ');
+   document.querySelectorAll('.profile-track-target').forEach(el => el.innerText = roleDisplay);
+ 
+   // Dynamic Sidebar Links based on RBAC
+   const sidebarNav = document.querySelector('#main-sidebar nav');
+   if (sidebarNav) {
+     // Clear dynamic staff links if they exist
+     const existingStaffLinks = sidebarNav.querySelectorAll('.staff-link');
+     existingStaffLinks.forEach(el => el.remove());
+ 
+     // Add Staff Links based on permissions
+     if (hasPermission(data.roles, 'access_director_center')) {
+       addSidebarLink(sidebarNav, '/staffs/director/', 'Director Center', 'fa-crown', 'staff-link');
+     }
+     if (hasPermission(data.roles, 'access_hod_center')) {
+       addSidebarLink(sidebarNav, '/staffs/hod/', 'HOD Hub', 'fa-building-shield', 'staff-link');
+     }
+     if (hasPermission(data.roles, 'access_specialist_center')) {
+       addSidebarLink(sidebarNav, '/staffs/specialist/', 'Specialist Portal', 'fa-microchip', 'staff-link');
+     }
+   }
+ 
+   // Handle Theme Toggles
+   updateControlButtons(data);
+   
+   // Initialize Sortable for current active template grid
+   initSortable(data.theme?.layout || 1, data.theme?.widgetOrder || []);
+ }
 
-  // Correctly derive current states
-  const controls = {
-    glow: !!traineeData.controls?.glow,
-    light: !!traineeData.isLightMode,
-    canvas: !!traineeData.controls?.canvas
-  };
+function initSortable(layoutNum, savedOrder) {
+    const grid = document.querySelector(`#t${layoutNum} .grid, #t${layoutNum} [id$="-grid"]`);
+    if (!grid || !window.Sortable) return;
+
+    // Apply saved order if it exists
+    if (savedOrder && savedOrder.length > 0) {
+        const items = Array.from(grid.children);
+        savedOrder.forEach(id => {
+            const item = items.find(el => el.dataset.widgetId === id);
+            if (item) grid.appendChild(item);
+        });
+    }
+
+    // Initialize Sortable
+    new Sortable(grid, {
+        animation: 150,
+        ghostClass: 'opacity-50',
+        onEnd: async () => {
+            const newOrder = Array.from(grid.children).map(el => el.dataset.widgetId || '');
+            if (activeUid) {
+                const userRef = dashboardState.userData.roles ? doc(db, 'staffs', activeUid) : doc(db, 'trainees', activeUid);
+                await updateDoc(userRef, { 'theme.widgetOrder': newOrder });
+                console.log("[Dashboard] Widget configuration persisted.");
+            }
+        }
+    });
+}
+
+function addSidebarLink(parent, href, label, icon, className) {
+  const a = document.createElement('a');
+  a.href = href;
+  a.className = `sidebar-link ${className} w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-gold-400/80 hover:text-gold hover:bg-gold-500/10 transition-all`;
+  a.innerHTML = `<i class="fa-solid ${icon} w-4"></i> ${label}`;
+  parent.appendChild(a);
+}
+
+function updateControlButtons(data) {
+    const controls = data.controls || {};
+    const isLight = !!data.isLightMode;
+
+    document.querySelectorAll('.ctrl-glow-btn').forEach(btn => {
+        const indicator = btn.querySelector('div > div');
+        if (controls.glow) {
+            btn.classList.add('bg-gold-500/20');
+            if (indicator) indicator.style.transform = 'translateX(24px)';
+        } else {
+            btn.classList.remove('bg-gold-500/20');
+            if (indicator) indicator.style.transform = 'translateX(0)';
+        }
+    });
+
+    document.querySelectorAll('.ctrl-light-btn').forEach(btn => {
+        const indicator = btn.querySelector('div > div');
+        if (isLight) {
+            btn.classList.add('bg-gold-500/20');
+            if (indicator) indicator.style.transform = 'translateX(24px)';
+        } else {
+            btn.classList.remove('bg-gold-500/20');
+            if (indicator) indicator.style.transform = 'translateX(0)';
+        }
+    });
+}
+
+function hideLoading() {
+  const loader = document.getElementById('loading-screen');
+  if (loader) {
+    loader.style.opacity = '0';
+    setTimeout(() => {
+        loader.style.display = 'none';
+        document.documentElement.style.visibility = 'visible';
+    }, 500);
+  }
+}
+
+window.logout = async () => {
+    try {
+        await signOut(auth);
+        localStorage.removeItem('skillforge_mock_uid');
+        window.location.href = '../trainee-login/';
+    } catch (err) {
+        console.error(err);
+    }
+};
+
+window.toggleControl = async (type) => {
+    if (!activeUid || !dashboardState.userData) return;
+    
+    const userRef = dashboardState.userData.roles ? doc(db, 'staffs', activeUid) : doc(db, 'trainees', activeUid);
+    
+    if (type === 'glow') {
+        const current = !!dashboardState.userData.controls?.glow;
+        await updateDoc(userRef, { 'controls.glow': !current });
+    } else if (type === 'light') {
+        const current = !!dashboardState.userData.isLightMode;
+        await updateDoc(userRef, { 'isLightMode': !current });
+    } else if (type === 'canvas') {
+        const current = !!dashboardState.userData.controls?.canvas;
+        await updateDoc(userRef, { 'controls.canvas': !current });
+    }
+};
+
+// Layout Switching Logic
+window.showLayout = async (num) => {
+    if (!activeUid || !dashboardState.userData) return;
+    const userRef = dashboardState.userData.roles ? doc(db, 'staffs', activeUid) : doc(db, 'trainees', activeUid);
+    await updateDoc(userRef, { 'theme.layout': num });
+    applyLayout(num);
+};
+
+function applyLayout(num) {
+    document.querySelectorAll('.template-section').forEach(s => s.classList.remove('active-template'));
+    const target = document.getElementById(`t${num}`);
+    if (target) target.classList.add('active-template');
+
+    document.querySelectorAll('.layout-switch-btn').forEach(btn => {
+        if (btn.dataset.l == num) {
+            btn.classList.add('bg-gold-500', 'text-navy-950');
+            btn.classList.remove('text-white/40');
+        } else {
+            btn.classList.remove('bg-gold-500', 'text-navy-950');
+            btn.classList.add('text-white/40');
+        }
+    });
+}
+
+// Initial Layout Application
+if (traineeData && traineeData.theme && traineeData.theme.layout) {
+    applyLayout(traineeData.theme.layout);
+} else {
+    applyLayout(1);
+}
 
   // Flip the specific target
-  if (type === 'glow') controls.glow = !controls.glow;
-  else if (type === 'light') controls.light = !controls.light;
-  else if (type === 'canvas') controls.canvas = !controls.canvas;
+  const newVal = type === 'light' ? !controls.light : !controls[type];
+  
+  // Local state update for immediate feedback
+  if (type === 'light') traineeData.isLightMode = newVal;
+  else {
+    if (!traineeData.controls) traineeData.controls = {};
+    traineeData.controls[type] = newVal;
+  }
 
-  console.log(`[Dashboard] Toggling ${type} to:`, controls[type === 'light' ? 'light' : type]);
+  // Update UI immediately
+  applyControlUI(traineeData.controls || {});
+  if (type === 'light') document.body.classList.toggle('light', newVal);
+  if (type === 'glow') document.body.classList.toggle('glow-mode', newVal);
+  if (type === 'canvas') {
+    const canvas = document.getElementById('gold-dust');
+    if (canvas) canvas.style.display = newVal ? 'block' : 'none';
+    // Notify DailyAtmosphere engine
+    window.dispatchEvent(new CustomEvent('sf:toggle-canvas', { detail: { enabled: newVal } }));
+  }
 
-  const update = {};
-  if (type === 'glow') update['controls.glow'] = controls.glow;
-  else if (type === 'light') update.isLightMode = controls.light;
-  else if (type === 'canvas') update['controls.canvas'] = controls.canvas;
+  console.log(`[Dashboard] Toggling ${type} to:`, newVal);
 
   try {
+    const update = {};
+    if (type === 'glow') update['controls.glow'] = newVal;
+    else if (type === 'light') update.isLightMode = newVal;
+    else if (type === 'canvas') update['controls.canvas'] = newVal;
+
     await updateDoc(doc(db, 'trainees', activeUid), update);
-    // Local UI update for immediate feedback
-    applyControlState(controls);
   } catch (err) {
-    console.error("[Dashboard] Control update failed:", err);
+    console.error("[Dashboard] Remote sync failed for control:", type, err);
   }
 };
 

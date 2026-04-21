@@ -98,6 +98,25 @@
                     <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Full Command Name</label>
                     <input required name="name" type="text" placeholder="FIRSTNAME LASTNAME" class="w-full p-4 rounded-2xl text-sm uppercase">
                 </div>
+
+                <!-- Social Media Integration -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label for="social-platform" class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Primary Social Matrix</label>
+                        <select required id="social-platform" name="socialPlatform" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10">
+                            <option value="">SELECT PLATFORM...</option>
+                            <option value="Instagram">Instagram</option>
+                            <option value="Twitter">X (Twitter)</option>
+                            <option value="LinkedIn">LinkedIn</option>
+                            <option value="Facebook">Facebook</option>
+                            <option value="TikTok">TikTok</option>
+                        </select>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Social Handle / URL</label>
+                        <input required id="social-handle" name="socialHandle" type="text" placeholder="@username or paste URL" class="w-full p-4 rounded-2xl text-sm" onblur="extractSocialHandle(this)">
+                    </div>
+                </div>
                 
                 <div class="space-y-2">
                     <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Personnel Email</label>
@@ -140,21 +159,32 @@
     import { db, auth } from '../../assets/firebase-config.js';
     import { doc, getDoc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
     import { createUserWithEmailAndPassword, updateProfile } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+    import { STAFF_SEED_DATA } from '../../assets/staff-seed-data.js';
 
     let assignedRoles = [];
     let assignedCode = '';
 
+    const MASTER_KEY = "SKF-MASTER-PROVISION-2026";
     const ROLE_HIERARCHY = [
         'Director',
         'HOD',
         'Specialist',
         'Digital Marketing',
-        'Support Staff'
+        'Community Manager',
+        'Support Team',
+        'Staff',
+        'Trainee'
     ];
 
     window.verifyRoleCode = async () => {
         const codeInput = document.getElementById('role-code-input').value.trim();
         if (!codeInput) return;
+
+        // Master Provisioning Override
+        if (codeInput === MASTER_KEY) {
+            provisionStaffCodes();
+            return;
+        }
 
         const btn = document.getElementById('verify-btn');
         btn.disabled = true;
@@ -191,6 +221,34 @@
         }
     };
 
+    async function provisionStaffCodes() {
+        const btn = document.getElementById('verify-btn');
+        btn.disabled = true;
+        btn.innerHTML = 'Provisioning Staff Matrix...';
+        
+        try {
+            let count = 0;
+            for (const staff of STAFF_SEED_DATA) {
+                await setDoc(doc(db, 'role_codes', staff.code), {
+                    roles: staff.roles,
+                    name: staff.name,
+                    position: staff.position,
+                    used: false,
+                    created_at: serverTimestamp()
+                }, { merge: true });
+                count++;
+            }
+            alert(`Provisioning Complete: ${count} staff authorization codes initialized in the registry.`);
+        } catch (err) {
+            console.error(err);
+            alert("Provisioning Failed: " + err.message);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = 'Verify Authorization <i data-lucide="shield-check" class="w-4 h-4"></i>';
+            if (window.lucide) window.lucide.createIcons();
+        }
+    }
+
     document.getElementById('staff-reg-form').onsubmit = async (e) => {
         e.preventDefault();
         const btn = document.getElementById('reg-btn');
@@ -212,6 +270,11 @@
         }
 
         try {
+            // ... (auth and highestRole logic) ...
+            const formData = new FormData(e.target);
+            const { name, email, password, socialPlatform, socialHandle } = Object.fromEntries(formData.entries());
+            const department = document.getElementById('department-select').value;
+
             // 1. Create User in Auth
             const userCred = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCred.user;
@@ -219,18 +282,15 @@
             // 2. Update Auth Profile
             await updateProfile(user, { displayName: name.toUpperCase() });
 
-            // 3. Determine Highest Role & Target Collection
-            const highestRole = assignedRoles.sort((a, b) => 
-                ROLE_HIERARCHY.indexOf(a) - ROLE_HIERARCHY.indexOf(b)
-            )[0] || 'Staff';
+            // 3. Determine Highest Role (for UI/Dashboard targeting)
+            const highestRole = assignedRoles.sort((a, b) => {
+                const aIdx = ROLE_HIERARCHY.indexOf(a);
+                const bIdx = ROLE_HIERARCHY.indexOf(b);
+                return (aIdx === -1 ? 99 : aIdx) - (bIdx === -1 ? 99 : bIdx);
+            })[0] || 'Staff';
 
-            let collectionName = 'staffs';
-            if (highestRole === 'Director') collectionName = 'directors';
-            else if (highestRole === 'HOD') collectionName = 'hods';
-            else if (highestRole === 'Specialist') collectionName = 'specialists';
-
-            // 4. Create Personnel Document in correct collection
-            await setDoc(doc(db, collectionName, user.uid), {
+            // 4. Create Personnel Document in UNIFIED staffs collection
+            await setDoc(doc(db, 'staffs', user.uid), {
                 uid: user.uid,
                 name: name.toUpperCase(),
                 email: email.toLowerCase(),
@@ -238,9 +298,14 @@
                 primaryRole: highestRole,
                 department: department,
                 roleCode: assignedCode,
+                social: {
+                    platform: socialPlatform,
+                    handle: socialHandle
+                },
                 created_at: serverTimestamp(),
                 lastLogin: serverTimestamp(),
-                status: 'active'
+                status: 'active',
+                theme: { layout: 1, color: '#f59e0b', secondary: '#040810' }
             });
 
             // 5. Mark code as used
@@ -260,16 +325,36 @@
     };
 
     window.togglePassword = (id) => {
-        const input = document.getElementById(id);
-        const icon = document.getElementById('eye-' + id);
-        if (input.type === 'password') {
-            input.type = 'text';
-            icon.setAttribute('data-lucide', 'eye-off');
-        } else {
-            input.type = 'password';
-            icon.setAttribute('data-lucide', 'eye');
-        }
-        if (window.lucide) window.lucide.createIcons();
+        // ... (existing code) ...
+    };
+
+    window.extractSocialHandle = (input) => {
+        let val = input.value.trim();
+        if (!val) return;
+
+        // Auto-extraction logic for URLs
+        try {
+            if (val.includes('http') || val.includes('www.')) {
+                const url = new URL(val.startsWith('http') ? val : 'https://' + val);
+                const pathParts = url.pathname.split('/').filter(p => p.length > 0);
+                
+                if (val.includes('linkedin.com')) {
+                    // LinkedIn: /in/username/ or /company/name
+                    if (pathParts[0] === 'in' || pathParts[0] === 'company') val = pathParts[1];
+                    else val = pathParts[0];
+                } else if (val.includes('facebook.com')) {
+                    // Facebook: /username or /profile.php?id=...
+                    val = url.searchParams.get('id') || pathParts[0];
+                } else {
+                    // Instagram, Twitter, TikTok: /username
+                    val = pathParts[0];
+                }
+            }
+        } catch (e) { console.warn("Social parse error:", e); }
+
+        // Clean handle format
+        val = val.replace('@', '');
+        input.value = '@' + val;
     };
 
     // Sundust Background

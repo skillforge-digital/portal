@@ -49,103 +49,143 @@ tailwind.config = {
   .glass-strong { background: rgba(12, 24, 50, 0.85); -webkit-backdrop-filter: blur(30px); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.1); }
   .sidebar-link.active { background: rgba(var(--accent-color-rgb), 0.1); color: var(--card-accent); border-right: 3px solid var(--card-accent); }
 
-  /* Redesigned Membership Card - Half Top Photo */
+  /* Premium Re-engineered Membership Card */
   .membership-card {
-    width: 400px; /* Fixed width for consistent export */
-    height: 600px; /* Fixed height for consistent export */
+    width: 550px; /* Slightly wider */
+    height: 800px; /* Taller for more vertical space */
     background: var(--card-bg);
-    border-radius: 40px;
+    border-radius: 64px;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
-    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 60px 150px -30px rgba(0,0,0,0.95);
+    border: 1px solid rgba(255,255,255,0.15);
     display: flex;
     flex-direction: column;
-    transform: translateZ(0); /* Force hardware acceleration */
+    isolation: isolate;
   }
   
   .card-photo-section {
     width: 100%;
-    height: 300px; /* Fixed half height */
+    height: 480px; /* Increased height */
     position: relative;
-    background: #111;
+    background: #000;
     overflow: hidden;
+    z-index: 5;
   }
   
   .card-photo-section img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center 10%;
     display: block;
+    filter: brightness(0.85) contrast(1.1);
   }
   
-  .card-overlay {
+  .card-overlay-gradient {
     position: absolute;
     inset: 0;
-    background: linear-gradient(to bottom, transparent 60%, var(--card-bg));
+    background: linear-gradient(to bottom, transparent 40%, var(--card-bg) 98%);
+    z-index: 6;
     pointer-events: none;
   }
   
-  .card-details-section {
+  .card-content-area {
     flex: 1;
-    padding: 2.5rem;
+    padding: 3rem 4rem;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    z-index: 10;
+    justify-content: flex-start;
     position: relative;
+    z-index: 25; /* Higher than photo and name shadow */
   }
   
-  .card-accent-bar {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 6px;
-    background: var(--card-accent);
-    z-index: 30;
+  /* THE NAME: Now at a very high z-index and positioned to overlap the photo safely */
+  .profile-name-target {
+    position: absolute; /* Changed to absolute to float over layers */
+    top: 420px; /* Positioned precisely at the transition */
+    left: 4rem;
+    right: 4rem;
+    z-index: 50; /* Super high z-index */
+    line-height: 0.85;
+    font-size: 5.5rem; /* Larger and bolder */
+    font-weight: 950;
+    color: white;
+    text-shadow: 0 15px 45px rgba(0,0,0,1), 0 5px 15px rgba(0,0,0,0.8);
+    letter-spacing: -0.06em;
+    text-transform: uppercase;
+    word-break: keep-all;
+    white-space: normal;
+    pointer-events: none;
   }
 
   .sf-logo-mini {
     position: absolute;
-    top: 1.5rem;
-    left: 1.5rem;
-    width: 40px;
-    height: 40px;
-    z-index: 20;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+    top: 2.5rem;
+    left: 2.5rem;
+    width: 56px;
+    height: 56px;
+    z-index: 30;
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.8));
   }
 
   .card-sfid {
     position: absolute;
-    top: 1.5rem;
-    right: 1.5rem;
-    font-size: 10px;
+    top: 2.8rem;
+    right: 2.5rem;
+    font-size: 12px;
     font-weight: 900;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.3em;
     color: white;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-    z-index: 20;
+    opacity: 0.9;
+    text-shadow: 0 4px 8px rgba(0,0,0,0.9);
+    z-index: 30;
     font-family: 'JetBrains Mono', monospace;
   }
 
-  .profile-name-target {
-    line-height: 0.9;
-    margin-bottom: 0.25rem;
-    word-break: break-all; /* Ensure long tokens don't overflow */
-    white-space: nowrap; /* Start with nowrap for auto-scaling calculation */
-    font-size: 2.25rem; /* Base size 36px */
-    display: block;
-    width: 100%;
-    overflow: visible;
+  /* Barcode Styling */
+  .card-barcode-container {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255,255,255,0.08);
   }
 
-  /* Stacking Context Hardening */
-  .membership-card {
-    isolation: isolate;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
+  .barcode-wrapper {
+    background: white;
+    padding: 10px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+  }
+
+  .barcode-img {
+    width: 110px; /* Larger barcode */
+    height: 110px;
+    image-rendering: pixelated;
+  }
+
+  .barcode-label {
+    font-size: 7px;
+    font-weight: 900;
+    color: black;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+  }
+
+  .card-accent-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 10px;
+    background: var(--card-accent);
+    z-index: 40;
   }
   
   .card-details-section {
@@ -181,7 +221,18 @@ tailwind.config = {
   }
 
   @media (max-width: 768px) {
-    .membership-card { max-width: 320px; }
+    .membership-card { 
+      transform: scale(0.6); 
+      transform-origin: top center;
+      margin-bottom: -320px; /* Offset for scaled height */
+    }
+    #card-export-area {
+      height: 500px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      overflow: hidden;
+    }
   }
 </style>
 </head>
@@ -218,11 +269,12 @@ tailwind.config = {
 <canvas id="gold-dust" class="fixed inset-0 pointer-events-none z-0"></canvas>
 
 <!-- Global News Ticker -->
-<div class="fixed top-0 left-0 right-0 md:left-72 h-8 bg-navy-950/80 backdrop-blur-md border-b border-white/5 z-[55] overflow-hidden flex items-center no-print">
-  <div class="px-4 bg-gold-500 text-navy-950 text-[8px] font-black uppercase tracking-widest h-full flex items-center z-10">Academy Flash</div>
-  <div class="flex-1 overflow-hidden relative h-full">
-    <div id="news-ticker-content" class="absolute whitespace-nowrap flex items-center h-full gap-20 animate-ticker">
-      <span class="text-[9px] font-bold text-white/60 uppercase tracking-widest italic">Loading Registry, please wait...</span>
+<div class="fixed top-0 left-0 right-0 md:left-72 h-8 bg-navy-950/90 backdrop-blur-xl border-b border-white/5 z-[60] overflow-hidden flex items-center no-print shadow-2xl">
+  <div class="px-4 bg-gold-500 text-navy-950 text-[10px] font-black uppercase tracking-widest h-full flex items-center z-20">Academy Flash</div>
+  <div class="flex-1 overflow-hidden relative h-full flex items-center">
+    <div id="news-ticker-content" class="animate-ticker flex items-center gap-24">
+      <span class="text-[11px] font-bold text-white/90 uppercase tracking-[0.2em] italic">Welcome to SkillForge Season 2026. Neural Registry is Active.</span>
+      <span class="text-[11px] font-bold text-white/90 uppercase tracking-[0.2em] italic">Welcome to SkillForge Season 2026. Neural Registry is Active.</span>
     </div>
   </div>
 </div>
@@ -296,33 +348,45 @@ tailwind.config = {
 
     <div class="flex flex-col lg:flex-row gap-12 items-center justify-center">
       <!-- Card Preview -->
-      <div id="membership-card" class="membership-card">
-        <div class="card-accent-bar"></div>
-        <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" alt="SkillForge Logo" class="sf-logo-mini">
-        <div class="card-sfid profile-sfid-target" aria-label="SkillForge ID">SFID-26-XXX</div>
-        
-        <div class="card-photo-section">
-          <img src="" id="dmc-avatar-target" alt="Trainee Avatar" class="opacity-0 transition-opacity duration-500" onload="this.classList.remove('opacity-0')">
-          <div class="card-overlay"></div>
-        </div>
-        
-        <div class="card-details-section">
-          <div class="space-y-1">
-            <h2 class="text-4xl font-black tracking-tighter profile-name-target uppercase truncate leading-none">Trainee Name</h2>
-            <div class="flex items-center gap-3">
-              <p class="text-gold-400 text-[10px] font-black uppercase tracking-[0.4em] profile-track-target">Academy Track</p>
-              <span class="gender-target text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-white/10 border border-white/5">Gender</span>
-            </div>
+      <div id="card-export-area" class="relative group">
+        <div id="membership-card" class="membership-card mx-auto" style="--card-bg: #040810; --card-accent: #f59e0b;">
+          <div class="card-accent-line"></div>
+          <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" class="sf-logo-mini" alt="SF">
+          <span class="card-sfid profile-sfid-target">SFID-26-SYN-001</span>
+          
+          <div class="card-photo-section">
+            <img src="" id="dmc-avatar-target" alt="Profile" class="opacity-0 transition-opacity duration-500" onload="this.classList.remove('opacity-0')">
+            <div class="card-overlay-gradient"></div>
           </div>
           
-          <div class="pt-8 border-t border-white/10 flex justify-between items-end">
-            <div>
-              <p class="text-[8px] font-black uppercase tracking-widest text-white/30 mb-1">Tier Status</p>
-              <p class="text-xs font-black text-gold-400 uppercase tracking-widest tier-target">Novice</p>
+          <div class="card-content-area">
+            <h2 class="profile-name-target">Trainee Name</h2>
+            
+            <div class="flex items-center gap-4 mt-2">
+              <p class="text-gold-400 text-[12px] font-black uppercase tracking-[0.6em] profile-track-target">Academy Track</p>
+              <span class="gender-target text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full bg-white/10 border border-white/8 backdrop-blur-md">Gender</span>
+              <div id="social-badge" class="hidden px-4 py-1.5 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-400 text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                <i id="social-icon" class="fa-brands"></i>
+                <span id="social-handle-target">@username</span>
+              </div>
             </div>
-            <div class="text-right">
-              <p class="text-[8px] font-black uppercase tracking-widest text-white/30 mb-1">Academy Center</p>
-              <p class="text-xs font-black text-white uppercase tracking-widest">Global Hub</p>
+            
+            <div class="card-barcode-container">
+              <div class="flex flex-col gap-4">
+                <div>
+                  <p class="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1">Academy Tier</p>
+                  <p class="text-lg font-black text-gold-400 uppercase tracking-[0.2em] tier-target">Novice</p>
+                </div>
+                <div>
+                  <p class="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1">Center Node</p>
+                  <p class="text-sm font-black text-white uppercase tracking-widest">Global Hub</p>
+                </div>
+              </div>
+
+              <div class="barcode-wrapper">
+                <img id="card-qr-target" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://skillforgedigital.com.ng/trainee-registration/" class="barcode-img" alt="QR">
+                <span class="barcode-label">Registry Auth</span>
+              </div>
             </div>
           </div>
         </div>
@@ -412,9 +476,13 @@ function init() {
   });
 
   window.initPage = async () => {
+    if (window._dmcInitialized) return;
+    window._dmcInitialized = true;
+    
     console.log("[DMC] Initializing Academy Membership...");
     onAuthStateChanged(auth, (user) => {
         if (user) {
+            activeUid = user.uid;
             onSnapshot(doc(db, 'trainees', user.uid), (snap) => {
                 if (snap.exists()) {
                     traineeData = snap.data();
@@ -428,9 +496,11 @@ function init() {
     if (window.lucide) window.lucide.createIcons();
   };
 
-  // Initial load
-  window.addEventListener('DOMContentLoaded', window.initPage);
-  window.addEventListener('sf:turbo-render', window.initPage);
+  // Re-hydration for Turbo
+  window.addEventListener('sf:turbo-render', () => {
+      window._dmcInitialized = false; // Reset for re-init
+      window.initPage();
+  });
 
   // Safety timeout for loading screen
   setTimeout(hideLoading, 5000);
@@ -491,30 +561,70 @@ function updateCardUI() {
   document.querySelectorAll('.profile-track-target').forEach(el => el.innerText = traineeData.track || 'Academy Trainee');
   document.querySelectorAll('.gender-target').forEach(el => el.innerText = traineeData.gender || 'Set Gender');
   document.querySelectorAll('.tier-target').forEach(el => el.innerText = tierLabel);
+
+  // Handle Social Badge
+  const socialBadge = document.getElementById('social-badge');
+  const socialIcon = document.getElementById('social-icon');
+  const socialHandle = document.getElementById('social-handle-target');
+  
+  if (traineeData.social && traineeData.social.handle) {
+    socialBadge.classList.remove('hidden');
+    socialHandle.innerText = traineeData.social.handle;
+    
+    // Set platform icon
+    const platforms = {
+      'Instagram': 'fa-instagram',
+      'Twitter': 'fa-x-twitter',
+      'LinkedIn': 'fa-linkedin-in',
+      'Facebook': 'fa-facebook-f',
+      'TikTok': 'fa-tiktok'
+    };
+    socialIcon.className = `fa-brands ${platforms[traineeData.social.platform] || 'fa-globe'}`;
+  } else {
+    socialBadge?.classList.add('hidden');
+  }
   
   let avatarUrl = traineeData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${traineeData.name}`;
   if (avatarUrl.includes('supabase.co')) {
     avatarUrl = `https://res.cloudinary.com/db8pknwmz/image/fetch/f_auto,q_auto,w_800/${encodeURIComponent(avatarUrl)}`;
   }
-  if (!pendingAvatar) document.getElementById('dmc-avatar-target').src = avatarUrl;
+  
+  const avatarEl = document.getElementById('dmc-avatar-target');
+  if (avatarEl && !pendingAvatar) {
+    avatarEl.src = avatarUrl;
+    avatarEl.classList.remove('opacity-0');
+  }
+
+  // Update QR Code with trainee-specific registration/profile link
+  const qrEl = document.getElementById('card-qr-target');
+  if (qrEl) {
+    const registryUrl = `https://skillforgedigital.com.ng/trainee-registration/?ref=${traineeData.sfid || 'SFID'}`;
+    qrEl.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(registryUrl)}`;
+  }
 }
 
 function adjustFontSize(el) {
-  const container = el.parentElement;
-  let fontSize = 36; // Initial 2.25rem in px
+  let fontSize = 88; // Base size for 5.5rem is 88px
   el.style.fontSize = fontSize + 'px';
   
-  // Auto-scale down to 6pt (8px)
-  while (el.scrollWidth > container.offsetWidth && fontSize > 8) {
-    fontSize -= 1;
-    el.style.fontSize = fontSize + 'px';
+  // Auto-scale down based on text width to prevent clipping
+  const maxWidth = 450; // Max width within card padding
+  const tempSpan = document.createElement('span');
+  tempSpan.style.visibility = 'hidden';
+  tempSpan.style.whiteSpace = 'nowrap';
+  tempSpan.style.fontFamily = getComputedStyle(el).fontFamily;
+  tempSpan.style.fontWeight = '950';
+  tempSpan.style.fontSize = fontSize + 'px';
+  tempSpan.innerText = el.innerText;
+  document.body.appendChild(tempSpan);
+
+  while (tempSpan.offsetWidth > maxWidth && fontSize > 24) {
+    fontSize -= 4;
+    tempSpan.style.fontSize = fontSize + 'px';
   }
   
-  // If still overflowing, allow wrapping or ellipsis
-  if (el.scrollWidth > container.offsetWidth) {
-    el.style.whiteSpace = 'normal';
-    el.style.lineHeight = '1';
-  }
+  el.style.fontSize = fontSize + 'px';
+  document.body.removeChild(tempSpan);
 }
 
 window.saveCard = async () => {
@@ -608,7 +718,16 @@ window.addEventListener('sf:turbo-render', () => {
     if (traineeData) updateCardUI();
 });
 
-init();
+// Initial Load
+if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', () => {
+        init();
+        window.initPage();
+    });
+} else {
+    init();
+    window.initPage();
+}
 </script>
   <script type="module" src="../../assets/sf-core.js"></script>
   <script type="module" src="../../assets/sf-turbo.js"></script>

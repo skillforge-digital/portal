@@ -102,9 +102,36 @@
     import { db, auth } from '../../assets/firebase-config.js';
     import { collection, query, getDocs, doc, getDoc, setDoc, addDoc, deleteDoc, serverTimestamp, orderBy, onSnapshot, writeBatch, limit } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
     import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+    import { SeasonEngine } from '../../assets/season-engine.js';
 
     // Global state
     let currentTab = 'overview';
+    let seasonEngine = null;
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) { window.location.href = '../../trainee-login/'; return; }
+      seasonEngine = new SeasonEngine(user.uid);
+      showTab('overview');
+    });
+
+    window.confirmSeasonTransition = async function() {
+      const seasonName = document.getElementById('new-season-name').value.trim();
+      if (!seasonName) { alert("Please enter a season name."); return; }
+      
+      const btn = document.querySelector('#season-warning-modal button.bg-orange');
+      btn.disabled = true;
+      btn.innerText = "Processing Neural Shift...";
+      
+      const result = await seasonEngine.startNewSeason(seasonName);
+      if (result.success) {
+        alert(`Success! ${result.archived} trainees archived. New season ${seasonName} is now live.`);
+        location.reload();
+      } else {
+        alert("Shift failed: " + result.error);
+        btn.disabled = false;
+        btn.innerText = "Confirm Global Reset";
+      }
+    };
     
     // Navigation
     document.querySelectorAll('.nav-btn').forEach(btn => {
@@ -143,8 +170,9 @@
     window.renderOverview = async function(container) {
       const traineeSnap = await getDocs(collection(db, 'trainees'));
       const staffSnap = await getDocs(collection(db, 'staffs'));
-      const seasonSnap = await getDoc(doc(db, 'system', 'config'));
-      const currentSeason = seasonSnap.exists() ? seasonSnap.data().currentSeason : '2026';
+      const configSnap = await getDoc(doc(db, 'system', 'config'));
+      const config = configSnap.exists() ? configSnap.data() : {};
+      const currentSeason = config.activeSeason || '2026';
       
       container.innerHTML = `
         <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
@@ -164,42 +192,68 @@
           <div class="glass p-8 rounded-[40px] border border-white/5">
             <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-4">Total Trainees</p>
             <p class="text-5xl font-black text-gold">${traineeSnap.size}</p>
-            <p class="text-[8px] text-white/20 uppercase tracking-[0.3em] mt-2">Active registry entries</p>
           </div>
           <div class="glass p-8 rounded-[40px] border border-white/5">
             <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-4">Command Personnel</p>
             <p class="text-5xl font-black text-gold">${staffSnap.size}</p>
-            <p class="text-[8px] text-white/20 uppercase tracking-[0.3em] mt-2">Authorized staff nodes</p>
           </div>
           <div class="glass p-8 rounded-[40px] border border-white/5">
             <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-4">Registry Health</p>
             <p class="text-5xl font-black text-green-400">100%</p>
-            <p class="text-[8px] text-white/20 uppercase tracking-[0.3em] mt-2">Neural sync verified</p>
           </div>
         </div>
 
-        <div class="glass-strong rounded-[40px] p-10 border border-white/5 min-h-[300px]">
-          <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40 mb-8">Quick Actions</h2>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <button onclick="showTab('announcements')" class="p-6 rounded-2xl bg-gold/10 border border-gold/20 text-left hover:bg-gold/20 transition-all">
-              <i data-lucide="megaphone" class="w-8 h-8 text-gold mb-4"></i>
-              <p class="font-black uppercase text-sm">Post Announcement</p>
-              <p class="text-[10px] text-white/40 mt-1">Broadcast to all dashboards</p>
-            </button>
-            <button onclick="showTab('seasons')" class="p-6 rounded-2xl bg-orange/10 border border-orange/20 text-left hover:bg-orange/20 transition-all">
-              <i data-lucide="calendar" class="w-8 h-8 text-orange mb-4"></i>
-              <p class="font-black uppercase text-sm">Manage Seasons</p>
-              <p class="text-[10px] text-white/40 mt-1">Initialize or archive seasons</p>
-            </button>
-            <button onclick="showTab('trainees')" class="p-6 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-left hover:bg-blue-500/20 transition-all">
-              <i data-lucide="users" class="w-8 h-8 text-blue-400 mb-4"></i>
-              <p class="font-black uppercase text-sm">View Trainees</p>
-              <p class="text-[10px] text-white/40 mt-1">Access full registry</p>
-            </button>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <!-- Quick Actions -->
+          <div class="glass-strong rounded-[40px] p-10 border border-white/5">
+            <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40 mb-8">Quick Actions</h2>
+            <div class="grid grid-cols-2 gap-4">
+              <button onclick="showTab('announcements')" class="p-6 rounded-2xl bg-gold/10 border border-gold/20 text-left hover:bg-gold/20 transition-all">
+                <i data-lucide="megaphone" class="w-8 h-8 text-gold mb-4"></i>
+                <p class="font-black uppercase text-xs">Broadcast</p>
+              </button>
+              <button onclick="showTab('seasons')" class="p-6 rounded-2xl bg-orange/10 border border-orange/20 text-left hover:bg-orange/20 transition-all">
+                <i data-lucide="calendar" class="w-8 h-8 text-orange mb-4"></i>
+                <p class="font-black uppercase text-xs">Seasons</p>
+              </button>
+            </div>
+          </div>
+
+          <!-- God Mode Toggles -->
+          <div class="glass-strong rounded-[40px] p-10 border border-gold/20">
+            <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-gold/60 mb-8">System God Mode</h2>
+            <div class="space-y-4">
+              <div class="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
+                <div>
+                  <p class="text-[10px] font-black uppercase tracking-widest">Maintenance Lock</p>
+                  <p class="text-[8px] text-white/40">Prevents all registrations</p>
+                </div>
+                <button onclick="toggleSystemFlag('maintenance')" class="w-12 h-6 rounded-full ${config.maintenance ? 'bg-gold' : 'bg-white/10'} relative transition-all">
+                  <div class="absolute top-1 ${config.maintenance ? 'right-1' : 'left-1'} w-4 h-4 rounded-full bg-white transition-all"></div>
+                </button>
+              </div>
+              <div class="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
+                <div>
+                  <p class="text-[10px] font-black uppercase tracking-widest">Global XP Boost</p>
+                  <p class="text-[8px] text-white/40">2x Multiplier for all students</p>
+                </div>
+                <button onclick="toggleSystemFlag('xpBoost')" class="w-12 h-6 rounded-full ${config.xpBoost ? 'bg-gold' : 'bg-white/10'} relative transition-all">
+                  <div class="absolute top-1 ${config.xpBoost ? 'right-1' : 'left-1'} w-4 h-4 rounded-full bg-white transition-all"></div>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       `;
     }
+
+    window.toggleSystemFlag = async function(flag) {
+      const configRef = doc(db, 'system', 'config');
+      const snap = await getDoc(configRef);
+      const current = snap.exists() ? !!snap.data()[flag] : false;
+      await setDoc(configRef, { [flag]: !current }, { merge: true });
+      window.showTab('overview');
+    };
 
     window.renderTrainees = async function(container) {
       const snap = await getDocs(query(collection(db, 'trainees'), orderBy('created_at', 'desc')));
@@ -375,7 +429,8 @@
 
     window.renderSeasons = async function(container) {
       const configSnap = await getDoc(doc(db, 'system', 'config'));
-      const currentSeason = configSnap.exists() ? configSnap.data().currentSeason : '2026';
+      const config = configSnap.exists() ? configSnap.data() : {};
+      const currentSeason = config.activeSeason || '2026';
       
       const archivesSnap = await getDocs(collection(db, 'season_archives'));
       
@@ -387,22 +442,40 @@
           </div>
         </header>
 
-        <!-- Current Season -->
-        <div class="glass p-8 rounded-[40px] border border-gold/20 mb-8">
-          <div class="flex justify-between items-center mb-6">
-            <div>
-              <p class="text-[10px] font-black text-gold uppercase tracking-widest mb-2">Active Season</p>
-              <h2 class="text-3xl font-black text-white">${currentSeason}</h2>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Current Season -->
+            <div class="glass p-8 rounded-[40px] border border-gold/20">
+              <div class="flex justify-between items-center mb-6">
+                <div>
+                  <p class="text-[10px] font-black text-gold uppercase tracking-widest mb-2">Active Season</p>
+                  <h2 class="text-3xl font-black text-white">${currentSeason}</h2>
+                </div>
+                <div class="px-4 py-2 rounded-full bg-green-500/10 text-green-400 text-[10px] font-black uppercase">Live</div>
+              </div>
+              <div class="flex gap-4">
+                <button onclick="initializeNewSeason()" class="flex-1 py-4 bg-orange text-navy-950 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-white transition-all">
+                  <i data-lucide="calendar" class="w-4 h-4 inline mr-2"></i> Initialize New Season
+                </button>
+              </div>
             </div>
-            <div class="px-4 py-2 rounded-full bg-green-500/10 text-green-400 text-[10px] font-black uppercase">Live</div>
-          </div>
-          <p class="text-sm text-slate-400 mb-6">All trainee registrations are currently being accepted for this season.</p>
-          
-          <div class="flex gap-4">
-            <button onclick="initializeNewSeason()" class="flex-1 py-4 bg-orange text-navy-950 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-white transition-all">
-              <i data-lucide="calendar" class="w-4 h-4 inline mr-2"></i> Initialize New Season
-            </button>
-          </div>
+
+            <!-- Registration Date Editor -->
+            <div class="glass p-8 rounded-[40px] border border-white/5">
+                <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-6">Landing Page Dates</p>
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label class="text-[8px] font-black uppercase text-slate-500 mb-1 block">Opens</label>
+                        <input type="text" id="reg-start-input" class="w-full bg-white/5 border border-white/10 p-3 rounded-xl text-sm" value="${config.reg_start || ''}" placeholder="e.g. April 13th">
+                    </div>
+                    <div>
+                        <label class="text-[8px] font-black uppercase text-slate-500 mb-1 block">Closes</label>
+                        <input type="text" id="reg-end-input" class="w-full bg-white/5 border border-white/10 p-3 rounded-xl text-sm" value="${config.reg_end || ''}" placeholder="e.g. May 1st">
+                    </div>
+                </div>
+                <button onclick="saveRegistrationDates()" class="w-full py-3 bg-white/10 rounded-xl font-black uppercase text-[9px] tracking-widest hover:bg-white/20 transition-all">
+                    Update Landing Page Dates
+                </button>
+            </div>
         </div>
 
         <!-- Season Archives -->
@@ -428,23 +501,25 @@
         </div>
 
         <!-- Warning Modal -->
-        <div id="season-warning-modal" class="hidden fixed inset-0 z-[200] bg-navy/90 flex items-center justify-center p-6">
-          <div class="glass-strong p-10 rounded-[40px] border border-red-500/20 max-w-xl w-full space-y-6">
-            <div class="text-center">
-              <div class="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i data-lucide="alert-triangle" class="w-8 h-8 text-red-400"></i>
-              </div>
-              <h2 class="text-2xl font-black uppercase text-red-400">Critical Action</h2>
+        <div id="season-warning-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-6">
+          <div class="absolute inset-0 bg-black/90 backdrop-blur-xl"></div>
+          <div class="glass-strong p-10 rounded-[40px] border border-orange/30 max-w-md w-full relative z-10 text-center">
+            <div class="w-20 h-20 bg-orange/10 rounded-full flex items-center justify-center mx-auto mb-6">
+              <i data-lucide="alert-triangle" class="w-10 h-10 text-orange"></i>
             </div>
-            <p class="text-center text-slate-400">Initializing a new season will <strong class="text-white">PERMANENTLY WIPE</strong> all current trainee registrations. This action cannot be undone unless you have a backup.</p>
-            <div class="space-y-4">
-              <input type="text" id="new-season-name" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl text-center font-black" placeholder='Season Name (e.g., "2026 Volume 2")'>
-              <button onclick="confirmSeasonInit()" class="w-full py-4 bg-red-500 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-red-400 transition-all">
-                Confirm Season Initialization
-              </button>
-              <button onclick="closeSeasonModal()" class="w-full py-4 bg-white/5 text-slate-400 rounded-2xl font-bold text-[10px] uppercase tracking-widest hover:bg-white/10 transition-all">
-                Cancel
-              </button>
+            <h2 class="text-3xl font-black text-white uppercase tracking-tighter mb-4">Initialize New Season</h2>
+            <p class="text-sm text-slate-400 mb-8 leading-relaxed">
+              This action will archive all current trainees and prepare the registry for a new generation. Data will be preserved in the archives, but the main registry will be cleared.
+            </p>
+            
+            <div class="mb-8">
+              <label class="text-[10px] font-black text-orange uppercase tracking-widest block mb-2">New Season Name</label>
+              <input type="text" id="new-season-name" placeholder="e.g. Season 2026-B" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl text-center font-bold text-white">
+            </div>
+
+            <div class="flex gap-4">
+              <button onclick="document.getElementById('season-warning-modal').classList.add('hidden')" class="flex-1 py-4 bg-white/5 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-white/10 transition-all">Cancel</button>
+              <button onclick="confirmSeasonTransition()" class="flex-1 py-4 bg-orange text-navy-950 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-white transition-all">Confirm Global Reset</button>
             </div>
           </div>
         </div>
@@ -521,19 +596,37 @@
         alert('Please fill in all fields');
         return;
       }
-      
-      await addDoc(collection(db, 'announcements'), {
-        title,
-        content,
-        scope,
-        postedBy: window.staffCore.profile.name,
-        postedByUid: window.staffCore.user.uid,
-        timestamp: serverTimestamp()
-      });
-      
-      await window.staffCore.logAnnouncementEdit('new', null, content, scope);
-      closeAnnouncementModal();
-      window.showTab('announcements');
+
+      const btn = document.querySelector('button[onclick="postAnnouncement()"]');
+      btn.disabled = true;
+      btn.innerText = "Broadcasting...";
+
+      try {
+        // CEO Priority Check (Emmanuel Umoh or specific UID)
+        const isCEO = auth.currentUser.uid === '32NOc1lUm2XEUZy4HJQBXlFngm13' || auth.currentUser.displayName?.includes('EMMANUEL');
+        
+        await addDoc(collection(db, 'announcements'), {
+          title: title.toUpperCase(),
+          content: content,
+          scope: scope,
+          author: auth.currentUser.displayName || window.staffCore.profile.name,
+          authorUid: auth.currentUser.uid,
+          priority: isCEO ? 100 : 1,
+          timestamp: serverTimestamp()
+        });
+        
+        await window.staffCore.logAnnouncementEdit('new', null, content, scope);
+        alert("Announcement broadcasted successfully.");
+        document.getElementById('ann-title').value = '';
+        document.getElementById('ann-content').value = '';
+        closeAnnouncementModal();
+        window.showTab('announcements');
+      } catch (e) {
+        alert("Broadcast failed: " + e.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "Post Announcement";
+      }
     };
     
     window.deleteAnnouncement = async function(id) {
@@ -542,6 +635,21 @@
       window.showTab('announcements');
     };
     
+    window.saveRegistrationDates = async function() {
+      const start = document.getElementById('reg-start-input').value;
+      const end = document.getElementById('reg-end-input').value;
+      
+      try {
+        await setDoc(doc(db, 'system', 'config'), {
+          reg_start: start,
+          reg_end: end
+        }, { merge: true });
+        alert("Landing page dates updated successfully.");
+      } catch (e) {
+        alert("Failed to update dates: " + e.message);
+      }
+    };
+
     window.initializeNewSeason = function() {
       document.getElementById('season-warning-modal').classList.remove('hidden');
     };

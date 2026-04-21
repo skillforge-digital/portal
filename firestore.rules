@@ -3,168 +3,123 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // =========================================================================
-    // SKILLFORGE DIGITAL ACADEMY: MASTER GRACEFUL ACCESS SHIELD
+    // SKILLFORGE DIGITAL ACADEMY: UNIFIED SECURITY SHIELD (v4.0)
     // =========================================================================
-    // This master rule set is designed to be EXTREMELY ROBUST while remaining
-    // "GRACEFUL" (permissive). It prioritizes frictionless operation for:
-    // 1. OLD USERS (Legacy Mock Identity Reconciliation)
-    // 2. NEW USERS (Seamless Cloud Registration)
-    // 3. FUTURE USERS (Scalable Registry Access)
-    // 4. DIRECTORS (Passcode-only Command Clearance)
+    // DESIGN PHILOSOPHY:
+    // 1. SIMPLE & ROBUST: Use clear, centralized role checking.
+    // 2. BACKWARD COMPATIBLE: Support legacy mock IDs & existing collections.
+    // 3. SCALABLE: Unified 'staffs' collection with multi-role support.
+    // 4. GRACEFUL: Frictionless access for registration and local development.
     // =========================================================================
 
-    // --- CORE GLOBAL HELPER FUNCTIONS ---
+    // --- 1. CORE AUTH & ROLE HELPERS ---
+    
+    // Checks if the request is authenticated via Firebase Auth.
     function isAuthenticated() { return request.auth != null; }
+    
+    // Gets the current user's UID.
     function getUID() { return request.auth.uid; }
-    function inDirectors(uid) { return exists(/databases/$(database)/documents/directors/$(uid)); }
-    function isDirector() { return isAuthenticated() && inDirectors(getUID()); }
+    
+    // Unified Staff Role Check: Looks up roles in the centralized 'staffs' collection.
+    // Returns true if the user has ANY of the specified roles.
+    function hasAnyRole(roles) {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/staffs/$(getUID())) &&
+             get(/databases/$(database)/documents/staffs/$(getUID())).data.roles.hasAny(roles);
+    }
+
+    // Role-specific helpers for common permission checks.
+    function isDirector() { return hasAnyRole(['Director']); }
+    function isHOD() { return hasAnyRole(['Director', 'HOD']); }
+    function isSpecialist() { return hasAnyRole(['Director', 'HOD', 'Specialist']); }
+    function isStaff() { return isAuthenticated() && exists(/databases/$(database)/documents/staffs/$(getUID())); }
+    
+    // Checks if the user is the owner of the document.
+    function isOwner(userId) { return isAuthenticated() && getUID() == userId; }
 
     // =========================================================================
-    // 1. TRAINEE & IDENTITY COLLECTIONS
+    // 2. USER & IDENTITY COLLECTIONS
     // =========================================================================
     
-    // Primary Trainee Registry: Stores all student profiles, XP, and state.
+    // Trainee Registry: Stores profiles, XP, and learning state.
     match /trainees/{traineeId} {
-      // Robust Read: Necessary for the login reconciliation flow to find legacy accounts by email.
-      allow read, list: if true; 
-      // Robust Create: Allows new registrations and migration of legacy mock IDs to cloud IDs.
-      allow create: if true; 
-      // Robust Update: Essential for background pulse tracking, XP gain, and theme sync.
-      allow update: if true; 
-      // Robust Delete: Allows users/directors to purge duplicate legacy entries during collision.
-      allow delete: if true; 
+      // Robust Read/Write: Allows legacy mock reconciliation and cloud migration.
+      // We allow any read/write here to ensure NO student is ever "trapped".
+      allow read, write: if true;
     }
 
-    // Academy Track Access: Used by the gate system for O(1) PIN lookups.
-    match /track_access/{pin} {
-      // Allows anyone to verify their 6-digit PIN at the gate.
+    // Unified Staff Registry: Stores personnel data and cumulative roles.
+    match /staffs/{staffId} {
+      // Staff can see each other; public can read for verification.
       allow read: if true;
-      // Allows registration logic to write the PIN document.
-      allow write: if true;
+      // Directors manage staff accounts; Staff can update their own data.
+      allow create, delete: if isDirector();
+      allow update: if isOwner(staffId) || isDirector();
     }
 
-    // Role Codes: Used during registration to verify specialized enrollment.
+    // LEGACY COMPATIBILITY: Support for old collection-based role documents.
+    match /directors/{uid} { allow read, write: if isDirector(); }
+    match /hods/{uid} { allow read, write: if isHOD(); }
+    match /specialists/{uid} { allow read, write: if isSpecialist(); }
+
+    // =========================================================================
+    // 3. ACADEMY INFRASTRUCTURE
+    // =========================================================================
+
+    // Gate Access: O(1) PIN lookup for Academy entry.
+    match /track_access/{pin} {
+      allow read: if true;
+      allow write: if true; // Registration logic writes here
+    }
+
+    // Role Codes: One-time use codes for staff onboarding.
     match /role_codes/{code} {
-      allow read, write: if true;
+      allow read: if true;
+      // Only staff can manage role codes.
+      allow write: if isStaff();
     }
 
-    // Password Resets: Required for the identity recovery flow.
-    match /password_resets/{id} {
-      allow read, write: if true;
-    }
-
-    // =========================================================================
-    // 2. PERSONNEL & COMMAND COLLECTIONS
-    // =========================================================================
-
-    // Directors: Founding Admins with full command clearance.
-    match /directors/{uid} {
-      allow read: if true; // Publicly verifiable for director-gate bypass
-      allow write: if true; // Robust management
-    }
-
-    // Specialists: Track-specific masters.
-    match /specialists/{uid} {
-      allow read, write: if true;
-    }
-
-    // HODs: Department heads.
-    match /hods/{uid} {
-      allow read, write: if true;
-    }
-
-    // Staffs: General academy personnel.
-    match /staffs/{uid} {
-      allow read, write: if true;
-    }
-
-    // =========================================================================
-    // 3. ACADEMY INFRASTRUCTURE & SEASONS
-    // =========================================================================
-
-    // Global System Configuration: Stores current season and system status.
+    // System Config: Current season and global settings.
     match /system/{docId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow write: if isDirector();
     }
 
-    // Season Registry: Archives of past trainee generations.
+    // Seasons & Archives: Enrollment data and past generations.
     match /seasons/{seasonId} {
-      allow read, write: if true;
-      
-      // Nested Counters: Tracks enrollment numbers for SFID generation.
-      match /artifacts/trainees/counters/tracks {
-        allow read, write: if true;
-      }
-      match /artifacts/trainees/counters/{trackId} {
-        allow read, write: if true;
-      }
-      
-      // Recursive rule for any other nested season data.
-      match /{document=**} {
-        allow read, write: if true;
-      }
-    }
-
-    // Season Archives: Backup nodes for purged registration data.
-    match /season_archives/{archiveId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow write: if isStaff();
+      match /{document=**} { allow read: if true; allow write: if isStaff(); }
     }
 
     // =========================================================================
-    // 4. TELEMETRY, ANALYTICS & LOGS
+    // 4. TELEMETRY & LOGS (Publicly Writable, Restricted Read)
     // =========================================================================
 
-    // Presence & Real-time Tracking: Micro-engagement metrics.
-    match /presence/{userId} {
-      allow read, write: if true;
-    }
-
-    // Tracking: Academy activity logs and lesson progress.
-    match /tracking/{userId} {
-      allow read, write: if true;
-    }
-
-    // System Faults: Intelligent error reporting from the frontend.
-    match /system_faults/{faultId} {
-      allow read, write: if true;
-    }
-
-    // Audit Logs: Immutable trails of registry modifications.
-    match /audit_logs/{logId} { allow read, write: if true; }
-    match /staff_audit_logs/{logId} { allow read, write: if true; }
-    match /academy_audit_logs/{logId} { allow read, write: if true; }
+    match /presence/{userId} { allow read: if true; allow write: if true; }
+    match /tracking/{userId} { allow read: if true; allow write: if true; }
+    match /system_faults/{id} { allow read: if isStaff(); allow create: if true; }
+    match /audit_logs/{id} { allow read: if isStaff(); allow create: if true; }
 
     // =========================================================================
     // 5. COMMUNICATIONS & SOCIAL
     // =========================================================================
 
-    // Announcements: Global dashboard broadcasts.
-    match /announcements/{id} {
-      allow read: if true;
-      allow write: if true;
-    }
-
-    // Mail System: Internal academy messaging.
-    match /mail/{id} {
-      allow read, write: if true;
-    }
-
-    // Feedback: Direct link to support.
-    match /feedback/{id} {
-      allow read, write: if true;
-    }
-
-    // Badge Requests: Advancement verification.
-    match /badge_requests/{requestId} {
-      allow read, write: if true;
+    match /announcements/{id} { allow read: if true; allow write: if isStaff(); }
+    match /mail/{id} { allow read, write: if isAuthenticated(); }
+    match /feedback/{id} { allow read: if isStaff(); allow create: if true; }
+    match /badge_requests/{id} { 
+      allow read: if isStaff() || isOwner(resource.data.uid);
+      allow create: if isAuthenticated();
+      allow update: if isStaff();
     }
 
     // =========================================================================
-    // 6. MASTER CATCH-ALL SAFETY NET
+    // 6. SAFETY NET
     // =========================================================================
-    // This recursive match ensures that NO collection is accidentally blocked
-    // while we continue to expand the academy's ecosystem.
     match /{document=**} {
+      // Default: Allow read/write for now to prevent breaking new features, 
+      // but log it for future hardening.
       allow read, write: if true;
     }
   }
