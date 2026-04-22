@@ -39,6 +39,32 @@ class SkillForgeCore {
         // Content Protection: Hide content until authorized
         this.protectContent();
         this.debugger = new NeuralDebugger(this);
+        this.injectGlobalSupportHub();
+    }
+
+    injectGlobalSupportHub() {
+        if (document.getElementById('sf-global-support')) return;
+        
+        const hub = document.createElement('div');
+        hub.id = 'sf-global-support';
+        hub.className = 'fixed bottom-6 right-6 z-[200] flex flex-col items-end gap-3 no-print';
+        hub.innerHTML = `
+            <div id="sf-support-menu" class="hidden flex flex-col gap-2 mb-2 animate-slide-up">
+                <a href="https://wa.me/2349015185711" target="_blank" class="flex items-center gap-3 px-5 py-3 bg-[#25D366] text-white rounded-2xl font-bold text-[10px] uppercase tracking-widest shadow-xl hover:scale-105 transition-all">
+                    <i class="fa-brands fa-whatsapp text-lg"></i> WhatsApp Support
+                </a>
+                <a href="https://discord.gg/zVCDMNAh8E" target="_blank" class="flex items-center gap-3 px-5 py-3 bg-[#5865F2] text-white rounded-2xl font-bold text-[10px] uppercase tracking-widest shadow-xl hover:scale-105 transition-all">
+                    <i class="fa-brands fa-discord text-lg"></i> Discord Hub
+                </a>
+                <a href="https://t.me/skillforgeorg" target="_blank" class="flex items-center gap-3 px-5 py-3 bg-[#229ED9] text-white rounded-2xl font-bold text-[10px] uppercase tracking-widest shadow-xl hover:scale-105 transition-all">
+                    <i class="fa-brands fa-telegram text-lg"></i> Telegram Group
+                </a>
+            </div>
+            <button onclick="document.getElementById('sf-support-menu').classList.toggle('hidden')" class="w-14 h-14 bg-gold rounded-full flex items-center justify-center text-navy shadow-2xl hover:scale-110 active:scale-95 transition-all group">
+                <i class="fa-solid fa-headset text-xl group-hover:rotate-12 transition-transform"></i>
+            </button>
+        `;
+        document.body.appendChild(hub);
     }
 
     /**

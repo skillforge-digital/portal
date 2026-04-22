@@ -58,6 +58,9 @@
         <a href="customize/" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
           <i data-lucide="palette" class="w-4 h-4"></i> Design Studio
         </a>
+        <button onclick="showTab('profile')" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+          <i data-lucide="user-cog" class="w-4 h-4"></i> Personnel Profile
+        </button>
         <a href="#" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
           <i data-lucide="award" class="w-4 h-4"></i> Badge Validation
         </a>
@@ -80,7 +83,7 @@
 
   <!-- Main Content -->
   <main class="flex-1 md:ml-72 p-6 md:p-12 pt-24 md:pt-20">
-    <div class="max-w-6xl mx-auto space-y-12 animate-slide-up">
+    <div id="tab-content" class="max-w-6xl mx-auto space-y-12 animate-slide-up">
         <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
             <div>
                 <p class="text-orange text-xs font-black tracking-[0.4em] uppercase">Specialist Command Node</p>
@@ -121,7 +124,118 @@
   <script type="module">
     import StaffCore from '../../assets/staff-core.js';
     import { db } from '../../assets/firebase-config.js';
-    import { collection, query, getDocs, onSnapshot, doc, getDoc, where } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+    import { collection, query, getDocs, onSnapshot, doc, getDoc, where, updateDoc } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+
+    window.showTab = async (tab) => {
+        const content = document.getElementById('tab-content');
+        const profile = window.staffCore.profile;
+        
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        if (event && event.target.closest('.nav-link')) event.target.closest('.nav-link').classList.add('active');
+
+        if (tab === 'profile') {
+            // ... profile rendering code ...
+        } else {
+            // Reset to Path Overview without full reload
+            content.innerHTML = `
+                <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 animate-slide-up">
+                    <div>
+                        <p class="text-orange text-xs font-black tracking-[0.4em] uppercase">Specialist Command Node</p>
+                        <h1 class="text-4xl md:text-6xl font-black mt-2 uppercase tracking-tighter">Path Registry</h1>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="glass px-6 py-3 rounded-2xl border border-white/5">
+                            <p class="text-[8px] font-black text-white/30 uppercase tracking-widest">Active Pulse</p>
+                            <p class="text-xl font-bold text-orange" id="pulse-count">ACTIVE</p>
+                        </div>
+                    </div>
+                </header>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 animate-slide-up" style="animation-delay: 0.1s">
+                    <div class="glass p-8 rounded-[40px] border border-white/5">
+                        <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-4">Assigned Path Trainees</p>
+                        <p class="text-5xl font-black text-orange" id="trainee-count-sub">0</p>
+                        <p class="text-[8px] text-white/20 uppercase tracking-[0.3em] mt-2">Active registry entries</p>
+                    </div>
+                    <div class="glass p-8 rounded-[40px] border border-white/5">
+                        <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-4">Pending Validations</p>
+                        <p class="text-5xl font-black text-orange" id="badge-count-sub">0</p>
+                        <p class="text-[8px] text-white/20 uppercase tracking-[0.3em] mt-2">Badges awaiting review</p>
+                    </div>
+                </div>
+
+                <div class="glass-strong rounded-[40px] p-10 border border-white/5 min-h-[400px] animate-slide-up" style="animation-delay: 0.2s">
+                    <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40 mb-8">Recent Path Activity</h2>
+                    <div class="flex items-center justify-center h-64 text-white/20 italic">
+                        Scanning assigned path pulse for activity...
+                    </div>
+                </div>
+            `;
+            initDashboard(); // Re-bind counters
+        }
+    };
+
+    window.addSocialRow = () => {
+        const container = document.getElementById('social-handles-container');
+        const row = document.createElement('div');
+        row.className = 'grid grid-cols-1 md:grid-cols-2 gap-4 social-row items-end animate-slide-up';
+        row.innerHTML = `
+            <div class="space-y-2">
+                <label class="text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">Platform</label>
+                <select name="socialPlatform[]" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10 text-white">
+                    <option value="Instagram">Instagram</option>
+                    <option value="Twitter">X (Twitter)</option>
+                    <option value="LinkedIn">LinkedIn</option>
+                    <option value="Facebook">Facebook</option>
+                    <option value="TikTok">TikTok</option>
+                    <option value="Discord">Discord</option>
+                    <option value="Telegram">Telegram</option>
+                </select>
+            </div>
+            <div class="relative space-y-2">
+                <label class="text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">Handle</label>
+                <div class="flex gap-2">
+                    <input name="socialHandle[]" type="text" placeholder="@username" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10 text-white">
+                    <button type="button" onclick="this.closest('.social-row').remove()" class="p-4 text-red-400 hover:bg-red-400/10 rounded-2xl transition-all">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+        container.appendChild(row);
+        if (window.lucide) window.lucide.createIcons();
+    };
+
+    async function updateSocialMatrix(e) {
+        e.preventDefault();
+        const btn = e.target.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        btn.innerText = 'Syncing...';
+
+        const formData = new FormData(e.target);
+        const platforms = formData.getAll('socialPlatform[]');
+        const handles = formData.getAll('socialHandle[]');
+        
+        const matrix = platforms.map((p, i) => ({
+            platform: p,
+            handle: handles[i]
+        })).filter(s => s.handle);
+
+        try {
+            await updateDoc(doc(db, 'staffs', window.staffCore.uid), {
+                socialMatrix: matrix
+            });
+            alert("Social Matrix Updated Successfully.");
+            window.staffCore.profile.socialMatrix = matrix;
+            showTab('profile');
+        } catch (err) {
+            console.error(err);
+            alert("Update Failed: Registry link interrupted.");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = 'Update Social Matrix';
+        }
+    }
 
     window.addEventListener('DOMContentLoaded', async () => {
         const checkCore = setInterval(() => {

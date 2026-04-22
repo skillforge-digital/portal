@@ -9,70 +9,104 @@ export const STAFF_SEED_DATA = [
     {
         code: "SKF-DIR-1010",
         name: "Blessing Emmanuel . E",
-        position: "Managing Director / Discord Dev Specialist",
+        position: "Managing Director / Discord Dev Specialist (Dev & Tech Unit)",
         roles: ["Director", "Specialist"],
         used: false
     },
     {
         code: "SKF-DIR-1020",
         name: "Innocent Oluwaseun",
-        position: "Business & Development Director / Digital Marketing Specialist & HOD",
-        roles: ["Director", "Specialist", "Digital Marketing", "HOD"],
+        position: "Business & Development Director / HOU (Digital Innovation Unit)",
+        roles: ["Director", "Specialist", "HOD"],
+        used: false
+    },
+    {
+        code: "SKF-DIR-2026-FINAL",
+        name: "Executive Director",
+        position: "Master Command Director",
+        roles: ["Director"],
         used: false
     },
 
-    // Digital Marketing Team
+    // Digital Innovation Unit
     {
         code: "SKF-DMT-214",
         name: "Ogunsola Iyanuoluwa",
-        position: "Social Media Handler (FB & IG)",
+        position: "Social Media Handler (Digital Innovation Unit)",
         roles: ["Digital Marketing"],
         used: false
     },
     {
         code: "SKF-DMT-221",
         name: "Richard Famuyiwa O",
-        position: "Social Media Handler (FB & IG)",
+        position: "Social Media Handler (Digital Innovation Unit)",
         roles: ["Digital Marketing"],
         used: false
     },
     {
         code: "SKF-DMT-233",
         name: "Aina Samuel . O",
-        position: "A.I Content Generation",
+        position: "A.I Content Generation (Digital Innovation Unit)",
         roles: ["Digital Marketing"],
         used: false
     },
     {
         code: "SKF-DMT-241",
         name: "Faith Eniola",
-        position: "Social Media & Global Support",
+        position: "Social Media & Global Support (Digital Innovation Unit)",
         roles: ["Digital Marketing"],
         used: false
     },
 
-    // Specialist Unit
+    // Development & Tech Unit
     {
         code: "SKF-HSPEC-514",
         name: "Emmanuel Umoh",
-        position: "Website Dev & Design (Dev & Tech HOU)",
+        position: "Website Dev & Design / HOU (Dev & Tech Unit)",
         roles: ["HOD", "Specialist"],
         used: false
     },
     {
         code: "SKF-SPEC-521",
         name: "Gbonjubola Olatoye",
-        position: "Discord Dev & Community Manager",
+        position: "Discord Dev & Community Manager (Dev & Tech Unit)",
         roles: ["Specialist", "Community Manager"],
         used: false
     },
     {
         code: "SKF-SPEC-528",
         name: "Gabriel Odusanya",
-        position: "Cybersecurity",
+        position: "Cybersecurity (Dev & Tech Unit)",
         roles: ["Specialist"],
         used: false
     },
+
+    // Creative Media Unit
+    {
+        code: "SKF-SPEC-542",
+        name: "Excellent J Akinwumi",
+        position: "Graphic Design (Creative Media Unit)",
+        roles: ["Specialist"],
+        used: false
+    },
+
+    // Trading Unit
+    {
+        code: "SKF-SPEC-549",
+        name: "O J . Alonge",
+        position: "Founder & CEO / Synthetic Indices (Trading Unit)",
+        roles: ["Director", "Specialist"],
+        used: false
+    },
+    {
+        code: "SKF-HSPEC-556",
+        name: "T. G Adeyeri",
+        position: "Chief Trading Officer (CTO) / HOU (Trading Unit)",
+        roles: ["Director", "HOD", "Specialist"],
+        used: false
+    },
+
+    // Support & Community
     {
         code: "SKF-SPEC-535",
         name: "Eziukwu Perpetual N",
@@ -80,29 +114,6 @@ export const STAFF_SEED_DATA = [
         roles: ["Specialist", "Support Team"],
         used: false
     },
-    {
-        code: "SKF-SPEC-542",
-        name: "Excellent J Akinwumi",
-        position: "Graphic Design",
-        roles: ["Specialist"],
-        used: false
-    },
-    {
-        code: "SKF-SPEC-549",
-        name: "O J . Alonge",
-        position: "Founder & CEO / Synthetic Indices",
-        roles: ["Director", "Specialist"],
-        used: false
-    },
-    {
-        code: "SKF-HSPEC-556",
-        name: "T. G Adeyeri",
-        position: "Chief Trading Officer (CTO) / HOU",
-        roles: ["Director", "HOD", "Specialist"],
-        used: false
-    },
-
-    // Community Management
     {
         code: "SKF-CM-888",
         name: "Ajayi Opemipo",

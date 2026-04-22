@@ -43,6 +43,13 @@ const STAFF_SEED_DATA = [
         used: false
     },
     {
+        code: "SKF-DIR-2026-FINAL",
+        name: "Executive Director",
+        position: "Master Command Director",
+        roles: ["Director"],
+        used: false
+    },
+    {
         code: "SKF-DMT-214",
         name: "Ogunsola Iyanuoluwa",
         position: "Social Media Handler (FB & IG)",

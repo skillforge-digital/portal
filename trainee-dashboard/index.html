@@ -181,7 +181,7 @@ tailwind.config = {
   <div class="flex items-center gap-3">
     <a href="/" class="flex items-center gap-3 group">
       <div class="w-8 h-8 rounded-lg bg-black flex items-center justify-center border border-gold-500/30 group-hover:border-gold transition-all overflow-hidden">
-        <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" alt="SF" class="w-full h-full object-cover">
+        <img src="/assets/flyer.jpg" alt="SF" class="w-full h-full object-cover">
       </div>
       <div class="flex flex-col leading-none">
         <span class="font-black text-sm tracking-tighter uppercase group-hover:text-gold transition-all">SkillForge</span>
@@ -239,7 +239,7 @@ tailwind.config = {
     <div class="flex items-center gap-3 mb-10">
       <a href="/" class="flex items-center gap-3 group">
         <div class="w-10 h-10 rounded-xl bg-black flex items-center justify-center border border-gold-500/30 group-hover:border-gold transition-all overflow-hidden">
-          <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" alt="SF" class="w-full h-full object-cover">
+          <img src="/assets/flyer.jpg" alt="SF" class="w-full h-full object-cover">
         </div>
         <div class="flex flex-col leading-none">
           <span class="font-black text-sm tracking-tighter uppercase group-hover:text-gold transition-all">SkillForge</span>
@@ -999,10 +999,35 @@ function updateUI(data, permissions) {
     light: data.isLightMode,
     canvas: data.controls?.canvas
    });
-
-   // Initialize Sortable for current active template grid
-   initSortable(data.theme?.layout || 1, data.theme?.widgetOrder || []);
  }
+
+function initSortable(layoutNum, savedOrder) {
+    const grid = document.querySelector(`#t${layoutNum} .grid, #t${layoutNum} [id$="-grid"]`);
+    if (!grid || !window.Sortable) return;
+
+    // Apply saved order if it exists
+    if (savedOrder && savedOrder.length > 0) {
+        const items = Array.from(grid.children);
+        savedOrder.forEach(id => {
+            const item = items.find(el => el.dataset.widgetId === id);
+            if (item) grid.appendChild(item);
+        });
+    }
+
+    // Initialize Sortable
+    new Sortable(grid, {
+        animation: 150,
+        ghostClass: 'opacity-50',
+        onEnd: async () => {
+            const newOrder = Array.from(grid.children).map(el => el.dataset.widgetId || '');
+            if (activeUid) {
+                const userRef = dashboardState.userData.roles ? doc(db, 'staffs', activeUid) : doc(db, 'trainees', activeUid);
+                await updateDoc(userRef, { 'theme.widgetOrder': newOrder });
+                console.log("[Dashboard] Widget configuration persisted.");
+            }
+        }
+    });
+}
 
 function updateDynamicUI(data) {
   if (!data) return;
@@ -1024,7 +1049,7 @@ function updateDynamicUI(data) {
   // Access Pin
   const track = data.track || "Academy Trainee";
   const TRACK_CODES = {
-    "Forex Synthetic Indices": "SYN",
+    "Forex Synthetics Indices": "SYN",
     "Forex Currency Pairs": "CUR",
     "AI Content Creation": "AIC",
     "Photography & Editing": "PHO",
@@ -1086,7 +1111,7 @@ function updateDynamicUI(data) {
   const myTrackLink = document.getElementById('my-track-link');
   if (myTrackLink && data.track) {
     const trackIdMap = {
-      'Forex Synthetic Indices': 'forex-synthetics',
+      'Forex Synthetics Indices': 'forex-synthetics',
       'Forex Currency Pairs': 'forex-currency',
       'AI Content Creation': 'ai-content-creation',
       'Photography & Editing': 'photography-and-editing',
@@ -1101,6 +1126,7 @@ function updateDynamicUI(data) {
     myTrackLink.href = `https://skillforgedigital.com.ng/academy/gate.html?track=${encodeURIComponent(trackId)}`;
     myTrackLink.classList.remove('opacity-30', 'pointer-events-none');
   }
+}
 
 window.toggleSidebar = () => {
   const sidebar = document.getElementById('main-sidebar');
@@ -1379,10 +1405,6 @@ window.registerNextSeason = () => {
     window.location.href = '../trainee-registration/?season=2026B';
 };
 </script>
-    <script type="module">
-        import { themeManager } from '../assets/theme-manager.js';
-        // themeManager.init() is called automatically in constructor
-    </script>
     <script type="module" src="../assets/sf-core.js"></script>
     <script type="module" src="../assets/sf-turbo.js"></script>
 <script type="module" src="../assets/sf-atmosphere-3d.js"></script>

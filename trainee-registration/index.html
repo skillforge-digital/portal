@@ -3,8 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https:; font-src 'self' https: data:; connect-src 'self' https:;">
-  <title>Trainee Academy Registration Page • SkillForge Digital & Co. Ltd</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; img-src 'self' data: https:; font-src 'self' https: data:; script-src 'self' https: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https: wss:;">
+
+  <!-- Open Graph / Social Sharing -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://portal.skillforgedigital.com.ng/trainee-registration/">
+  <meta property="og:title" content="Join the Academy • SkillForge Digital">
+  <meta property="og:description" content="Forging Digital Legacy out of vision. Register for Season 2026.">
+  <meta property="og:image" content="https://portal.skillforgedigital.com.ng/assets/flyer.jpg">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:image" content="https://portal.skillforgedigital.com.ng/assets/flyer.jpg">
+
+  <title>Academy Registration • SkillForge Digital & Co. Ltd</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -144,16 +156,24 @@
                         <label for="track-select" class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Selected Mastery Track</label>
                         <select required id="track-select" name="track" aria-label="Select Mastery Track" class="w-full p-4 rounded-2xl text-sm appearance-none cursor-pointer">
                             <option value="" disabled selected>Choose Your Path to Mastery...</option>
-                            <option value="Forex Synthetic Indices">Forex Synthetic Indices</option>
-                            <option value="Forex Currency Pairs">Forex Currency Pairs</option>
-                            <option value="AI Content Creation">AI Content Creation</option>
-                            <option value="Photography & Editing">Photography & Editing</option>
-                            <option value="Graphic Design">Graphic Design</option>
-                            <option value="Digital Marketing">Digital Marketing</option>
-                            <option value="Mobile Cinematography">Mobile Cinematography</option>
-                            <option value="Discord Development">Discord Development</option>
-                            <option value="Web Development">Web Development</option>
-                            <option value="Cyber Security">Cyber Security</option>
+                            <optgroup label="Trading Unit">
+                                <option value="Forex Currency Pairs">Forex Currency Pairs</option>
+                                <option value="Forex Synthetics Indices">Forex Synthetics Indices</option>
+                            </optgroup>
+                            <optgroup label="Development & Tech Unit">
+                                <option value="Web Development">Web Development</option>
+                                <option value="Discord Development">Discord Development</option>
+                                <option value="Cyber Security">Cyber Security</option>
+                            </optgroup>
+                            <optgroup label="Creative Media Unit">
+                                <option value="Graphic Design">Graphic Design</option>
+                                <option value="Mobile Cinematography">Mobile Cinematography</option>
+                                <option value="Photography & Editing">Photography & Editing</option>
+                            </optgroup>
+                            <optgroup label="Digital Innovation Unit">
+                                <option value="Digital Marketing">Digital Marketing</option>
+                                <option value="AI Content Creation">AI Content Creation</option>
+                            </optgroup>
                         </select>
                     </div>
                     <div class="space-y-2">
@@ -420,7 +440,7 @@
     });
 
     const TRACK_CODES = {
-      "Forex Synthetic Indices": "SYN",
+      "Forex Synthetics Indices": "SYN",
       "Forex Currency Pairs": "CUR",
       "AI Content Creation": "AIC",
       "Photography & Editing": "PHO",
@@ -485,10 +505,9 @@
         const registrationPassword = traineeData.password;
         delete traineeData.password;
 
-        // Strong Password Policy: Min 8 chars, 1 uppercase, 1 lowercase, 1 digit, 1 special char
-        const strongPassRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-        if (!strongPassRegex.test(registrationPassword)) {
-            showRegError("Password Strength Violation: Must contain at least 8 characters, including uppercase, lowercase, numbers, and symbols (@$!%*?&).");
+        // Relaxed Password Policy: Min 6 chars
+        if (registrationPassword.length < 6) {
+            showRegError("Password Too Short: Must contain at least 6 characters for basic security.");
             btn.disabled = false; btn.innerHTML = "Start Your Mastery Journey <i data-lucide='arrow-right' class='w-4 h-4'></i>";
             if (window.lucide) window.lucide.createIcons();
             return;

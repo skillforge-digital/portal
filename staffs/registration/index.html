@@ -3,6 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Open Graph / Social Sharing -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://portal.skillforgedigital.com.ng/staffs/registration/">
+  <meta property="og:title" content="Personnel Registry — SkillForge Digital">
+  <meta property="og:description" content="Secure Command Onboarding. Register as a SkillForge Command Personnel.">
+  <meta property="og:image" content="https://portal.skillforgedigital.com.ng/assets/flyer.jpg">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:image" content="https://portal.skillforgedigital.com.ng/assets/flyer.jpg">
+
   <title>Personnel Registration — SkillForge Digital</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -83,16 +95,30 @@
             </div>
 
             <form id="staff-reg-form" class="space-y-6">
-                <div class="space-y-2">
-                    <label for="department-select" class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Department/Unit Assignment</label>
-                    <select required id="department-select" aria-label="Select Department or Unit" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10">
-                        <option value="">SELECT DEPARTMENT...</option>
-                        <option value="Trading Academy">Trading Academy</option>
-                        <option value="Digital & Intelligence">Digital & Intelligence</option>
-                        <option value="Technology">Technology</option>
-                        <option value="Creative Academy">Creative Academy</option>
-                        <option value="Marketing">Marketing (Universal)</option>
-                    </select>
+                <div class="space-y-4">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Unit Assignment (Select up to 2)</label>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="unit-selection">
+                        <label class="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all unit-label">
+                            <input type="checkbox" name="units[]" value="Trading Unit" class="w-4 h-4 rounded border-gold bg-navy text-gold focus:ring-gold unit-checkbox">
+                            <span class="text-sm font-bold uppercase">Trading Unit</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all unit-label">
+                            <input type="checkbox" name="units[]" value="Development & Tech Unit" class="w-4 h-4 rounded border-gold bg-navy text-gold focus:ring-gold unit-checkbox">
+                            <span class="text-sm font-bold uppercase">Dev & Tech Unit</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all unit-label">
+                            <input type="checkbox" name="units[]" value="Creative Media Unit" class="w-4 h-4 rounded border-gold bg-navy text-gold focus:ring-gold unit-checkbox">
+                            <span class="text-sm font-bold uppercase">Creative Media Unit</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all unit-label">
+                            <input type="checkbox" name="units[]" value="Digital Innovation Unit" class="w-4 h-4 rounded border-gold bg-navy text-gold focus:ring-gold unit-checkbox">
+                            <span class="text-sm font-bold uppercase">Digital Innovation Unit</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all unit-label">
+                            <input type="checkbox" name="units[]" value="Support Staff / Team" class="w-4 h-4 rounded border-gold bg-navy text-gold focus:ring-gold unit-checkbox">
+                            <span class="text-sm font-bold uppercase">Support Staff / Team</span>
+                        </label>
+                    </div>
                 </div>
 
                 <div class="space-y-2">
@@ -100,23 +126,30 @@
                     <input required id="full-name" name="name" type="text" autocomplete="name" placeholder="FIRSTNAME LASTNAME" class="w-full p-4 rounded-2xl text-sm uppercase">
                 </div>
 
-                <!-- Social Media Integration -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="space-y-2">
-                        <label for="social-platform" class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Primary Social Matrix</label>
-                        <select required id="social-platform" name="socialPlatform" autocomplete="off" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10">
-                            <option value="">SELECT PLATFORM...</option>
-                            <option value="Instagram">Instagram</option>
-                            <option value="Twitter">X (Twitter)</option>
-                            <option value="LinkedIn">LinkedIn</option>
-                            <option value="Facebook">Facebook</option>
-                            <option value="TikTok">TikTok</option>
-                        </select>
+                <!-- Social Media Integration (Multi-Handle Support) -->
+                <div class="space-y-4">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Social Matrix (Add 1 or more)</label>
+                    <div id="social-handles-container" class="space-y-3">
+                        <!-- Initial handle row -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 social-row">
+                            <select required name="socialPlatform[]" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10">
+                                <option value="">SELECT PLATFORM...</option>
+                                <option value="Instagram">Instagram</option>
+                                <option value="Twitter">X (Twitter)</option>
+                                <option value="LinkedIn">LinkedIn</option>
+                                <option value="Facebook">Facebook</option>
+                                <option value="TikTok">TikTok</option>
+                                <option value="Discord">Discord</option>
+                                <option value="Telegram">Telegram</option>
+                            </select>
+                            <div class="relative">
+                                <input required name="socialHandle[]" type="text" placeholder="@username or handle" class="w-full p-4 rounded-2xl text-sm" onblur="extractSocialHandle(this)">
+                            </div>
+                        </div>
                     </div>
-                    <div class="space-y-2">
-                        <label for="social-handle" class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Social Handle / URL</label>
-                        <input required id="social-handle" name="socialHandle" type="text" autocomplete="username" placeholder="@username or paste URL" class="w-full p-4 rounded-2xl text-sm" onblur="extractSocialHandle(this)">
-                    </div>
+                    <button type="button" onclick="addSocialRow()" class="flex items-center gap-2 text-[8px] font-black text-gold uppercase tracking-widest hover:text-white transition-all">
+                        <i data-lucide="plus-circle" class="w-3 h-3"></i> Add Another Matrix Link
+                    </button>
                 </div>
                 
                 <div class="space-y-2">
@@ -148,6 +181,10 @@
             <div>
                 <h2 class="text-3xl font-black text-white uppercase tracking-tighter">Registration Confirmed</h2>
                 <p class="text-slate-400 text-sm mt-2">Welcome to the SkillForge Command Center. Your neural access has been authorized.</p>
+                <div class="mt-6 p-4 rounded-2xl bg-gold/5 border border-gold/20 inline-block">
+                    <p class="text-[8px] font-black text-gold uppercase tracking-[0.3em] mb-1">Your Personnel ID</p>
+                    <p class="text-xl font-black text-white tracking-widest" id="generated-staff-id">SF-STF-XX-XXXX</p>
+                </div>
             </div>
             <a href="../login/" class="block w-full py-5 bg-gold text-navy font-black rounded-2xl uppercase text-[10px] tracking-[0.2em] shadow-xl hover:bg-white transition-all">
                 Access Personnel Hub
@@ -158,7 +195,7 @@
 
   <script type="module">
     import { db, auth } from '../../assets/firebase-config.js';
-    import { doc, getDoc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+    import { doc, getDoc, setDoc, serverTimestamp, writeBatch } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
     import { createUserWithEmailAndPassword, updateProfile } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
     import { STAFF_SEED_DATA } from '../../assets/staff-seed-data.js';
 
@@ -170,12 +207,49 @@
         'Director',
         'HOD',
         'Specialist',
+        'Support Team',
         'Digital Marketing',
         'Community Manager',
-        'Support Team',
         'Staff',
         'Trainee'
     ];
+
+    window.addSocialRow = () => {
+        const container = document.getElementById('social-handles-container');
+        const row = document.createElement('div');
+        row.className = 'grid grid-cols-1 md:grid-cols-2 gap-4 social-row animate-slide-up';
+        row.innerHTML = `
+            <select required name="socialPlatform[]" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10">
+                <option value="">SELECT PLATFORM...</option>
+                <option value="Instagram">Instagram</option>
+                <option value="Twitter">X (Twitter)</option>
+                <option value="LinkedIn">LinkedIn</option>
+                <option value="Facebook">Facebook</option>
+                <option value="TikTok">TikTok</option>
+                <option value="Discord">Discord</option>
+                <option value="Telegram">Telegram</option>
+            </select>
+            <div class="relative">
+                <input required name="socialHandle[]" type="text" placeholder="@username or handle" class="w-full p-4 rounded-2xl text-sm" onblur="extractSocialHandle(this)">
+                <button type="button" onclick="this.closest('.social-row').remove()" class="absolute -right-8 top-1/2 -translate-y-1/2 text-red-400 hover:text-white transition-all">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+            </div>
+        `;
+        container.appendChild(row);
+        if (window.lucide) window.lucide.createIcons();
+    };
+
+    // Unit Selection Limit (Max 2)
+    document.querySelectorAll('.unit-checkbox').forEach(cb => {
+        cb.addEventListener('change', () => {
+            const checked = document.querySelectorAll('.unit-checkbox:checked');
+            if (checked.length > 2) {
+                cb.checked = false;
+                alert("Unit Assignment Limit: You can select a maximum of 2 units.");
+            }
+        });
+    });
 
     window.verifyRoleCode = async () => {
         const codeInput = document.getElementById('role-code-input').value.trim();
@@ -228,9 +302,13 @@
         btn.innerHTML = 'Provisioning Staff Matrix...';
         
         try {
+            console.log("[Registry] Starting atomic provisioning of staff matrix...");
+            const batch = writeBatch(db);
             let count = 0;
+            
             for (const staff of STAFF_SEED_DATA) {
-                await setDoc(doc(db, 'role_codes', staff.code), {
+                const ref = doc(db, 'role_codes', staff.code);
+                batch.set(ref, {
                     roles: staff.roles,
                     name: staff.name,
                     position: staff.position,
@@ -239,10 +317,17 @@
                 }, { merge: true });
                 count++;
             }
+            
+            await batch.commit();
+            console.log(`[Registry] Successfully provisioned ${count} codes.`);
             alert(`Provisioning Complete: ${count} staff authorization codes initialized in the registry.`);
         } catch (err) {
-            console.error(err);
-            alert("Provisioning Failed: " + err.message);
+            console.error("[Registry] Provisioning Failed:", err);
+            if (err.message.includes('permission-denied')) {
+                alert("Provisioning Failed: Access Denied. Please ensure Firestore rules are deployed.");
+            } else {
+                alert("Provisioning Failed: " + err.message + "\n\nTip: Check if the Project ID in firebase-config.js is correct.");
+            }
         } finally {
             btn.disabled = false;
             btn.innerHTML = 'Verify Authorization <i data-lucide="shield-check" class="w-4 h-4"></i>';
@@ -255,15 +340,19 @@
         const btn = document.getElementById('reg-btn');
         const formData = new FormData(e.target);
         const { name, email, password } = Object.fromEntries(formData.entries());
-        const department = document.getElementById('department-select').value;
+        const units = Array.from(document.querySelectorAll('.unit-checkbox:checked')).map(cb => cb.value);
+
+        if (units.length === 0) {
+            alert("Unit Assignment Required: Please select at least one unit.");
+            return;
+        }
 
         btn.disabled = true;
         btn.innerHTML = 'Onboarding Personnel...';
 
-        // Strong Password Policy: Min 8 chars, 1 uppercase, 1 lowercase, 1 digit, 1 special char
-        const strongPassRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-        if (!strongPassRegex.test(password)) {
-            alert("Password Strength Violation: Must contain at least 8 characters, including uppercase, lowercase, numbers, and symbols (@$!%*?&).");
+        // Relaxed Password Policy: Min 6 chars
+        if (password.length < 6) {
+            alert("Password Too Short: Must contain at least 6 characters for basic security.");
             btn.disabled = false;
             btn.innerHTML = 'Register Personnel <i data-lucide="save" class="w-4 h-4"></i>';
             if (window.lucide) window.lucide.createIcons();
@@ -271,10 +360,13 @@
         }
 
         try {
-            // ... (auth and highestRole logic) ...
-            const formData = new FormData(e.target);
-            const { name, email, password, socialPlatform, socialHandle } = Object.fromEntries(formData.entries());
-            const department = document.getElementById('department-select').value;
+            // Collect all social handles
+            const socialPlatforms = formData.getAll('socialPlatform[]');
+            const socialHandles = formData.getAll('socialHandle[]');
+            const socialMatrix = socialPlatforms.map((platform, i) => ({
+                platform,
+                handle: socialHandles[i]
+            })).filter(s => s.platform && s.handle);
 
             // 1. Create User in Auth
             const userCred = await createUserWithEmailAndPassword(auth, email, password);
@@ -283,26 +375,31 @@
             // 2. Update Auth Profile
             await updateProfile(user, { displayName: name.toUpperCase() });
 
-            // 3. Determine Highest Role (for UI/Dashboard targeting)
+            // 3. Determine Highest Role
             const highestRole = assignedRoles.sort((a, b) => {
                 const aIdx = ROLE_HIERARCHY.indexOf(a);
                 const bIdx = ROLE_HIERARCHY.indexOf(b);
                 return (aIdx === -1 ? 99 : aIdx) - (bIdx === -1 ? 99 : bIdx);
             })[0] || 'Staff';
 
-            // 4. Create Personnel Document in UNIFIED staffs collection
+            // 3.5 Generate Staff SFID
+            const year = new Date().getFullYear().toString().slice(-2);
+            const rand = Math.floor(1000 + Math.random() * 9000);
+            const staffSfid = `SF-STF-${year}-${rand}`;
+
+            // 4. Create Personnel Document
             await setDoc(doc(db, 'staffs', user.uid), {
                 uid: user.uid,
+                sfid: staffSfid,
                 name: name.toUpperCase(),
                 email: email.toLowerCase(),
                 roles: assignedRoles,
                 primaryRole: highestRole,
-                department: department,
+                department: units[0], // Primary unit
+                departments: units, // All assigned units
                 roleCode: assignedCode,
-                social: {
-                    platform: socialPlatform,
-                    handle: socialHandle
-                },
+                social: socialMatrix[0] || { platform: 'Other', handle: '@none' }, // Legacy single support
+                socialMatrix: socialMatrix, // New multi-handle support
                 created_at: serverTimestamp(),
                 lastLogin: serverTimestamp(),
                 status: 'active',
@@ -313,6 +410,7 @@
             await setDoc(doc(db, 'role_codes', assignedCode), { used: true, usedBy: user.uid }, { merge: true });
 
             // 6. Success!
+            document.getElementById('generated-staff-id').innerText = staffSfid;
             document.getElementById('reg-step').classList.add('hidden');
             document.getElementById('success-step').classList.remove('hidden');
         } catch (err) {

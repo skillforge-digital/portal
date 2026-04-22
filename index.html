@@ -3,8 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https:; font-src 'self' https: data:; connect-src 'self' https:;">
-  <title>SkillForge Digital • Official Trainee Portal</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; img-src 'self' data: https:; font-src 'self' https: data:; script-src 'self' https: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https: wss:;">
+    
+    <!-- Open Graph / Social Sharing -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://portal.skillforgedigital.com.ng/">
+    <meta property="og:title" content="SkillForge Digital • Official Trainee Portal">
+    <meta property="og:description" content="Forging Digital Legacy out of vision. Join the elite academy for Trading, Tech, and Digital Innovation.">
+    <meta property="og:image" content="https://portal.skillforgedigital.com.ng/assets/flyer.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://portal.skillforgedigital.com.ng/">
+    <meta property="twitter:title" content="SkillForge Digital • Official Trainee Portal">
+    <meta property="twitter:description" content="Forging Digital Legacy out of vision. Join the elite academy for Trading, Tech, and Digital Innovation.">
+    <meta property="twitter:image" content="https://portal.skillforgedigital.com.ng/assets/flyer.jpg">
+
+    <title>SkillForge Digital • Official Trainee Portal</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -23,8 +38,43 @@
       }
     }
   </script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+  <script type="module">
+        import { auth, db } from './assets/firebase-config.js';
+        import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+        import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+
+        // Global Redirect Engine: Sends logged-in users to their correct Command Center
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                console.log("[RedirectEngine] Active session detected. Determining destination...");
+                
+                // 1. Check Staff Registry
+                const staffSnap = await getDoc(doc(db, 'staffs', user.uid));
+                if (staffSnap.exists()) {
+                    const data = staffSnap.data();
+                    const DASHBOARD_MAP = {
+                        'Director': '/director/',
+                        'HOD': '/staffs/hod/',
+                        'Specialist': '/staffs/specialist/',
+                        'Digital Marketing': '/staffs/marketing/',
+                        'Support Staff': '/staffs/support/'
+                    };
+                    const target = DASHBOARD_MAP[data.primaryRole] || '/staffs/specialist/';
+                    window.location.href = target;
+                    return;
+                }
+
+                // 2. Check Trainee Registry
+                const traineeSnap = await getDoc(doc(db, 'trainees', user.uid));
+                if (traineeSnap.exists()) {
+                    window.location.href = '/trainee-dashboard/';
+                    return;
+                }
+            }
+        });
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
     :root {
       --bg-color: #0A1931;
       --text-color: #f1f5f9;
@@ -69,7 +119,7 @@
     <nav class="h-24 px-6 md:px-20 flex items-center justify-between border-b border-white/5 glass sticky top-0 z-[100]">
         <div class="flex items-center gap-3">
             <a href="/" class="flex items-center gap-3 group">
-                <img src="https://i.postimg.cc/fRYD4HSw/Whats-App-Image-2026-01-16-at-1-20-06-PM.jpg" alt="SkillForge Logo" class="w-10 h-10 rounded-xl border border-gold/30 group-hover:border-gold transition-all">
+                <img src="/assets/flyer.jpg" alt="SkillForge Logo" class="w-10 h-10 rounded-xl border border-gold/30 group-hover:border-gold transition-all object-cover">
                 <div class="flex flex-col leading-none">
                     <span class="font-black text-lg md:text-xl tracking-tighter uppercase group-hover:text-gold transition-all">SkillForge</span>
                     <span class="text-[7px] md:text-[8px] text-gold font-bold tracking-[0.2em] uppercase">Digital & Co. Ltd</span>

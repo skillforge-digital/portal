@@ -191,11 +191,12 @@ tailwind.config = {
           <div><p class="text-[8px] font-black auto-contrast-muted uppercase">Total Masters</p><p class="text-xs font-bold auto-contrast" id="total-trainees-count">0</p></div>
         </div>
       </div>
-      <div class="flex gap-2" id="leaderboard-filters">
+      <div class="flex flex-wrap gap-2" id="leaderboard-filters">
         <button type="button" onclick="filterLeaderboard('all')" class="px-4 py-2 glass rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-gold-500/20 active-filter bg-gold-500/20 auto-contrast">All Units</button>
-        <button type="button" onclick="filterLeaderboard('trading')" class="px-4 py-2 glass rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-gold-500/20 auto-contrast">Trading</button>
-        <button type="button" onclick="filterLeaderboard('creative')" class="px-4 py-2 glass rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-gold-500/20 auto-contrast">Creative</button>
-        <button type="button" onclick="filterLeaderboard('digital')" class="px-4 py-2 glass rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-gold-500/20 auto-contrast">Digital/Tech</button>
+        <button type="button" onclick="filterLeaderboard('Trading Unit')" class="px-4 py-2 glass rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-gold-500/20 auto-contrast">Trading</button>
+        <button type="button" onclick="filterLeaderboard('Development & Tech Unit')" class="px-4 py-2 glass rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-gold-500/20 auto-contrast">Dev & Tech</button>
+        <button type="button" onclick="filterLeaderboard('Creative Media Unit')" class="px-4 py-2 glass rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-gold-500/20 auto-contrast">Creative</button>
+        <button type="button" onclick="filterLeaderboard('Digital Innovation Unit')" class="px-4 py-2 glass rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-gold-500/20 auto-contrast">Innovation</button>
       </div>
     </header>
 
@@ -228,11 +229,16 @@ const atmosphere = new DailyAtmosphere('atmospheric-glow');
 let currentFilter = 'all';
 
 const UNITS = {
-  "Forex Synthetic Indices": "trading", "Forex Currency Pairs": "trading",
-  "AI Content Creation": "digital", "Photography & Editing": "creative",
-  "Graphic Design": "creative", "Digital Marketing": "digital",
-  "Mobile Cinematography": "creative", "Discord Development": "digital",
-  "Web Development": "digital", "Cyber Security": "digital"
+  "Forex Synthetics Indices": "Trading Unit", 
+  "Forex Currency Pairs": "Trading Unit",
+  "AI Content Creation": "Digital Innovation Unit", 
+  "Photography & Editing": "Creative Media Unit",
+  "Graphic Design": "Creative Media Unit", 
+  "Digital Marketing": "Digital Innovation Unit",
+  "Mobile Cinematography": "Creative Media Unit", 
+  "Discord Development": "Development & Tech Unit",
+  "Web Development": "Development & Tech Unit", 
+  "Cyber Security": "Development & Tech Unit"
 };
 
 const TELEGRAM_CHANNELS = {

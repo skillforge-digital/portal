@@ -17,23 +17,27 @@ class StaffCore {
         this.user = null;
         this.profile = null;
         
-        // Department/Unit hierarchy with tracks
+        // Department/Unit hierarchy with tracks (Synced with Season 2026 Flyer)
         this.DEPARTMENTS = {
-            'Trading Academy': {
-                tracks: ['Forex', 'CPS Currency Pairs', 'Forex Synthetics'],
+            'Trading Unit': {
+                tracks: ['Forex Currency Pairs', 'Forex Synthetics Indices'],
                 color: 'emerald'
             },
-            'Digital & Intelligence': {
-                tracks: ['Cyber Security', 'Digital Marketing', 'AI Content Creation', 'Development & Technology'],
+            'Development & Tech Unit': {
+                tracks: ['Web Development', 'Discord Development', 'Cyber Security'],
                 color: 'blue'
             },
-            'Technology': {
-                tracks: ['Web Development', 'Discord Development'],
-                color: 'purple'
-            },
-            'Creative Academy': {
-                tracks: ['Graphics Design', 'Photography & Editing', 'Mobile Cinematography'],
+            'Creative Media Unit': {
+                tracks: ['Graphic Design', 'Mobile Cinematography', 'Photography & Editing'],
                 color: 'pink'
+            },
+            'Digital Innovation Unit': {
+                tracks: ['Digital Marketing', 'AI Content Creation'],
+                color: 'orange'
+            },
+            'Support Team': {
+                tracks: ['Global Support', 'Community Management'],
+                color: 'slate'
             }
         };
         

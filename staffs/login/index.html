@@ -3,6 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Open Graph / Social Sharing -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://portal.skillforgedigital.com.ng/staffs/login/">
+  <meta property="og:title" content="Personnel Access — SkillForge Digital">
+  <meta property="og:description" content="Authorized Command Authentication. Secure access to the SkillForge Command Center.">
+  <meta property="og:image" content="https://portal.skillforgedigital.com.ng/assets/flyer.jpg">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:image" content="https://portal.skillforgedigital.com.ng/assets/flyer.jpg">
+
   <title>Personnel Login — SkillForge Digital</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -76,17 +88,80 @@
                 </button>
             </form>
 
-            <div class="text-center pt-4">
+            <div class="text-center pt-4 space-y-2">
                 <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">New Command Personnel? <a href="../registration/" class="text-gold hover:text-white transition-all">Onboard Here</a></p>
+                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Forgot Staff ID? <button onclick="retrieveStaffID()" class="text-gold hover:text-white transition-all">Find it here</button></p>
+                <button onclick="toggleDiagnostics()" class="text-[8px] text-white/10 hover:text-gold/40 uppercase tracking-[0.3em] font-black transition-all pt-4">Neural Diagnostic Portal</button>
             </div>
         </section>
+
+        <!-- Diagnostic Portal -->
+        <div id="diagnostic-portal" class="hidden glass p-8 rounded-[40px] border-white/10 mt-6 space-y-6 text-left animate-slide-up">
+            <h3 class="text-xs font-black text-gold uppercase tracking-widest border-b border-white/5 pb-4">Personnel Registry Diagnostics</h3>
+            <div class="space-y-3 text-[10px] font-bold uppercase tracking-widest">
+                <div class="flex justify-between border-b border-white/5 pb-2"><span class="text-slate-500">Auth Node:</span> <span id="diag-auth" class="text-white">Scanning...</span></div>
+                <div class="flex justify-between border-b border-white/5 pb-2"><span class="text-slate-500">Registry Doc:</span> <span id="diag-doc" class="text-white">Scanning...</span></div>
+                <div class="flex justify-between border-b border-white/5 pb-2"><span class="text-slate-500">Local Cache ID:</span> <span id="diag-local" class="text-white">Scanning...</span></div>
+                <div class="flex justify-between border-b border-white/5 pb-2"><span class="text-slate-500">Project Link:</span> <span id="diag-project" class="text-white">Scanning...</span></div>
+            </div>
+            <button onclick="runEmergencyReset()" class="w-full py-3 bg-red-500/10 text-red-500 rounded-xl font-black text-[8px] uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all border border-red-500/20">Purge Local Session & Force Sync</button>
+        </div>
     </main>
   </div>
 
   <script type="module">
     import { db, auth } from '../../assets/firebase-config.js';
-    import { doc, getDoc, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+    import { doc, getDoc, updateDoc, serverTimestamp, collection, query, where, getDocs, signOut } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
     import { signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+
+    window.toggleDiagnostics = async () => {
+        const portal = document.getElementById('diagnostic-portal');
+        portal.classList.toggle('hidden');
+        if (!portal.classList.contains('hidden')) {
+            const user = auth.currentUser;
+            document.getElementById('diag-auth').innerText = user ? `${user.email} (${user.uid.substring(0,8)})` : "Offline / Unlinked";
+            document.getElementById('diag-local').innerText = localStorage.getItem('skillforge_mock_uid') || "None";
+            document.getElementById('diag-project').innerText = auth.app.options.projectId;
+            
+            if (user) {
+                let docFound = false;
+                for (const coll of ['staffs', 'directors', 'hods', 'specialists']) {
+                    const snap = await getDoc(doc(db, coll, user.uid));
+                    if (snap.exists()) { docFound = true; break; }
+                }
+                document.getElementById('diag-doc').innerText = docFound ? "Linked (Verified)" : "Missing from Registry";
+            } else {
+                document.getElementById('diag-doc').innerText = "Requires Login";
+            }
+        }
+    };
+
+    window.runEmergencyReset = () => {
+        if (confirm("This will clear all local cache and sign you out. Proceed?")) {
+            localStorage.clear();
+            document.cookie.split(";").forEach(function(c) { document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); });
+            auth.signOut().then(() => location.reload());
+        };
+    };
+
+    window.retrieveStaffID = async () => {
+        const email = prompt("Enter your registered Personnel Email to retrieve your Staff ID:");
+        if (!email) return;
+
+        try {
+            const q = query(collection(db, 'staffs'), where('email', '==', email.toLowerCase()));
+            const snap = await getDocs(q);
+            if (snap.empty) {
+                alert("Personnel not found in registry.");
+            } else {
+                const data = snap.docs[0].data();
+                alert(`Personnel Identity Verified.\n\nName: ${data.name}\nStaff ID: ${data.sfid}`);
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Registry link interrupted. Please try again later.");
+        }
+    };
 
     const DASHBOARD_MAP = {
         'Director': '/director/',
@@ -111,7 +186,7 @@
             const user = userCred.user;
 
             // 2. Fetch Personnel Profile across all collections in order of precedence
-            const collections = ['directors', 'hods', 'specialists', 'staffs'];
+            const collections = ['staffs', 'directors', 'hods', 'specialists'];
             let profileData = null;
             let collectionName = '';
 
@@ -137,7 +212,7 @@
 
                 // 5. Redirect to Primary Dashboard
                 // Directors always go to the root director portal
-                if (collectionName === 'directors') {
+                if (collectionName === 'directors' || profileData.primaryRole === 'Director') {
                     window.location.href = '/director/';
                     return;
                 }
@@ -145,6 +220,13 @@
                 const target = DASHBOARD_MAP[profileData.primaryRole || profileData.role] || '../';
                 window.location.href = target;
             } else {
+                // Check if they are a trainee
+                const traineeSnap = await getDoc(doc(db, 'trainees', user.uid));
+                if (traineeSnap.exists()) {
+                    alert("Trainee Identity Detected. Redirecting to Academy Hub...");
+                    window.location.href = '../../trainee-login/';
+                    return;
+                }
                 alert("Unauthorized: Personnel registry profile missing.");
                 await auth.signOut();
             }

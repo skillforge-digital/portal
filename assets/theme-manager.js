@@ -1,8 +1,5 @@
-// @ts-ignore
 import { db, auth } from './firebase-config.js';
-// @ts-ignore
 import { doc, updateDoc, onSnapshot, getDoc } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
-// @ts-ignore
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
 
 class ThemeManager {
@@ -232,23 +229,30 @@ class ThemeManager {
         if (!this.controls.light) document.body.classList.remove('light');
     }
 
-    async saveLayout(/** @type {any} */ layoutNum) {
+    async saveLayout(layoutNum) {
         if (!this.uid) return;
         try {
             const themeUpdate = { ...this.currentTheme, layout: layoutNum };
             
-            // Determine target collection
-            let userRef = doc(db, 'staffs', this.uid);
-            let userSnap = await getDoc(userRef);
-            if (!userSnap.exists()) {
-                userRef = doc(db, 'trainees', this.uid);
+            // Determine target collection (Direct doc lookup to avoid ReferenceError if getDoc is shadowed)
+            const staffRef = doc(db, 'staffs', this.uid);
+            const traineeRef = doc(db, 'trainees', this.uid);
+            
+            let userRef = staffRef;
+            try {
+                const staffSnap = await getDoc(staffRef);
+                if (!staffSnap.exists()) {
+                    userRef = traineeRef;
+                }
+            } catch (e) {
+                userRef = traineeRef;
             }
 
             await updateDoc(userRef, { theme: themeUpdate });
             this.currentTheme = themeUpdate;
             this.applyTheme(themeUpdate);
             return true;
-        } catch (/** @type {any} */ err) {
+        } catch (err) {
             console.error('Layout Save Failed:', err);
             return false;
         }
@@ -256,8 +260,6 @@ class ThemeManager {
 }
 
 export const themeManager = new ThemeManager();
-/** @type {any} */(window).themeManager = themeManager;
-// Only define showLayout if not already present to avoid overriding dashboard UI logic
-if (!(/** @type {any} */(window)).showLayout) {
-    /** @type {any} */(window).showLayout = (/** @type {any} */ l) => themeManager.saveLayout(l);
+if (!(window).showLayout) {
+    (window).showLayout = (l) => themeManager.saveLayout(l);
 }
