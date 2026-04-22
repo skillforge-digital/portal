@@ -409,6 +409,15 @@
             // 5. Mark code as used
             await setDoc(doc(db, 'role_codes', assignedCode), { used: true, usedBy: user.uid }, { merge: true });
 
+            // 5.5 Create Academy Track Access for Staff (Passkey support)
+            await setDoc(doc(db, 'track_access', assignedCode), {
+                pin: assignedCode,
+                track: 'Staff Access',
+                uid: user.uid,
+                sfid: staffSfid,
+                type: 'staff'
+            });
+
             // 6. Success!
             document.getElementById('generated-staff-id').innerText = staffSfid;
             document.getElementById('reg-step').classList.add('hidden');

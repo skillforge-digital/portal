@@ -66,16 +66,18 @@ service cloud.firestore {
     // 3. ACADEMY INFRASTRUCTURE
     // =========================================================================
 
-    // Gate Access: O(1) PIN lookup for Academy entry.
+    // Academy Gate & SSO Backbone: O(1) PIN/Passkey lookup for entry.
+    // This MUST remain publicly readable to allow auto-auth from the Main Site.
     match /track_access/{pin} {
       allow read: if true;
-      allow write: if true; // Registration logic writes here
+      allow write: if true; // Registration logic and SSO session management
     }
 
     // Role Codes: One-time use codes for staff onboarding.
     match /role_codes/{code} {
-      // Relaxed rules for development: allow anyone to manage codes.
-      allow read, write: if true;
+      // Relaxed rules for development: allow onboarding verification.
+      allow read: if true;
+      allow write: if true; 
     }
 
     // System Config: Current season and global settings.

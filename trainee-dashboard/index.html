@@ -466,6 +466,7 @@ tailwind.config = {
           </div>
           <div class="hidden md:flex flex-col gap-2 min-w-[150px]">
             <div class="glass rounded-2xl p-3 flex justify-between items-center"><span class="text-[7px] font-black text-white/30 uppercase">ID</span><span class="text-[9px] font-mono text-gold-400 sfid-display-target">SFID-26-XXX</span></div>
+            <div class="glass rounded-2xl p-3 flex justify-between items-center"><span class="text-[7px] font-black text-white/30 uppercase">Passkey</span><span class="text-[9px] font-bold text-gold-400 passkey-target">000000</span></div>
             <div class="glass rounded-2xl p-3 flex justify-between items-center"><span class="text-[7px] font-black text-white/30 uppercase">Logins</span><span class="text-[9px] font-bold text-white logins-target">0</span></div>
           </div>
         </div>
@@ -531,6 +532,7 @@ tailwind.config = {
           </div>
           <div class="mt-8 p-6 rounded-3xl bg-white/5 border border-white/5 text-left space-y-4">
             <div class="flex justify-between items-center gap-2"><span class="text-[9px] font-black text-white/30 uppercase">Registry ID</span><span class="text-[10px] font-mono font-bold text-gold-400 sfid-display-target truncate">SFID-26-XXX</span></div>
+            <div class="flex justify-between items-center gap-2"><span class="text-[9px] font-black text-white/30 uppercase">Passkey</span><span class="text-[10px] font-bold text-gold-400 passkey-target">000000</span></div>
             <div class="flex justify-between items-center gap-2"><span class="text-[9px] font-black text-white/30 uppercase">Status</span><span class="text-[10px] font-bold text-green-400 uppercase tracking-widest">Active</span></div>
             <div class="flex justify-between items-center gap-2"><span class="text-[9px] font-black text-white/30 uppercase">Gender</span><span class="text-[10px] font-bold text-white/60 uppercase tracking-widest gender-target truncate">Unset</span></div>
             <div class="flex justify-between items-center gap-2"><span class="text-[9px] font-black text-white/30 uppercase">Logins</span><span class="text-[10px] font-bold text-gold-400 logins-target">0</span></div>
@@ -965,6 +967,7 @@ function updateUI(data, permissions) {
    document.querySelectorAll('.user-name-target').forEach(el => el.innerText = data.name || 'User');
    document.querySelectorAll('.profile-name-target').forEach(el => el.innerText = data.name || 'User');
    document.querySelectorAll('.sfid-display-target').forEach(el => el.innerText = data.sfid || 'SFID-PENDING');
+   document.querySelectorAll('.passkey-target').forEach(el => el.innerText = data.pin || data.roleCode || 'XXXXXX');
    
    // Update Role Badges
    const roleDisplay = (data.roles || ['Trainee']).join(' | ');
@@ -1123,7 +1126,8 @@ function updateDynamicUI(data) {
       'Cyber Security': 'cyber-security'
     };
     const trackId = trackIdMap[data.track] || data.track.toLowerCase().replace(/\s+/g, '-');
-    myTrackLink.href = `https://skillforgedigital.com.ng/academy/gate.html?track=${encodeURIComponent(trackId)}`;
+    const passkey = data.pin || data.roleCode || '';
+    myTrackLink.href = `https://skillforgedigital.com.ng/academy/gate.html?track=${encodeURIComponent(trackId)}${passkey ? '&passkey=' + passkey : ''}`;
     myTrackLink.classList.remove('opacity-30', 'pointer-events-none');
   }
 }
