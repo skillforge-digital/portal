@@ -463,11 +463,14 @@ const premiumWallpapers = [
   'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&q=80&w=2000'  // Cyber Neural
 ];
 
-function init() {
+async function init() {
   // Check for staff status to unlock premium
   const uid = auth.currentUser ? auth.currentUser.uid : localStorage.getItem('skillforge_mock_uid');
-  const staffSnap = await getDoc(doc(db, 'staffs', uid));
-  const isStaff = staffSnap.exists();
+  let isStaff = false;
+  if (uid) {
+    const staffSnap = await getDoc(doc(db, 'staffs', uid));
+    isStaff = staffSnap.exists();
+  }
 
   const dGrid = document.getElementById('dual-grid');
   if (dGrid) {
