@@ -10,7 +10,9 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "audit:security": "npm audit",
-    "rules:deploy": "firebase deploy --only firestore:rules"
+    "rules:deploy": "firebase deploy --only firestore:rules",
+    "indexes:deploy": "firebase deploy --only firestore:indexes",
+    "seed:staff": "node seed-staff.js"
   },
   "devDependencies": {
     "vitest": "^1.4.0",

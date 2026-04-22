@@ -39,3 +39,5 @@ skill forge site/test.html
 firebase-debug.log
 firestore-debug.log
 ui-debug.log
+service-account.json
+*.json.bak

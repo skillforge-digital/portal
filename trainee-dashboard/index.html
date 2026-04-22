@@ -992,258 +992,37 @@ function updateUI(data, permissions) {
    // Handle Theme Toggles
    updateControlButtons(data);
    
+   updateDynamicUI(data);
+
+   applyControlState({
+    glow: data.controls?.glow,
+    light: data.isLightMode,
+    canvas: data.controls?.canvas
+   });
+
    // Initialize Sortable for current active template grid
    initSortable(data.theme?.layout || 1, data.theme?.widgetOrder || []);
  }
 
-function initSortable(layoutNum, savedOrder) {
-    const grid = document.querySelector(`#t${layoutNum} .grid, #t${layoutNum} [id$="-grid"]`);
-    if (!grid || !window.Sortable) return;
-
-    // Apply saved order if it exists
-    if (savedOrder && savedOrder.length > 0) {
-        const items = Array.from(grid.children);
-        savedOrder.forEach(id => {
-            const item = items.find(el => el.dataset.widgetId === id);
-            if (item) grid.appendChild(item);
-        });
-    }
-
-    // Initialize Sortable
-    new Sortable(grid, {
-        animation: 150,
-        ghostClass: 'opacity-50',
-        onEnd: async () => {
-            const newOrder = Array.from(grid.children).map(el => el.dataset.widgetId || '');
-            if (activeUid) {
-                const userRef = dashboardState.userData.roles ? doc(db, 'staffs', activeUid) : doc(db, 'trainees', activeUid);
-                await updateDoc(userRef, { 'theme.widgetOrder': newOrder });
-                console.log("[Dashboard] Widget configuration persisted.");
-            }
-        }
-    });
-}
-
-function addSidebarLink(parent, href, label, icon, className) {
-  const a = document.createElement('a');
-  a.href = href;
-  a.className = `sidebar-link ${className} w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-gold-400/80 hover:text-gold hover:bg-gold-500/10 transition-all`;
-  a.innerHTML = `<i class="fa-solid ${icon} w-4"></i> ${label}`;
-  parent.appendChild(a);
-}
-
-function updateControlButtons(data) {
-    const controls = data.controls || {};
-    const isLight = !!data.isLightMode;
-
-    document.querySelectorAll('.ctrl-glow-btn').forEach(btn => {
-        const indicator = btn.querySelector('div > div');
-        if (controls.glow) {
-            btn.classList.add('bg-gold-500/20');
-            if (indicator) indicator.style.transform = 'translateX(24px)';
-        } else {
-            btn.classList.remove('bg-gold-500/20');
-            if (indicator) indicator.style.transform = 'translateX(0)';
-        }
-    });
-
-    document.querySelectorAll('.ctrl-light-btn').forEach(btn => {
-        const indicator = btn.querySelector('div > div');
-        if (isLight) {
-            btn.classList.add('bg-gold-500/20');
-            if (indicator) indicator.style.transform = 'translateX(24px)';
-        } else {
-            btn.classList.remove('bg-gold-500/20');
-            if (indicator) indicator.style.transform = 'translateX(0)';
-        }
-    });
-}
-
-function hideLoading() {
-  const loader = document.getElementById('loading-screen');
-  if (loader) {
-    loader.style.opacity = '0';
-    setTimeout(() => {
-        loader.style.display = 'none';
-        document.documentElement.style.visibility = 'visible';
-    }, 500);
-  }
-}
-
-window.logout = async () => {
-    try {
-        await signOut(auth);
-        localStorage.removeItem('skillforge_mock_uid');
-        window.location.href = '../trainee-login/';
-    } catch (err) {
-        console.error(err);
-    }
-};
-
-window.toggleControl = async (type) => {
-    if (!activeUid || !dashboardState.userData) return;
-    
-    const userRef = dashboardState.userData.roles ? doc(db, 'staffs', activeUid) : doc(db, 'trainees', activeUid);
-    
-    if (type === 'glow') {
-        const current = !!dashboardState.userData.controls?.glow;
-        await updateDoc(userRef, { 'controls.glow': !current });
-    } else if (type === 'light') {
-        const current = !!dashboardState.userData.isLightMode;
-        await updateDoc(userRef, { 'isLightMode': !current });
-    } else if (type === 'canvas') {
-        const current = !!dashboardState.userData.controls?.canvas;
-        await updateDoc(userRef, { 'controls.canvas': !current });
-    }
-};
-
-// Layout Switching Logic
-window.showLayout = async (num) => {
-    if (!activeUid || !dashboardState.userData) return;
-    const userRef = dashboardState.userData.roles ? doc(db, 'staffs', activeUid) : doc(db, 'trainees', activeUid);
-    await updateDoc(userRef, { 'theme.layout': num });
-    applyLayout(num);
-};
-
-function applyLayout(num) {
-    document.querySelectorAll('.template-section').forEach(s => s.classList.remove('active-template'));
-    const target = document.getElementById(`t${num}`);
-    if (target) target.classList.add('active-template');
-
-    document.querySelectorAll('.layout-switch-btn').forEach(btn => {
-        if (btn.dataset.l == num) {
-            btn.classList.add('bg-gold-500', 'text-navy-950');
-            btn.classList.remove('text-white/40');
-        } else {
-            btn.classList.remove('bg-gold-500', 'text-navy-950');
-            btn.classList.add('text-white/40');
-        }
-    });
-}
-
-// Initial Layout Application
-if (traineeData && traineeData.theme && traineeData.theme.layout) {
-    applyLayout(traineeData.theme.layout);
-} else {
-    applyLayout(1);
-}
-
-  // Flip the specific target
-  const newVal = type === 'light' ? !controls.light : !controls[type];
-  
-  // Local state update for immediate feedback
-  if (type === 'light') traineeData.isLightMode = newVal;
-  else {
-    if (!traineeData.controls) traineeData.controls = {};
-    traineeData.controls[type] = newVal;
-  }
-
-  // Update UI immediately
-  applyControlUI(traineeData.controls || {});
-  if (type === 'light') document.body.classList.toggle('light', newVal);
-  if (type === 'glow') document.body.classList.toggle('glow-mode', newVal);
-  if (type === 'canvas') {
-    const canvas = document.getElementById('gold-dust');
-    if (canvas) canvas.style.display = newVal ? 'block' : 'none';
-    // Notify DailyAtmosphere engine
-    window.dispatchEvent(new CustomEvent('sf:toggle-canvas', { detail: { enabled: newVal } }));
-  }
-
-  console.log(`[Dashboard] Toggling ${type} to:`, newVal);
-
-  try {
-    const update = {};
-    if (type === 'glow') update['controls.glow'] = newVal;
-    else if (type === 'light') update.isLightMode = newVal;
-    else if (type === 'canvas') update['controls.canvas'] = newVal;
-
-    await updateDoc(doc(db, 'trainees', activeUid), update);
-  } catch (err) {
-    console.error("[Dashboard] Remote sync failed for control:", type, err);
-  }
-};
-
-function applyControlState(controls) {
-  if (!controls) return;
-  const isCanvasOn = !!controls.canvas;
-
-  document.querySelectorAll('.ctrl-glow-btn').forEach(btn => {
-    btn.classList.toggle('bg-gold-500', !!controls.glow);
-    const indicator = btn.querySelector('div');
-    if (indicator) indicator.style.left = controls.glow ? '1.5rem' : '0.25rem';
-  });
-
-  document.querySelectorAll('.ctrl-light-btn').forEach(btn => {
-    btn.classList.toggle('bg-gold-500', !!controls.light);
-    const indicator = btn.querySelector('div');
-    if (indicator) indicator.style.left = controls.light ? '1.5rem' : '0.25rem';
-  });
-
-  document.querySelectorAll('.ctrl-canvas-btn').forEach(btn => {
-    btn.classList.toggle('bg-gold-500', isCanvasOn);
-    const indicator = btn.querySelector('div');
-    if (indicator) indicator.style.left = isCanvasOn ? '1.5rem' : '0.25rem';
-  });
-
-  document.documentElement.classList.toggle('light', !!controls.light);
-}
-
-function initDashboard(targetUid) {
-  // Reveal content once data is ready
-  document.documentElement.style.visibility = 'visible';
-
-  const loader = document.getElementById('loading-screen');
-  if (loader) {
-    loader.style.opacity = '0';
-    setTimeout(() => loader.style.display = 'none', 500);
-  }
-  
-  updateDynamicUI();
-  applyControlState({
-    glow: traineeData.controls?.glow,
-    light: traineeData.isLightMode,
-    canvas: traineeData.controls?.canvas
-  });
-  startRealtimePresence(targetUid);
-  loadLeaderboard();
-  
-  if (traineeData.theme?.layout) showLayout(traineeData.theme.layout);
-  else showLayout(1); 
-  
-  if (traineeData.theme) {
-    applyThemeState(traineeData.theme);
-    themeManager.applyTheme(traineeData.theme); 
-  }
-}
-
-const TELEGRAM_NODES = {
-  "Forex Synthetic Indices": "https://t.me/+KWyN-sKQNMExZjg8",
-  "Forex Currency Pairs": "https://t.me/+9cAdAp2Pw_FjNmJk",
-  "AI Content Creation": "https://t.me/+I5vUYuIuaMw4N2Rk",
-  "Photography & Editing": "https://t.me/+mkRAltkqJd41YTE0",
-  "Graphic Design": "https://t.me/+PTJq2zoyz0M3ZDZk",
-  "Digital Marketing": "https://t.me/+uIkOfw5x2MpmNjI0",
-  "Mobile Cinematography": "https://t.me/+un1weOJ0HcsyZDdk",
-  "Discord Development": "https://t.me/+Y5wcP_PIQf1kMzlk",
-  "Web Development": "https://t.me/+vEJTv3fBRl43Yjlk",
-  "Cyber Security": "https://t.me/+M4ZYMfz5tiYzZWVk"
-};
-
-function updateDynamicUI() {
-  if (!traineeData) return;
-  const nameParts = traineeData.name.trim().split(/\s+/);
+function updateDynamicUI(data) {
+  if (!data) return;
+  const nameParts = (data.name || 'User').trim().split(/\s+/);
   const firstName = nameParts[0] || '';
   const initials = nameParts.length > 1 ? (nameParts[0][0] + nameParts[nameParts.length-1][0]).toUpperCase() : nameParts[0].substring(0, 2).toUpperCase();
-  document.querySelectorAll('.profile-name-target').forEach(el => el.innerText = traineeData.name);
+  document.querySelectorAll('.profile-name-target').forEach(el => el.innerText = data.name || 'User');
   document.querySelectorAll('.user-name-target').forEach(el => el.innerText = firstName);
-  document.querySelectorAll('.profile-track-target').forEach(el => el.innerText = traineeData.track || 'Academy Trainee');
+  
+  // Roles/Track display
+  const roleDisplay = (data.roles && data.roles.length > 0) ? data.roles.join(' | ') : (data.track || 'Academy Trainee');
+  document.querySelectorAll('.profile-track-target').forEach(el => el.innerText = roleDisplay);
+  
   document.querySelectorAll('.profile-initials-target').forEach(el => {
     if (!el.querySelector('.profile-avatar-target')) {
       el.innerText = initials;
     }
   });
   // Access Pin
-  const track = traineeData.track || "Academy Trainee";
+  const track = data.track || "Academy Trainee";
   const TRACK_CODES = {
     "Forex Synthetic Indices": "SYN",
     "Forex Currency Pairs": "CUR",
@@ -1257,12 +1036,12 @@ function updateDynamicUI() {
     "Cyber Security": "CYB"
   };
   const trackCode = TRACK_CODES[track] || "SFD";
-  const pin = traineeData.pin || "000000";
+  const pin = data.pin || "000000";
   const accessKey = `${trackCode}-${pin}`;
   document.querySelectorAll('.access-pin-target').forEach(el => el.innerText = accessKey);
   
   // Level & XP
-  const xp = traineeData.xp || 0;
+  const xp = data.xp || 0;
   const level = Math.floor(xp / 1000) + 1;
   const xpInLevel = xp % 1000;
   const progress = (xpInLevel / 1000) * 100;
@@ -1276,12 +1055,12 @@ function updateDynamicUI() {
   });
 
   document.querySelectorAll('.gender-target').forEach(el => {
-    el.innerText = traineeData.gender || 'UNSET';
-    el.style.color = traineeData.gender === 'Female' ? '#f472b6' : (traineeData.gender === 'Male' ? '#60a5fa' : 'inherit');
+    el.innerText = data.gender || 'UNSET';
+    el.style.color = data.gender === 'Female' ? '#f472b6' : (data.gender === 'Male' ? '#60a5fa' : 'inherit');
   });
   
   // Certification Progress
-  const certDays = traineeData.certDays || 0;
+  const certDays = data.certDays || 0;
   const certGoal = 14;
   const certProgress = Math.min((certDays / certGoal) * 100, 100);
   document.querySelectorAll('.cert-days-target').forEach(el => el.innerText = `${certDays} / ${certGoal} Days`);
@@ -1291,22 +1070,21 @@ function updateDynamicUI() {
   });
 
   // Neural Connection Time (Study Time)
-  // traineeData.totalTimeSpent is in ms from NeuralCore
-  const totalMs = traineeData.totalTimeSpent || 0;
+  const totalMs = data.totalTimeSpent || 0;
   const d_val = Math.floor(totalMs / 86400000);
   const h_val = Math.floor((totalMs % 86400000) / 3600000);
   document.querySelectorAll('.study-time-target').forEach(el => el.innerText = `${String(d_val).padStart(2, '0')}D ${String(h_val).padStart(2, '0')}H`);
 
   // Update Telegram Join Link
-  const tgLink = TELEGRAM_NODES[traineeData.track] || 'https://t.me/skillforgeorg';
+  const tgLink = TELEGRAM_NODES[data.track] || 'https://t.me/skillforgeorg';
   document.querySelectorAll('.telegram-join-target').forEach(el => {
     el.href = tgLink;
     el.classList.remove('opacity-20', 'pointer-events-none');
   });
 
-  // Update My Track link to go directly to Academy gate with pre-selected track
+  // Update My Track link
   const myTrackLink = document.getElementById('my-track-link');
-  if (myTrackLink && traineeData.track) {
+  if (myTrackLink && data.track) {
     const trackIdMap = {
       'Forex Synthetic Indices': 'forex-synthetics',
       'Forex Currency Pairs': 'forex-currency',
@@ -1319,60 +1097,18 @@ function updateDynamicUI() {
       'Web Development': 'web-development',
       'Cyber Security': 'cyber-security'
     };
-    const trackId = trackIdMap[traineeData.track] || traineeData.track.toLowerCase().replace(/\s+/g, '-');
+    const trackId = trackIdMap[data.track] || data.track.toLowerCase().replace(/\s+/g, '-');
     myTrackLink.href = `https://skillforgedigital.com.ng/academy/gate.html?track=${encodeURIComponent(trackId)}`;
     myTrackLink.classList.remove('opacity-30', 'pointer-events-none');
-    
-    // Update all sidebar links with the same logic for consistency
-    document.querySelectorAll('#my-track-link').forEach(link => {
-        link.href = `https://skillforgedigital.com.ng/academy/gate.html?track=${encodeURIComponent(trackId)}`;
-        link.classList.remove('opacity-30', 'pointer-events-none');
-    });
   }
-
-  // Update SFID
-  document.querySelectorAll('.sfid-display-target').forEach(el => el.innerText = traineeData.sfid || 'SFID-26-XXX-000');
-  document.querySelectorAll('.logins-target').forEach(el => el.innerText = traineeData.totalLogins || '0');
-  document.querySelectorAll('.tier-target').forEach(el => el.innerText = traineeData.tier || 'Trainee');
-
-  // Handle Multi-track Registration State
-  const nextSeasonBtn = document.getElementById('next-season-btn');
-  const nextSeasonLockedMsg = document.getElementById('next-season-locked-msg');
-  if (traineeData.fingerprint_locked) {
-    nextSeasonBtn.disabled = true;
-    nextSeasonLockedMsg.classList.remove('hidden');
-  } else {
-    nextSeasonBtn.disabled = false;
-    nextSeasonLockedMsg.classList.add('hidden');
-  }
-
-  // Update Avatar
-  const avatarUrl = traineeData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${traineeData.name}&gender=${traineeData.gender === 'Female' ? 'female' : 'male'}`;
-  
-  // Use Cloudinary for optimized Supabase images if it's a Supabase URL
-  let optimizedAvatarUrl = avatarUrl;
-  if (avatarUrl.includes('supabase.co')) {
-    // Correct Cloudinary fetch URL with proper account name and parameters
-    optimizedAvatarUrl = `https://res.cloudinary.com/db8pknwmz/image/fetch/f_auto,q_auto,w_400,c_fill,g_face/${encodeURIComponent(avatarUrl)}`;
-  }
-
-  document.querySelectorAll('.profile-avatar-target').forEach(el => {
-    el.src = optimizedAvatarUrl;
-    el.classList.remove('opacity-0');
-    // Error fallback to standard avatar if Cloudinary/Supabase fails
-    el.onerror = () => {
-      el.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${traineeData.name}`;
-      el.onerror = null;
-    };
-  });
-}
 
 window.toggleSidebar = () => {
   const sidebar = document.getElementById('main-sidebar');
-  sidebar.classList.toggle('-translate-x-full');
+  if (sidebar) sidebar.classList.toggle('-translate-x-full');
 };
 
 function startRealtimePresence(targetUid) {
+  if (!targetUid) return;
   onSnapshot(doc(db, 'presence', targetUid), (snap) => {
     if (!snap.exists()) return;
     const p = snap.data();
@@ -1434,7 +1170,6 @@ async function loadLeaderboard() {
     });
   } catch (err) {
     console.error("[Dashboard] Leaderboard failed to load:", err);
-    if (window.sf_report_error) window.sf_report_error("Leaderboard Sync Failed", err.stack);
   }
 }
 
@@ -1442,7 +1177,7 @@ async function loadLeaderboard() {
 let isLayoutRendering = false;
 let currentLayoutId = null;
 
-window.showLayout = (num) => {
+window.showLayout = async (num) => {
   if (isLayoutRendering) {
     console.warn(`[LayoutEngine] Already rendering a layout. Ignoring request for T${num}`);
     return;
@@ -1461,19 +1196,18 @@ window.showLayout = (num) => {
 
   try {
     // 1. Universal Cleanup (Strict)
-    // Only remove satellites and rings, keep the central body intact in the template
     document.querySelectorAll('.orbit-satellite, .orbit-ring').forEach(el => el.remove());
     const stages = document.querySelectorAll('[id="orbit-stage"]');
     stages.forEach(s => {
         s.style.display = 'none';
     });
 
-    // 2. State Management
+    // 2. State Management & Persistence
     currentLayoutId = num;
-    if (traineeData && traineeData.theme) {
-      if (traineeData.theme.layout != num) {
-        // Update Firestore
-        updateDoc(doc(db, 'trainees', activeUid), { 'theme.layout': num });
+    if (activeUid && dashboardState && dashboardState.userData) {
+      if (dashboardState.userData.theme?.layout != num) {
+        const userRef = dashboardState.userData.roles ? doc(db, 'staffs', activeUid) : doc(db, 'trainees', activeUid);
+        await updateDoc(userRef, { 'theme.layout': num });
       }
     }
 
@@ -1485,7 +1219,7 @@ window.showLayout = (num) => {
 
     const target = document.getElementById(targetId);
     if (!target) {
-      console.warn(`[LayoutEngine] Structure ${targetId} not found in DOM. This page may not support layouts.`);
+      console.warn(`[LayoutEngine] Structure ${targetId} not found in DOM.`);
       return;
     }
 
@@ -1515,7 +1249,7 @@ window.showLayout = (num) => {
           stage.appendChild(ring1); stage.appendChild(ring2);
           stage.appendChild(sat1); stage.appendChild(sat2); stage.appendChild(sat3);
           
-          startRealtimePresence();
+          startRealtimePresence(activeUid);
           loadLeaderboard();
         }
       }
@@ -1535,7 +1269,6 @@ window.showLayout = (num) => {
         target.querySelectorAll('.progress-fill').forEach(bar => {
           const w = bar.dataset.width || bar.style.width;
           if (w) {
-            bar.dataset.width = w;
             bar.style.width = '0%';
             requestAnimationFrame(() => {
               requestAnimationFrame(() => { bar.style.width = w; });
@@ -1545,7 +1278,6 @@ window.showLayout = (num) => {
       }, 50);
   } catch (err) {
     console.error(`[LayoutEngine] Error rendering T${num}:`, err);
-    if (window.sf_report_error) window.sf_report_error(`Layout Engine Failure: T${num}`, err.stack);
   } finally {
     isLayoutRendering = false;
   }
@@ -1588,66 +1320,62 @@ function updateNeuralResume(data) {
   const container = document.getElementById('continue-learning-container');
   const btn = document.getElementById('continue-learning-btn');
   const nameEl = document.getElementById('last-lesson-name');
+  if (!container) return;
   
   if (data.lastLesson && data.lastLesson.track && data.lastLesson.lesson) {
     container.classList.remove('hidden');
     const trackName = data.lastLesson.track.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
     const lessonName = data.lastLesson.lesson.split('/').pop().split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
     
-    nameEl.innerText = `${trackName}: ${lessonName}`;
-    btn.href = `../skill forge site/academy/${data.lastLesson.track}/${data.lastLesson.lesson}/`;
+    if (nameEl) nameEl.innerText = `${trackName}: ${lessonName}`;
+    if (btn) btn.href = `../skill forge site/academy/${data.lastLesson.track}/${data.lastLesson.lesson}/`;
   } else {
     container.classList.add('hidden');
   }
 }
 
 // Keyboard Engine for Layout Switching
-  document.addEventListener('keydown', (e) => {
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-    const num = parseInt(e.key);
-    if (!isNaN(num) && num >= 0 && num <= 9) {
-      const layoutId = num === 0 ? 10 : num;
-      window.showLayout(layoutId);
-    }
-  });
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  const num = parseInt(e.key);
+  if (!isNaN(num) && num >= 0 && num <= 9) {
+    const layoutId = num === 0 ? 10 : num;
+    window.showLayout(layoutId);
+  }
+});
 
-  window.toggleLayoutSwitcher = () => {
+window.toggleLayoutSwitcher = () => {
   const container = document.getElementById('layout-buttons');
   const icon = document.getElementById('switcher-icon');
-  container.classList.toggle('hidden');
-  icon.style.transform = container.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+  if (container) {
+    container.classList.toggle('hidden');
+    if (icon) icon.style.transform = container.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+  }
 };
 
 // Handle re-initialization on Turbo loads
 window.addEventListener('sf:turbo-render', () => {
     console.log("[Dashboard] Re-hydrating Command Center...");
-    if (traineeData) {
-        initDashboard(activeUid);
-        updateNeuralResume(traineeData);
+    if (dashboardState && dashboardState.userData) {
+        updateUI(dashboardState.userData, dashboardState.permissions);
+        updateNeuralResume(dashboardState.userData);
         loadNewsTicker();
-    } else {
-        const uid = themeManager.uid;
-        if (uid) startRegistrySync(uid);
     }
 });
 
 window.logout = async () => { 
     await signOut(auth);
-    
-    // Clear cross-subdomain cookie
+    localStorage.removeItem('skillforge_mock_uid');
     const cookieDomain = window.location.hostname.includes('skillforgedigital.com.ng') ? '.skillforgedigital.com.ng' : window.location.hostname;
     document.cookie = `sf_uid=; path=/; domain=${cookieDomain}; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax; Secure`;
-    
     window.location.href = '../trainee-login/'; 
 };
 
 window.registerNextSeason = () => {
-    // If fingerprint is locked, this won't be reachable via UI, but add guard anyway
-    if (traineeData.fingerprint_locked) {
+    if (dashboardState?.userData?.fingerprint_locked) {
         alert("ACCESS DENIED: Multiple track registration is restricted until current season completion.");
         return;
     }
-    // Redirect to registration with a special flag if needed
     window.location.href = '../trainee-registration/?season=2026B';
 };
 </script>

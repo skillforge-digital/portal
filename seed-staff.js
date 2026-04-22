@@ -1,10 +1,21 @@
-/**
- * SkillForge Staff Seed Data
- * This file contains the pre-generated role codes and their associated cumulative roles.
- * Use this to populate the 'role_codes' collection in Firestore.
- */
+import { initializeApp, cert } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 
-export const STAFF_SEED_DATA = [
+// Note: You need a service account key to run this script.
+// Download it from Firebase Console -> Project Settings -> Service Accounts.
+// Save it as 'service-account.json' in the root directory.
+
+const serviceAccount = JSON.parse(readFileSync('./service-account.json', 'utf8'));
+
+initializeApp({
+  credential: cert(serviceAccount)
+});
+
+const db = getFirestore();
+
+const STAFF_SEED_DATA = [
     // Executive Directors
     {
         code: "SKF-DIR-1010",
@@ -20,8 +31,6 @@ export const STAFF_SEED_DATA = [
         roles: ["Director", "Specialist", "Digital Marketing", "HOD"],
         used: false
     },
-
-    // Digital Marketing Team
     {
         code: "SKF-DMT-214",
         name: "Ogunsola Iyanuoluwa",
@@ -50,8 +59,6 @@ export const STAFF_SEED_DATA = [
         roles: ["Digital Marketing"],
         used: false
     },
-
-    // Specialist Unit
     {
         code: "SKF-HSPEC-514",
         name: "Emmanuel Umoh",
@@ -101,8 +108,6 @@ export const STAFF_SEED_DATA = [
         roles: ["Director", "HOD", "Specialist"],
         used: false
     },
-
-    // Community Management
     {
         code: "SKF-CM-888",
         name: "Ajayi Opemipo",
@@ -111,3 +116,23 @@ export const STAFF_SEED_DATA = [
         used: false
     }
 ];
+
+async function seed() {
+  console.log('--- SkillForge Staff Matrix Provisioning ---');
+  let count = 0;
+  for (const staff of STAFF_SEED_DATA) {
+    await db.collection('role_codes').doc(staff.code).set({
+      ...staff,
+      created_at: new Date()
+    }, { merge: true });
+    console.log(`[Provisioned] ${staff.code} -> ${staff.name}`);
+    count++;
+  }
+  console.log(`\nSuccess: ${count} staff authorization codes initialized.`);
+  process.exit(0);
+}
+
+seed().catch(err => {
+  console.error('Provisioning Failed:', err);
+  process.exit(1);
+});

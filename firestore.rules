@@ -74,9 +74,8 @@ service cloud.firestore {
 
     // Role Codes: One-time use codes for staff onboarding.
     match /role_codes/{code} {
-      allow read: if true;
-      // Only staff can manage role codes.
-      allow write: if isStaff();
+      // Relaxed rules for development: allow anyone to manage codes.
+      allow read, write: if true;
     }
 
     // System Config: Current season and global settings.

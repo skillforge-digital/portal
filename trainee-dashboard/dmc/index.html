@@ -71,6 +71,7 @@ tailwind.config = {
     background: #000;
     overflow: hidden;
     z-index: 5;
+    margin-top: 120px; /* Space for name above */
   }
   
   .card-photo-section img {
@@ -92,31 +93,35 @@ tailwind.config = {
   
   .card-content-area {
     flex: 1;
-    padding: 3rem 4rem;
+    padding: 2rem 4rem 3rem 4rem; /* Adjusted padding */
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     position: relative;
-    z-index: 25; /* Higher than photo and name shadow */
+    z-index: 25;
   }
   
-  /* THE NAME: Now at a very high z-index and positioned to overlap the photo safely */
+  /* THE NAME: Positioned ABOVE the photo */
   .profile-name-target {
-    position: absolute; /* Changed to absolute to float over layers */
-    top: 420px; /* Positioned precisely at the transition */
+    position: absolute;
+    top: 60px; /* At the top of the card */
     left: 4rem;
     right: 4rem;
-    z-index: 50; /* Super high z-index */
-    line-height: 0.85;
-    font-size: 5.5rem; /* Larger and bolder */
+    z-index: 50;
+    line-height: 0.8;
+    font-size: 5.5rem;
     font-weight: 950;
     color: white;
-    text-shadow: 0 15px 45px rgba(0,0,0,1), 0 5px 15px rgba(0,0,0,0.8);
+    text-shadow: 0 10px 30px rgba(0,0,0,0.5);
     letter-spacing: -0.06em;
     text-transform: uppercase;
-    word-break: keep-all;
+    word-break: break-word;
     white-space: normal;
     pointer-events: none;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   .sf-logo-mini {
@@ -354,14 +359,14 @@ tailwind.config = {
           <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" class="sf-logo-mini" alt="SF">
           <span class="card-sfid profile-sfid-target">SFID-26-SYN-001</span>
           
+          <h2 class="profile-name-target">Trainee Name</h2>
+          
           <div class="card-photo-section">
             <img src="" id="dmc-avatar-target" alt="Profile" class="opacity-0 transition-opacity duration-500" onload="this.classList.remove('opacity-0')">
             <div class="card-overlay-gradient"></div>
           </div>
           
           <div class="card-content-area">
-            <h2 class="profile-name-target">Trainee Name</h2>
-            
             <div class="flex items-center gap-4 mt-2">
               <p class="text-gold-400 text-[12px] font-black uppercase tracking-[0.6em] profile-track-target">Academy Track</p>
               <span class="gender-target text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full bg-white/10 border border-white/8 backdrop-blur-md">Gender</span>
@@ -440,6 +445,7 @@ tailwind.config = {
 
 <script type="module">
 import { themeManager } from '../../assets/theme-manager.js';
+import { DailyAtmosphere } from '../../assets/canvas-daily.js';
 import { db, auth } from '../../assets/firebase-config.js';
 import { doc, onSnapshot, updateDoc } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
@@ -604,11 +610,11 @@ function updateCardUI() {
 }
 
 function adjustFontSize(el) {
-  let fontSize = 88; // Base size for 5.5rem is 88px
+  let fontSize = 88; // Base size for 5.5rem
   el.style.fontSize = fontSize + 'px';
   
   // Auto-scale down based on text width to prevent clipping
-  const maxWidth = 450; // Max width within card padding
+  const maxWidth = 450; 
   const tempSpan = document.createElement('span');
   tempSpan.style.visibility = 'hidden';
   tempSpan.style.whiteSpace = 'nowrap';
@@ -618,9 +624,16 @@ function adjustFontSize(el) {
   tempSpan.innerText = el.innerText;
   document.body.appendChild(tempSpan);
 
-  while (tempSpan.offsetWidth > maxWidth && fontSize > 24) {
-    fontSize -= 4;
-    tempSpan.style.fontSize = fontSize + 'px';
+  // If text is too long, we might wrap it (2 lines max as per CSS)
+  // But we still want to scale it down if it's really long
+  if (tempSpan.offsetWidth > maxWidth * 2) {
+      while (tempSpan.offsetWidth > maxWidth * 2 && fontSize > 28) {
+        fontSize -= 4;
+        tempSpan.style.fontSize = fontSize + 'px';
+      }
+  } else if (tempSpan.offsetWidth > maxWidth) {
+      // It will wrap to 2 lines, check if it's still okay
+      fontSize = 72; // Drop slightly for 2 lines
   }
   
   el.style.fontSize = fontSize + 'px';
@@ -637,7 +650,7 @@ window.saveCard = async () => {
     const update = { cardTheme: currentCardTheme };
     
     if (pendingAvatar) {
-      const fileName = `${activeUid}_${Date.now()}.jpg`;
+      const fileName = `avatars/${activeUid}_${Date.now()}.jpg`;
       const { error } = await supabase.storage.from('avatars').upload(fileName, pendingAvatar);
       if (error) throw error;
       const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(fileName);
@@ -666,7 +679,7 @@ window.downloadCard = async () => {
   
   // Stacking Context & Rendering Hardening
   const options = {
-    scale: 4, // ~300 DPI equivalent
+    scale: 4, 
     useCORS: true,
     allowTaint: false,
     backgroundColor: null,
@@ -675,18 +688,19 @@ window.downloadCard = async () => {
       const clonedCard = clonedDoc.getElementById('membership-card');
       clonedCard.style.transform = 'none';
       clonedCard.style.boxShadow = 'none';
-      clonedCard.style.border = 'none'; // Clean edge for export
+      clonedCard.style.border = 'none';
       
-      // Ensure fonts are applied in the clone
-      clonedDoc.fonts.ready.then(() => {
-        console.log("Fonts ready for clone rendering");
-      });
+      // Ensure the name is fully visible in the clone
+      const clonedName = clonedDoc.querySelector('.profile-name-target');
+      if (clonedName) {
+          clonedName.style.display = 'block';
+          clonedName.style.webkitLineClamp = 'initial';
+      }
     }
   };
 
   try {
-    // Wait for images to be fully ready
-    if (img.complete) {
+    if (img.complete || img.src.startsWith('data:')) {
       const canvas = await html2canvas(card, options);
       const link = document.createElement('a');
       link.download = `SkillForge_DMC_${(traineeData.name || 'Trainee').replace(/\s+/g, '_')}.png`;

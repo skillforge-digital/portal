@@ -49,6 +49,14 @@
       ]
     },
     {
+      "collectionGroup": "role_codes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "used", "order": "ASCENDING" },
+        { "fieldPath": "created_at", "order": "DESCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "password_resets",
       "queryScope": "COLLECTION",
       "fields": [

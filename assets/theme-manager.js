@@ -1,7 +1,7 @@
 // @ts-ignore
 import { db, auth } from './firebase-config.js';
 // @ts-ignore
-import { doc, updateDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+import { doc, updateDoc, onSnapshot, getDoc } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 // @ts-ignore
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
 
