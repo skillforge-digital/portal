@@ -338,6 +338,19 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1eHViYXF6dG1iY3Bza3lmZ2RwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDYzNTcsImV4cCI6MjA5MTQyMjM1N30.Kmon8jh22u5KgWWpXf-7cdZ4qxlKXuUbVm6Mh-GHd8Q';
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    const TELEGRAM_NODES = {
+      "Forex Synthetics Indices": "https://t.me/skillforge_forex",
+      "Forex Currency Pairs": "https://t.me/skillforge_forex",
+      "AI Content Creation": "https://t.me/skillforge_ai",
+      "Photography & Editing": "https://t.me/skillforge_creative",
+      "Graphic Design": "https://t.me/skillforge_creative",
+      "Digital Marketing": "https://t.me/skillforge_marketing",
+      "Mobile Cinematography": "https://t.me/skillforge_creative",
+      "Discord Development": "https://t.me/skillforge_tech",
+      "Web Development": "https://t.me/skillforge_tech",
+      "Cyber Security": "https://t.me/skillforge_tech"
+    };
+
     // Check for season reset and display banner
     async function checkSeasonReset() {
         try {

@@ -921,6 +921,19 @@ import { doc, getDoc, onSnapshot, updateDoc, serverTimestamp } from 'https://www
 let dashboardState = null;
 let activeUid = null;
 
+const TELEGRAM_NODES = {
+  "Forex Synthetics Indices": "https://t.me/skillforge_forex",
+  "Forex Currency Pairs": "https://t.me/skillforge_forex",
+  "AI Content Creation": "https://t.me/skillforge_ai",
+  "Photography & Editing": "https://t.me/skillforge_creative",
+  "Graphic Design": "https://t.me/skillforge_creative",
+  "Digital Marketing": "https://t.me/skillforge_marketing",
+  "Mobile Cinematography": "https://t.me/skillforge_creative",
+  "Discord Development": "https://t.me/skillforge_tech",
+  "Web Development": "https://t.me/skillforge_tech",
+  "Cyber Security": "https://t.me/skillforge_tech"
+};
+
 // Initialize Dashboard State
 onAuthStateChanged(auth, (user) => {
   activeUid = user ? user.uid : localStorage.getItem('skillforge_mock_uid');
