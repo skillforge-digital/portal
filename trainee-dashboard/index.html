@@ -180,8 +180,8 @@ tailwind.config = {
 <div class="md:hidden h-20 px-6 flex items-center justify-between glass sticky top-0 z-[100] border-b border-white/5 no-print">
   <div class="flex items-center gap-3">
     <a href="/" class="flex items-center gap-3 group">
-      <div class="w-8 h-8 rounded-lg bg-black flex items-center justify-center border border-gold-500/30 group-hover:border-gold transition-all overflow-hidden">
-        <img src="/assets/flyer.jpg" alt="SF" class="w-full h-full object-cover">
+      <div class="w-8 h-8 rounded-lg bg-gold-500/10 flex items-center justify-center border border-gold-500/30 group-hover:border-gold transition-all overflow-hidden">
+        <i class="fa-solid fa-shield-halved text-gold-500 text-xs"></i>
       </div>
       <div class="flex flex-col leading-none">
         <span class="font-black text-sm tracking-tighter uppercase group-hover:text-gold transition-all">SkillForge</span>
@@ -238,8 +238,8 @@ tailwind.config = {
   <div class="p-8 flex-1 custom-scrollbar overflow-y-auto">
     <div class="flex items-center gap-3 mb-10">
       <a href="/" class="flex items-center gap-3 group">
-        <div class="w-10 h-10 rounded-xl bg-black flex items-center justify-center border border-gold-500/30 group-hover:border-gold transition-all overflow-hidden">
-          <img src="/assets/flyer.jpg" alt="SF" class="w-full h-full object-cover">
+        <div class="w-10 h-10 rounded-xl bg-gold-500/10 flex items-center justify-center border border-gold-500/30 group-hover:border-gold transition-all overflow-hidden">
+          <i class="fa-solid fa-shield-halved text-gold-500 text-sm"></i>
         </div>
         <div class="flex flex-col leading-none">
           <span class="font-black text-sm tracking-tighter uppercase group-hover:text-gold transition-all">SkillForge</span>
@@ -1408,6 +1408,57 @@ window.registerNextSeason = () => {
     }
     window.location.href = '../trainee-registration/?season=2026B';
 };
+
+// Control Hub Engines
+window.toggleControl = async (feature) => {
+  if (!activeUid || !dashboardState) return;
+  
+  const currentControls = dashboardState.userData.controls || { glow: false, canvas: false };
+  const currentLightMode = dashboardState.userData.isLightMode || false;
+  
+  let update = {};
+  if (feature === 'light') {
+    update = { isLightMode: !currentLightMode };
+  } else {
+    update = { [`controls.${feature}`]: !currentControls[feature] };
+  }
+
+  const userRef = dashboardState.userData.roles ? doc(db, 'staffs', activeUid) : doc(db, 'trainees', activeUid);
+  await updateDoc(userRef, update);
+  console.log(`[Dashboard] Control ${feature} toggled.`);
+};
+
+function updateControlButtons(data) {
+  const controls = data.controls || {};
+  const isLight = !!data.isLightMode;
+
+  const updateBtn = (selector, active) => {
+    document.querySelectorAll(selector).forEach(btn => {
+      const dot = btn.querySelector('div');
+      if (active) {
+        btn.classList.add('bg-gold-500/20', 'border-gold-500/50');
+        if (dot) dot.classList.add('translate-x-5', 'bg-gold-500');
+      } else {
+        btn.classList.remove('bg-gold-500/20', 'border-gold-500/50');
+        if (dot) dot.classList.remove('translate-x-5', 'bg-gold-500');
+      }
+    });
+  };
+
+  updateBtn('.ctrl-glow-btn', !!controls.glow);
+  updateBtn('.ctrl-light-btn', isLight);
+  updateBtn('.ctrl-canvas-btn', !!controls.canvas);
+}
+
+function applyControlState(state) {
+  if (window.themeManager) {
+    window.themeManager.applyControls({
+      glow: state.glow,
+      light: state.light,
+      performance: state.canvas
+    });
+  }
+}
 </script>
     <script type="module" src="../assets/sf-core.js"></script>
     <script type="module" src="../assets/sf-turbo.js"></script>
