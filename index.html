@@ -48,6 +48,12 @@
             if (user) {
                 console.log("[RedirectEngine] Active session detected. Determining destination...");
                 
+                // Wait for page to breathe
+                await new Promise(r => setTimeout(r, 2000));
+
+                const redirectBtn = document.getElementById('redirect-action-btn');
+                if (!redirectBtn) return;
+
                 // 1. Check Staff Registry
                 const staffSnap = await getDoc(doc(db, 'staffs', user.uid));
                 if (staffSnap.exists()) {
@@ -60,14 +66,19 @@
                         'Support Staff': '/staffs/support/'
                     };
                     const target = DASHBOARD_MAP[data.primaryRole] || '/staffs/specialist/';
-                    window.location.href = target;
+                    
+                    redirectBtn.innerText = "Launch Command Center";
+                    redirectBtn.onclick = () => window.location.href = target;
+                    redirectBtn.classList.remove('hidden');
                     return;
                 }
 
                 // 2. Check Trainee Registry
                 const traineeSnap = await getDoc(doc(db, 'trainees', user.uid));
                 if (traineeSnap.exists()) {
-                    window.location.href = '/trainee-dashboard/';
+                    redirectBtn.innerText = "Return to Dashboard";
+                    redirectBtn.onclick = () => window.location.href = '/trainee-dashboard/';
+                    redirectBtn.classList.remove('hidden');
                     return;
                 }
             }
@@ -235,6 +246,10 @@
                                 Register Now <i data-lucide="user-plus" class="w-4 h-4"></i>
                             </a>
                         </div>
+
+                        <button id="redirect-action-btn" class="hidden w-full py-5 bg-orange text-white rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] shadow-2xl hover:scale-[1.02] transition-all animate-pulse border border-orange/20">
+                            Launch Command Center
+                        </button>
 
                         <div class="p-4 md:p-6 bg-gold/5 border border-gold/10 rounded-2xl space-y-3">
                             <div class="flex justify-between items-center">

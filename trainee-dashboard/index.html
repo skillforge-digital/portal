@@ -898,6 +898,18 @@ tailwind.config = {
         <div class="space-y-4 leaderboard-top-target"></div>
       </div>
       <div class="w-full md:w-80 flex flex-col gap-6">
+        <p class="text-[10px] font-black text-white/30 uppercase tracking-[0.4em] px-4">Diagnostics</p>
+        <div class="glass rounded-3xl p-6 space-y-4" id="problems_and_diagnostics">
+          <div class="flex items-center justify-between">
+            <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.3em]">Neural Integrity</p>
+            <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse" id="diag-integrity-pulse"></span>
+          </div>
+          <div class="space-y-2" id="diag-faults-container">
+            <p class="text-[10px] font-bold text-white/40 italic">Scanning neural links...</p>
+          </div>
+          <button onclick="window._neuralDebugger?.toggle()" class="w-full py-3 bg-white/5 border border-white/10 rounded-xl text-[8px] font-black uppercase tracking-widest hover:bg-gold-500 hover:text-navy transition-all">Open Neural Debugger</button>
+        </div>
+
         <p class="text-[10px] font-black text-white/30 uppercase tracking-[0.4em] px-4">Certification</p>
         <div class="glass rounded-3xl p-8 text-center space-y-4">
           <p class="text-4xl md:text-5xl font-black cert-days-target">0 / 14</p>
@@ -950,11 +962,19 @@ onAuthStateChanged(auth, (user) => {
     if (!userData) return;
     updateUI(userData, permissions);
     themeManager.applyTheme(userData.theme || {});
-    hideLoading();
+    if (typeof hideLoading === "function") hideLoading();
   });
 
   startRegistrySync(activeUid);
 });
+
+function hideLoading() {
+  const overlay = document.getElementById('loading-overlay');
+  if (overlay) {
+    overlay.style.opacity = '0';
+    setTimeout(() => overlay.classList.add('hidden'), 500);
+  }
+}
 
 function startRegistrySync(uid) {
   // Try to find user in 'staffs' first, then 'trainees'
@@ -975,12 +995,37 @@ function startRegistrySync(uid) {
   });
 }
 
+function updateDiagnostics() {
+  const container = document.getElementById('diag-faults-container');
+  const pulse = document.getElementById('diag-integrity-pulse');
+  const core = window['_sfCore'];
+
+  if (!container || !core) return;
+
+  const faults = core.faults || [];
+  if (faults.length === 0) {
+    container.innerHTML = `<p class="text-[10px] font-bold text-green-400/60 uppercase tracking-widest">Neural Link Optimal</p>`;
+    pulse.className = "w-2 h-2 bg-green-500 rounded-full animate-pulse";
+  } else {
+    pulse.className = "w-2 h-2 bg-red-500 rounded-full animate-pulse";
+    container.innerHTML = faults.map(f => `
+      <div class="flex items-start gap-2">
+        <span class="text-[8px] font-black ${f.type === 'CRITICAL' ? 'text-red-500' : 'text-orange-500'} uppercase">[${f.type}]</span>
+        <p class="text-[9px] font-bold text-white/60 leading-tight">${f.msg}</p>
+      </div>
+    `).join('');
+  }
+}
+
 function updateUI(data, permissions) {
    // Update Common UI Elements
    document.querySelectorAll('.user-name-target').forEach(el => el.innerText = data.name || 'User');
    document.querySelectorAll('.profile-name-target').forEach(el => el.innerText = data.name || 'User');
    document.querySelectorAll('.sfid-display-target').forEach(el => el.innerText = data.sfid || 'SFID-PENDING');
    document.querySelectorAll('.passkey-target').forEach(el => el.innerText = data.pin || data.roleCode || 'XXXXXX');
+   
+   // Update Diagnostics
+   updateDiagnostics();
    
    // Update Role Badges
    const roleDisplay = (data.roles || ['Trainee']).join(' | ');
