@@ -1,13 +1,24 @@
+import { existsSync, readFileSync } from 'fs';
+import { join } from 'path';
 import { initializeApp, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
-import { readFileSync } from 'fs';
-import { join } from 'path';
 
-// Note: You need a service account key to run this script.
-// Download it from Firebase Console -> Project Settings -> Service Accounts.
-// Save it as 'service-account.json' in the root directory.
+// --- CONFIGURATION ---
+const SERVICE_ACCOUNT_PATH = './service-account.json';
 
-const serviceAccount = JSON.parse(readFileSync('./service-account.json', 'utf8'));
+if (!existsSync(SERVICE_ACCOUNT_PATH)) {
+  console.error('\x1b[31m%s\x1b[0m', 'CRITICAL ERROR: service-account.json not found!');
+  console.log('\x1b[33m%s\x1b[0m', '\nTo run this CLI provisioning tool, you must:');
+  console.log('1. Go to Firebase Console -> Project Settings -> Service Accounts');
+  console.log('2. Click "Generate new private key"');
+  console.log(`3. Rename the downloaded file to "service-account.json" and place it in: ${process.cwd()}`);
+  console.log('\nAlternatively, use the browser-based provisioning:');
+  console.log('1. Open the Personnel Registration page in your browser');
+  console.log('2. Enter code: SKF-MASTER-PROVISION-2026');
+  process.exit(1);
+}
+
+const serviceAccount = JSON.parse(readFileSync(SERVICE_ACCOUNT_PATH, 'utf8'));
 
 initializeApp({
   credential: cert(serviceAccount)
