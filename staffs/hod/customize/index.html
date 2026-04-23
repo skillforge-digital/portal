@@ -7,22 +7,10 @@
 <script>
   (function() { document.documentElement.style.visibility = 'hidden'; })();
 </script>
-<script src="https://cdn.tailwindcss.com"></script>
+<link href="/assets/style.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;700&family=Caveat:wght@400;700&family=Unbounded:wght@400;700&family=Inter:wght@400;700&family=Playfair+Display:wght@400;700&family=Outfit:wght@400;700&family=Syne:wght@400;700&family=Lexend:wght@400;700&family=Plus+Jakarta+Sans:wght@400;700&family=Cinzel:wght@400;700&family=Montserrat:wght@400;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <script src="https://unpkg.com/lucide@latest"></script>
-<script>
-tailwind.config = {
-  theme: {
-    extend: {
-      colors: {
-        navy: { 950:'#040810', 900:'#070d1a', 800:'#0c1829', 700:'#112240', 600:'#1a3358' },
-        purple: { 400:'#c084fc', 500:'#a855f7', 600:'#9333ea' },
-      }
-    }
-  }
-}
-</script>
 <style>
   :root { --font-main: 'Space Grotesk', sans-serif; --accent-color: #a855f7; --accent-color-rgb: 168, 85, 247; --accent-color-light: #c084fc; }
   * { font-family: var(--font-main); transition: all 0.3s ease; }
@@ -103,7 +91,7 @@ tailwind.config = {
       </div>
     </div>
     <nav class="space-y-1">
-      <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Command Nodes</p>
+      <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Command Center</p>
       <a href="../" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i data-lucide="layout-dashboard" class="w-4"></i> Unit Overview</a>
       <a href="./" class="sidebar-link active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest"><i data-lucide="palette" class="w-4"></i> Design Studio</a>
     </nav>
@@ -148,7 +136,7 @@ tailwind.config = {
           </div>
           <div class="space-y-8">
             <div class="flex items-center justify-between">
-              <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">Atmospheric Neural Gradients</h2>
+              <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">Atmospheric System Gradients</h2>
               <span class="text-[8px] font-bold text-purple-500 bg-purple-500/10 px-3 py-1 rounded-full uppercase">Gradients</span>
             </div>
             <div class="grid grid-cols-3 md:grid-cols-5 gap-5" id="gradient-grid"></div>
@@ -159,7 +147,7 @@ tailwind.config = {
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="wallpaper-grid"></div>
         </section>
         <section id="section-fonts" class="hidden space-y-12">
-          <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">15 Premium Neural Typography</h2>
+          <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">15 Premium System Typography</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="font-grid"></div>
         </section>
       </div>
@@ -167,7 +155,7 @@ tailwind.config = {
         <div class="glass p-10 rounded-[48px] sticky top-24 space-y-10">
           <div class="space-y-2">
             <h3 class="text-[11px] font-black uppercase tracking-[0.5em] text-purple-500">Design Identity</h3>
-            <p class="text-[9px] text-white/30 uppercase tracking-widest">Active Neural Profile</p>
+            <p class="text-[9px] text-white/30 uppercase tracking-widest">Active System Profile</p>
           </div>
           <div class="p-8 rounded-[32px] bg-white/5 border border-white/5 space-y-6 overflow-hidden relative group" id="preview-box">
             <div class="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-50"></div>
@@ -177,7 +165,7 @@ tailwind.config = {
               <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden shadow-inner">
                 <div class="h-full bg-purple-500 w-2/3 transition-all duration-1000" id="preview-bar"></div>
               </div>
-              <p class="text-[8px] font-bold text-white/20 uppercase mt-4 tracking-[0.2em]">Neural Registry Sync Active</p>
+              <p class="text-[8px] font-bold text-white/20 uppercase mt-4 tracking-[0.2em]">System Registry Sync Active</p>
             </div>
           </div>
           <div class="space-y-5 pt-6 border-t border-white/5">
@@ -192,7 +180,7 @@ tailwind.config = {
             </div>
             <label for="wallpaper-upload" class="w-full glass-strong p-6 rounded-3xl flex items-center justify-between cursor-pointer hover:bg-white/10 transition-all group">
               <div class="flex flex-col">
-                <p class="text-[10px] font-black uppercase tracking-widest text-white/60">Upload Neural Skin</p>
+                <p class="text-[10px] font-black uppercase tracking-widest text-white/60">Upload System Skin</p>
                 <p class="text-[8px] font-bold text-white/20 uppercase mt-1">JPG / PNG / WEBP Assets</p>
               </div>
               <div class="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center text-purple-500 group-hover:bg-purple-500 group-hover:text-navy-950 transition-all shadow-lg">
@@ -451,7 +439,7 @@ window.saveDesign = async () => {
   } catch (err) {
     console.error('[Design Studio] Save failed:', err);
     btn.innerText = "Save Interrupted"; btn.disabled = false;
-    alert("Save failed. Neural sync interrupted.");
+    alert("Save failed. System sync interrupted.");
   }
 };
 

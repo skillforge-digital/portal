@@ -52,7 +52,7 @@ export class DailyAtmosphere {
     
     // Turbo integration: Re-initialize on navigation
     window.addEventListener('turbo:load', () => {
-        console.log("[DailyAtmosphere] Neural Re-Sync: Recalculating canvas boundaries");
+        console.log("[DailyAtmosphere] System Re-Sync: Recalculating canvas boundaries");
         this.canvas = ensureCanvas();
         if (this.canvas) {
           this.ctx = this.canvas.getContext('2d');
@@ -160,7 +160,7 @@ export class DailyAtmosphere {
           ctx.fill();
         }
         break;
-      case 2: // Neural Grid Nodes
+      case 2: // System Grid Nodes
         ctx.strokeStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${isDark ? 0.2 : 0.25})`;
         const step = 80;
         for (let x = 0; x < w; x += step) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
@@ -189,7 +189,7 @@ export class DailyAtmosphere {
           p.y += Math.sin(p.ph) * 0.8;
         }
         break;
-      case 4: // Neural Links
+      case 4: // System Links
         for (let p of this.particles) {
           p.x += p.vx; p.y += p.vy;
           if (p.x < 0 || p.x > w) p.vx *= -1;

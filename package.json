@@ -6,6 +6,8 @@
   "private": true,
   "scripts": {
     "test": "vitest run",
+    "build:css": "npx tailwindcss -i ./assets/input.css -o ./assets/style.css",
+    "watch:css": "npx tailwindcss -i ./assets/input.css -o ./assets/style.css --watch",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint .",
@@ -16,13 +18,15 @@
     "seed:staff": "node seed-staff.js"
   },
   "dependencies": {
+    "@tailwindcss/cli": "^4.2.4",
     "firebase-admin": "^12.0.0"
   },
   "devDependencies": {
-    "vitest": "^1.4.0",
     "@vitest/coverage-v8": "^1.4.0",
     "eslint": "^8.57.0",
     "eslint-plugin-html": "^8.0.0",
-    "jsdom": "^24.0.0"
+    "jsdom": "^24.0.0",
+    "tailwindcss": "^4.2.4",
+    "vitest": "^1.4.0"
   }
 }

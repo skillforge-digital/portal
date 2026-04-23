@@ -17,10 +17,10 @@
   <meta property="twitter:image" content="https://i.postimg.cc/fRYD4HSw/Whats-App-Image-2026-01-16-at-1-20-06-PM.jpg">
 
   <title>Academy Registration • SkillForge Digital & Co. Ltd</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="/assets/style.css" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script>
     // Immediate UI Preparation - Hide content until modules are loaded
     (function() {
@@ -30,20 +30,6 @@
         document.documentElement.style.visibility = 'visible';
       }, 3000);
     })();
-  </script>
-</head>
-<script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            navy: '#0A1931',
-            gold: '#C9A84C',
-            orange: '#E87722',
-          }
-        }
-      }
-    }
   </script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
@@ -525,7 +511,7 @@
     document.getElementById('reg-form').onsubmit = async (e) => {
         e.preventDefault();
         const btn = document.getElementById('reg-btn');
-        btn.disabled = true; btn.innerHTML = "Initializing Neural Identity...";
+        btn.disabled = true; btn.innerHTML = "Initializing System Identity...";
         clearRegError();
 
         const formData = new FormData(e.target);
@@ -593,7 +579,7 @@
                 }
             }
 
-            console.log("[Registry] Committing to Neural core...");
+            console.log("[Registry] Committing to System core...");
             const result = await runTransaction(db, async (tx) => {
                 const counterRef = doc(db, 'seasons', '2026', 'artifacts', 'trainees', 'counters', 'tracks');
                 const traineeRef = doc(db, 'trainees', user.uid);
@@ -634,7 +620,7 @@
                 return { sfid: newSFID, pin };
             });
 
-            console.log("[Registry] Neural link stabilized. Launching Onboarding Node...");
+            console.log("[Registry] System link stabilized. Launching Onboarding Node...");
             document.getElementById('final-sfid').innerText = result.sfid;
             document.getElementById('final-pin').innerText = result.pin;
             

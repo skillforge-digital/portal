@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SkillForge — Academy Membership Card (DMC)</title>
 <script>
-  // Immediate UI Preparation - Hide content until Neural Core is ready
+  // Immediate UI Preparation - Hide content until System Core is ready
   (function() {
     document.documentElement.style.visibility = 'hidden';
     // Failsafe: reveal content after 3 seconds regardless of script status
@@ -14,27 +14,10 @@
     }, 3000);
   })();
 </script>
-<script src="https://cdn.tailwindcss.com"></script>
+<link href="/assets/style.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;700&family=Playfair+Display:wght@400;700&family=Outfit:wght@400;700&family=Syne:wght@400;700&family=Lexend:wght@400;700&family=Plus+Jakarta+Sans:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script>
-tailwind.config = {
-  theme: {
-    extend: {
-      fontFamily: { 
-        grotesk: ['Space Grotesk', 'sans-serif'],
-        serif: ['Instrument Serif', 'serif'],
-        mono: ['JetBrains Mono', 'monospace']
-      },
-      colors: {
-        navy: { 950:'#040810', 900:'#070d1a', 800:'#0c1829', 700:'#112240', 600:'#1a3358' },
-        gold: { 300:'#fcd34d', 400:'#fbbf24', 500:'#f59e0b', 600:'#d97706', 700:'#b45309' },
-      }
-    }
-  }
-}
-</script>
 <style>
   :root { 
     --font-main: 'Space Grotesk', sans-serif;
@@ -280,8 +263,8 @@ tailwind.config = {
   <div class="px-4 bg-gold-500 text-navy-950 text-[10px] font-black uppercase tracking-widest h-full flex items-center z-20">Academy Flash</div>
   <div class="flex-1 overflow-hidden relative h-full flex items-center">
     <div id="news-ticker-content" class="animate-ticker flex items-center gap-24">
-      <span class="text-[11px] font-bold text-white/90 uppercase tracking-[0.2em] italic">Welcome to SkillForge Season 2026. Neural Registry is Active.</span>
-      <span class="text-[11px] font-bold text-white/90 uppercase tracking-[0.2em] italic">Welcome to SkillForge Season 2026. Neural Registry is Active.</span>
+      <span class="text-[11px] font-bold text-white/90 uppercase tracking-[0.2em] italic">Welcome to SkillForge Season 2026. System Registry is Active.</span>
+      <span class="text-[11px] font-bold text-white/90 uppercase tracking-[0.2em] italic">Welcome to SkillForge Season 2026. System Registry is Active.</span>
     </div>
   </div>
 </div>
@@ -719,7 +702,7 @@ window.downloadCard = async () => {
       link.href = canvas.toDataURL('image/png', 1.0);
       link.click();
     } else {
-      throw new Error("Neural Profile Photo not yet fully synchronized.");
+      throw new Error("System Profile Photo not yet fully synchronized.");
     }
   } catch (err) {
     console.error("Export Error:", err);

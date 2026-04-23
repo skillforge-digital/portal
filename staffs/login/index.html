@@ -17,22 +17,9 @@
   <meta property="twitter:image" content="https://i.postimg.cc/fRYD4HSw/Whats-App-Image-2026-01-16-at-1-20-06-PM.jpg">
 
   <title>Personnel Login — SkillForge Digital</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="/assets/style.css" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            navy: '#040810',
-            gold: '#C9A84C',
-            orange: '#E87722',
-          }
-        }
-      }
-    }
-  </script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
     body { font-family:'Plus Jakarta Sans',sans-serif; background:#040810; color:#f1f5f9; overflow-x:hidden; min-height: 100dvh; }
@@ -101,7 +88,7 @@
             <div class="text-center pt-4 space-y-2">
                 <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">New Command Personnel? <a href="../registration/" class="text-gold hover:text-white transition-all">Onboard Here</a></p>
                 <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Forgot Staff ID? <button onclick="retrieveStaffID()" class="text-gold hover:text-white transition-all">Find it here</button></p>
-                <button onclick="toggleDiagnostics()" class="text-[8px] text-white/10 hover:text-gold/40 uppercase tracking-[0.3em] font-black transition-all pt-4">Neural Diagnostic Portal</button>
+                <button onclick="toggleDiagnostics()" class="text-[8px] text-white/10 hover:text-gold/40 uppercase tracking-[0.3em] font-black transition-all pt-4">System Diagnostic Portal</button>
             </div>
         </section>
 
@@ -121,8 +108,8 @@
 
   <script type="module">
     import { db, auth } from '../../assets/firebase-config.js';
-    import { doc, getDoc, updateDoc, serverTimestamp, collection, query, where, getDocs, signOut } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
-    import { signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+    import { doc, getDoc, updateDoc, serverTimestamp, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+    import { signInWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
 
     window.toggleDiagnostics = async () => {
         const portal = document.getElementById('diagnostic-portal');
@@ -146,11 +133,12 @@
         }
     };
 
-    window.runEmergencyReset = () => {
+    window.runEmergencyReset = async () => {
         if (confirm("This will clear all local cache and sign you out. Proceed?")) {
             localStorage.clear();
             document.cookie.split(";").forEach(function(c) { document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); });
-            auth.signOut().then(() => location.reload());
+            await signOut(auth);
+            location.reload();
         };
     };
 
@@ -238,7 +226,7 @@
                     return;
                 }
                 alert("Unauthorized: Personnel registry profile missing.");
-                await auth.signOut();
+                await signOut(auth);
             }
         } catch (err) {
             console.error(err);
