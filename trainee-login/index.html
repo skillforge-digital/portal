@@ -27,10 +27,24 @@
       }, 3000);
     })();
   </script>
-  <link href="/assets/style.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            navy: '#0A1931',
+            gold: '#C9A84C',
+            orange: '#E87722',
+          }
+        }
+      }
+    }
+  </script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
     :root {
@@ -103,7 +117,7 @@
         <div class="mt-8 text-center space-y-4">
             <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">New Trainee? <a href="../trainee-registration/" class="text-gold hover:text-white transition-all">Academy Registry</a></p>
             <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Forgot Access? <a href="./forgot-password.html" class="text-gold hover:text-white transition-all">Reset Password</a></p>
-            <button onclick="toggleDiagnostics()" class="text-[8px] text-white/10 hover:text-gold/40 uppercase tracking-[0.3em] font-black transition-all pt-4">System Diagnostic Portal</button>
+            <button onclick="toggleDiagnostics()" class="text-[8px] text-white/10 hover:text-gold/40 uppercase tracking-[0.3em] font-black transition-all pt-4">Neural Diagnostic Portal</button>
         </div>
     </main>
 
@@ -120,12 +134,12 @@
     </div>
 
     <!-- Duplicate Resolution UI -->
-    <main id="resolution-container" class="hidden glass p-10 rounded-[48px] border-white/10 space-y-8 animate-slide-up">
-        <div class="text-center space-y-8">
-            <div class="w-20 h-20 bg-orange/10 rounded-[32px] flex items-center justify-center text-orange border border-orange/20 mx-auto">
-                <i data-lucide="refresh-ccw" class="w-10 h-10 animate-spin-slow"></i>
+    <main id="resolution-container" class="hidden glass p-8 md:p-10 rounded-[32px] md:rounded-[40px] border-white/10 space-y-8 animate-slide-up">
+        <div class="text-center space-y-2">
+            <div class="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto text-red-500 border border-red-500/20 mb-4">
+                <i data-lucide="alert-triangle" class="w-8 h-8"></i>
             </div>
-            <h2 class="text-xl font-black text-white uppercase tracking-tighter">System Collision Detected</h2>
+            <h2 class="text-xl font-black text-white uppercase tracking-tighter">Neural Collision Detected</h2>
             <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Multiple identities found for this email</p>
         </div>
 
@@ -222,7 +236,7 @@
                             
                             // Delete old legacy mock document
                             await deleteDoc(doc(db, "trainees", querySnap.docs[0].id));
-                            console.log("[Auth] Migration complete. System link established.");
+                            console.log("[Auth] Migration complete. Neural link established.");
                         } else {
                             throw new Error("Access Denied: Legacy password mismatch.");
                         }
@@ -234,7 +248,7 @@
                 }
             }
 
-            console.log("[Auth] System core linked. Checking registry for UID:", user.uid);
+            console.log("[Auth] Neural core linked. Checking registry for UID:", user.uid);
             
             // Step 3: Check for Registry Match (Direct UID lookup)
             const traineeDoc = await getDoc(doc(db, "trainees", user.uid));
@@ -417,7 +431,7 @@
     };
 
     window.purgeIdentity = async (id) => {
-        if (!confirm("CRITICAL: This identity and all associated activity logs will be permanently purged from the System Registry. Proceed?")) return;
+        if (!confirm("CRITICAL: This identity and all associated activity logs will be permanently purged from the Neural Registry. Proceed?")) return;
         
         const btn = document.getElementById(`del-${id}`);
         btn.disabled = true;

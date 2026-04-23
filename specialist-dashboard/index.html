@@ -4,16 +4,27 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SkillForge — Specialist Command Center</title>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script>
-      // Immediate UI Preparation - Hide content until System Core is ready
-      (function() {
-        document.documentElement.style.visibility = 'hidden';
-      })();
-    </script>
-<link href="/assets/style.css" rel="stylesheet">
+<script>
+  // Immediate UI Preparation - Hide content until Neural Core is ready
+  (function() {
+    document.documentElement.style.visibility = 'hidden';
+  })();
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        navy: { 950:'#040810', 900:'#070d1a', 800:'#0c1829', 700:'#112240', 600:'#1a3358' },
+        gold: { 300:'#fcd34d', 400:'#fbbf24', 500:'#f59e0b', 600:'#d97706', 700:'#b45309' },
+      }
+    }
+  }
+}
+</script>
 <style>
   :root { --font-main: 'Space Grotesk', sans-serif; }
   * { font-family: var(--font-main); transition: all 0.3s ease; }
@@ -55,24 +66,14 @@
         <span class="text-[7px] text-gold-400 font-bold tracking-[0.2em] uppercase">Command Center</span>
       </div>
     </div>
-      <nav class="space-y-1">
-        <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Command Center</p>
-        <a href="../" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
-          <i data-lucide="layout-dashboard" class="w-4"></i> Back to Portal
-        </a>
-        <button onclick="showSection('approvals')" id="nav-approvals" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest bg-gold-500/10 text-gold-400 border-r-4 border-gold-500 transition-all">
-          <i data-lucide="shield-check" class="w-4"></i> Badge Approvals
-        </button>
-        <button onclick="showSection('analytics')" id="nav-analytics" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
-          <i data-lucide="bar-chart-3" class="w-4"></i> Track Analytics
-        </button>
-        <a href="customize/" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
-          <i data-lucide="palette" class="w-4"></i> Design Studio
-        </a>
-        <button onclick="showSection('directors')" id="nav-directors" class="nav-btn hidden w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
-          <i data-lucide="crown" class="w-4"></i> Director Forge
-        </button>
-      </nav>
+    <nav class="space-y-1">
+      <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Registry Control</p>
+      <a href="../" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-arrow-left w-4"></i> Back to Portal</a>
+      <a href="#" onclick="showSection('approvals')" id="nav-approvals" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest bg-gold-500/10 text-gold-400 border-r-4 border-gold-500"><i class="fa-solid fa-shield-halved w-4"></i> Badge Approvals</a>
+      <a href="#" onclick="showSection('analytics')" id="nav-analytics" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-chart-line w-4"></i> Track Analytics</a>
+      <a href="customize/" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-wand-magic-sparkles w-4"></i> Design Studio</a>
+      <a href="#" onclick="showSection('directors')" id="nav-directors" class="nav-link hidden w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-crown w-4"></i> Director Forge</a>
+    </nav>
   </div>
   <div class="p-8 border-t border-white/5">
     <div class="flex items-center gap-4 mb-6 p-4 rounded-2xl bg-white/5 border border-white/5">
@@ -112,7 +113,7 @@
       <div class="lg:col-span-2 space-y-8">
         <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">Inbound Mastery Validation Requests</h2>
         <div id="requests-grid" class="grid grid-cols-1 gap-4">
-          <div class="glass p-12 text-center text-white/20 italic">Scanning for validation requests...</div>
+          <div class="glass p-12 text-center text-white/20 italic">Scanning for neural validation requests...</div>
         </div>
       </div>
       <div class="space-y-8">
@@ -143,7 +144,7 @@
       <div class="glass-strong rounded-[40px] p-10 border border-white/5">
         <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40 mb-8">Active Track Presence</h2>
         <div id="active-trainees-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div class="glass p-8 text-center text-white/20 italic col-span-full">No active pulses detected in your track.</div>
+          <div class="glass p-8 text-center text-white/20 italic col-span-full">No active neural pulses detected in your track.</div>
         </div>
       </div>
     </div>
@@ -375,7 +376,7 @@ window.clearSeason = async () => {
         presence.forEach(pDoc => batch.delete(doc(db, 'presence', pDoc.id)));
 
         await batch.commit();
-        alert("System Registry Purged. Season 2026-01 Archived.");
+        alert("Neural Registry Purged. Season 2026-01 Archived.");
         
         await addDoc(collection(db, 'audit_logs'), {
             userId: auth.currentUser.uid,
@@ -383,10 +384,9 @@ window.clearSeason = async () => {
             modifications: { season: '2026-01' },
             timestamp: serverTimestamp()
         });
-        location.reload();
     } catch (err) {
-        console.error("Registry Purge Failed:", err);
-        alert("CRITICAL ERROR: System Purge Interrupted.");
+        console.error(err);
+        alert("Purge Failed. Registry integrity preserved.");
     }
 };
 

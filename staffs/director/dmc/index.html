@@ -4,10 +4,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Digital ID — SkillForge Staff</title>
-  <link href="/assets/style.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: '#040810',
+            gold: '#C9A84C',
+            orange: '#E87722',
+            emerald: '#10B981',
+            purple: '#8B5CF6',
+          }
+        }
+      }
+    }
+  </script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
     body { font-family:'Plus Jakarta Sans',sans-serif; background:#040810; color:#f1f5f9; min-height: 100dvh; }
@@ -175,7 +190,7 @@
       </div>
 
       <nav class="space-y-1">
-        <p class="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Command Center</p>
+        <p class="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Command Nodes</p>
         <button data-tab="overview" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
           <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Overview
         </button>

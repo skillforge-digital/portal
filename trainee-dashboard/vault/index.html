@@ -14,10 +14,25 @@
     }, 3000);
   })();
 </script>
-<script src="https://unpkg.com/lucide@latest"></script>
-<link href="/assets/style.css" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;700&family=Caveat:wght@400;700&family=Unbounded:wght@400;700&family=Inter:wght@400;700&family=Playfair+Display:wght@400;700&family=Outfit:wght@400;700&family=Syne:wght@400;700&family=Lexend:wght@400;700&family=Plus+Jakarta+Sans:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { 
+        grotesk: ['Space Grotesk', 'sans-serif'],
+        serif: ['Instrument Serif', 'serif']
+      },
+      colors: {
+        navy: { 950:'#040810', 900:'#070d1a', 800:'#0c1829', 700:'#112240', 600:'#1a3358' },
+        gold: { 300:'#fcd34d', 400:'#fbbf24', 500:'#f59e0b', 600:'#d97706', 700:'#b45309' },
+      }
+    }
+  }
+}
+</script>
 <style>
   :root { 
     --font-main: 'Space Grotesk', sans-serif;
@@ -109,7 +124,7 @@
   <div class="px-4 bg-gold-500 text-navy-950 text-[8px] font-black uppercase tracking-widest h-full flex items-center z-10">Academy Flash</div>
   <div class="flex-1 overflow-hidden relative h-full">
     <div id="news-ticker-content" class="absolute whitespace-nowrap flex items-center h-full gap-20 animate-ticker">
-      <span class="text-[9px] font-bold text-white/60 uppercase tracking-widest italic">Loading System Registry, please wait...</span>
+      <span class="text-[9px] font-bold text-white/60 uppercase tracking-widest italic">Loading Registry, please wait...</span>
     </div>
   </div>
 </div>
@@ -296,10 +311,10 @@ document.getElementById('vault-file-input').addEventListener('change', async (e)
     }, 3000);
 
   } catch (err) {
-    console.error("Vault sync failed:", err);
-    icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
-    icon.className = 'w-16 h-16 rounded-2xl bg-red-500/10 flex items-center justify-center text-red-500';
-    alert("Archive failed. System sync interrupted.");
+    console.error(err);
+    alert("Archive failed. Neural sync interrupted.");
+    text.innerHTML = originalHtml;
+    icon.innerHTML = `<i class="fa-solid fa-cloud-arrow-up text-white/20 text-2xl"></i>`;
   }
 });
 
@@ -529,8 +544,8 @@ window.deleteAsset = async (index, fileName) => {
       alert("Asset purged from registry.");
     }
   } catch (err) {
-    console.error("Purge failed:", err);
-    alert("Purge failed. System sync interrupted.");
+    console.error(err);
+    alert("Purge failed. Neural sync interrupted.");
   }
 };
 

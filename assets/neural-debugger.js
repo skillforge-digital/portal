@@ -1,13 +1,13 @@
 /**
- * SKILLFORGE SYSTEM DEBUGGER
+ * SKILLFORGE NEURAL DEBUGGER
  * Enterprise-grade real-time code inspection and state visualization overlay.
  * Toggle: Ctrl + Shift + D
  */
 
-export class SystemDebugger {
+export class NeuralDebugger {
     constructor(core) {
-        if (window['_systemDebugger']) return;
-        window['_systemDebugger'] = this;
+        if (window['_neuralDebugger']) return;
+        window['_neuralDebugger'] = this;
         this.core = core;
         this.enabled = false;
         this.logs = [];
@@ -20,7 +20,7 @@ export class SystemDebugger {
 
     initUI() {
         this.panel = document.createElement('div');
-        this.panel.id = 'system-debugger-panel';
+        this.panel.id = 'neural-debugger-panel';
         this.panel.style.cssText = `
             position: fixed; top: 20px; right: 20px; width: 400px; max-height: 80vh;
             background: rgba(4, 8, 16, 0.95); backdrop-filter: blur(20px);
@@ -34,7 +34,7 @@ export class SystemDebugger {
             <div style="padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;">
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <div style="width: 8px; height: 8px; background: #f59e0b; border-radius: 50%; box-shadow: 0 0 10px #f59e0b;"></div>
-                    <span style="font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #f59e0b;">System Debugger v2.2</span>
+                    <span style="font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #f59e0b;">Neural Debugger v2.2</span>
                 </div>
                 <button id="nd-close" style="background: none; border: none; color: #666; cursor: pointer; font-size: 16px;">&times;</button>
             </div>
@@ -78,7 +78,7 @@ export class SystemDebugger {
                 </div>
                 <div id="nd-tab-patch" style="display: none;">
                     <div class="nd-group">
-                        <label for="nd-patch-input" style="display: block; color: #444; font-size: 8px; text-transform: uppercase; margin-bottom: 8px;">System Override Console</label>
+                        <label for="nd-patch-input" style="display: block; color: #444; font-size: 8px; text-transform: uppercase; margin-bottom: 8px;">Neural Override Console</label>
                         <p style="font-size: 8px; color: #666; margin-bottom: 10px;">Direct document injection. Use with caution. Format: JSON</p>
                         <textarea id="nd-patch-input" style="width: 100%; height: 120px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: #10b981; font-family: 'JetBrains Mono', monospace; font-size: 9px; padding: 10px; outline: none; resize: none;" placeholder='{ "level": 2, "onboardingComplete": true }'></textarea>
                         <button id="nd-apply-patch" style="width: 100%; margin-top: 10px; padding: 12px; background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 12px; font-size: 9px; font-weight: 900; text-transform: uppercase; cursor: pointer;">Commit Live Patch</button>
@@ -154,7 +154,7 @@ export class SystemDebugger {
             const traineeRef = doc(this.core.db, 'trainees', this.core.uid);
             await updateDoc(traineeRef, patch);
 
-            this.logEvent('SUCCESS', 'System patch committed to registry');
+            this.logEvent('SUCCESS', 'Neural patch committed to registry');
             
             // Re-sync local state
             await this.core.syncRegistryState();
@@ -180,10 +180,10 @@ export class SystemDebugger {
         if (!btn) return;
         
         const originalText = btn.innerText;
-        btn.innerText = "REPAIRING SYSTEM LINK...";
+        btn.innerText = "REPAIRING NEURAL LINK...";
         btn.disabled = true;
 
-        this.logEvent('SYSTEM', 'Initiating system auto-repair sequence...');
+        this.logEvent('SYSTEM', 'Initiating neural auto-repair sequence...');
 
         try {
             // 1. Force Registry Re-Sync
@@ -205,7 +205,7 @@ export class SystemDebugger {
 
             // 3. Lucide Icon Refresh
             if (window['lucide']) {
-                this.logEvent('SYSTEM', 'Re-hydrating system icons...');
+                this.logEvent('SYSTEM', 'Re-hydrating neural icons...');
                 window['lucide'].createIcons();
             }
 
@@ -216,7 +216,7 @@ export class SystemDebugger {
             // 5. Verification Scan
             await this.runDiagnostics();
             
-            this.logEvent('SUCCESS', 'System auto-repair complete. Integrity restored.');
+            this.logEvent('SUCCESS', 'Neural auto-repair complete. Integrity restored.');
             btn.style.background = 'rgba(16, 185, 129, 0.2)';
             btn.innerText = "INTEGRITY RESTORED";
         } catch (err) {
@@ -234,7 +234,7 @@ export class SystemDebugger {
     async generateReport() {
         const output = document.getElementById('nd-report-output');
         output.style.display = 'block';
-        output.innerText = "FORGING SYSTEM REPORT...";
+        output.innerText = "FORGING NEURAL REPORT...";
 
         const state = this.core.registryState || {};
         const report = {

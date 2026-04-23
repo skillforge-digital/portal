@@ -1,5 +1,5 @@
 /**
- * SkillForge Turbo Engine (v1.2.1)
+ * SkillForge Turbo Engine (v1.2.0)
  * Zero-Refresh Navigation (PJAX) with Full Page Hydration
  * Optimized for Dashboard Persistence & Content Reliability
  */
@@ -20,7 +20,7 @@ class SkillForgeTurbo {
     init() {
         // Intercept clicks on internal links
         document.addEventListener('click', (e) => {
-            const link = /** @type {HTMLAnchorElement} */ (e.target.closest('a'));
+            const link = e.target.closest('a');
             if (!link || link.hasAttribute('data-turbo-ignore')) return;
 
             const url = new URL(link.href, window.location.origin);
@@ -52,14 +52,14 @@ class SkillForgeTurbo {
             this.navigate(window.location.pathname + window.location.search + window.location.hash, false);
         });
 
-        console.log("[Turbo] Engine Initialized & Monitoring System Links");
+        console.log("[Turbo] Engine Initialized & Monitoring Neural Links");
     }
 
     async navigate(url, pushState = true) {
         if (this.isNavigating) return;
         this.isNavigating = true;
 
-        console.log(`[Turbo] Syncing Path: ${url}`);
+        console.log(`[Turbo] Syncing Node: ${url}`);
         this.showProgressBar();
 
         try {
@@ -83,86 +83,158 @@ class SkillForgeTurbo {
             // 1. Update Metadata
             document.title = newDoc.title;
 
-            // 2. Intelligent Content Swap
+            // 2. Intelligent Body Swap (Preserving core classes)
+            const oldBody = document.body;
+            const newBody = newDoc.body;
+            
+            // Preserve specific dashboard classes (like theme or layout modes)
+            const preservedClasses = Array.from(oldBody.classList).filter(cls => 
+                cls.includes('mode') || cls.includes('light') || cls.includes('perf') || cls.includes('glow')
+            );
+
+            // Swap main content (or body if main is missing)
             const oldMain = document.querySelector('main');
             const newMain = newDoc.querySelector('main');
             const oldSidebar = document.querySelector('aside#main-sidebar');
             const newSidebar = newDoc.querySelector('aside#main-sidebar');
 
-            if (newMain && oldMain) {
+            if (oldMain && newMain) {
                 oldMain.innerHTML = newMain.innerHTML;
                 // Sync main attributes (like track/lesson IDs)
                 Array.from(newMain.attributes).forEach(attr => oldMain.setAttribute(attr.name, attr.value));
-            } else {
-                document.body.innerHTML = newDoc.body.innerHTML;
-                document.body.className = newDoc.body.className;
-            }
-
-            // 3. Update Sidebar Active State
-            if (newSidebar && oldSidebar) {
-                const newLinks = newSidebar.querySelectorAll('a');
-                const oldLinks = oldSidebar.querySelectorAll('a');
                 
-                oldLinks.forEach((link, idx) => {
-                    const newLink = newLinks[idx];
-                    if (newLink && link) {
-                        link.className = newLink.className;
-                        const parent = link.parentElement;
-                        const newParent = newLink.parentElement;
-                        if (parent && newParent) parent.className = newParent.className;
-                    }
-                });
+                // Sync sidebar if structure changed (e.g. new links like Quests)
+                if (oldSidebar && newSidebar) {
+                    oldSidebar.innerHTML = newSidebar.innerHTML;
+                }
+                
+                // Update sidebar active states
+                this.updateActiveLinks(url);
+
+                // Re-hydrate Lucide Icons
+                if (window.lucide) window.lucide.createIcons();
+
+                // Call sfCore sync if available (prevents duplicate init but syncs state)
+                if (window.sfCore) window.sfCore.syncRegistryState();
+            } else {
+                // Fallback: Full body replacement if structure differs significantly
+                document.body.innerHTML = newBody.innerHTML;
+                document.body.className = newBody.className;
             }
 
-            // 4. Update URL
+            // Restore preserved state classes
+            preservedClasses.forEach(cls => document.body.classList.add(cls));
+
+            // 3. Update URL
             if (pushState) window.history.pushState({}, '', url);
 
-            // 5. Finalize Transition & Re-hydrate
-            this.hideProgressBar();
-            
-            // Re-hydrate Lucide icons and other essential UI
-            if (window.lucide) window.lucide.createIcons();
-            
-            // Global Re-hydration for external scripts
-            window.dispatchEvent(new CustomEvent('sf:turbo-render', { detail: { url } }));
-            window.dispatchEvent(new CustomEvent('sf:turbo-after-render', { detail: { url } }));
-            
-            // Call sfCore sync if available (prevents duplicate init but syncs state)
-            if (/** @type {any} */(window).sfCore) {
-                /** @type {any} */(window).sfCore.syncRegistryState();
-            }
+            // 4. Critical Rehydration
+            await this.rehydrate(newDoc);
 
+            this.hideProgressBar();
+            window.dispatchEvent(new CustomEvent('sf:turbo-render'));
             window.scrollTo({ top: 0, behavior: 'auto' });
-            console.log(`[Turbo] Transition Complete: ${url}`);
+
         } catch (err) {
-            if (err.name === 'AbortError') return;
-            console.error("[Turbo] Navigation Failed. Refreshing context...", err);
-            window.location.href = url; // Fallback to standard navigation
+            if (err.name !== 'AbortError') {
+                console.error("[Turbo] Neural Stale Detected. Refreshing context...", err);
+                // On 404 or other errors, let the browser handle it (which will show our new 404.html)
+                window.location.href = url;
+            }
         } finally {
             this.isNavigating = false;
         }
     }
 
+    async rehydrate(newDoc) {
+        console.log("[Turbo] Re-hydrating Neural Matrix...");
+
+        // A. Re-execute Page-Specific Scripts
+        const mainOrBody = document.querySelector('main') || document.body;
+        const scripts = mainOrBody.querySelectorAll('script');
+        for (const oldScript of scripts) {
+            const newScript = document.createElement('script');
+            Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+
+            if (oldScript.src) {
+                await new Promise((resolve) => {
+                    newScript.onload = resolve;
+                    newScript.onerror = resolve;
+                    document.head.appendChild(newScript);
+                });
+            } else {
+                newScript.textContent = oldScript.textContent;
+                document.body.appendChild(newScript);
+            }
+            oldScript.remove();
+        }
+
+        // B. Re-initialize Core Components
+        if (window.lucide) window.lucide.createIcons();
+
+        // C. Re-apply current theme (do NOT re-init — just sync DOM from stored theme)
+        if (window.themeManager && window.themeManager.currentTheme) {
+            window.themeManager.applyTheme(window.themeManager.currentTheme);
+        }
+
+        // D. Sync registry state using existing cached UID
+        if (window.sfCore && typeof window.sfCore.syncRegistryState === 'function') {
+            window.sfCore.syncRegistryState();
+        }
+
+        // E. Dispatch Render Event for manual initialization
+        window.dispatchEvent(new CustomEvent('sf:turbo-render', { detail: { newDoc } }));
+
+        console.log("[Turbo] Hydration complete.");
+    }
+
     showProgressBar() {
-        let bar = document.getElementById('sf-turbo-progress');
+        let bar = document.getElementById('turbo-progress');
         if (!bar) {
             bar = document.createElement('div');
-            bar.id = 'sf-turbo-progress';
-            bar.style.cssText = 'position: fixed; top: 0; left: 0; height: 2px; background: #f59e0b; z-index: 9999; transition: width 0.3s ease; width: 0;';
+            bar.id = 'turbo-progress';
+            bar.style.cssText = `
+                position: fixed; top: 0; left: 0; height: 3px; 
+                background: linear-gradient(to right, #f59e0b, #fbbf24); 
+                z-index: 10000; transition: width 0.4s cubic-bezier(0.1, 0.7, 0.1, 1);
+                box-shadow: 0 0 15px rgba(245, 158, 11, 0.6);
+            `;
             document.body.appendChild(bar);
         }
-        bar.style.width = '30%';
-        setTimeout(() => { if (this.isNavigating) bar.style.width = '70%'; }, 200);
+        bar.style.width = '0%';
+        bar.style.opacity = '1';
+        setTimeout(() => bar.style.width = '40%', 10);
+        setTimeout(() => bar.style.width = '85%', 600);
     }
 
     hideProgressBar() {
-        const bar = document.getElementById('sf-turbo-progress');
+        const bar = document.getElementById('turbo-progress');
         if (bar) {
             bar.style.width = '100%';
-            setTimeout(() => { bar.style.width = '0'; }, 300);
+            setTimeout(() => {
+                bar.style.opacity = '0';
+                setTimeout(() => bar.style.width = '0%', 400);
+            }, 200);
         }
+    }
+
+    updateActiveLinks(url) {
+        const sidebarLinks = document.querySelectorAll('.sidebar-link');
+        const normalize = (p) => p.replace(/\/index\.html$/, '').replace(/\/$/, '') || '/';
+        const targetPath = normalize(new URL(url, window.location.origin).pathname);
+
+        sidebarLinks.forEach(link => {
+            const linkPath = normalize(new URL(link.href, window.location.origin).pathname);
+            if (linkPath === targetPath) {
+                link.classList.add('active');
+                link.setAttribute('aria-current', 'page');
+            } else {
+                link.classList.remove('active');
+                link.removeAttribute('aria-current');
+            }
+        });
     }
 }
 
-// Initialize
-new SkillForgeTurbo();
+export const turbo = new SkillForgeTurbo();
+window.sfTurbo = turbo;
