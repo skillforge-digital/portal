@@ -64,7 +64,6 @@ self.addEventListener('fetch', (event) => {
 
     event.respondWith(
         fetch(event.request).then((fetchResponse) => {
-            // Network first, but cache successful responses for future offline use
             if (fetchResponse.status === 200) {
                 const responseClone = fetchResponse.clone();
                 caches.open(CACHE_NAME).then((cache) => {
@@ -73,13 +72,15 @@ self.addEventListener('fetch', (event) => {
             }
             return fetchResponse;
         }).catch(() => {
-            // Network failed, try cache
             return caches.match(event.request).then((response) => {
                 if (response) return response;
-                // Fallback for offline pages/navigation if not in cache
+                
                 if (event.request.mode === 'navigate') {
                     return caches.match('/index.html').then(r => r || caches.match('/404.html'));
                 }
+                
+                // FIX: Return a basic error response for assets/beacons to prevent SW crash
+                return new Response('Resource unavailable', { status: 404, statusText: 'Not Found' });
             });
         })
     );
