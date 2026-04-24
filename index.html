@@ -27,6 +27,20 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
+    (function() {
+      document.documentElement.style.visibility = 'hidden';
+      // Failsafe: reveal content after 3 seconds regardless of script status
+      setTimeout(() => {
+        document.documentElement.style.visibility = 'visible';
+        // Force hide loading screen if any
+        const loader = document.getElementById('loading-screen');
+        if (loader) {
+            loader.style.opacity = '0';
+            loader.style.pointerEvents = 'none';
+            setTimeout(() => loader.classList.add('hidden'), 500);
+        }
+      }, 3000);
+    })();
     tailwind.config = {
       darkMode: 'class',
       theme: {
@@ -94,7 +108,7 @@
       --glass-bg: rgba(255,255,255,0.02);
       --glass-border: rgba(255,255,255,0.05);
     }
-    html, body { overflow-x: hidden; width: 100%; position: relative; }
+    html, body { overflow-x: hidden; }
     .light {
       --bg-color: #f8fafc;
       --text-color: #0f172a;

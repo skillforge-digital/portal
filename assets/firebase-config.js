@@ -1,6 +1,6 @@
 import { initializeApp, getApp, getApps } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js';
 import { getAuth } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
-import { getFirestore } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+import { initializeFirestore } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 import { getStorage } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-storage.js';
 
 // Primary App Configuration (Updated to 2CND as per user request)
@@ -27,15 +27,16 @@ const secondaryConfig = {
 
 let app;
 try {
-    // Attempt initialization with primary config
     app = !getApps().length ? initializeApp(primaryConfig) : getApp();
 } catch (err) {
-    console.error("[FirebaseConfig] Primary initialization failed, falling back to secondary...", err);
-    // Use a unique name for the secondary instance to avoid [DEFAULT] collision
     app = initializeApp(secondaryConfig, "failover");
 }
 
-const db = getFirestore(app);
+// Optimized Firestore initialization to bypass aggressive ad-blockers
+const db = initializeFirestore(app, {
+    experimentalForceLongPolling: true,
+    useFetchStreams: false
+});
 const auth = getAuth(app);
 const storage = getStorage(app);
 
