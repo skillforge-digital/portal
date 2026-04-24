@@ -51,7 +51,7 @@
                 console.log("[RegistryRouter] Active session detected. Determining destination...");
                 
                 // Wait for page to breathe
-                await new Promise(r => setTimeout(r, 2000));
+                await new Promise(r => setTimeout(r, 500));
 
                 const redirectBtn = document.getElementById('redirect-action-btn');
                 if (!redirectBtn) return;
@@ -94,6 +94,7 @@
       --glass-bg: rgba(255,255,255,0.02);
       --glass-border: rgba(255,255,255,0.05);
     }
+    html, body { overflow-x: hidden; width: 100%; position: relative; }
     .light {
       --bg-color: #f8fafc;
       --text-color: #0f172a;
@@ -106,7 +107,7 @@
     .light .text-slate-500 { color: #64748b !important; }
     .light .glass { background: rgba(0,0,0,0.02) !important; border-color: rgba(0,0,0,0.05) !important; }
     .light #sundust-canvas { opacity: 0.2; }
-    body { font-family:'Plus Jakarta Sans',sans-serif; background: var(--bg-color); color: var(--text-color); overflow-x:hidden; transition: background 0.5s ease, color 0.5s ease; width: 100%; min-height: 100dvh; }
+    body { font-family:'Plus Jakarta Sans',sans-serif; background: var(--bg-color); color: var(--text-color); overflow-x:hidden; transition: background 0.5s ease, color 0.5s ease; width: 100%; min-height: 100dvh; margin: 0; padding: 0; }
     #sundust-canvas { position:fixed; inset:0; width:100%; height:100dvh; z-index:0; pointer-events:none }
     .glass { background: var(--glass-bg); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); }
     .glass-strong { background: rgba(10, 25, 49, 0.9); -webkit-backdrop-filter: blur(40px); backdrop-filter: blur(40px); border: 1px solid rgba(255,255,255,0.1); }
@@ -209,7 +210,7 @@
                 </div>
             </div>
 
-            <div class="relative w-full max-w-lg mx-auto lg:max-w-none">
+            <div class="relative w-full max-w-lg mx-auto lg:max-w-none overflow-hidden lg:overflow-visible">
                 <div class="absolute -inset-10 md:-inset-20 bg-gold/10 blur-[60px] md:blur-[100px] rounded-full"></div>
                 <div class="glass p-6 md:p-10 rounded-[32px] md:rounded-[48px] border-white/10 animate-float space-y-6 md:space-y-8">
                     <div class="space-y-6">

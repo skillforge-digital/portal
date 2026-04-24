@@ -11,6 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;700&family=Caveat:wght@400;700&family=Unbounded:wght@400;700&family=Inter:wght@400;700&family=Playfair+Display:wght@400;700&family=Outfit:wght@400;700&family=Syne:wght@400;700&family=Lexend:wght@400;700&family=Plus+Jakarta+Sans:wght@400;700&family=Cinzel:wght@400;700&family=Montserrat:wght@400;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.tailwindcss.com"></script>
 <script>
 tailwind.config = {
   theme: {
@@ -63,7 +64,7 @@ tailwind.config = {
   }
 </style>
 </head>
-<body class="flex flex-col md:flex-row">
+<body class="overflow-x-hidden min-h-screen">
 
 <div id="loading-screen">
   <div class="flex flex-col items-center gap-6">
@@ -122,7 +123,7 @@ tailwind.config = {
   </div>
 </aside>
 
-<main class="flex-1 md:ml-72 p-6 md:p-10 pt-24 md:pt-20">
+<main class="md:ml-72 min-h-screen relative z-10 p-6 md:p-10 pt-24 md:pt-20">
   <div class="max-w-6xl mx-auto space-y-12">
     <header class="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8">
       <div>

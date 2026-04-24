@@ -3,7 +3,7 @@
  * Service Worker for Offline Access
  */
 
-const CACHE_NAME = 'sf-registry-matrix-v2';
+const CACHE_NAME = 'sf-registry-matrix-v4';
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
@@ -58,7 +58,9 @@ self.addEventListener('fetch', (event) => {
     if (event.request.method !== 'GET') return;
 
     // Skip Firebase/Analytics requests to let them handle their own persistence
-    if (event.request.url.includes('googleapis.com') || event.request.url.includes('firebase')) {
+    if (event.request.url.includes('googleapis.com') || 
+        event.request.url.includes('firebase') ||
+        event.request.url.includes('cloudflareinsights.com')) {
         return;
     }
 
@@ -79,8 +81,8 @@ self.addEventListener('fetch', (event) => {
                     return caches.match('/index.html').then(r => r || caches.match('/404.html'));
                 }
                 
-                // FIX: Return a basic error response for assets/beacons to prevent SW crash
-                return new Response('Resource unavailable', { status: 404, statusText: 'Not Found' });
+                // FIX: Return an empty 404 response for assets/beacons to stop the TypeError
+                return new Response(null, { status: 404, statusText: 'Not Found' });
             });
         })
     );

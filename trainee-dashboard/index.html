@@ -43,6 +43,7 @@ tailwind.config = {
 </script>
 <style>
   :root { --font-main: 'Space Grotesk', sans-serif; }
+  html, body { overflow-x: hidden; width: 100%; position: relative; margin: 0; padding: 0; }
   * { font-family: var(--font-main); transition: font-family 0.3s ease; }
   .font-serif-mode { --font-main: 'Instrument Serif', serif; }
   .font-mono-mode { --font-main: 'JetBrains Mono', monospace; }
@@ -187,7 +188,7 @@ tailwind.config = {
     #loading-screen { position: fixed; inset: 0; background: #040810; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease; }
   </style>
 </head>
-<body class="noise-bg text-white overflow-x-hidden min-h-screen flex flex-col md:flex-row">
+<body class="noise-bg text-white overflow-x-hidden min-h-screen">
 
 <div id="loading-screen">
   <div class="flex flex-col items-center gap-6">
@@ -325,7 +326,7 @@ tailwind.config = {
   </div>
 </aside>
 
-<main class="flex-1 md:ml-72 min-h-screen relative z-10">
+<main class="md:ml-72 min-h-screen relative z-10">
   <!-- Template Sections (T1-T10) -->
   
   <!-- T1: Bento Box Grid -->
