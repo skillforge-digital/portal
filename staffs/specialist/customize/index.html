@@ -33,6 +33,7 @@ tailwind.config = {
   .swatch { width: 100%; aspect-ratio: 1; border-radius: 20px; cursor: pointer; border: 2px solid transparent; position: relative; overflow: visible; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
   .swatch:hover { transform: scale(1.05); z-index: 10; }
   .swatch.active { border-color: white; transform: scale(1.1); box-shadow: 0 0 25px rgba(var(--accent-color-rgb), 0.4); }
+  .swatch:focus-visible { outline: 2px solid var(--accent-color); outline-offset: 4px; transform: scale(1.05); }
 
   .dual-inner { position: absolute; inset: 0; display: flex; transform: rotate(45deg) scale(1.5); pointer-events: none; }
   .dual-1 { flex: 1; pointer-events: none; }
@@ -41,15 +42,18 @@ tailwind.config = {
   .wallpaper-swatch { width: 100%; aspect-ratio: 16/9; border-radius: 24px; cursor: pointer; border: 2px solid transparent; background-size: cover; background-position: center; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
   .wallpaper-swatch:hover { transform: translateY(-4px); }
   .wallpaper-swatch.active { border-color: var(--accent-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+  .wallpaper-swatch:focus-visible { outline: 2px solid var(--accent-color); outline-offset: 4px; transform: translateY(-4px); }
 
   .font-card { cursor: pointer; border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; padding: 24px; transition: all 0.3s ease; }
   .font-card:hover { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.1); }
   .font-card.active { border-color: var(--accent-color); background: rgba(var(--accent-color-rgb), 0.1); }
+  .font-card:focus-visible { outline: 2px solid var(--accent-color); outline-offset: 4px; background: rgba(255,255,255,0.03); }
   
   #loading-screen { position: fixed; inset: 0; background: #040810; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease; }
   
   .tab-btn { padding: 14px 28px; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.2em; border-radius: 18px; transition: all 0.3s ease; color: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.05); }
   .tab-btn.active { background: var(--accent-color); color: #040810; border-color: var(--accent-color); box-shadow: 0 0 20px rgba(var(--accent-color-rgb), 0.3); }
+  .tab-btn:focus-visible { outline: 2px solid var(--accent-color); outline-offset: 2px; }
 
   .custom-scrollbar::-webkit-scrollbar { width: 4px; }
   .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--accent-color); border-radius: 10px; }
@@ -57,6 +61,13 @@ tailwind.config = {
   .sidebar-link { transition: all 0.3s ease; }
   .sidebar-link:hover { background: rgba(255,255,255,0.05); }
   .sidebar-link.active { background: rgba(var(--accent-color-rgb), 0.1); color: var(--accent-color); border-right: 3px solid var(--accent-color); }
+  .sidebar-link:focus-visible { outline: 2px solid var(--accent-color); outline-offset: -2px; background: rgba(255,255,255,0.05); }
+
+  /* Global focus states */
+  button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+  }
 </style>
 </head>
 <body class="flex flex-col md:flex-row">
@@ -193,15 +204,15 @@ tailwind.config = {
               </button>
             </div>
 
-            <label class="w-full glass-strong p-6 rounded-3xl flex items-center justify-between cursor-pointer hover:bg-white/10 transition-all group">
+            <label for="wallpaper-upload" class="w-full glass-strong p-6 rounded-3xl flex items-center justify-between cursor-pointer hover:bg-white/10 transition-all group">
               <div class="flex flex-col">
-                <span class="text-[10px] font-black uppercase tracking-widest text-white/60">Upload Neural Skin</span>
-                <span class="text-[8px] font-bold text-white/20 uppercase mt-1">JPG / PNG / WEBP Assets</span>
+                <p class="text-[10px] font-black uppercase tracking-widest text-white/60">Upload Neural Skin</p>
+                <p class="text-[8px] font-bold text-white/20 uppercase mt-1">JPG / PNG / WEBP Assets</p>
               </div>
               <div class="w-12 h-12 rounded-2xl bg-orange-500/10 flex items-center justify-center text-orange-500 group-hover:bg-orange-500 group-hover:text-navy-950 transition-all shadow-lg">
                 <i data-lucide="cloud-upload" class="w-5 h-5"></i>
               </div>
-              <input type="file" id="wallpaper-upload" class="hidden" accept="image/*">
+              <input type="file" id="wallpaper-upload" class="hidden" accept="image/*" aria-label="Upload custom wallpaper skin">
             </label>
           </div>
 
@@ -334,13 +345,18 @@ function init() {
     dualColors.forEach(d => {
       const sw = document.createElement('div');
       sw.className = 'swatch';
+      sw.setAttribute('role', 'button');
+      sw.setAttribute('tabindex', '0');
+      sw.setAttribute('aria-label', `Apply dual color theme: ${d.p} and ${d.s}`);
       sw.innerHTML = `<div class="dual-inner"><div class="dual-1" style="background:${d.p}"></div><div class="dual-2" style="background:${d.s}"></div></div>`;
-      sw.onclick = () => { 
+      const select = () => { 
         currentDesign.primary = d.p; 
         currentDesign.secondary = d.s; 
         currentDesign.type = 'solid-pair'; 
         updatePreview(); 
       };
+      sw.onclick = select;
+      sw.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(); } };
       dGrid.appendChild(sw);
     });
   }
@@ -350,28 +366,38 @@ function init() {
     gradients.forEach(g => {
       const sw = document.createElement('div');
       sw.className = 'swatch';
+      sw.setAttribute('role', 'button');
+      sw.setAttribute('tabindex', '0');
+      sw.setAttribute('aria-label', `Apply gradient theme: ${g.c1} to ${g.c2}`);
       sw.style.background = `linear-gradient(135deg, ${g.c1}, ${g.c2})`;
-      sw.onclick = () => { 
+      const select = () => { 
         currentDesign.c1 = g.c1; 
         currentDesign.c2 = g.c2; 
         currentDesign.type = 'gradient'; 
         updatePreview(); 
       };
+      sw.onclick = select;
+      sw.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(); } };
       gGrid.appendChild(sw);
     });
   }
 
   const wGrid = document.getElementById('wallpaper-grid');
   if (wGrid) {
-    wallpapers.forEach(w => {
+    wallpapers.forEach((w, i) => {
       const sw = document.createElement('div');
       sw.className = 'wallpaper-swatch';
+      sw.setAttribute('role', 'button');
+      sw.setAttribute('tabindex', '0');
+      sw.setAttribute('aria-label', `Apply wallpaper atmosphere ${i + 1}`);
       sw.style.backgroundImage = `url(${w})`;
-      sw.onclick = () => { 
+      const select = () => { 
         currentDesign.wallpaper = w; 
         currentDesign.type = 'wallpaper'; 
         updatePreview(); 
       };
+      sw.onclick = select;
+      sw.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(); } };
       wGrid.appendChild(sw);
     });
   }
@@ -381,13 +407,18 @@ function init() {
     fonts.forEach(f => {
       const card = document.createElement('div');
       card.className = 'font-card';
+      card.setAttribute('role', 'button');
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('aria-label', `Apply typography: ${f.name}`);
       card.style.fontFamily = f.family;
       card.innerHTML = `<p class="text-[8px] font-black uppercase tracking-widest text-white/30 mb-2">${f.name}</p><p class="text-xl font-bold mb-2">Command Typography</p><p class="text-[9px] text-white/40">${f.desc}</p>`;
-      card.onclick = () => { 
+      const select = () => { 
         currentDesign.fontFamily = f.family; 
         currentDesign.fontName = f.name; 
         updatePreview(); 
       };
+      card.onclick = select;
+      card.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(); } };
       fGrid.appendChild(card);
     });
   }

@@ -47,18 +47,18 @@ export class NeuralDebugger {
             <div id="nd-content" style="flex: 1; overflow-y: auto; padding: 20px; font-size: 11px;">
                 <div id="nd-tab-state">
                     <div class="nd-group" style="margin-bottom: 20px;">
-                        <label style="display: block; color: #444; font-size: 8px; text-transform: uppercase; margin-bottom: 8px;">Identity Core</label>
+                        <p style="display: block; color: #444; font-size: 8px; text-transform: uppercase; margin-bottom: 8px;">Identity Core</p>
                         <div id="nd-uid" style="color: #ccc; margin-bottom: 4px;">UID: Loading...</div>
                         <div id="nd-sfid" style="color: #ccc; margin-bottom: 4px;">SFID: Loading...</div>
                         <div id="nd-tier" style="color: #f59e0b; font-weight: 900;">TIER: Loading...</div>
                     </div>
                     <div class="nd-group" style="margin-bottom: 20px;">
-                        <label style="display: block; color: #444; font-size: 8px; text-transform: uppercase; margin-bottom: 8px;">Atmosphere State</label>
+                        <p style="display: block; color: #444; font-size: 8px; text-transform: uppercase; margin-bottom: 8px;">Atmosphere State</p>
                         <div id="nd-theme" style="color: #ccc; margin-bottom: 4px;">THEME: Loading...</div>
                         <div id="nd-layout" style="color: #ccc;">LAYOUT: Loading...</div>
                     </div>
                     <div class="nd-group">
-                        <label style="display: block; color: #444; font-size: 8px; text-transform: uppercase; margin-bottom: 8px;">Engagement Pulse</label>
+                        <p style="display: block; color: #444; font-size: 8px; text-transform: uppercase; margin-bottom: 8px;">Engagement Pulse</p>
                         <div id="nd-engagement" style="color: #ccc; margin-bottom: 4px;">SCORE: 0.00</div>
                         <div id="nd-active-sec" style="color: #ccc;">UPTIME: 0s</div>
                     </div>
@@ -68,7 +68,7 @@ export class NeuralDebugger {
                 </div>
                 <div id="nd-tab-diagnostics" style="display: none;">
                     <div class="nd-group" style="margin-bottom: 20px;">
-                        <label style="display: block; color: #444; font-size: 8px; text-transform: uppercase; margin-bottom: 8px;">Real-time Fault Detection</label>
+                        <p style="display: block; color: #444; font-size: 8px; text-transform: uppercase; margin-bottom: 8px;">Real-time Fault Detection</p>
                         <div id="nd-integrity" style="font-weight: 900; margin-bottom: 8px;">INTEGRITY: SCANNING...</div>
                         <div id="nd-faults" style="color: #ccc; line-height: 1.4;">NO CRITICAL FAULTS DETECTED</div>
                     </div>
@@ -78,7 +78,7 @@ export class NeuralDebugger {
                 </div>
                 <div id="nd-tab-patch" style="display: none;">
                     <div class="nd-group">
-                        <label style="display: block; color: #444; font-size: 8px; text-transform: uppercase; margin-bottom: 8px;">Neural Override Console</label>
+                        <label for="nd-patch-input" style="display: block; color: #444; font-size: 8px; text-transform: uppercase; margin-bottom: 8px;">Neural Override Console</label>
                         <p style="font-size: 8px; color: #666; margin-bottom: 10px;">Direct document injection. Use with caution. Format: JSON</p>
                         <textarea id="nd-patch-input" style="width: 100%; height: 120px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: #10b981; font-family: 'JetBrains Mono', monospace; font-size: 9px; padding: 10px; outline: none; resize: none;" placeholder='{ "level": 2, "onboardingComplete": true }'></textarea>
                         <button id="nd-apply-patch" style="width: 100%; margin-top: 10px; padding: 12px; background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 12px; font-size: 9px; font-weight: 900; text-transform: uppercase; cursor: pointer;">Commit Live Patch</button>

@@ -81,14 +81,21 @@ class ThemeManager {
         
         const syncData = (data) => {
             if (data.theme) {
-                console.log('ThemeManager: Applying remote theme:', data.theme.type);
+                console.log('ThemeManager: Applying remote theme:', data.theme.type || 'custom');
                 this.currentTheme = data.theme;
                 this.applyTheme(data.theme);
+            } else {
+                console.log('ThemeManager: No remote theme found, applying default.');
+                this.applyTheme({}); // This triggers the default theme logic
             }
+            
             if (data.fontFamily) {
                 console.log('ThemeManager: Applying remote font:', data.fontFamily);
                 this.applyFont(data.fontFamily);
+            } else {
+                this.applyFont("'Space Grotesk', sans-serif"); // Default font
             }
+
             if (data.controls || data.isLightMode !== undefined) {
                 this.controls = {
                     glow: !!data.controls?.glow,
@@ -97,9 +104,18 @@ class ThemeManager {
                 };
                 this.applyControls(this.controls);
             }
+
             if (data.wallpaper) {
                 console.log('ThemeManager: Applying remote wallpaper');
                 this.applyWallpaper(data.wallpaper);
+            }
+
+            // Signal that theme sync is complete
+            window.dispatchEvent(new CustomEvent('sf:theme_synced', { detail: data }));
+            
+            // Emergency loader hide if trapped
+            if (typeof (/** @type {any} */(window)).hideLoading === 'function') {
+                (/** @type {any} */(window)).hideLoading();
             }
         };
 

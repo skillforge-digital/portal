@@ -210,8 +210,10 @@ tailwind.config = {
     cursor: pointer;
     border: 2px solid transparent;
     transition: all 0.2s ease;
+    outline: none;
   }
-  .color-swatch:hover { transform: scale(1.1); }
+  .color-swatch:hover, .color-swatch:focus-visible { transform: scale(1.1); border-color: rgba(255,255,255,0.3); }
+  .color-swatch:focus-visible { box-shadow: 0 0 0 2px var(--card-accent); }
   .color-swatch.active { border-color: white; transform: scale(1.15); box-shadow: 0 0 15px rgba(255,255,255,0.2); }
 
   .loading-state {
@@ -412,15 +414,15 @@ tailwind.config = {
         <div class="space-y-6 pt-10 border-t border-white/5">
           <h3 class="text-[11px] font-black uppercase tracking-[0.2em] text-white/40">Identity Sync</h3>
           <div class="space-y-4">
-            <label class="w-full glass-strong p-5 rounded-3xl flex items-center justify-between cursor-pointer hover:bg-white/5 transition-all group">
+            <label for="avatar-input" class="w-full glass-strong p-5 rounded-3xl flex items-center justify-between cursor-pointer hover:bg-white/5 transition-all group">
               <div class="flex flex-col">
-                <span class="text-[10px] font-black uppercase tracking-widest text-white/60">Update Photo</span>
-                <span class="text-[8px] font-bold text-white/20 uppercase">JPG / PNG / WEBP</span>
+                <p class="text-[10px] font-black uppercase tracking-widest text-white/60">Update Photo</p>
+                <p class="text-[8px] font-bold text-white/20 uppercase">JPG / PNG / WEBP</p>
               </div>
               <div class="w-10 h-10 rounded-xl bg-gold-500/10 flex items-center justify-center text-gold-500 group-hover:bg-gold-500 group-hover:text-navy-950 transition-all">
                 <i class="fa-solid fa-camera"></i>
               </div>
-              <input type="file" id="avatar-input" class="hidden" accept="image/*">
+              <input type="file" id="avatar-input" class="hidden" accept="image/*" aria-label="Update Profile Photo">
             </label>
             
             <button type="button" onclick="downloadCard()" class="w-full glass-strong p-5 rounded-3xl flex items-center justify-between hover:bg-white/5 transition-all group" aria-label="Download Membership Card as PNG">
@@ -473,11 +475,21 @@ const colors = [
 
 function init() {
   const palette = document.getElementById('color-palette');
-  colors.forEach(theme => {
+  const themeNames = ['Gold', 'Blue', 'Green', 'Red', 'Purple', 'Pink', 'Cyan', 'Monochrome'];
+  colors.forEach((theme, idx) => {
     const swatch = document.createElement('div');
     swatch.className = 'color-swatch';
     swatch.style.background = `linear-gradient(135deg, ${theme.accent}, ${theme.bg})`;
+    swatch.setAttribute('role', 'button');
+    swatch.setAttribute('tabindex', '0');
+    swatch.setAttribute('aria-label', `Apply ${themeNames[idx] || 'Custom'} card theme`);
     swatch.onclick = () => applyCardTheme(theme);
+    swatch.onkeydown = (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        applyCardTheme(theme);
+      }
+    };
     palette.appendChild(swatch);
   });
 

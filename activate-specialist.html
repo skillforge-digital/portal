@@ -18,7 +18,8 @@
   <div class="glass">
     <h1 class="text-amber-500 text-3xl mb-4">Neural Authorization</h1>
     <p class="text-white/60 text-sm mb-8">Enter your **Command Key** to elevate your current identity to **Specialist Status**.</p>
-    <input type="password" id="command-key" placeholder="Enter Staff Key" class="w-full bg-black/30 border border-white/10 p-4 rounded-2xl text-white mb-6 text-center font-['Space_Grotesk',sans-serif]">
+    <label for="command-key" class="sr-only">Command Key</label>
+    <input type="password" id="command-key" aria-label="Enter Staff Key" placeholder="Enter Staff Key" class="w-full bg-black/30 border border-white/10 p-4 rounded-2xl text-white mb-6 text-center font-['Space_Grotesk',sans-serif]">
     <button id="activate-btn" onclick="activate()">Authorize Specialist Access</button>
     <p id="status" class="mt-6 text-xs font-bold"></p>
   </div>

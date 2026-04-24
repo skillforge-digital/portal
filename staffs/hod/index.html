@@ -14,6 +14,21 @@
     .glass-strong { background: rgba(255,255,255,0.05); -webkit-backdrop-filter: blur(30px); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.1); }
     @keyframes slide-up { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     .animate-slide-up { animation: slide-up 0.8s ease-out forwards; }
+    
+    /* Focus States & Accessibility */
+    button:focus-visible, 
+    a:focus-visible, 
+    input:focus-visible, 
+    select:focus-visible, 
+    textarea:focus-visible {
+      outline: 2px solid #a855f7; /* Purple for HOD */
+      outline-offset: 2px;
+    }
+    
+    .nav-btn:focus-visible {
+      background: rgba(168,85,247,0.1);
+      color: #a855f7;
+    }
   </style>
 </head>
 <body class="flex flex-col md:flex-row">
@@ -34,22 +49,22 @@
 
       <nav class="space-y-1">
         <p class="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Command Nodes</p>
-        <button data-tab="overview" class="nav-btn active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+        <button data-tab="overview" aria-label="View Unit Overview" class="nav-btn active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
           <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Unit Overview
         </button>
-        <button data-tab="announcements" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+        <button data-tab="announcements" aria-label="View Announcements" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
           <i data-lucide="megaphone" class="w-4 h-4"></i> Announcements
         </button>
-        <button data-tab="trainees" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+        <button data-tab="trainees" aria-label="View Trainee Registry" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
           <i data-lucide="users" class="w-4 h-4"></i> Trainee Registry
         </button>
-        <button data-tab="design-studio" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+        <button data-tab="design-studio" aria-label="View Design Studio" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
           <i data-lucide="palette" class="w-4 h-4"></i> Design Studio
         </button>
-        <button data-tab="staff" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+        <button data-tab="staff" aria-label="View Unit Staff" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
           <i data-lucide="user-check" class="w-4 h-4"></i> Unit Staff
         </button>
-        <button data-tab="profile" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+        <button data-tab="profile" aria-label="View Personnel Profile" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
           <i data-lucide="user-cog" class="w-4 h-4"></i> Personnel Profile
         </button>
       </nav>
@@ -146,7 +161,7 @@
                                 <h2 class="text-xl font-black text-white uppercase tracking-tight">Social Matrix</h2>
                                 <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Manage your digital connections</p>
                             </div>
-                            <button onclick="addSocialRow()" class="px-4 py-2 bg-purple-400/10 border border-purple-400/20 text-purple-400 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-purple-400 hover:text-white transition-all">
+                            <button onclick="addSocialRow()" aria-label="Add Social Handle" class="px-4 py-2 bg-purple-400/10 border border-purple-400/20 text-purple-400 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-purple-400 hover:text-white transition-all">
                                 Add Handle
                             </button>
                         </div>
@@ -156,8 +171,8 @@
                                 ${(profile.socialMatrix || []).map((s, i) => `
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 social-row items-end">
                                         <div class="space-y-2">
-                                            <label class="text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">Platform</label>
-                                            <select name="socialPlatform[]" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10 text-white">
+                                            <label for="platform-${i}" class="text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">Platform</label>
+                                            <select id="platform-${i}" name="socialPlatform[]" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10 text-white">
                                                 <option value="Instagram" ${s.platform === 'Instagram' ? 'selected' : ''}>Instagram</option>
                                                 <option value="Twitter" ${s.platform === 'Twitter' ? 'selected' : ''}>X (Twitter)</option>
                                                 <option value="LinkedIn" ${s.platform === 'LinkedIn' ? 'selected' : ''}>LinkedIn</option>
@@ -168,10 +183,10 @@
                                             </select>
                                         </div>
                                         <div class="relative space-y-2">
-                                            <label class="text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">Handle</label>
+                                            <label for="handle-${i}" class="text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">Handle</label>
                                             <div class="flex gap-2">
-                                                <input name="socialHandle[]" type="text" value="${s.handle}" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10 text-white">
-                                                <button type="button" onclick="this.closest('.social-row').remove()" class="p-4 text-red-400 hover:bg-red-400/10 rounded-2xl transition-all">
+                                                <input id="handle-${i}" name="socialHandle[]" type="text" value="${s.handle}" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10 text-white">
+                                                <button type="button" onclick="this.closest('.social-row').remove()" aria-label="Remove Social Handle" class="p-4 text-red-400 hover:bg-red-400/10 rounded-2xl transition-all">
                                                     <i data-lucide="trash-2" class="w-4 h-4"></i>
                                                 </button>
                                             </div>
@@ -196,11 +211,12 @@
     window.addSocialRow = () => {
         const container = document.getElementById('social-handles-container');
         const row = document.createElement('div');
+        const rowId = Date.now();
         row.className = 'grid grid-cols-1 md:grid-cols-2 gap-4 social-row items-end animate-slide-up';
         row.innerHTML = `
             <div class="space-y-2">
-                <label class="text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">Platform</label>
-                <select name="socialPlatform[]" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10 text-white">
+                <label for="platform-${rowId}" class="text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">Platform</label>
+                <select id="platform-${rowId}" name="socialPlatform[]" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10 text-white">
                     <option value="Instagram">Instagram</option>
                     <option value="Twitter">X (Twitter)</option>
                     <option value="LinkedIn">LinkedIn</option>
@@ -211,10 +227,10 @@
                 </select>
             </div>
             <div class="relative space-y-2">
-                <label class="text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">Handle</label>
+                <label for="handle-${rowId}" class="text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">Handle</label>
                 <div class="flex gap-2">
-                    <input name="socialHandle[]" type="text" placeholder="@username" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10 text-white">
-                    <button type="button" onclick="this.closest('.social-row').remove()" class="p-4 text-red-400 hover:bg-red-400/10 rounded-2xl transition-all">
+                    <input id="handle-${rowId}" name="socialHandle[]" type="text" placeholder="@username" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10 text-white">
+                    <button type="button" onclick="this.closest('.social-row').remove()" aria-label="Remove Social Handle" class="p-4 text-red-400 hover:bg-red-400/10 rounded-2xl transition-all">
                         <i data-lucide="trash-2" class="w-4 h-4"></i>
                     </button>
                 </div>
@@ -373,15 +389,15 @@
             </div>
             <div class="space-y-4">
               <div>
-                <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Title</label>
+                <label for="ann-title" class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Title</label>
                 <input type="text" id="ann-title" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl mt-2" placeholder="Announcement Title">
               </div>
               <div>
-                <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Content</label>
+                <label for="ann-content" class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Content</label>
                 <textarea id="ann-content" rows="4" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl mt-2" placeholder="Announcement content..."></textarea>
               </div>
               <div>
-                <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Scope</label>
+                <label for="ann-scope" class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Scope</label>
                 <select id="ann-scope" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl mt-2">
                   <option value="hod">HOD Dashboard</option>
                   <option value="staffs">Staff Dashboard</option>
@@ -568,7 +584,7 @@
                 </div>
                 
                 <div class="space-y-4">
-                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Select Active Track</label>
+                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Select Active Track</p>
                     <div class="grid grid-cols-1 gap-2">
                         ${tracks.map(t => `
                             <button onclick="assignSpecialist('${uid}', '${t}')" class="p-4 rounded-2xl bg-white/5 border border-white/5 text-left hover:bg-purple-400/10 hover:border-purple-400/30 transition-all group">

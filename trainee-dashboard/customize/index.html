@@ -73,7 +73,8 @@ tailwind.config = {
     justify-content: center;
     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  .swatch:hover { transform: translateY(-8px); border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.08); }
+  .swatch:hover, .swatch:focus-visible { transform: translateY(-8px); border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.08); outline: none; }
+  .swatch:focus-visible { box-shadow: 0 0 0 2px var(--accent-color); }
   .swatch.active { 
     border-color: var(--accent-color); 
     background: rgba(var(--accent-color-rgb), 0.1);
@@ -126,8 +127,10 @@ tailwind.config = {
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
     position: relative;
     overflow: hidden;
+    outline: none;
   }
-  .wallpaper-swatch:hover { transform: translateY(-8px) scale(1.02); border-color: rgba(255,255,255,0.2); }
+  .wallpaper-swatch:hover, .wallpaper-swatch:focus-visible { transform: translateY(-8px) scale(1.02); border-color: rgba(255,255,255,0.2); }
+  .wallpaper-swatch:focus-visible { box-shadow: 0 0 0 3px var(--accent-color); }
   .wallpaper-swatch.active { 
     border-color: var(--accent-color); 
     box-shadow: 0 15px 40px rgba(0,0,0,0.6); 
@@ -158,8 +161,10 @@ tailwind.config = {
     padding: 20px; 
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
     background: rgba(255,255,255,0.02);
+    outline: none;
   }
-  .font-card:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); transform: translateY(-4px); }
+  .font-card:hover, .font-card:focus-visible { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); transform: translateY(-4px); }
+  .font-card:focus-visible { box-shadow: 0 0 0 2px var(--accent-color); }
   .font-card.active { 
     border-color: var(--accent-color); 
     background: rgba(var(--accent-color-rgb), 0.15); 
@@ -384,16 +389,16 @@ tailwind.config = {
               </button>
             </div>
 
-            <label class="w-full glass-strong p-6 rounded-3xl flex items-center justify-between cursor-pointer hover:bg-white/10 transition-all group">
+            <div class="w-full glass-strong p-6 rounded-3xl flex items-center justify-between cursor-pointer hover:bg-white/10 transition-all group relative">
               <div class="flex flex-col">
-                <span class="text-[10px] font-black uppercase tracking-widest text-white/60">Upload Neural Skin</span>
-                <span class="text-[8px] font-bold text-white/20 uppercase mt-1">JPG / PNG / WEBP Assets</span>
+                <p class="text-[10px] font-black uppercase tracking-widest text-white/60">Upload Neural Skin</p>
+                <p class="text-[8px] font-bold text-white/20 uppercase mt-1">JPG / PNG / WEBP Assets</p>
               </div>
-              <div class="w-12 h-12 rounded-2xl bg-gold-500/10 flex items-center justify-center text-gold-500 group-hover:bg-gold-500 group-hover:text-navy-950 transition-all shadow-lg">
+              <label for="wallpaper-upload" class="w-12 h-12 rounded-2xl bg-gold-500/10 flex items-center justify-center text-gold-500 group-hover:bg-gold-500 group-hover:text-navy-950 transition-all shadow-lg cursor-pointer">
                 <i class="fa-solid fa-cloud-arrow-up text-xl"></i>
-              </div>
-              <input type="file" id="wallpaper-upload" class="hidden" accept="image/*">
-            </label>
+              </label>
+              <input type="file" id="wallpaper-upload" class="hidden" accept="image/*" aria-label="Upload custom wallpaper skin">
+            </div>
           </div>
 
           <div class="grid grid-cols-1 gap-4">

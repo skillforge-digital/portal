@@ -38,6 +38,15 @@
     body { font-family:'Plus Jakarta Sans',sans-serif; background:#040810; color:#f1f5f9; overflow-x:hidden; min-height: 100dvh; }
     #sundust-canvas { position:fixed; inset:0; width:100%; height:100dvh; z-index:0; pointer-events:none }
     .glass { background: rgba(255,255,255,0.02); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
+    /* Focus States & Accessibility */
+    button:focus-visible, 
+    a:focus-visible, 
+    input:focus-visible, 
+    select:focus-visible, 
+    textarea:focus-visible {
+      outline: 2px solid #C9A84C;
+      outline-offset: 2px;
+    }
     input { background: rgba(255,255,255,0.03) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; }
     input:focus { border-color: #C9A84C !important; outline: none !important; background: rgba(255,255,255,0.05) !important; }
     @keyframes slide-up { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -70,16 +79,16 @@
 
             <form id="staff-login-form" class="space-y-6">
                 <div class="space-y-2">
-                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Command Email</label>
-                    <input required name="email" type="email" placeholder="personnel@skillforgedigital.com.ng" class="w-full p-4 rounded-2xl text-sm">
+                    <label for="staff-email" class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Command Email</label>
+                    <input required id="staff-email" name="email" type="email" placeholder="personnel@skillforgedigital.com.ng" class="w-full p-4 rounded-2xl text-sm">
                 </div>
 
                 <div class="space-y-2 relative">
-                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Access Password</label>
+                    <label for="staff-password" class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Access Password</label>
                     <div class="relative">
-                        <input required id="password" name="password" type="password" placeholder="********" class="w-full p-4 rounded-2xl text-sm pr-12">
-                        <button type="button" aria-label="Toggle password visibility" onclick="togglePassword('password')" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-gold transition-colors">
-                            <i data-lucide="eye" class="w-4 h-4" id="eye-password"></i>
+                        <input required id="staff-password" name="password" type="password" placeholder="********" class="w-full p-4 rounded-2xl text-sm pr-12">
+                        <button type="button" aria-label="Toggle password visibility" onclick="togglePassword('staff-password')" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-gold transition-colors">
+                            <i data-lucide="eye" class="w-4 h-4" id="eye-staff-password"></i>
                         </button>
                     </div>
                 </div>

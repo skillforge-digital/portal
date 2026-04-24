@@ -38,6 +38,15 @@
     body { font-family:'Plus Jakarta Sans',sans-serif; background:#040810; color:#f1f5f9; overflow-x:hidden; min-height: 100dvh; }
     #sundust-canvas { position:fixed; inset:0; width:100%; height:100dvh; z-index:0; pointer-events:none }
     .glass { background: rgba(255,255,255,0.02); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
+    /* Focus States & Accessibility */
+    button:focus-visible, 
+    a:focus-visible, 
+    input:focus-visible, 
+    select:focus-visible, 
+    textarea:focus-visible {
+      outline: 2px solid #C9A84C;
+      outline-offset: 2px;
+    }
     input { background: rgba(255,255,255,0.03) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; }
     input:focus { border-color: #C9A84C !important; outline: none !important; background: rgba(255,255,255,0.05) !important; }
     @keyframes slide-up { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -97,26 +106,26 @@
 
             <form id="staff-reg-form" class="space-y-6">
                 <div class="space-y-4">
-                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Unit Assignment (Select up to 2)</label>
+                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Unit Assignment (Select up to 2)</p>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="unit-selection">
-                        <label class="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all unit-label">
-                            <input type="checkbox" name="units[]" value="Trading Unit" class="w-4 h-4 rounded border-gold bg-navy text-gold focus:ring-gold unit-checkbox">
+                        <label for="unit-trading" class="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all unit-label">
+                            <input type="checkbox" id="unit-trading" name="units[]" value="Trading Unit" class="w-4 h-4 rounded border-gold bg-navy text-gold focus:ring-gold unit-checkbox">
                             <span class="text-sm font-bold uppercase">Trading Unit</span>
                         </label>
-                        <label class="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all unit-label">
-                            <input type="checkbox" name="units[]" value="Development & Tech Unit" class="w-4 h-4 rounded border-gold bg-navy text-gold focus:ring-gold unit-checkbox">
+                        <label for="unit-dev" class="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all unit-label">
+                            <input type="checkbox" id="unit-dev" name="units[]" value="Development & Tech Unit" class="w-4 h-4 rounded border-gold bg-navy text-gold focus:ring-gold unit-checkbox">
                             <span class="text-sm font-bold uppercase">Dev & Tech Unit</span>
                         </label>
-                        <label class="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all unit-label">
-                            <input type="checkbox" name="units[]" value="Creative Media Unit" class="w-4 h-4 rounded border-gold bg-navy text-gold focus:ring-gold unit-checkbox">
+                        <label for="unit-creative" class="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all unit-label">
+                            <input type="checkbox" id="unit-creative" name="units[]" value="Creative Media Unit" class="w-4 h-4 rounded border-gold bg-navy text-gold focus:ring-gold unit-checkbox">
                             <span class="text-sm font-bold uppercase">Creative Media Unit</span>
                         </label>
-                        <label class="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all unit-label">
-                            <input type="checkbox" name="units[]" value="Digital Innovation Unit" class="w-4 h-4 rounded border-gold bg-navy text-gold focus:ring-gold unit-checkbox">
+                        <label for="unit-digital" class="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all unit-label">
+                            <input type="checkbox" id="unit-digital" name="units[]" value="Digital Innovation Unit" class="w-4 h-4 rounded border-gold bg-navy text-gold focus:ring-gold unit-checkbox">
                             <span class="text-sm font-bold uppercase">Digital Innovation Unit</span>
                         </label>
-                        <label class="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all unit-label">
-                            <input type="checkbox" name="units[]" value="Support Staff / Team" class="w-4 h-4 rounded border-gold bg-navy text-gold focus:ring-gold unit-checkbox">
+                        <label for="unit-support" class="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all unit-label">
+                            <input type="checkbox" id="unit-support" name="units[]" value="Support Staff / Team" class="w-4 h-4 rounded border-gold bg-navy text-gold focus:ring-gold unit-checkbox">
                             <span class="text-sm font-bold uppercase">Support Staff / Team</span>
                         </label>
                     </div>
@@ -129,22 +138,26 @@
 
                 <!-- Social Media Integration (Multi-Handle Support) -->
                 <div class="space-y-4">
-                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Social Matrix (Add 1 or more)</label>
+                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Social Matrix (Add 1 or more)</p>
                     <div id="social-handles-container" class="space-y-3">
                         <!-- Initial handle row -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 social-row">
-                            <select required name="socialPlatform[]" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10">
-                                <option value="">SELECT PLATFORM...</option>
-                                <option value="Instagram">Instagram</option>
-                                <option value="Twitter">X (Twitter)</option>
-                                <option value="LinkedIn">LinkedIn</option>
-                                <option value="Facebook">Facebook</option>
-                                <option value="TikTok">TikTok</option>
-                                <option value="Discord">Discord</option>
-                                <option value="Telegram">Telegram</option>
-                            </select>
-                            <div class="relative">
-                                <input required name="socialHandle[]" type="text" placeholder="@username or handle" class="w-full p-4 rounded-2xl text-sm" onblur="extractSocialHandle(this)">
+                            <div class="space-y-1">
+                                <label class="sr-only" for="social-platform-0">Select Social Platform</label>
+                                <select required id="social-platform-0" name="socialPlatform[]" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10">
+                                    <option value="">SELECT PLATFORM...</option>
+                                    <option value="Instagram">Instagram</option>
+                                    <option value="Twitter">X (Twitter)</option>
+                                    <option value="LinkedIn">LinkedIn</option>
+                                    <option value="Facebook">Facebook</option>
+                                    <option value="TikTok">TikTok</option>
+                                    <option value="Discord">Discord</option>
+                                    <option value="Telegram">Telegram</option>
+                                </select>
+                            </div>
+                            <div class="relative space-y-1">
+                                <label class="sr-only" for="social-handle-0">Social Handle or URL</label>
+                                <input required id="social-handle-0" name="socialHandle[]" type="text" placeholder="@username or handle" class="w-full p-4 rounded-2xl text-sm" onblur="extractSocialHandle(this)">
                             </div>
                         </div>
                     </div>
@@ -217,21 +230,26 @@
 
     window.addSocialRow = () => {
         const container = document.getElementById('social-handles-container');
+        const rowCount = document.querySelectorAll('.social-row').length;
         const row = document.createElement('div');
         row.className = 'grid grid-cols-1 md:grid-cols-2 gap-4 social-row animate-slide-up';
         row.innerHTML = `
-            <select required name="socialPlatform[]" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10">
-                <option value="">SELECT PLATFORM...</option>
-                <option value="Instagram">Instagram</option>
-                <option value="Twitter">X (Twitter)</option>
-                <option value="LinkedIn">LinkedIn</option>
-                <option value="Facebook">Facebook</option>
-                <option value="TikTok">TikTok</option>
-                <option value="Discord">Discord</option>
-                <option value="Telegram">Telegram</option>
-            </select>
-            <div class="relative">
-                <input required name="socialHandle[]" type="text" placeholder="@username or handle" class="w-full p-4 rounded-2xl text-sm" onblur="extractSocialHandle(this)">
+            <div class="space-y-1">
+                <label class="sr-only" for="social-platform-${rowCount}">Select Social Platform</label>
+                <select required id="social-platform-${rowCount}" name="socialPlatform[]" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10">
+                    <option value="">SELECT PLATFORM...</option>
+                    <option value="Instagram">Instagram</option>
+                    <option value="Twitter">X (Twitter)</option>
+                    <option value="LinkedIn">LinkedIn</option>
+                    <option value="Facebook">Facebook</option>
+                    <option value="TikTok">TikTok</option>
+                    <option value="Discord">Discord</option>
+                    <option value="Telegram">Telegram</option>
+                </select>
+            </div>
+            <div class="relative space-y-1">
+                <label class="sr-only" for="social-handle-${rowCount}">Social Handle or URL</label>
+                <input required id="social-handle-${rowCount}" name="socialHandle[]" type="text" placeholder="@username or handle" class="w-full p-4 rounded-2xl text-sm" onblur="extractSocialHandle(this)">
                 <button type="button" onclick="this.closest('.social-row').remove()" class="absolute -right-8 top-1/2 -translate-y-1/2 text-red-400 hover:text-white transition-all">
                     <i data-lucide="trash-2" class="w-4 h-4"></i>
                 </button>

@@ -177,13 +177,13 @@
                         </select>
                     </div>
                     <div class="space-y-2">
-                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Profile Registry Image</label>
+                        <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Profile Registry Image</p>
                         <div class="flex items-center gap-4">
                             <div id="upload-preview-container" class="w-12 h-12 rounded-xl bg-white/5 border border-white/10 overflow-hidden flex-shrink-0 flex items-center justify-center">
                                 <img id="upload-preview" src="" alt="Profile Preview" class="hidden w-full h-full object-cover">
                                 <i data-lucide="user" class="w-5 h-5 text-slate-700" id="preview-placeholder"></i>
                             </div>
-                            <label class="flex-1 p-4 rounded-2xl text-sm glass flex items-center justify-between cursor-pointer hover:bg-white/5 transition-all">
+                            <label for="profile-upload" class="flex-1 p-4 rounded-2xl text-sm glass flex items-center justify-between cursor-pointer hover:bg-white/5 transition-all">
                                 <span id="file-name-label" class="text-slate-500">Upload Passport (JPG/PNG)</span>
                                 <i data-lucide="upload" class="w-4 h-4 text-gold"></i>
                                 <input type="file" id="profile-upload" class="hidden" aria-label="Upload profile image" accept="image/*">
@@ -193,36 +193,36 @@
                 </div>
 
                 <div class="space-y-4">
-                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 text-center block">Initialize Your Mastery Avatar</label>
+                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 text-center block">Initialize Your Mastery Avatar</p>
                     <div class="grid grid-cols-4 md:grid-cols-10 gap-4 min-h-[100px] md:min-h-[50px]" id="avatar-grid">
                         <!-- Avatars will be injected here -->
                     </div>
-                    <input type="hidden" name="avatar" id="selected-avatar" value="https://api.dicebear.com/7.x/avataaars/svg?seed=1">
+                    <input type="hidden" name="avatar" id="selected-avatar" value="https://api.dicebear.com/7.x/avataaars/svg?seed=1" aria-label="Selected Avatar URL">
                 </div>
 
                 <div class="space-y-6 pt-4 border-t border-white/5">
                     <div class="flex items-center justify-between">
-                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Dashboard Architecture</label>
+                        <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Dashboard Architecture</p>
                         <span class="text-[8px] font-bold text-gold/40 uppercase tracking-widest">Select Core Structure</span>
                     </div>
                     <div class="grid grid-cols-2 md:grid-cols-5 gap-3" id="structure-grid">
-                        <div class="structure-card glass p-3 rounded-xl border border-white/5 cursor-pointer hover:border-gold/30 transition-all text-center active-structure" data-id="1">
+                        <div class="structure-card glass p-3 rounded-xl border border-white/5 cursor-pointer hover:border-gold/30 transition-all text-center active-structure" data-id="1" role="button" tabindex="0" aria-label="Select Bento Layout">
                             <p class="text-[8px] font-black uppercase tracking-widest">Bento</p>
                         </div>
-                        <div class="structure-card glass p-3 rounded-xl border border-white/5 cursor-pointer hover:border-gold/30 transition-all text-center" data-id="2">
+                        <div class="structure-card glass p-3 rounded-xl border border-white/5 cursor-pointer hover:border-gold/30 transition-all text-center" data-id="2" role="button" tabindex="0" aria-label="Select Dock Layout">
                             <p class="text-[8px] font-black uppercase tracking-widest">Dock</p>
                         </div>
-                        <div class="structure-card glass p-3 rounded-xl border border-white/5 cursor-pointer hover:border-gold/30 transition-all text-center" data-id="3">
+                        <div class="structure-card glass p-3 rounded-xl border border-white/5 cursor-pointer hover:border-gold/30 transition-all text-center" data-id="3" role="button" tabindex="0" aria-label="Select Nav Layout">
                             <p class="text-[8px] font-black uppercase tracking-widest">Nav</p>
                         </div>
-                        <div class="structure-card glass p-3 rounded-xl border border-white/5 cursor-pointer hover:border-gold/30 transition-all text-center" data-id="4">
+                        <div class="structure-card glass p-3 rounded-xl border border-white/5 cursor-pointer hover:border-gold/30 transition-all text-center" data-id="4" role="button" tabindex="0" aria-label="Select Side Layout">
                             <p class="text-[8px] font-black uppercase tracking-widest">Side</p>
                         </div>
-                        <div class="structure-card glass p-3 rounded-xl border border-white/5 cursor-pointer hover:border-gold/30 transition-all text-center" data-id="5">
+                        <div class="structure-card glass p-3 rounded-xl border border-white/5 cursor-pointer hover:border-gold/30 transition-all text-center" data-id="5" role="button" tabindex="0" aria-label="Select Split Layout">
                             <p class="text-[8px] font-black uppercase tracking-widest">Split</p>
                         </div>
                     </div>
-                    <input type="hidden" name="layout" id="selected-layout" value="1">
+                    <input type="hidden" name="layout" id="selected-layout" value="1" aria-label="Selected Dashboard Layout ID">
                 </div>
 
                 <button type="submit" id="reg-btn" aria-label="Start Your Mastery Journey" class="w-full bg-gold text-navy py-5 rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] shadow-2xl hover:bg-white transition-all flex items-center justify-center gap-2">
@@ -428,8 +428,12 @@
         const url = `https://api.dicebear.com/7.x/${style}/svg?seed=${seed}`;
         const div = document.createElement('div');
         div.className = `avatar-option w-full aspect-square rounded-xl glass flex items-center justify-center p-1 ${i === 1 ? 'selected' : ''}`;
-        div.innerHTML = `<img src="${url}" class="w-full h-full object-contain">`;
-        div.onclick = () => {
+        div.setAttribute('role', 'button');
+        div.setAttribute('tabindex', '0');
+        div.setAttribute('aria-label', `Select Avatar Option ${i}`);
+        div.innerHTML = `<img src="${url}" alt="Avatar Option ${i}" class="w-full h-full object-contain">`;
+        
+        const selectAvatar = () => {
             document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('selected'));
             div.classList.add('selected');
             selectedAvatarInput.value = url;
@@ -438,6 +442,14 @@
             uploadPreview.classList.add('hidden');
             document.getElementById('preview-placeholder')?.classList.remove('hidden');
         };
+
+        div.onclick = selectAvatar;
+        div.onkeydown = (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                selectAvatar();
+            }
+        };
         avatarGrid.appendChild(div);
     }
 
@@ -445,10 +457,17 @@
     const selectedLayoutInput = document.getElementById('selected-layout');
     
     document.querySelectorAll('.structure-card').forEach(card => {
-        card.onclick = () => {
+        const selectLayout = () => {
             document.querySelectorAll('.structure-card').forEach(c => c.classList.remove('active-structure'));
             card.classList.add('active-structure');
             selectedLayoutInput.value = card.dataset.id;
+        };
+        card.onclick = selectLayout;
+        card.onkeydown = (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                selectLayout();
+            }
         };
     });
 

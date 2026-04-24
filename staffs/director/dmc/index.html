@@ -32,6 +32,12 @@
     @keyframes slide-up { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     .animate-slide-up { animation: slide-up 0.8s ease-out forwards; }
     
+    /* Accessibility Focus States */
+    button:focus-visible, input:focus-visible, a:focus-visible {
+      outline: 2px solid #C9A84C;
+      outline-offset: 2px;
+    }
+    
     /* Staff Membership Card Styles */
     .staff-card {
       width: 420px;
@@ -309,12 +315,12 @@
               
               <div class="space-y-4">
                 <div>
-                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block">Display Name</label>
+                  <label for="card-name-input" class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block">Display Name</label>
                   <input type="text" id="card-name-input" value="${p.name || ''}" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl text-sm" placeholder="Your Name">
                 </div>
                 
                 <div>
-                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block">Avatar URL</label>
+                  <label for="card-photo-input" class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block">Avatar URL</label>
                   <input type="text" id="card-photo-input" value="${p.avatar || ''}" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl text-sm" placeholder="https://...">
                 </div>
                 
