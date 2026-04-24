@@ -1,6 +1,6 @@
 /**
  * SkillForge Core Engine (v2.1.0)
- * Unified Tracking, Identity, and Neural Sync
+ * Unified Tracking, Identity, and Registry Sync
  * Optimized for Security, Performance, and Multi-tab Synchronization
  */
 
@@ -10,7 +10,7 @@ import { db, auth } from './firebase-config.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
 // @ts-ignore
 import { doc, getDoc, setDoc, updateDoc, increment, serverTimestamp, addDoc, collection } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
-import { NeuralDebugger } from './neural-debugger.js';
+import { SystemDebugger } from './system-debugger.js';
 
 class SkillForgeCore {
     constructor() {
@@ -33,12 +33,12 @@ class SkillForgeCore {
         this.detectorInterval = null;
         
         // Master Tab Logic via BroadcastChannel
-        this.channel = new BroadcastChannel('sf_neural_link');
+        this.channel = new BroadcastChannel('sf_system_link');
         this.setupMasterTabLogic();
 
         // Content Protection: Hide content until authorized
         this.protectContent();
-        this.debugger = new NeuralDebugger(this);
+        this.debugger = new SystemDebugger(this);
         this.injectGlobalSupportHub();
     }
 
@@ -85,17 +85,17 @@ class SkillForgeCore {
 
         try {
             if (this.uid) {
-                console.log(`[NeuralCore] Cloud Session Verified: ${this.uid}`);
+                console.log(`[RegistryCore] Cloud Session Verified: ${this.uid}`);
                 await this.syncRegistryState();
                 await this.initRankEngine(); // Initialize Rank Engine
                 this.setupEngagementTracking(); // Initialize Analytics
                 this.startFaultDetector(); // Initialize Intelligent Fault Detection
             } else {
-                console.warn("[NeuralCore] Access Denied: No active cloud session.");
+                console.warn("[RegistryCore] Access Denied: No active cloud session.");
             }
         } catch (err) {
-            console.error("[NeuralCore] Error during initialization:", err);
-            if (window['sf_report_error']) window['sf_report_error']("NeuralCore Init Failed", err.stack);
+            console.error("[RegistryCore] Error during initialization:", err);
+            if (window['sf_report_error']) window['sf_report_error']("RegistryCore Init Failed", err.stack);
         } finally {
             this.revealContent();
             resolve();

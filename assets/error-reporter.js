@@ -165,7 +165,7 @@
   const copyBtn = document.getElementById('sf-copy-error');
   const closeBtn = document.getElementById('sf-close-error');
 
-  // NEURAL CONTEXT CAPTURE
+  // SYSTEM CONTEXT CAPTURE
   const actionBuffer = [];
   const maxActions = 10;
 
@@ -223,16 +223,16 @@
 
     if (errorMsg.includes("permissions")) {
       displayTitle = "Access Denied";
-      displayDesc = "Your neural connection does not have the required clearance for this registry node. This usually happens if you are signed out or your session has expired.";
+      displayDesc = "Your system connection does not have the required clearance for this registry node. This usually happens if you are signed out or your session has expired.";
     } else if (errorMsg.includes("Layout Engine")) {
       displayTitle = "Architecture Sync Failure";
-      displayDesc = "The system failed to render the requested layout structure. This may be due to a missing template or a neural sync interruption.";
+      displayDesc = "The system failed to render the requested layout structure. This may be due to a missing template or a registry sync interruption.";
     } else if (errorMsg.includes("auth")) {
       displayTitle = "Authentication Required";
       displayDesc = "Your identity could not be verified. Please return to the login center to restore your session.";
     }
 
-    const debugData = `--- SKILLFORGE NEURAL DIAGNOSTIC ---
+    const debugData = `--- SKILLFORGE SYSTEM DIAGNOSTIC ---
 Timestamp: ${timestamp}
 URL: ${url}
 User ID: ${uid}

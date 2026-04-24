@@ -126,7 +126,7 @@ class StaffCore {
             
             if (!hasAccess) {
                 console.error("[StaffCore] Access Denied: Insufficient Clearances.");
-                alert("Unauthorized: Your clearance level is insufficient for this command node.");
+                alert("Unauthorized: Your clearance level is insufficient for this system node.");
                 window.location.href = '/staffs/login/';
             }
         }

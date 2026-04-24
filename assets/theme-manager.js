@@ -36,7 +36,7 @@ class ThemeManager {
         
         // Zero-Refresh Engine (PJAX) Integration
         window.addEventListener('sf:turbo-render', () => {
-            console.log(`[ThemeManager] Neural Re-Sync: Performing Layout Hydration`);
+            console.log(`[ThemeManager] Registry Re-Sync: Performing Layout Hydration`);
             this.applyTheme(this.currentTheme);
             this.applyControls(this.controls);
         });

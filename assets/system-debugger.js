@@ -1,10 +1,10 @@
 /**
- * SKILLFORGE NEURAL DEBUGGER
+ * SKILLFORGE SYSTEM DEBUGGER
  * Enterprise-grade real-time code inspection and state visualization overlay.
  * Toggle: Ctrl + Shift + D
  */
 
-export class NeuralDebugger {
+export class SystemDebugger {
     constructor(core) {
         if (window['_neuralDebugger']) return;
         window['_neuralDebugger'] = this;
@@ -20,7 +20,7 @@ export class NeuralDebugger {
 
     initUI() {
         this.panel = document.createElement('div');
-        this.panel.id = 'neural-debugger-panel';
+        this.panel.id = 'system-debugger-panel';
         this.panel.style.cssText = `
             position: fixed; top: 20px; right: 20px; width: 400px; max-height: 80vh;
             background: rgba(4, 8, 16, 0.95); backdrop-filter: blur(20px);
@@ -34,7 +34,7 @@ export class NeuralDebugger {
             <div style="padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;">
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <div style="width: 8px; height: 8px; background: #f59e0b; border-radius: 50%; box-shadow: 0 0 10px #f59e0b;"></div>
-                    <span style="font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #f59e0b;">Neural Debugger v2.2</span>
+                    <span style="font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #f59e0b;">System Debugger v2.2</span>
                 </div>
                 <button id="nd-close" style="background: none; border: none; color: #666; cursor: pointer; font-size: 16px;">&times;</button>
             </div>
@@ -47,7 +47,7 @@ export class NeuralDebugger {
             <div id="nd-content" style="flex: 1; overflow-y: auto; padding: 20px; font-size: 11px;">
                 <div id="nd-tab-state">
                     <div class="nd-group" style="margin-bottom: 20px;">
-                        <p style="display: block; color: #444; font-size: 8px; text-transform: uppercase; margin-bottom: 8px;">Identity Core</p>
+                        <p style="display: block; color: #444; font-size: 8px; text-transform: uppercase; margin-bottom: 8px;">Identity Registry</p>
                         <div id="nd-uid" style="color: #ccc; margin-bottom: 4px;">UID: Loading...</div>
                         <div id="nd-sfid" style="color: #ccc; margin-bottom: 4px;">SFID: Loading...</div>
                         <div id="nd-tier" style="color: #f59e0b; font-weight: 900;">TIER: Loading...</div>
@@ -58,7 +58,7 @@ export class NeuralDebugger {
                         <div id="nd-layout" style="color: #ccc;">LAYOUT: Loading...</div>
                     </div>
                     <div class="nd-group">
-                        <p style="display: block; color: #444; font-size: 8px; text-transform: uppercase; margin-bottom: 8px;">Engagement Pulse</p>
+                        <p style="display: block; color: #444; font-size: 8px; text-transform: uppercase; margin-bottom: 8px;">Engagement Activity</p>
                         <div id="nd-engagement" style="color: #ccc; margin-bottom: 4px;">SCORE: 0.00</div>
                         <div id="nd-active-sec" style="color: #ccc;">UPTIME: 0s</div>
                     </div>
@@ -78,7 +78,7 @@ export class NeuralDebugger {
                 </div>
                 <div id="nd-tab-patch" style="display: none;">
                     <div class="nd-group">
-                        <label for="nd-patch-input" style="display: block; color: #444; font-size: 8px; text-transform: uppercase; margin-bottom: 8px;">Neural Override Console</label>
+                        <label for="nd-patch-input" style="display: block; color: #444; font-size: 8px; text-transform: uppercase; margin-bottom: 8px;">System Override Console</label>
                         <p style="font-size: 8px; color: #666; margin-bottom: 10px;">Direct document injection. Use with caution. Format: JSON</p>
                         <textarea id="nd-patch-input" style="width: 100%; height: 120px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: #10b981; font-family: 'JetBrains Mono', monospace; font-size: 9px; padding: 10px; outline: none; resize: none;" placeholder='{ "level": 2, "onboardingComplete": true }'></textarea>
                         <button id="nd-apply-patch" style="width: 100%; margin-top: 10px; padding: 12px; background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 12px; font-size: 9px; font-weight: 900; text-transform: uppercase; cursor: pointer;">Commit Live Patch</button>
@@ -154,7 +154,7 @@ export class NeuralDebugger {
             const traineeRef = doc(this.core.db, 'trainees', this.core.uid);
             await updateDoc(traineeRef, patch);
 
-            this.logEvent('SUCCESS', 'Neural patch committed to registry');
+            this.logEvent('SUCCESS', 'System patch committed to registry');
             
             // Re-sync local state
             await this.core.syncRegistryState();
@@ -180,10 +180,10 @@ export class NeuralDebugger {
         if (!btn) return;
         
         const originalText = btn.innerText;
-        btn.innerText = "REPAIRING NEURAL LINK...";
+        btn.innerText = "REPAIRING SYSTEM CONNECTION...";
         btn.disabled = true;
 
-        this.logEvent('SYSTEM', 'Initiating neural auto-repair sequence...');
+        this.logEvent('SYSTEM', 'Initiating system auto-repair sequence...');
 
         try {
             // 1. Force Registry Re-Sync
@@ -205,7 +205,7 @@ export class NeuralDebugger {
 
             // 3. Lucide Icon Refresh
             if (window['lucide']) {
-                this.logEvent('SYSTEM', 'Re-hydrating neural icons...');
+                this.logEvent('SYSTEM', 'Re-hydrating system icons...');
                 window['lucide'].createIcons();
             }
 
@@ -216,7 +216,7 @@ export class NeuralDebugger {
             // 5. Verification Scan
             await this.runDiagnostics();
             
-            this.logEvent('SUCCESS', 'Neural auto-repair complete. Integrity restored.');
+            this.logEvent('SUCCESS', 'System auto-repair complete. Integrity restored.');
             btn.style.background = 'rgba(16, 185, 129, 0.2)';
             btn.innerText = "INTEGRITY RESTORED";
         } catch (err) {
@@ -234,7 +234,7 @@ export class NeuralDebugger {
     async generateReport() {
         const output = document.getElementById('nd-report-output');
         output.style.display = 'block';
-        output.innerText = "FORGING NEURAL REPORT...";
+        output.innerText = "FORGING SYSTEM REPORT...";
 
         const state = this.core.registryState || {};
         const report = {
@@ -262,7 +262,7 @@ export class NeuralDebugger {
         
         try {
             await navigator.clipboard.writeText(reportStr);
-            this.logEvent('SYSTEM', 'Neural report copied to clipboard');
+            this.logEvent('SYSTEM', 'System report copied to clipboard');
         } catch (e) {
             this.logEvent('WARN', 'Failed to copy report to clipboard');
         }
@@ -342,10 +342,10 @@ export class NeuralDebugger {
 
         // 4. Performance Check
         const fps = parseInt(document.getElementById('nd-fps').innerText);
-        if (fps < 30) faults.push("NEURAL LATENCY DETECTED (<30 FPS)");
+        if (fps < 30) faults.push("SYSTEM LATENCY DETECTED (<30 FPS)");
 
         // 5. Network Connectivity
-        if (!navigator.onLine) faults.push("OFFLINE: NEURAL DISCONNECT");
+        if (!navigator.onLine) faults.push("OFFLINE: SYSTEM DISCONNECT");
 
         // 6. Security & Policy (CSP/HTTPS)
         if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
@@ -387,7 +387,7 @@ export class NeuralDebugger {
         this.panel.style.display = this.enabled ? 'flex' : 'none';
         if (this.enabled) {
             this.fpsLoop();
-            this.logEvent('DEBUGGER_ACTIVE', 'Neural inspection layer enabled');
+            this.logEvent('DEBUGGER_ACTIVE', 'System inspection layer enabled');
         }
     }
 

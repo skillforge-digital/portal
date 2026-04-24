@@ -1,6 +1,6 @@
 /**
  * SkillForge RBAC Configuration (v3.0.0)
- * Defines the permission matrix for cumulative roles.
+ * Defines the permission structure for cumulative roles.
  */
 
 export const ROLES = {

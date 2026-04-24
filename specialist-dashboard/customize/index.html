@@ -7,7 +7,7 @@
 <script>
   (function() { document.documentElement.style.visibility = 'hidden'; })();
 </script>
-<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="../../assets/style.css">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;700&family=Caveat:wght@400;700&family=Unbounded:wght@400;700&family=Inter:wght@400;700&family=Playfair+Display:wght@400;700&family=Outfit:wght@400;700&family=Syne:wght@400;700&family=Lexend:wght@400;700&family=Plus+Jakarta+Sans:wght@400;700&family=Cinzel:wght@400;700&family=Montserrat:wght@400;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <script>
@@ -148,7 +148,7 @@ tailwind.config = {
           </div>
           <div class="space-y-8">
             <div class="flex items-center justify-between">
-              <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">Atmospheric Neural Gradients</h2>
+              <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">Atmospheric System Gradients</h2>
               <span class="text-[8px] font-bold text-gold-500 bg-gold-500/10 px-3 py-1 rounded-full uppercase">Gradients</span>
             </div>
             <div class="grid grid-cols-3 md:grid-cols-5 gap-5" id="gradient-grid"></div>
@@ -166,7 +166,7 @@ tailwind.config = {
         <!-- Fonts Tab -->
         <section id="section-fonts" class="hidden space-y-12">
           <div class="space-y-8">
-            <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">15 Premium Neural Typography</h2>
+            <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">15 Premium System Typography</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="font-grid"></div>
           </div>
         </section>
@@ -177,7 +177,7 @@ tailwind.config = {
         <div class="glass p-10 rounded-[48px] sticky top-24 space-y-10">
           <div class="space-y-2">
             <h3 class="text-[11px] font-black uppercase tracking-[0.5em] text-gold-500">Design Identity</h3>
-            <p class="text-[9px] text-white/30 uppercase tracking-widest">Active Neural Profile</p>
+            <p class="text-[9px] text-white/30 uppercase tracking-widest">Active System Profile</p>
           </div>
           
           <div class="p-8 rounded-[32px] bg-white/5 border border-white/5 space-y-6 overflow-hidden relative group" id="preview-box">
@@ -188,7 +188,7 @@ tailwind.config = {
               <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden shadow-inner">
                 <div class="h-full bg-gold-500 w-2/3 transition-all duration-1000" id="preview-bar"></div>
               </div>
-              <p class="text-[8px] font-bold text-white/20 uppercase mt-4 tracking-[0.2em]">Neural Registry Sync Active</p>
+              <p class="text-[8px] font-bold text-white/20 uppercase mt-4 tracking-[0.2em]">System Registry Sync Active</p>
             </div>
           </div>
 
@@ -522,13 +522,13 @@ window.saveDesign = async () => {
       theme: finalTheme
     });
     
-    btn.innerText = "Atmosphere Saved";
+    btn.innerText = "Atmosphere Structure Saved";
     setTimeout(() => {
-      btn.innerText = "Save Atmosphere Matrix";
+      btn.innerText = "Save Atmosphere Structure";
       btn.disabled = false;
     }, 2000);
 
-    alert("Atmosphere Saved. Your command center matrix is now active.");
+    alert("Atmosphere Saved. Your command center is now active.");
 
   } catch (err) {
     console.error('[Design Studio] Save failed:', err);

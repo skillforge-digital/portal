@@ -1,12 +1,12 @@
-﻿/**
+/**
  * SkillForge GPU-Accelerated Atmosphere (v1.0.0)
  * Three.js Instanced Particles for High-Performance Visuals
  */
 
-class NeuralAtmosphere3D {
+class Atmosphere3D {
     constructor() {
         this.container = document.createElement('div');
-        this.container.id = 'neural-atmosphere-3d';
+        this.container.id = 'dynamic-atmosphere-3d';
         this.container.style.cssText = 'position:fixed; inset:0; z-index:-1; pointer-events:none; opacity:0.4;';
         document.body.prepend(this.container);
 
@@ -27,7 +27,7 @@ class NeuralAtmosphere3D {
         window.addEventListener('resize', () => this.onResize());
         this.animate();
         
-        console.log("[Neural3D] GPU Atmosphere Initialized");
+        console.log("[Atmosphere3D] GPU Atmosphere Initialized");
     }
 
     initParticles() {
@@ -84,14 +84,14 @@ class NeuralAtmosphere3D {
 // Initialize when Three.js is ready
 window.addEventListener('load', () => {
     if (window.THREE) {
-        window.neural3D = new NeuralAtmosphere3D();
+        window.atmosphere3D = new Atmosphere3D();
     }
 });
 
 // Turbo Re-Sync
 window.addEventListener('turbo:load', () => {
-    if (window.neural3D) {
-        window.neural3D.onResize();
+    if (window.atmosphere3D) {
+        window.atmosphere3D.onResize();
     }
 });
 

@@ -52,14 +52,14 @@ class SkillForgeTurbo {
             this.navigate(window.location.pathname + window.location.search + window.location.hash, false);
         });
 
-        console.log("[Turbo] Engine Initialized & Monitoring Neural Links");
+        console.log("[Turbo] Engine Initialized & Monitoring Navigation Links");
     }
 
     async navigate(url, pushState = true) {
         if (this.isNavigating) return;
         this.isNavigating = true;
 
-        console.log(`[Turbo] Syncing Node: ${url}`);
+        console.log(`[Turbo] Syncing Page: ${url}`);
         this.showProgressBar();
 
         try {
@@ -137,7 +137,7 @@ class SkillForgeTurbo {
 
         } catch (err) {
             if (err.name !== 'AbortError') {
-                console.error("[Turbo] Neural Stale Detected. Refreshing context...", err);
+                console.error("[Turbo] Page Sync Failure. Refreshing context...", err);
                 // On 404 or other errors, let the browser handle it (which will show our new 404.html)
                 window.location.href = url;
             }
@@ -147,7 +147,7 @@ class SkillForgeTurbo {
     }
 
     async rehydrate(newDoc) {
-        console.log("[Turbo] Re-hydrating Neural Matrix...");
+        console.log("[Turbo] Re-hydrating Registry Matrix...");
 
         // A. Re-execute Page-Specific Scripts
         const mainOrBody = document.querySelector('main') || document.body;

@@ -34,21 +34,10 @@
     }, 3000);
   })();
 </script>
+<link rel="stylesheet" href="../../assets/style.css">
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;700&family=Caveat:wght@400;700&family=Unbounded:wght@400;700&family=Inter:wght@400;700&family=Playfair+Display:wght@400;700&family=Outfit:wght@400;700&family=Syne:wght@400;700&family=Lexend:wght@400;700&family=Plus+Jakarta+Sans:wght@400;700&family=Cinzel:wght@400;700&family=Montserrat:wght@400;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<script>
-tailwind.config = {
-  theme: {
-    extend: {
-      colors: {
-        navy: { 950:'#040810', 900:'#070d1a', 800:'#0c1829', 700:'#112240', 600:'#1a3358' },
-        gold: { 300:'#fcd34d', 400:'#fbbf24', 500:'#f59e0b', 600:'#d97706', 700:'#b45309' },
-      }
-    }
-  }
-}
-</script>
 <style>
   :root { --font-main: 'Space Grotesk', sans-serif; --accent-color: #f59e0b; --accent-color-rgb: 245, 158, 11; }
   * { font-family: var(--font-main); transition: all 0.3s ease; }
@@ -208,7 +197,7 @@ tailwind.config = {
     <div class="w-16 h-16 border-4 border-gold-500/20 border-t-gold-500 rounded-full animate-spin"></div>
     <div class="text-center">
       <p class="text-[10px] font-black uppercase tracking-[0.5em] text-gold-400">Loading Studio</p>
-      <p class="text-[8px] text-white/20 uppercase tracking-[0.3em] mt-2">Please wait, preparing design matrix...</p>
+      <p class="text-[8px] text-white/20 uppercase tracking-[0.3em] mt-2">Please wait, preparing design layout...</p>
     </div>
   </div>
 </div>
@@ -332,7 +321,7 @@ tailwind.config = {
           </div>
           <div class="space-y-4">
             <div class="flex items-center justify-between">
-              <h3 class="text-sm font-black uppercase tracking-[0.3em] text-white/40">Atmospheric Neural Gradients</h3>
+              <h3 class="text-sm font-black uppercase tracking-[0.3em] text-white/40">Atmospheric System Gradients</h3>
               <span class="px-3 py-1 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-400 text-[8px] font-black uppercase tracking-widest">Gradients</span>
             </div>
             <div id="gradient-grid" class="grid-container glass-strong rounded-[40px]" aria-label="Gradient Selection">
@@ -352,7 +341,7 @@ tailwind.config = {
         <!-- Fonts Tab -->
         <section id="section-fonts" class="hidden space-y-12" role="tabpanel" aria-labelledby="tab-fonts">
           <div class="space-y-8">
-            <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">15 Premium Neural Typography</h2>
+            <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">15 Premium System Typography</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="font-grid" aria-label="Font Selection"></div>
           </div>
         </section>
@@ -363,7 +352,7 @@ tailwind.config = {
         <div class="glass p-10 rounded-[48px] sticky top-24 space-y-10">
           <div class="space-y-2">
             <h3 class="text-[11px] font-black uppercase tracking-[0.5em] text-gold-500">Design Identity</h3>
-            <p class="text-[9px] text-white/30 uppercase tracking-widest">Active Neural Profile</p>
+            <p class="text-[9px] text-white/30 uppercase tracking-widest">Active System Profile</p>
           </div>
           
           <div class="p-8 rounded-[32px] bg-white/5 border border-white/5 space-y-6 overflow-hidden relative group" id="preview-box">
@@ -374,7 +363,7 @@ tailwind.config = {
               <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden shadow-inner">
                 <div class="h-full bg-gold-500 w-2/3 transition-all duration-1000" id="preview-bar"></div>
               </div>
-              <p class="text-[8px] font-bold text-white/20 uppercase mt-4 tracking-[0.2em]">Neural Registry Sync Active</p>
+              <p class="text-[8px] font-bold text-white/20 uppercase mt-4 tracking-[0.2em]">System Registry Sync Active</p>
             </div>
           </div>
 
@@ -391,7 +380,7 @@ tailwind.config = {
 
             <div class="w-full glass-strong p-6 rounded-3xl flex items-center justify-between cursor-pointer hover:bg-white/10 transition-all group relative">
               <div class="flex flex-col">
-                <p class="text-[10px] font-black uppercase tracking-widest text-white/60">Upload Neural Skin</p>
+                <p class="text-[10px] font-black uppercase tracking-widest text-white/60">Upload System Skin</p>
                 <p class="text-[8px] font-bold text-white/20 uppercase mt-1">JPG / PNG / WEBP Assets</p>
               </div>
               <label for="wallpaper-upload" class="w-12 h-12 rounded-2xl bg-gold-500/10 flex items-center justify-center text-gold-500 group-hover:bg-gold-500 group-hover:text-navy-950 transition-all shadow-lg cursor-pointer">
@@ -403,7 +392,7 @@ tailwind.config = {
 
           <div class="grid grid-cols-1 gap-4">
             <button type="button" onclick="saveDesign()" id="save-btn" class="w-full bg-gold-500 text-navy-950 py-7 rounded-[32px] font-black uppercase text-[11px] tracking-[0.4em] shadow-4K hover:bg-white hover:scale-[1.02] active:scale-[0.98] transition-all">
-              Save Atmosphere Matrix
+              Save Atmosphere Structure
             </button>
             <button type="button" onclick="restoreDefaults()" class="w-full py-4 rounded-2xl bg-white/5 text-white/20 text-[9px] font-black uppercase tracking-widest hover:text-red-400 hover:bg-red-400/10 transition-all border border-white/5">
               Restore Default State

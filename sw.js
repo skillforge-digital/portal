@@ -1,9 +1,9 @@
 /**
- * SkillForge Offline Matrix (v1.1.0)
+ * SkillForge Offline Registry (v1.1.0)
  * Service Worker for Offline Access
  */
 
-const CACHE_NAME = 'sf-neural-matrix-v2';
+const CACHE_NAME = 'sf-registry-matrix-v2';
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
@@ -35,7 +35,7 @@ const EXTERNAL_ASSETS = [
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
-            console.log('[OfflineMatrix] Archiving core assets to local cache');
+            console.log('[OfflineRegistry] Archiving core assets to local cache');
             // Cache internal assets first
             const cacheInternal = cache.addAll(ASSETS_TO_CACHE);
             
@@ -44,7 +44,7 @@ self.addEventListener('install', (event) => {
                 EXTERNAL_ASSETS.map(url => 
                     fetch(url, { mode: 'no-cors' })
                         .then(response => cache.put(url, response))
-                        .catch(err => console.warn(`[OfflineMatrix] Failed to cache external asset: ${url}`, err))
+                        .catch(err => console.warn(`[OfflineRegistry] Failed to cache external asset: ${url}`, err))
                 )
             );
 

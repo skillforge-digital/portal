@@ -14,25 +14,11 @@
     }, 3000);
   })();
 </script>
+<link rel="stylesheet" href="../../assets/style.css">
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;700&family=Caveat:wght@400;700&family=Unbounded:wght@400;700&family=Inter:wght@400;700&family=Playfair+Display:wght@400;700&family=Outfit:wght@400;700&family=Syne:wght@400;700&family=Lexend:wght@400;700&family=Plus+Jakarta+Sans:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<script>
-tailwind.config = {
-  theme: {
-    extend: {
-      fontFamily: { 
-        grotesk: ['Space Grotesk', 'sans-serif'],
-        serif: ['Instrument Serif', 'serif']
-      },
-      colors: {
-        navy: { 950:'#040810', 900:'#070d1a', 800:'#0c1829', 700:'#112240', 600:'#1a3358' },
-        gold: { 300:'#fcd34d', 400:'#fbbf24', 500:'#f59e0b', 600:'#d97706', 700:'#b45309' },
-      }
-    }
-  }
-}
-</script>
+ 
 <style>
   :root { 
     --font-main: 'Space Grotesk', sans-serif;
@@ -358,10 +344,7 @@ window.toggleSidebar = () => {
   sidebar.classList.toggle('-translate-x-full');
 };
 
-// Re-hydration for Turbo
-window.addEventListener('sf:turbo-render', () => {
-    loadLeaderboard();
-});
+ 
 </script>
   <script type="module" src="../../assets/sf-core.js"></script>
   <script type="module" src="../../assets/sf-turbo.js"></script>

@@ -17,7 +17,7 @@
   <meta property="twitter:image" content="https://i.postimg.cc/fRYD4HSw/Whats-App-Image-2026-01-16-at-1-20-06-PM.jpg">
 
   <title>Academy Registration • SkillForge Digital & Co. Ltd</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../assets/style.css">
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -32,8 +32,10 @@
     })();
   </script>
 </head>
-<script>
+<script src="https://cdn.tailwindcss.com"></script>
+  <script>
     tailwind.config = {
+      darkMode: 'class',
       theme: {
         extend: {
           colors: {
@@ -87,6 +89,11 @@
         <a href="https://skillforgedigital.com.ng/" aria-label="Back to Gateway" class="inline-flex items-center gap-2 text-gold font-black text-[10px] uppercase tracking-[0.3em] mb-6 md:mb-8 hover:text-white transition-all">
             <i data-lucide="arrow-left" class="w-3 h-3"></i> Back to Gateway
         </a>
+        <div class="flex flex-col items-center gap-6 mb-8">
+            <div class="w-20 h-20 rounded-3xl bg-black border border-gold/20 flex items-center justify-center shadow-2xl overflow-hidden">
+                <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" alt="SF" class="w-full h-full object-cover">
+            </div>
+        </div>
         <h1 class="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter">Academy Registry</h1>
         <p class="text-slate-500 text-[10px] md:text-xs font-black uppercase tracking-[0.4em]">Secure Onboarding Journey</p>
     </header>
@@ -177,7 +184,7 @@
                         </select>
                     </div>
                     <div class="space-y-2">
-                        <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Profile Registry Image</p>
+                        <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Registry Profile Identity</p>
                         <div class="flex items-center gap-4">
                             <div id="upload-preview-container" class="w-12 h-12 rounded-xl bg-white/5 border border-white/10 overflow-hidden flex-shrink-0 flex items-center justify-center">
                                 <img id="upload-preview" src="" alt="Profile Preview" class="hidden w-full h-full object-cover">
@@ -193,7 +200,7 @@
                 </div>
 
                 <div class="space-y-4">
-                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 text-center block">Initialize Your Mastery Avatar</p>
+                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 text-center block">Initialize Your Registry Identity</p>
                     <div class="grid grid-cols-4 md:grid-cols-10 gap-4 min-h-[100px] md:min-h-[50px]" id="avatar-grid">
                         <!-- Avatars will be injected here -->
                     </div>
@@ -313,13 +320,13 @@
                 <i data-lucide="check-circle-2" class="w-12 h-12"></i>
             </div>
             <div class="space-y-2">
-                <h2 class="text-4xl font-black text-white uppercase tracking-tighter">Mastery Initialization Complete</h2>
+                <h2 class="text-4xl font-black text-white uppercase tracking-tighter">Registration Confirmed</h2>
                 <p id="final-sfid" class="text-gold font-black text-2xl tracking-[0.3em] uppercase"></p>
             </div>
             <div class="p-8 bg-white/5 rounded-3xl border border-white/10 max-w-sm mx-auto">
-                <p class="text-[10px] font-black text-slate-500 uppercase mb-4 tracking-widest">Academy Master Key</p>
+                <p class="text-[10px] font-black text-slate-500 uppercase mb-4 tracking-widest">Academy Access Code</p>
                 <p id="final-pin" class="text-3xl font-black text-white tracking-[0.5em] mb-4">******</p>
-                <p class="text-[8px] text-slate-600 font-bold uppercase tracking-widest">Use this Master Key to access your Trainee Command Center</p>
+                <p class="text-[8px] text-slate-600 font-bold uppercase tracking-widest">Use this Access Code to access your Trainee Center</p>
             </div>
             <a href="../trainee-login/index.html" class="inline-flex items-center gap-3 bg-gold text-navy px-12 py-5 rounded-2xl font-black uppercase text-xs tracking-widest shadow-2xl hover:bg-white transition-all">
                 Enter Academy Center <i data-lucide="shield-check" class="w-4 h-4"></i>

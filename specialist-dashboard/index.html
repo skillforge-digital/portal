@@ -10,7 +10,7 @@
     document.documentElement.style.visibility = 'hidden';
   })();
 </script>
-<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="../assets/style.css">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <script>
@@ -102,7 +102,7 @@ tailwind.config = {
           <p class="text-xl font-bold text-gold-400" id="pending-count">0</p>
         </div>
         <div class="glass px-6 py-3 rounded-2xl border border-white/5">
-          <p class="text-[8px] font-black text-white/30 uppercase tracking-widest">Active Pulse</p>
+          <p class="text-[8px] font-black text-white/30 uppercase tracking-widest">Active Presence</p>
           <p class="text-xl font-bold text-gold-400" id="active-pulse">0</p>
         </div>
       </div>
@@ -113,7 +113,7 @@ tailwind.config = {
       <div class="lg:col-span-2 space-y-8">
         <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">Inbound Mastery Validation Requests</h2>
         <div id="requests-grid" class="grid grid-cols-1 gap-4">
-          <div class="glass p-12 text-center text-white/20 italic">Scanning for neural validation requests...</div>
+          <div class="glass p-12 text-center text-white/20 italic">Scanning for identity validation requests...</div>
         </div>
       </div>
       <div class="space-y-8">
@@ -142,9 +142,9 @@ tailwind.config = {
         </div>
       </div>
       <div class="glass-strong rounded-[40px] p-10 border border-white/5">
-        <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40 mb-8">Active Track Presence</h2>
+        <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40 mb-8">Active Track Activity</h2>
         <div id="active-trainees-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div class="glass p-8 text-center text-white/20 italic col-span-full">No active neural pulses detected in your track.</div>
+          <div class="glass p-8 text-center text-white/20 italic col-span-full">No active members detected in your track.</div>
         </div>
       </div>
     </div>
@@ -315,7 +315,7 @@ function initDashboard() {
         }
         document.getElementById('active-pulse').innerText = activeCount;
         if (activeCount === 0) {
-            list.innerHTML = '<div class="glass p-8 text-center text-white/20 italic col-span-full">No active neural pulses detected in your track.</div>';
+            list.innerHTML = '<div class="glass p-8 text-center text-white/20 italic col-span-full">No active members detected in your track.</div>';
         }
     });
   }

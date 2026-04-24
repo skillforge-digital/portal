@@ -20,10 +20,11 @@
     <meta property="twitter:image" content="https://i.postimg.cc/fRYD4HSw/Whats-App-Image-2026-01-16-at-1-20-06-PM.jpg">
 
     <title>SkillForge Digital • Official Trainee Portal</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="./assets/style.css">
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -43,10 +44,10 @@
         import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
         import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 
-        // Global Redirect Engine: Sends logged-in users to their correct Command Center
+        // Global Registry Router: Sends logged-in users to their correct Academy Center
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                console.log("[RedirectEngine] Active session detected. Determining destination...");
+                console.log("[RegistryRouter] Active session detected. Determining destination...");
                 
                 // Wait for page to breathe
                 await new Promise(r => setTimeout(r, 2000));
@@ -67,7 +68,7 @@
                     };
                     const target = DASHBOARD_MAP[data.primaryRole] || '/staffs/specialist/';
                     
-                    redirectBtn.innerText = "Launch Command Center";
+                    redirectBtn.innerText = "Launch System Center";
                     redirectBtn.onclick = () => window.location.href = target;
                     redirectBtn.classList.remove('hidden');
                     return;
@@ -76,7 +77,7 @@
                 // 2. Check Trainee Registry
                 const traineeSnap = await getDoc(doc(db, 'trainees', user.uid));
                 if (traineeSnap.exists()) {
-                    redirectBtn.innerText = "Return to Dashboard";
+                    redirectBtn.innerText = "Launch Academy Center";
                     redirectBtn.onclick = () => window.location.href = '/trainee-dashboard/';
                     redirectBtn.classList.remove('hidden');
                     return;
@@ -130,8 +131,8 @@
     <nav class="h-24 px-6 md:px-20 flex items-center justify-between border-b border-white/5 glass sticky top-0 z-[100]">
         <div class="flex items-center gap-3">
             <a href="/" class="flex items-center gap-3 group">
-                <div class="w-10 h-10 rounded-xl border border-gold/30 group-hover:border-gold transition-all flex items-center justify-center bg-gold/10">
-                    <i class="fa-solid fa-shield-halved text-gold"></i>
+                <div class="w-10 h-10 rounded-xl border border-gold/30 group-hover:border-gold transition-all flex items-center justify-center bg-black overflow-hidden shadow-lg">
+                    <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" alt="SF" class="w-full h-full object-cover">
                 </div>
                 <div class="flex flex-col leading-none">
                     <span class="font-black text-lg md:text-xl tracking-tighter uppercase group-hover:text-gold transition-all">SkillForge</span>

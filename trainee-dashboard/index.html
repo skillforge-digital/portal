@@ -20,10 +20,11 @@
       });
     })();
   </script>
-<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="../assets/style.css">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;700&family=Caveat:wght@400;700&family=Unbounded:wght@400;700&family=Inter:wght@400;700&family=Playfair+Display:wght@400;700&family=Outfit:wght@400;700&family=Syne:wght@400;700&family=Lexend:wght@400;700&family=Plus+Jakarta+Sans:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
 <script>
 tailwind.config = {
   theme: {
@@ -923,13 +924,13 @@ tailwind.config = {
         <p class="text-[10px] font-black text-white/30 uppercase tracking-[0.4em] px-4">Diagnostics</p>
         <div class="glass rounded-3xl p-6 space-y-4" id="problems_and_diagnostics">
           <div class="flex items-center justify-between">
-            <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.3em]">Neural Integrity</p>
+            <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.3em]">Registry Integrity</p>
             <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse" id="diag-integrity-pulse"></span>
           </div>
           <div class="space-y-2" id="diag-faults-container">
-            <p class="text-[10px] font-bold text-white/40 italic">Scanning neural links...</p>
+            <p class="text-[10px] font-bold text-white/40 italic">Scanning connections...</p>
           </div>
-          <button onclick="window._neuralDebugger?.toggle()" class="w-full py-3 bg-white/5 border border-white/10 rounded-xl text-[8px] font-black uppercase tracking-widest hover:bg-gold-500 hover:text-navy transition-all">Open Neural Debugger</button>
+          <button onclick="window._neuralDebugger?.toggle()" class="w-full py-3 bg-white/5 border border-white/10 rounded-xl text-[8px] font-black uppercase tracking-widest hover:bg-gold-500 hover:text-navy transition-all">Open System Debugger</button>
         </div>
 
         <p class="text-[10px] font-black text-white/30 uppercase tracking-[0.4em] px-4">Certification</p>
@@ -1035,16 +1036,23 @@ function updateDiagnostics() {
   const pulse = document.getElementById('diag-integrity-pulse');
   const core = window['_sfCore'];
 
-  if (!container || !core) return;
+  if (!container) return;
 
-  const faults = core.faults || [];
+  // Use sf-core if available, otherwise fallback to local checks
+  const faults = core ? (core.faults || []) : [];
+  
+  // Real-time Auth Check
+  if (!auth.currentUser) {
+    faults.push({ type: 'CRITICAL', msg: 'Identity unlinked. Registry sync suspended.', code: 'AUTH_OFFLINE' });
+  }
+
   if (faults.length === 0) {
-    container.innerHTML = `<p class="text-[10px] font-bold text-green-400/60 uppercase tracking-widest">Neural Link Optimal</p>`;
-    pulse.className = "w-2 h-2 bg-green-500 rounded-full animate-pulse";
+    container.innerHTML = `<p class="text-[10px] font-bold text-green-400/60 uppercase tracking-widest">Registry Integrity Optimal</p>`;
+    if (pulse) pulse.className = "w-2 h-2 bg-green-500 rounded-full animate-pulse";
   } else {
-    pulse.className = "w-2 h-2 bg-red-500 rounded-full animate-pulse";
+    if (pulse) pulse.className = "w-2 h-2 bg-red-500 rounded-full animate-pulse";
     container.innerHTML = faults.map(f => `
-      <div class="flex items-start gap-2">
+      <div class="flex items-start gap-2 animate-pulse">
         <span class="text-[8px] font-black ${f.type === 'CRITICAL' ? 'text-red-500' : 'text-orange-500'} uppercase">[${f.type}]</span>
         <p class="text-[9px] font-bold text-white/60 leading-tight">${f.msg}</p>
       </div>
@@ -1059,12 +1067,17 @@ function updateUI(data, permissions) {
    document.querySelectorAll('.sfid-display-target').forEach(el => el.innerText = data.sfid || 'SFID-PENDING');
    document.querySelectorAll('.passkey-target').forEach(el => el.innerText = data.pin || data.roleCode || 'XXXXXX');
    
-   // Update Diagnostics
-   updateDiagnostics();
-   
    // Update Role Badges
    const roleDisplay = (data.roles || ['Trainee']).join(' | ');
    document.querySelectorAll('.profile-track-target').forEach(el => el.innerText = roleDisplay);
+ 
+   // Update Diagnostics
+   updateDiagnostics();
+   
+   // Run diagnostics every 60 seconds to catch drift
+   if (!window._diagInterval) {
+     window._diagInterval = setInterval(updateDiagnostics, 60000);
+   }
  
    // Dynamic Sidebar Links based on RBAC
    const sidebarNav = document.querySelector('#main-sidebar nav');
@@ -1491,6 +1504,7 @@ window.addEventListener('sf:turbo-render', () => {
         updateUI(dashboardState.userData, dashboardState.permissions);
         updateNeuralResume(dashboardState.userData);
         loadNewsTicker();
+        updateDiagnostics(); // Explicitly call diagnostics on re-render
     }
 });
 
