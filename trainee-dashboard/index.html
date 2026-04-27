@@ -5,6 +5,45 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; img-src 'self' data: https: blob:; font-src 'self' https: data:; style-src 'self' https: 'unsafe-inline'; script-src 'self' https: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https: wss:;">
 <title>SkillForge Digital — Academy Center</title>
+
+  <!-- Advanced SEO Search Magnets -->
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="description" content="SkillForge Digital Portal - Access your Mastery Dashboard, track your XP, and connect with your cohort.">
+  <meta name="keywords" content="SkillForge Portal, Trainee Dashboard, Tech Academy Login, Student Portal, Mastery Hub, Digital Skills Nigeria">
+  <meta name="author" content="SkillForge Digital & Co. Ltd">
+  
+  <!-- Open Graph / Facebook / WhatsApp -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://portal.skillforgedigital.com.ng/">
+  <meta property="og:title" content="SkillForge Portal | Mastery Hub">
+  <meta property="og:description" content="Access your SkillForge Mastery Dashboard, track your study XP, and customize your learning environment.">
+  <meta property="og:image" itemprop="image" content="https://files.fm/thumb_show.php?i=sebxcfvhb7">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="SkillForge Portal">
+  <meta property="og:locale" content="en_US">
+  
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SkillForge Portal | Mastery Hub">
+  <meta name="twitter:description" content="Access your SkillForge Mastery Dashboard, track your study XP, and customize your learning environment.">
+  <meta name="twitter:image" content="https://files.fm/thumb_show.php?i=sebxcfvhb7">
+  
+  <!-- Schema.org JSON-LD for Google -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "SkillForge Portal",
+    "url": "https://portal.skillforgedigital.com.ng",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://portal.skillforgedigital.com.ng/verify/?id={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+
 <script>
     // Immediate UI Preparation - Hide content until data is verified
     (function() {
@@ -181,13 +220,45 @@ tailwind.config = {
   
   #orbit-stage { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; z-index: 5; }
   .w-0-dynamic { width: 0%; }
-</style>
+
+  /* T7 Premium Orbit Animations */
+  @keyframes orbit-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  @keyframes orbit-spin-reverse { 0% { transform: rotate(360deg); } 100% { transform: rotate(0deg); } }
+  @keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); } 70% { box-shadow: 0 0 0 20px rgba(245, 158, 11, 0); } 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); } }
+  
+  .orbit-ring-1 { position: absolute; inset: -40px; border: 1px dashed rgba(255,255,255,0.1); border-radius: 50%; animation: orbit-spin 20s linear infinite; pointer-events: none; }
+  .orbit-ring-2 { position: absolute; inset: -80px; border: 1px dashed rgba(245, 158, 11, 0.2); border-radius: 50%; animation: orbit-spin-reverse 30s linear infinite; pointer-events: none; }
+  .orbit-ring-3 { position: absolute; inset: -140px; border: 1px dotted rgba(255,255,255,0.05); border-radius: 50%; animation: orbit-spin 40s linear infinite; pointer-events: none; }
+  
+  .satellite { position: absolute; border-radius: 50%; background: #040810; border: 1px solid rgba(245, 158, 11, 0.5); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(245, 158, 11, 0.2); }
+  .satellite-1 { width: 40px; height: 40px; top: -20px; left: 50%; transform: translateX(-50%); animation: orbit-spin-reverse 20s linear infinite; }
+  .satellite-2 { width: 60px; height: 60px; bottom: -30px; right: 20%; animation: orbit-spin 30s linear infinite; }
+  .satellite-3 { width: 30px; height: 30px; top: 30%; left: -15px; animation: orbit-spin-reverse 40s linear infinite; }
+  .satellite i { color: #f59e0b; font-size: 1.2rem; }
+
+  </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
   <style>
     #loading-screen { position: fixed; inset: 0; background: #040810; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease, visibility 0.5s ease; pointer-events: all; }
     #loading-screen.fade-out { opacity: 0; visibility: hidden; pointer-events: none; }
-</style>
+
+  /* T7 Premium Orbit Animations */
+  @keyframes orbit-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  @keyframes orbit-spin-reverse { 0% { transform: rotate(360deg); } 100% { transform: rotate(0deg); } }
+  @keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); } 70% { box-shadow: 0 0 0 20px rgba(245, 158, 11, 0); } 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); } }
+  
+  .orbit-ring-1 { position: absolute; inset: -40px; border: 1px dashed rgba(255,255,255,0.1); border-radius: 50%; animation: orbit-spin 20s linear infinite; pointer-events: none; }
+  .orbit-ring-2 { position: absolute; inset: -80px; border: 1px dashed rgba(245, 158, 11, 0.2); border-radius: 50%; animation: orbit-spin-reverse 30s linear infinite; pointer-events: none; }
+  .orbit-ring-3 { position: absolute; inset: -140px; border: 1px dotted rgba(255,255,255,0.05); border-radius: 50%; animation: orbit-spin 40s linear infinite; pointer-events: none; }
+  
+  .satellite { position: absolute; border-radius: 50%; background: #040810; border: 1px solid rgba(245, 158, 11, 0.5); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(245, 158, 11, 0.2); }
+  .satellite-1 { width: 40px; height: 40px; top: -20px; left: 50%; transform: translateX(-50%); animation: orbit-spin-reverse 20s linear infinite; }
+  .satellite-2 { width: 60px; height: 60px; bottom: -30px; right: 20%; animation: orbit-spin 30s linear infinite; }
+  .satellite-3 { width: 30px; height: 30px; top: 30%; left: -15px; animation: orbit-spin-reverse 40s linear infinite; }
+  .satellite i { color: #f59e0b; font-size: 1.2rem; }
+
+  </style>
 <script>
   // Global Failsafe: Ensure clicks are enabled after 5s regardless of data state
   setTimeout(() => {
@@ -199,18 +270,11 @@ tailwind.config = {
     }
   }, 5000);
 </script>
-</head>
+
+    </head>
 <body class="noise-bg text-white overflow-x-hidden min-h-screen relative">
 
-<!-- Global News Ticker -->
-<div class="fixed top-0 left-0 right-0 md:left-72 h-8 bg-navy-950/90 backdrop-blur-xl border-b border-white/5 z-[60] overflow-hidden flex items-center no-print shadow-2xl">
-  <div class="flex-1 overflow-hidden relative h-full flex items-center">
-    <div id="news-ticker-content" class="animate-ticker flex items-center gap-24">
-      <span class="text-[11px] font-bold text-white/90 uppercase tracking-[0.2em] italic">Welcome to SkillForge Season 2026. Portal Registry is Active.</span>
-      <span class="text-[11px] font-bold text-white/90 uppercase tracking-[0.2em] italic">Welcome to SkillForge Season 2026. Portal Registry is Active.</span>
-    </div>
-  </div>
-</div>
+<!-- Global News Ticker moved to main -->
   
   <!-- Emergency Click Restoration Script -->
   <script>
@@ -241,8 +305,8 @@ tailwind.config = {
 <div class="md:hidden h-20 px-6 flex items-center justify-between glass sticky top-0 z-[100] border-b border-white/5 no-print">
   <div class="flex items-center gap-3">
     <a href="/" class="flex items-center gap-3 group">
-      <div class="w-8 h-8 rounded-lg bg-gold-500/10 flex items-center justify-center border border-gold-500/30 group-hover:border-gold transition-all overflow-hidden">
-        <i class="fa-solid fa-shield-halved text-gold-500 text-xs"></i>
+      <div class="w-8 h-8 rounded-xl border border-gold-500/30 group-hover:border-gold-500 transition-all flex items-center justify-center bg-black overflow-hidden shadow-lg">
+        <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" class="w-full h-full object-cover" alt="SF">
       </div>
       <div class="flex flex-col leading-none">
         <span class="font-black text-sm tracking-tighter uppercase group-hover:text-gold transition-all">SkillForge</span>
@@ -290,8 +354,8 @@ tailwind.config = {
   <div class="p-8 flex-1 custom-scrollbar overflow-y-auto">
     <div class="flex items-center gap-3 mb-10">
       <a href="/" class="flex items-center gap-3 group">
-        <div class="w-10 h-10 rounded-xl bg-gold-500/10 flex items-center justify-center border border-gold-500/30 group-hover:border-gold transition-all overflow-hidden">
-          <i class="fa-solid fa-shield-halved text-gold-500 text-sm"></i>
+        <div class="w-10 h-10 rounded-xl border border-gold-500/30 group-hover:border-gold-500 transition-all flex items-center justify-center bg-black overflow-hidden shadow-lg">
+          <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" class="w-full h-full object-cover" alt="SF">
         </div>
         <div class="flex flex-col leading-none">
           <span class="font-black text-sm tracking-tighter uppercase group-hover:text-gold transition-all">SkillForge</span>
@@ -301,7 +365,7 @@ tailwind.config = {
     </div>
     <nav class="space-y-1">
       <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Academy Pages</p>
-      <a href="/trainee-dashboard/" class="sidebar-link active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest" aria-current="page"><i class="fa-solid fa-layer-group w-4"></i> Overview</a>
+      <a aria-label="The Vault" href="/trainee-dashboard/" class="sidebar-link active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest" aria-current="page"><i class="fa-solid fa-layer-group w-4"></i> Overview</a>
       <a href="/trainee-dashboard/dmc/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-id-card w-4"></i> Membership Card</a>
       <a href="/trainee-dashboard/leaderboard/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-ranking-star w-4"></i> Hall of Fame</a>
       <a href="/academy/" id="my-track-link" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-rocket w-4"></i> My Track</a>
@@ -315,8 +379,7 @@ tailwind.config = {
             <span class="text-[7px] font-black uppercase tracking-widest opacity-60">Season 2026/B</span>
             <span class="text-[10px] font-bold uppercase">Register for Next Season</span>
           </div>
-          <i class="fa-solid fa-chevron-right text-xs group-hover:translate-x-1 transition-transform"></i>
-        </button>
+          <i class="fa-solid fa-chevron-right text-xs group-hover:translate-x-1 transition-transform"></i></button>
         <p id="next-season-locked-msg" class="hidden text-[7px] text-red-400 font-bold uppercase tracking-widest text-center px-4">Currently locked to active track session</p>
       </div>
       
@@ -354,12 +417,23 @@ tailwind.config = {
   </div>
 </aside>
 
-<main class="md:ml-72 min-h-screen relative z-10">
+<main class="md:ml-72 min-h-screen relative z-10 flex flex-col">
+  <!-- Global News Ticker -->
+  <div class="w-full h-8 bg-navy-950/90 backdrop-blur-xl border-b border-white/5 z-[60] overflow-hidden flex items-center sticky top-20 md:top-0 no-print shadow-2xl">
+    <div class="flex-1 overflow-hidden relative h-full flex items-center">
+      <div id="news-ticker-content" class="animate-ticker flex items-center gap-24 whitespace-nowrap">
+        <span class="text-[11px] font-bold text-white/90 uppercase tracking-[0.2em] italic">Welcome to SkillForge Season 2026. Portal Registry is Active.</span>
+        <span class="text-[11px] font-bold text-white/90 uppercase tracking-[0.2em] italic">Welcome to SkillForge Season 2026. Portal Registry is Active.</span>
+      </div>
+    </div>
+  </div>
+  
+  <div class="flex-1 relative">
   <!-- Template Sections (T1-T10) -->
   
   <!-- T1: Bento Box Grid -->
   <section id="t1" class="template-section p-6 md:p-10 pt-24 md:pt-20">
-    <div class="max-w-7xl mx-auto space-y-10">
+    <div class="w-full max-w-[1800px] mx-auto space-y-10">
       <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 fade-in-1">
         <div><p class="text-gold-400 text-sm font-medium tracking-widest uppercase truncate">Mastery Journey</p><h1 class="text-3xl md:text-5xl font-bold mt-1 truncate" id="greeting-target">Welcome back, <span class="user-name-target text-glow-gold truncate">Human</span></h1></div>
         <div class="w-full md:w-auto glass rounded-3xl p-5 pin-reveal cursor-pointer text-right group"><p class="text-white/40 text-[10px] uppercase tracking-wider mb-1"><i class="fa-solid fa-key text-gold-500/60 mr-1"></i> Access Key</p><div class="flex items-center gap-3 justify-end"><span class="access-pin-target text-2xl md:text-3xl font-bold tracking-[0.3em] pin-blur text-gold-300">0000</span></div></div>
@@ -369,7 +443,7 @@ tailwind.config = {
           <div class="absolute top-0 right-0 w-32 h-32 bg-gold-500/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
           <div>
             <div class="w-16 h-16 rounded-2xl bg-black flex items-center justify-center text-navy-950 font-bold text-2xl relative pulse-ring shadow-xl profile-initials-target overflow-hidden border border-gold-500/30">
-              <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=1" alt="Trainee Avatar" class="profile-avatar-target w-full h-full object-contain">
+              <img loading="lazy" src="https://api.dicebear.com/7.x/avataaars/svg?seed=1" alt="Trainee Avatar" class="profile-avatar-target w-full h-full object-contain">
             </div>
             <h2 class="text-xl md:text-2xl font-bold mt-4 profile-name-target truncate w-full">Loading...</h2>
             <p class="text-white/50 text-xs md:text-sm profile-track-target truncate w-full">Academy Trainee</p>
@@ -377,6 +451,14 @@ tailwind.config = {
               <span class="px-2 py-0.5 rounded-full bg-gold-500/10 text-[8px] md:text-[9px] font-bold text-gold-400 uppercase tracking-widest tier-target">Novice</span>
               <span class="px-2 py-0.5 rounded-full bg-white/5 text-[8px] md:text-[9px] font-bold text-white/40 uppercase tracking-widest gender-target">Unset</span>
             </div>
+        <!-- Action Toggles & Links -->
+        <div class="flex flex-wrap items-center justify-start gap-3 mt-6 pt-4 border-t border-white/10 w-full">
+          <a href="./customize/" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-gold-500 text-[9px] font-black uppercase tracking-widest text-white transition-all flex items-center gap-2"><i class="fa-solid fa-paintbrush text-gold-500"></i> Customize</a>
+          <a href="./leaderboard/" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-gold-500 text-[9px] font-black uppercase tracking-widest text-white transition-all flex items-center gap-2"><i class="fa-solid fa-trophy text-gold-500"></i> Leaderboard</a>
+          <a href="./vault/" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-gold-500 text-[9px] font-black uppercase tracking-widest text-white transition-all flex items-center gap-2"><i class="fa-solid fa-vault text-gold-500"></i> The Vault</a>
+          <button type="button" onclick="auth.signOut()" class="px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 text-[9px] font-black uppercase tracking-widest text-red-500 transition-all flex items-center gap-2"><i class="fa-solid fa-power-off"></i> Logout</button>
+        </div>
+
           </div>
           <div>
             <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.3em] mb-2">Registry ID</p>
@@ -444,11 +526,19 @@ tailwind.config = {
   <!-- T2: Mac-style Floating Dock -->
   <section id="t2" class="template-section p-10 pt-20">
     <div class="min-h-[70vh] flex flex-col items-center justify-center relative pb-32">
-      <div class="w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="w-full max-w-[1800px] grid grid-cols-1 md:grid-cols-3 gap-8">
         <div class="glass-strong rounded-3xl overflow-hidden glow-gold float-anim md:col-span-1">
           <div class="bg-white/5 px-4 py-2 flex items-center gap-2 border-b border-white/5"><span class="w-2 h-2 rounded-full bg-red-400/80"></span><span class="w-2 h-2 rounded-full bg-yellow-400/80"></span><span class="w-2 h-2 rounded-full bg-green-400/80"></span><span class="text-white/30 text-[8px] font-black uppercase ml-2 tracking-widest">Identity.profile</span></div>
           <div class="p-8">
-            <div class="flex items-center gap-5 mb-6"><div class="w-16 h-16 rounded-2xl bg-black flex items-center justify-center text-navy-950 font-bold text-2xl shadow-lg profile-initials-target overflow-hidden border border-gold-500/30"><img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" alt="SF" class="profile-avatar-target w-full h-full object-cover"></div><div class="min-w-0"><h2 class="text-lg font-bold profile-name-target truncate">Loading...</h2><p class="text-gold-400 text-[10px] font-bold uppercase tracking-widest profile-track-target truncate">Academy Trainee</p><div class="flex gap-2 mt-1"><p class="text-white/40 text-[9px] font-bold uppercase tracking-widest level-target truncate">Lvl 1</p><p class="text-gold-500/60 text-[9px] font-bold uppercase tracking-widest tier-target truncate">Novice</p></div></div></div>
+            <div class="flex items-center gap-5 mb-6"><div class="w-16 h-16 rounded-2xl bg-black flex items-center justify-center text-navy-950 font-bold text-2xl shadow-lg profile-initials-target overflow-hidden border border-gold-500/30"><img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" alt="SF" class="profile-avatar-target w-full h-full object-cover"></div><div class="min-w-0"><h2 class="text-lg font-bold profile-name-target truncate">Loading...</h2><p class="text-gold-400 text-[10px] font-bold uppercase tracking-widest profile-track-target truncate">Academy Trainee</p><div class="flex gap-2 mt-1"><p class="text-white/40 text-[9px] font-bold uppercase tracking-widest level-target truncate">Lvl 1</p><p class="text-gold-500/60 text-[9px] font-bold uppercase tracking-widest tier-target truncate">Novice</p></div></div>
+        <!-- Action Toggles & Links -->
+        <div class="flex flex-wrap items-center justify-center gap-3 mt-6 pt-4 border-t border-white/10 w-full">
+          <a href="./customize/" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-gold-500 text-[9px] font-black uppercase tracking-widest text-white transition-all flex items-center gap-2"><i class="fa-solid fa-paintbrush text-gold-500"></i> Customize</a>
+          <a href="./leaderboard/" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-gold-500 text-[9px] font-black uppercase tracking-widest text-white transition-all flex items-center gap-2"><i class="fa-solid fa-trophy text-gold-500"></i> Leaderboard</a>
+          <a href="./vault/" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-gold-500 text-[9px] font-black uppercase tracking-widest text-white transition-all flex items-center gap-2"><i class="fa-solid fa-vault text-gold-500"></i> The Vault</a>
+          <button type="button" onclick="auth.signOut()" class="px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 text-[9px] font-black uppercase tracking-widest text-red-500 transition-all flex items-center gap-2"><i class="fa-solid fa-power-off"></i> Logout</button>
+        </div>
+</div>
             <div class="flex items-center justify-between mb-2">
               <span class="text-gold-400 text-[9px] font-bold uppercase tracking-widest">Mastery XP</span>
               <span class="text-white/50 text-[9px] font-bold xp-text-target">0 / 1,000</span>
@@ -467,7 +557,7 @@ tailwind.config = {
         <div class="glass rounded-3xl p-8 md:col-span-1 flex flex-col gap-6">
           <p class="text-white/40 text-[10px] uppercase tracking-widest mb-6 font-bold"><i class="fa-solid fa-trophy text-gold-500/60 mr-2"></i> Hall of Fame</p>
           <div class="space-y-3 leaderboard-top-target"></div>
-          <a href="leaderboard.html" class="w-full block text-center mt-auto py-3 rounded-xl bg-white/5 text-[9px] font-black uppercase tracking-widest text-white/40 hover:bg-white/10 transition-all">View Rankings</a>
+          <a href="leaderboard/" class="w-full block text-center mt-auto py-3 rounded-xl bg-white/5 text-[9px] font-black uppercase tracking-widest text-white/40 hover:bg-white/10 transition-all">View Rankings</a>
           
           <div class="pt-6 border-t border-white/5 space-y-4">
             <p class="text-white/30 text-[8px] uppercase tracking-widest font-bold">Control Hub</p>
@@ -493,11 +583,11 @@ tailwind.config = {
 
   <!-- T3: Minimalist Card Flow -->
   <section id="t3" class="template-section p-6 md:p-10 pt-24 md:pt-20">
-    <div class="max-w-7xl mx-auto space-y-8">
+    <div class="w-full max-w-[1800px] mx-auto space-y-8">
       <div class="glass rounded-[32px] p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8 glow-gold overflow-hidden">
         <div class="flex flex-col md:flex-row items-center gap-8 text-center md:text-left">
           <div class="w-24 h-24 rounded-[32px] bg-black profile-initials-target overflow-hidden border border-gold-500/30 flex items-center justify-center text-3xl font-black text-navy-950 shadow-2xl relative">
-            <img src="" class="profile-avatar-target w-full h-full object-cover absolute inset-0 opacity-0 transition-opacity duration-500" onload="this.classList.remove('opacity-0')">
+            <img loading="lazy" src="" class="profile-avatar-target w-full h-full object-cover absolute inset-0 opacity-0 transition-opacity duration-500" onload="this.classList.remove('opacity-0')">
           </div>
           <div>
             <h1 class="text-3xl md:text-5xl font-black profile-name-target truncate max-w-[280px] md:max-w-md">Loading...</h1>
@@ -517,6 +607,14 @@ tailwind.config = {
             <p class="text-2xl font-black tier-target">Novice</p>
           </div>
           <div class="hidden md:flex flex-col gap-2 min-w-[150px]">
+        <!-- Action Toggles & Links -->
+        <div class="flex flex-wrap items-center justify-start gap-3 mt-6 pt-4 border-t border-white/10 w-full">
+          <a href="./customize/" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-gold-500 text-[9px] font-black uppercase tracking-widest text-white transition-all flex items-center gap-2"><i class="fa-solid fa-paintbrush text-gold-500"></i> Customize</a>
+          <a href="./leaderboard/" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-gold-500 text-[9px] font-black uppercase tracking-widest text-white transition-all flex items-center gap-2"><i class="fa-solid fa-trophy text-gold-500"></i> Leaderboard</a>
+          <a href="./vault/" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-gold-500 text-[9px] font-black uppercase tracking-widest text-white transition-all flex items-center gap-2"><i class="fa-solid fa-vault text-gold-500"></i> The Vault</a>
+          <button type="button" onclick="auth.signOut()" class="px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 text-[9px] font-black uppercase tracking-widest text-red-500 transition-all flex items-center gap-2"><i class="fa-solid fa-power-off"></i> Logout</button>
+        </div>
+
             <div class="glass rounded-2xl p-3 flex justify-between items-center"><span class="text-[7px] font-black text-white/30 uppercase">ID</span><span class="text-[9px] font-mono text-gold-400 sfid-display-target">SFID-26-XXX</span></div>
             <div class="glass rounded-2xl p-3 flex justify-between items-center"><span class="text-[7px] font-black text-white/30 uppercase">Passkey</span><span class="text-[9px] font-bold text-gold-400 passkey-target">000000</span></div>
             <div class="glass rounded-2xl p-3 flex justify-between items-center"><span class="text-[7px] font-black text-white/30 uppercase">Logins</span><span class="text-[9px] font-bold text-white logins-target">0</span></div>
@@ -570,18 +668,26 @@ tailwind.config = {
 
   <!-- T4: Sidebar Layout -->
   <section id="t4" class="template-section p-6 md:p-10 pt-24 md:pt-20">
-    <div class="max-w-7xl mx-auto flex flex-col lg:flex-row gap-10">
+    <div class="w-full max-w-[1800px] mx-auto flex flex-col lg:flex-row gap-10">
       <div class="lg:w-1/3 space-y-8">
         <div class="glass rounded-[48px] p-10 text-center glow-gold relative overflow-hidden">
           <div class="absolute top-0 left-0 w-full h-1 bg-gold-500"></div>
           <div class="w-32 h-32 rounded-[40px] bg-black mx-auto mb-6 profile-initials-target overflow-hidden border border-gold-500/30 flex items-center justify-center text-4xl font-black shadow-2xl">
-            <img src="" class="profile-avatar-target w-full h-full object-cover">
+            <img loading="lazy" src="" class="profile-avatar-target w-full h-full object-cover">
           </div>
           <h1 class="text-3xl font-black profile-name-target truncate w-full">Alexis Mercer</h1>
           <div class="flex items-center justify-center gap-3 mt-2">
             <p class="text-gold-400 text-[10px] font-black uppercase tracking-widest profile-track-target truncate">Academy Trainee</p>
             <span class="px-2 py-0.5 rounded-full bg-gold-500/10 text-[8px] font-bold text-gold-400 uppercase tracking-widest tier-target">Novice</span>
           </div>
+        <!-- Action Toggles & Links -->
+        <div class="flex flex-wrap items-center justify-start gap-3 mt-6 pt-4 border-t border-white/10 w-full">
+          <a href="./customize/" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-gold-500 text-[9px] font-black uppercase tracking-widest text-white transition-all flex items-center gap-2"><i class="fa-solid fa-paintbrush text-gold-500"></i> Customize</a>
+          <a href="./leaderboard/" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-gold-500 text-[9px] font-black uppercase tracking-widest text-white transition-all flex items-center gap-2"><i class="fa-solid fa-trophy text-gold-500"></i> Leaderboard</a>
+          <a href="./vault/" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-gold-500 text-[9px] font-black uppercase tracking-widest text-white transition-all flex items-center gap-2"><i class="fa-solid fa-vault text-gold-500"></i> The Vault</a>
+          <button type="button" onclick="auth.signOut()" class="px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 text-[9px] font-black uppercase tracking-widest text-red-500 transition-all flex items-center gap-2"><i class="fa-solid fa-power-off"></i> Logout</button>
+        </div>
+
           <div class="mt-8 p-6 rounded-3xl bg-white/5 border border-white/5 text-left space-y-4">
             <div class="flex justify-between items-center gap-2"><span class="text-[9px] font-black text-white/30 uppercase">Registry ID</span><span class="text-[10px] font-mono font-bold text-gold-400 sfid-display-target truncate">SFID-26-XXX</span></div>
             <div class="flex justify-between items-center gap-2"><span class="text-[9px] font-black text-white/30 uppercase">Passkey</span><span class="text-[10px] font-bold text-gold-400 passkey-target">000000</span></div>
@@ -641,7 +747,7 @@ tailwind.config = {
         <div class="absolute inset-0 bg-gradient-to-br from-gold-500/10 to-transparent opacity-30"></div>
         <div class="relative z-10 space-y-8">
           <div class="w-24 h-24 rounded-[32px] bg-gold-500 profile-initials-target overflow-hidden flex items-center justify-center text-navy-950 text-3xl font-black shadow-4K">
-            <img src="" class="profile-avatar-target w-full h-full object-cover">
+            <img loading="lazy" src="" class="profile-avatar-target w-full h-full object-cover">
           </div>
           <h1 class="text-5xl lg:text-8xl font-black leading-tight profile-name-target max-w-xl">Loading...</h1>
           <div class="flex items-center gap-6">
@@ -649,6 +755,14 @@ tailwind.config = {
             <span class="px-3 py-1 rounded-full bg-gold-500/10 text-[10px] font-black text-gold-400 uppercase tracking-[0.3em] tier-target">Novice</span>
             <span class="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] gender-target">Unset</span>
           </div>
+        <!-- Action Toggles & Links -->
+        <div class="flex flex-wrap items-center justify-start gap-3 mt-6 pt-4 border-t border-white/10 w-full">
+          <a href="./customize/" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-gold-500 text-[9px] font-black uppercase tracking-widest text-white transition-all flex items-center gap-2"><i class="fa-solid fa-paintbrush text-gold-500"></i> Customize</a>
+          <a href="./leaderboard/" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-gold-500 text-[9px] font-black uppercase tracking-widest text-white transition-all flex items-center gap-2"><i class="fa-solid fa-trophy text-gold-500"></i> Leaderboard</a>
+          <a href="./vault/" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-gold-500 text-[9px] font-black uppercase tracking-widest text-white transition-all flex items-center gap-2"><i class="fa-solid fa-vault text-gold-500"></i> The Vault</a>
+          <button type="button" onclick="auth.signOut()" class="px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 text-[9px] font-black uppercase tracking-widest text-red-500 transition-all flex items-center gap-2"><i class="fa-solid fa-power-off"></i> Logout</button>
+        </div>
+
           <div class="max-w-xs space-y-4">
               <div class="flex justify-between items-center px-1">
                   <span class="text-[10px] font-black text-gold-400 uppercase tracking-widest level-target">Lvl 1</span>
@@ -695,7 +809,7 @@ tailwind.config = {
       <div class="glass rounded-[48px] p-12 text-center space-y-6 glow-gold overflow-hidden relative">
         <div class="absolute top-0 left-0 w-full h-1 bg-gold-500/30"></div>
         <div class="w-20 h-20 rounded-3xl bg-black mx-auto flex items-center justify-center text-gold-500 border border-white/10 overflow-hidden profile-initials-target relative">
-          <img src="" class="profile-avatar-target w-full h-full object-cover">
+          <img loading="lazy" src="" class="profile-avatar-target w-full h-full object-cover">
         </div>
         <h1 class="text-4xl md:text-6xl font-black profile-name-target truncate w-full">Alexis Mercer</h1>
         <div class="flex justify-center gap-4 flex-wrap items-center">
@@ -703,6 +817,14 @@ tailwind.config = {
             <span class="px-4 py-1.5 rounded-full bg-white/5 text-white/40 text-[10px] font-black uppercase tracking-widest level-target">Lvl 1</span>
             <span class="px-4 py-1.5 rounded-full bg-white/5 text-white/40 text-[10px] font-black uppercase tracking-widest gender-target whitespace-nowrap"></span>
         </div>
+        <!-- Action Toggles & Links -->
+        <div class="flex flex-wrap items-center justify-start gap-3 mt-6 pt-4 border-t border-white/10 w-full">
+          <a href="./customize/" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-gold-500 text-[9px] font-black uppercase tracking-widest text-white transition-all flex items-center gap-2"><i class="fa-solid fa-paintbrush text-gold-500"></i> Customize</a>
+          <a href="./leaderboard/" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-gold-500 text-[9px] font-black uppercase tracking-widest text-white transition-all flex items-center gap-2"><i class="fa-solid fa-trophy text-gold-500"></i> Leaderboard</a>
+          <a href="./vault/" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-gold-500 text-[9px] font-black uppercase tracking-widest text-white transition-all flex items-center gap-2"><i class="fa-solid fa-vault text-gold-500"></i> The Vault</a>
+          <button type="button" onclick="auth.signOut()" class="px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 text-[9px] font-black uppercase tracking-widest text-red-500 transition-all flex items-center gap-2"><i class="fa-solid fa-power-off"></i> Logout</button>
+        </div>
+
         <div class="max-w-md mx-auto space-y-2">
             <div class="flex justify-between items-center px-2">
                 <span class="text-[9px] font-black text-white/20 uppercase tracking-widest">Mastery Progress</span>
@@ -741,10 +863,17 @@ tailwind.config = {
   <section id="t7" class="template-section min-h-screen flex items-center justify-center relative p-6 md:p-10 overflow-hidden">
     <div class="absolute inset-0 bg-radial from-gold-500/5 to-transparent opacity-50"></div>
     <div class="relative z-10 w-full max-w-4xl aspect-square flex items-center justify-center pointer-events-none transform scale-50 md:scale-100 transition-transform" id="orbit-stage">
-      <!-- Central Body -->
-      <div class="glass-strong rounded-full p-12 md:p-24 text-center z-20 glow-gold border border-gold-500/20 max-w-[90vw] md:max-w-[80vw] pointer-events-auto shadow-4K relative overflow-hidden">
-        <div class="absolute inset-0 opacity-10">
-          <img src="" class="profile-avatar-target w-full h-full object-cover">
+      
+        <!-- Central Body -->
+        <div class="glass-strong rounded-full p-12 md:p-24 text-center z-20 glow-gold border border-gold-500/20 max-w-[90vw] md:max-w-[80vw] pointer-events-auto shadow-4K relative overflow-visible">
+          <!-- Orbit Rings -->
+          <div class="orbit-ring-1"><div class="satellite satellite-1"><i class="fa-solid fa-star"></i></div></div>
+          <div class="orbit-ring-2"><div class="satellite satellite-2"><i class="fa-solid fa-bolt"></i></div></div>
+          <div class="orbit-ring-3"><div class="satellite satellite-3"><i class="fa-solid fa-shield"></i></div></div>
+          
+          <div class="absolute inset-0 opacity-10 rounded-full overflow-hidden">
+
+          <img loading="lazy" src="" class="profile-avatar-target w-full h-full object-cover">
         </div>
         <h1 class="text-2xl md:text-5xl font-black profile-name-target truncate mb-2 relative z-10">Loading...</h1>
         <div class="flex items-center justify-center gap-4 relative z-10">
@@ -770,6 +899,13 @@ tailwind.config = {
               <button type="button" onclick="toggleControl('light')" aria-label="Toggle High-Contrast Light" aria-pressed="false" class="ctrl-light-btn text-[7px] font-black text-white/20 uppercase hover:text-gold-400 transition-all">Light</button>
             </div>
         </div>
+            <div class="flex flex-wrap items-center justify-center gap-4 mt-6">
+              <a href="./customize/" class="glass-btn px-6 py-3 rounded-xl border border-white/5 text-[10px] font-black uppercase tracking-widest hover:border-gold-500 hover:bg-white/5 transition-all text-white flex items-center gap-2"><i class="fa-solid fa-paintbrush text-gold-500"></i> Customize</a>
+              <a href="./leaderboard/" class="glass-btn px-6 py-3 rounded-xl border border-white/5 text-[10px] font-black uppercase tracking-widest hover:border-gold-500 hover:bg-white/5 transition-all text-white flex items-center gap-2"><i class="fa-solid fa-trophy text-gold-500"></i> Leaderboard</a>
+              <a href="./vault/" class="glass-btn px-6 py-3 rounded-xl border border-white/5 text-[10px] font-black uppercase tracking-widest hover:border-gold-500 hover:bg-white/5 transition-all text-white flex items-center gap-2"><i class="fa-solid fa-vault text-gold-500"></i> The Vault</a>
+              <button type="button" onclick="auth.signOut()" class="glass-btn px-6 py-3 rounded-xl border border-red-500/20 text-[10px] font-black uppercase tracking-widest hover:bg-red-500/10 text-red-500 transition-all flex items-center gap-2"><i class="fa-solid fa-power-off"></i> Logout</button>
+            </div>
+
       </div>
       <!-- Satellites are dynamically injected here -->
     </div>
@@ -786,7 +922,7 @@ tailwind.config = {
       <div class="space-y-10 overflow-hidden">
         <div class="flex flex-col md:flex-row gap-10">
           <div class="w-24 h-24 rounded-2xl bg-black border border-green-500/30 overflow-hidden flex-shrink-0 profile-initials-target relative">
-            <img src="" class="profile-avatar-target w-full h-full object-cover">
+            <img loading="lazy" src="" class="profile-avatar-target w-full h-full object-cover">
           </div>
           <div class="space-y-2 min-w-0 flex-1">
             <p class="text-green-500 text-[10px] uppercase tracking-widest">&gt; TRAINEE_IDENTITY</p>
@@ -795,6 +931,14 @@ tailwind.config = {
               <p class="text-green-500/50 text-[10px] uppercase tracking-widest">&gt; MASTERY_TIER: <span class="tier-target text-white">Novice</span></p>
               <p class="text-green-500/50 text-[10px] uppercase tracking-widest">&gt; GENDER_IDENT: <span class="gender-target text-white">Unset</span></p>
             </div>
+        <!-- Action Toggles & Links -->
+        <div class="flex flex-wrap items-center justify-start gap-3 mt-6 pt-4 border-t border-white/10 w-full">
+          <a href="./customize/" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-gold-500 text-[9px] font-black uppercase tracking-widest text-white transition-all flex items-center gap-2"><i class="fa-solid fa-paintbrush text-gold-500"></i> Customize</a>
+          <a href="./leaderboard/" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-gold-500 text-[9px] font-black uppercase tracking-widest text-white transition-all flex items-center gap-2"><i class="fa-solid fa-trophy text-gold-500"></i> Leaderboard</a>
+          <a href="./vault/" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-gold-500 text-[9px] font-black uppercase tracking-widest text-white transition-all flex items-center gap-2"><i class="fa-solid fa-vault text-gold-500"></i> The Vault</a>
+          <button type="button" onclick="auth.signOut()" class="px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 text-[9px] font-black uppercase tracking-widest text-red-500 transition-all flex items-center gap-2"><i class="fa-solid fa-power-off"></i> Logout</button>
+        </div>
+
           </div>
           <div class="space-y-2 min-w-0 flex-1">
             <p class="text-green-500 text-[10px] uppercase tracking-widest">&gt; ACADEMY_TRACK</p>
@@ -847,10 +991,10 @@ tailwind.config = {
 
   <!-- T9: Magazine Layout -->
   <section id="t9" class="template-section">
-    <div class="max-w-6xl mx-auto bg-white text-navy-950 min-h-screen">
+    <div class="w-full max-w-[1800px] mx-auto bg-white text-navy-950 min-h-screen">
       <div class="h-96 bg-navy-950 p-12 lg:p-20 flex flex-col justify-end relative overflow-hidden">
         <div class="absolute inset-0 opacity-20">
-          <img src="" class="profile-avatar-target w-full h-full object-cover">
+          <img loading="lazy" src="" class="profile-avatar-target w-full h-full object-cover">
         </div>
         <div class="absolute top-10 right-10 text-white/20 font-serif italic text-4xl">SkillForge</div>
         <h1 class="text-6xl lg:text-9xl font-black text-white leading-none profile-name-target uppercase tracking-tighter truncate w-full relative z-10">Loading...</h1>
@@ -860,6 +1004,14 @@ tailwind.config = {
               <span class="text-[10px] font-black text-white/60 uppercase tracking-widest tier-target">Novice</span>
               <span class="text-[10px] font-black text-white/20 uppercase tracking-widest gender-target">Unset</span>
             </div>
+        <!-- Action Toggles & Links -->
+        <div class="flex flex-wrap items-center justify-start gap-3 mt-6 pt-4 border-t border-white/10 w-full">
+          <a href="./customize/" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-gold-500 text-[9px] font-black uppercase tracking-widest text-white transition-all flex items-center gap-2"><i class="fa-solid fa-paintbrush text-gold-500"></i> Customize</a>
+          <a href="./leaderboard/" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-gold-500 text-[9px] font-black uppercase tracking-widest text-white transition-all flex items-center gap-2"><i class="fa-solid fa-trophy text-gold-500"></i> Leaderboard</a>
+          <a href="./vault/" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-gold-500 text-[9px] font-black uppercase tracking-widest text-white transition-all flex items-center gap-2"><i class="fa-solid fa-vault text-gold-500"></i> The Vault</a>
+          <button type="button" onclick="auth.signOut()" class="px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 text-[9px] font-black uppercase tracking-widest text-red-500 transition-all flex items-center gap-2"><i class="fa-solid fa-power-off"></i> Logout</button>
+        </div>
+
             <p class="text-white/40 text-[10px] uppercase font-bold tracking-widest xp-text-target mt-1">0 / 1,000 XP</p>
             <p class="text-navy-950/20 text-[8px] font-mono mt-2 sfid-display-target">SFID-26-XXX</p>
         </div>
@@ -905,7 +1057,7 @@ tailwind.config = {
         <div class="glass rounded-3xl p-8 space-y-6 overflow-hidden relative">
           <div class="absolute top-0 right-0 w-24 h-24 bg-gold-500/5 rounded-full blur-2xl"></div>
           <div class="w-16 h-16 rounded-2xl bg-gold-500 profile-initials-target flex items-center justify-center text-navy-950 font-black text-xl overflow-hidden">
-              <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=1" class="profile-avatar-target w-full h-full object-contain">
+              <img loading="lazy" src="https://api.dicebear.com/7.x/avataaars/svg?seed=1" class="profile-avatar-target w-full h-full object-contain">
           </div>
           <div>
               <h1 class="text-xl font-black profile-name-target truncate w-full">Loading...</h1>
@@ -926,6 +1078,14 @@ tailwind.config = {
               </div>
           </div>
         </div>
+        <!-- Action Toggles & Links -->
+        <div class="flex flex-wrap items-center justify-center gap-3 mt-6 pt-4 border-t border-white/10 w-full">
+          <a href="./customize/" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-gold-500 text-[9px] font-black uppercase tracking-widest text-white transition-all flex items-center gap-2"><i class="fa-solid fa-paintbrush text-gold-500"></i> Customize</a>
+          <a href="./leaderboard/" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-gold-500 text-[9px] font-black uppercase tracking-widest text-white transition-all flex items-center gap-2"><i class="fa-solid fa-trophy text-gold-500"></i> Leaderboard</a>
+          <a href="./vault/" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-gold-500 text-[9px] font-black uppercase tracking-widest text-white transition-all flex items-center gap-2"><i class="fa-solid fa-vault text-gold-500"></i> The Vault</a>
+          <button type="button" onclick="auth.signOut()" class="px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 text-[9px] font-black uppercase tracking-widest text-red-500 transition-all flex items-center gap-2"><i class="fa-solid fa-power-off"></i> Logout</button>
+        </div>
+
         <div class="glass rounded-3xl p-6 flex flex-col gap-4">
           <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em]">System</p>
           <div class="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/5">
@@ -971,7 +1131,7 @@ tailwind.config = {
       </div>
     </div>
   </section>
-
+  </div>
 </main>
 
 <script type="module">
@@ -1041,21 +1201,33 @@ function hideLoading() {
   }
 }
 
+let isRedirecting = false;
+let staffUnsub = null;
+let traineeUnsub = null;
+
 function startRegistrySync(uid) {
-  // Try to find user in 'staffs' first, then 'trainees'
-  onSnapshot(doc(db, 'staffs', uid), (snap) => {
+  if (staffUnsub) staffUnsub();
+  if (traineeUnsub) traineeUnsub();
+
+  staffUnsub = onSnapshot(doc(db, 'staffs', uid), (snap) => {
     if (snap.exists()) {
       dashboardState.update(snap.data());
     } else {
-      // Fallback to trainees
-      onSnapshot(doc(db, 'trainees', uid), (tSnap) => {
-        if (tSnap.exists()) {
-          dashboardState.update(tSnap.data());
-        } else {
-          console.error("User not found in any registry.");
-          window.location.href = '../trainee-login/?error=user_not_found';
-        }
-      });
+      if (!traineeUnsub) {
+        traineeUnsub = onSnapshot(doc(db, 'trainees', uid), (tSnap) => {
+          if (tSnap.exists()) {
+            dashboardState.update(tSnap.data());
+          } else {
+            console.error("User not found in any registry.");
+            if (!isRedirecting) {
+              isRedirecting = true;
+              if (staffUnsub) staffUnsub();
+              if (traineeUnsub) traineeUnsub();
+              window.location.href = '../trainee-login/?error=user_not_found';
+            }
+          }
+        });
+      }
     }
   });
 }
@@ -1423,6 +1595,15 @@ window.showLayout = async (num) => {
         }
       }
 
+      
+      // Close dropdown on mobile if open
+      const container = document.getElementById('layout-buttons');
+      const icon = document.getElementById('switcher-icon');
+      if (container && !container.classList.contains('hidden') && window.innerWidth < 768) {
+        container.classList.add('hidden');
+        if (icon) icon.style.transform = 'rotate(0deg)';
+      }
+
       // 5. Update Switcher UI
       document.querySelectorAll('.layout-switch-btn').forEach(btn => {
         btn.classList.remove('text-gold-400', 'bg-gold-500/10', 'border-gold-500/20');
@@ -1478,10 +1659,16 @@ async function loadNewsTicker() {
         "Join our global Discord for elite technical support and networking."
       ];
     } else {
-      snap.forEach(doc => messages.push(doc.data().message));
+      snap.forEach(doc => {
+        const d = doc.data();
+        messages.push(d.message || d.title || "New Announcement");
+      });
     }
 
     ticker.innerHTML = messages.map(m => `<span class="text-[9px] font-bold text-white/60 uppercase tracking-widest flex items-center gap-4"><div class="w-1 h-1 rounded-full bg-gold-500"></div> ${m}</span>`).join('');
+    
+    // Duplicate messages to create continuous scroll effect
+    ticker.innerHTML += ticker.innerHTML;
   } catch (err) {
     console.warn("[Dashboard] News Ticker failed to load registry data.");
   }
@@ -1499,7 +1686,7 @@ function updateSessionResume(data) {
     const lessonName = data.lastLesson.lesson.split('/').pop().split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
     
     if (nameEl) nameEl.innerText = `${trackName}: ${lessonName}`;
-    if (btn) btn.href = `../skill forge site/academy/${data.lastLesson.track}/${data.lastLesson.lesson}/`;
+    if (btn) btn.href = `https://skillforgedigital.com.ng/academy/${data.lastLesson.track}/${data.lastLesson.lesson}/`;
   } else {
     container.classList.add('hidden');
   }
@@ -1605,7 +1792,8 @@ function applyControlState(state) {
   }
 }
 </script>
-    <script type="module" src="../assets/sf-core.js"></script>
+    <script type="module" src="../assets/daily-canvas.js"></script>
+  <script type="module" src="../assets/sf-core.js"></script>
     <script type="module" src="../assets/sf-turbo.js"></script>
 <script type="module" src="../assets/sf-atmosphere-3d.js"></script>
 <script type="module" src="../assets/canvas-daily.js"></script>

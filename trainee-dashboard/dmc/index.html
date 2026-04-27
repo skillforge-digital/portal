@@ -3,7 +3,47 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; img-src 'self' data: https: blob:; font-src 'self' https: data:; style-src 'self' https: 'unsafe-inline'; script-src 'self' https: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https: wss:;">
 <title>SkillForge — Academy Membership Card (DMC)</title>
+
+  <!-- Advanced SEO Search Magnets -->
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="description" content="SkillForge Digital Portal - Access your Mastery Dashboard, track your XP, and connect with your cohort.">
+  <meta name="keywords" content="SkillForge Portal, Trainee Dashboard, Tech Academy Login, Student Portal, Mastery Hub, Digital Skills Nigeria">
+  <meta name="author" content="SkillForge Digital & Co. Ltd">
+  
+  <!-- Open Graph / Facebook / WhatsApp -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://portal.skillforgedigital.com.ng/">
+  <meta property="og:title" content="SkillForge Portal | Mastery Hub">
+  <meta property="og:description" content="Access your SkillForge Mastery Dashboard, track your study XP, and customize your learning environment.">
+  <meta property="og:image" itemprop="image" content="https://files.fm/thumb_show.php?i=sebxcfvhb7">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="SkillForge Portal">
+  <meta property="og:locale" content="en_US">
+  
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SkillForge Portal | Mastery Hub">
+  <meta name="twitter:description" content="Access your SkillForge Mastery Dashboard, track your study XP, and customize your learning environment.">
+  <meta name="twitter:image" content="https://files.fm/thumb_show.php?i=sebxcfvhb7">
+  
+  <!-- Schema.org JSON-LD for Google -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "SkillForge Portal",
+    "url": "https://portal.skillforgedigital.com.ng",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://portal.skillforgedigital.com.ng/verify/?id={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+
 <script>
   // Immediate UI Preparation - Hide content until Registry Core is ready
   (function() {
@@ -55,7 +95,6 @@
     background: #000;
     overflow: hidden;
     z-index: 5;
-    margin-top: 120px; /* Space for name above */
   }
   
   .card-photo-section img {
@@ -85,12 +124,8 @@
     z-index: 25;
   }
   
-  /* THE NAME: Positioned ABOVE the photo */
+  /* THE NAME: Positioned inside content area */
   .profile-name-target {
-    position: absolute;
-    top: 60px; /* At the top of the card */
-    left: 4rem;
-    right: 4rem;
     z-index: 50;
     line-height: 0.8;
     font-size: 5.5rem;
@@ -225,8 +260,12 @@
       overflow: hidden;
     }
   }
+
+    #loading-screen { position: fixed; inset: 0; background: #040810; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease, visibility 0.5s ease; pointer-events: all; }
+    #loading-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
 </style>
-</head>
+
+    </head>
 <body class="bg-gradient-to-br from-navy-900 to-slate-950 text-white font-sans overflow-x-hidden">
     <!-- Global News Ticker -->
     <div class="fixed top-0 left-0 right-0 md:left-72 h-8 bg-navy-950/90 backdrop-blur-xl border-b border-white/5 z-[60] overflow-hidden flex items-center no-print shadow-2xl">
@@ -288,7 +327,7 @@
     </div>
     <nav class="space-y-1">
       <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Academy Pages</p>
-      <a href="/trainee-dashboard/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-layer-group w-4"></i> Overview</a>
+      <a aria-label="The Vault" href="/trainee-dashboard/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-layer-group w-4"></i> Overview</a>
       <a href="/trainee-dashboard/dmc/" class="sidebar-link active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest" aria-current="page"><i class="fa-solid fa-id-card w-4"></i> Membership Card</a>
       <a href="/trainee-dashboard/leaderboard/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-ranking-star w-4"></i> Hall of Fame</a>
       <a href="/academy/" id="my-track-link" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-rocket w-4"></i> My Track</a>
@@ -302,8 +341,7 @@
             <span class="text-[7px] font-black uppercase tracking-widest opacity-60">Season 2026/B</span>
             <span class="text-[10px] font-bold uppercase">Register for Next Season</span>
           </div>
-          <i class="fa-solid fa-chevron-right text-xs group-hover:translate-x-1 transition-transform"></i>
-        </button>
+          <i class="fa-solid fa-chevron-right text-xs group-hover:translate-x-1 transition-transform"></i></button>
         <p id="next-season-locked-msg" class="hidden text-[7px] text-red-400 font-bold uppercase tracking-widest text-center px-4">Currently locked to active track session</p>
       </div>
 
@@ -345,14 +383,13 @@
           <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" class="sf-logo-mini" alt="SF">
           <span class="card-sfid profile-sfid-target">SFID-26-SYN-001</span>
           
-          <h2 class="profile-name-target">Trainee Name</h2>
-          
           <div class="card-photo-section">
-            <img src="" id="dmc-avatar-target" alt="Profile" class="opacity-0 transition-opacity duration-500" onload="this.classList.remove('opacity-0')">
+            <img loading="lazy" src="" id="dmc-avatar-target" alt="Profile" class="opacity-0 transition-opacity duration-500" onload="this.classList.remove('opacity-0')">
             <div class="card-overlay-gradient"></div>
           </div>
           
           <div class="card-content-area">
+            <h2 class="profile-name-target">Trainee Name</h2>
             <div class="flex items-center gap-4 mt-2">
               <p class="text-gold-400 text-[12px] font-black uppercase tracking-[0.6em] profile-track-target">Academy Track</p>
               <span class="gender-target text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full bg-white/10 border border-white/8 backdrop-blur-md">Gender</span>
@@ -375,7 +412,7 @@
               </div>
 
               <div class="barcode-wrapper">
-                <img id="card-qr-target" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://skillforgedigital.com.ng/trainee-registration/" class="barcode-img" alt="QR">
+                <img loading="lazy" id="card-qr-target" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://skillforgedigital.com.ng/trainee-registration/" class="barcode-img" alt="QR">
                 <span class="barcode-label">Registry Identity</span>
               </div>
             </div>
@@ -691,6 +728,8 @@ window.downloadCard = async () => {
       if (clonedName) {
           clonedName.style.display = 'block';
           clonedName.style.webkitLineClamp = 'initial';
+          clonedName.style.overflow = 'visible';
+          clonedName.style.lineHeight = '1';
       }
     }
   };
@@ -739,6 +778,7 @@ if (document.readyState === 'loading') {
     window.initPage();
 }
 </script>
+  <script type="module" src="../../assets/daily-canvas.js"></script>
   <script type="module" src="../../assets/sf-core.js"></script>
   <script type="module" src="../../assets/sf-turbo.js"></script>
 </body>

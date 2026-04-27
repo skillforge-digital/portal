@@ -312,6 +312,9 @@ class SkillForgeCore {
             console.log(`[FaultDetector] Scan complete. ${newFaults.length} issues identified.`);
         } catch (err) {
             console.error("[FaultDetector] System scan interrupted:", err);
+            if (window['sf_report_error']) {
+                window['sf_report_error']("Fault Scan Interrupted", err.stack || err.message);
+            }
         }
     }
 
@@ -341,7 +344,10 @@ class SkillForgeCore {
             }
             if (faults.length > 0) console.warn(`[FaultDetector] ${faults.length} critical faults escalated to Command Center.`);
         } catch (err) {
-            // Silently fail escalation to prevent recursion if Firestore rules are the cause
+            console.error("[FaultDetector] Escalation Failed:", err);
+            if (window['sf_report_error']) {
+                window['sf_report_error']("Fault Escalation Failed", err.stack || err.message);
+            }
         }
     }
 
@@ -388,12 +394,22 @@ class SkillForgeCore {
         if (traineeSnap.exists()) {
             this.registryState = traineeSnap.data();
         } else {
-            // CRITICAL: If Auth exists but Firestore profile is missing, force logout/re-login
-            console.error("[PortalCore] Profile missing from Registry. Forcing re-authentication.");
-            // Only redirect if we are in the dashboard area
-            if (window.location.pathname.includes('/trainee-dashboard/')) {
-                window.location.href = '/trainee-login/?error=profile_missing';
-                return;
+            // Check staffs collection as well just in case
+            const staffSnap = await getDoc(doc(this.db, 'staffs', this.uid));
+            if (staffSnap.exists()) {
+                this.registryState = staffSnap.data();
+            } else {
+                console.error("[PortalCore] Profile missing from Registry. Forcing re-authentication.");
+                // Strictly delete the fake mock uid if it's invalid so they can't get stuck in a loop
+                if (localStorage.getItem('skillforge_mock_uid') === this.uid) {
+                    localStorage.removeItem('skillforge_mock_uid');
+                }
+                
+                // Force eject them if they are anywhere in the dashboard
+                if (window.location.pathname.includes('/dashboard/') || window.location.pathname.includes('/staffs/')) {
+                    window.location.href = '../../trainee-login/?error=profile_missing';
+                    return;
+                }
             }
         }
 

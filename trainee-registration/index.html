@@ -17,6 +17,45 @@
   <meta property="twitter:image" content="https://i.postimg.cc/fRYD4HSw/Whats-App-Image-2026-01-16-at-1-20-06-PM.jpg">
 
   <title>Academy Registration • SkillForge Digital & Co. Ltd</title>
+
+  <!-- Advanced SEO Search Magnets -->
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="description" content="SkillForge Digital Portal - Access your Mastery Dashboard, track your XP, and connect with your cohort.">
+  <meta name="keywords" content="SkillForge Portal, Trainee Dashboard, Tech Academy Login, Student Portal, Mastery Hub, Digital Skills Nigeria">
+  <meta name="author" content="SkillForge Digital & Co. Ltd">
+  
+  <!-- Open Graph / Facebook / WhatsApp -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://portal.skillforgedigital.com.ng/">
+  <meta property="og:title" content="SkillForge Portal | Mastery Hub">
+  <meta property="og:description" content="Access your SkillForge Mastery Dashboard, track your study XP, and customize your learning environment.">
+  <meta property="og:image" itemprop="image" content="https://files.fm/thumb_show.php?i=sebxcfvhb7">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="SkillForge Portal">
+  <meta property="og:locale" content="en_US">
+  
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SkillForge Portal | Mastery Hub">
+  <meta name="twitter:description" content="Access your SkillForge Mastery Dashboard, track your study XP, and customize your learning environment.">
+  <meta name="twitter:image" content="https://files.fm/thumb_show.php?i=sebxcfvhb7">
+  
+  <!-- Schema.org JSON-LD for Google -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "SkillForge Portal",
+    "url": "https://portal.skillforgedigital.com.ng",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://portal.skillforgedigital.com.ng/verify/?id={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+
   <link rel="stylesheet" href="../assets/style.css">
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -70,7 +109,8 @@
         h1 { font-size: 2rem !important; }
     }
   </style>
-</head>
+
+    </head>
 <body class="min-h-screen py-12 md:py-20 px-4 md:px-6">
   <canvas id="sundust-canvas"></canvas>
 
@@ -187,7 +227,7 @@
                         <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Registry Profile Identity</p>
                         <div class="flex items-center gap-4">
                             <div id="upload-preview-container" class="w-12 h-12 rounded-xl bg-white/5 border border-white/10 overflow-hidden flex-shrink-0 flex items-center justify-center">
-                                <img id="upload-preview" src="" alt="Profile Preview" class="hidden w-full h-full object-cover">
+                                <img loading="lazy" id="upload-preview" src="" alt="Profile Preview" class="hidden w-full h-full object-cover">
                                 <i data-lucide="user" class="w-5 h-5 text-slate-700" id="preview-placeholder"></i>
                             </div>
                             <label for="profile-upload" class="flex-1 p-4 rounded-2xl text-sm glass flex items-center justify-between cursor-pointer hover:bg-white/5 transition-all">
@@ -242,7 +282,7 @@
         <section id="onboarding-section" class="hidden space-y-6 animate-slide-up">
             <div class="glass p-12 rounded-[40px] border-t-4 border-gold text-center">
                 <div class="w-20 h-20 bg-gold/10 rounded-full flex items-center justify-center mx-auto mb-8 text-gold border border-gold/20">
-                    <i data-lucide="shield-check" class="w-10 h-10"></i>
+                    <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" class="w-6 h-6 object-contain" alt="SF">
                 </div>
                 <h2 id="welcome-message" class="text-3xl font-black text-white uppercase tracking-tighter mb-2">Welcome to the Future of Mastery</h2>
                 <p class="text-slate-500 text-[10px] font-black uppercase tracking-[0.4em] mb-12">Skillforge Digital & Co. Ltd • Academy Onboarding</p>
@@ -329,7 +369,7 @@
                 <p class="text-[8px] text-slate-600 font-bold uppercase tracking-widest">Use this Access Code to access your Trainee Center</p>
             </div>
             <a href="../trainee-login/index.html" class="inline-flex items-center gap-3 bg-gold text-navy px-12 py-5 rounded-2xl font-black uppercase text-xs tracking-widest shadow-2xl hover:bg-white transition-all">
-                Enter Academy Center <i data-lucide="shield-check" class="w-4 h-4"></i>
+                Enter Academy Center <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" class="w-6 h-6 object-contain" alt="SF">
             </a>
         </section>
     </main>
@@ -409,6 +449,12 @@
     profileUpload?.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) {
+            clearRegError();
+            if (file.size > 5 * 1024 * 1024) {
+                showRegError("Registry File too large. Max limit is 5MB.");
+                e.target.value = ''; // clear selection
+                return;
+            }
             fileNameLabel.innerText = file.name;
             uploadedProfileFile = file;
             
@@ -438,7 +484,7 @@
         div.setAttribute('role', 'button');
         div.setAttribute('tabindex', '0');
         div.setAttribute('aria-label', `Select Avatar Option ${i}`);
-        div.innerHTML = `<img src="${url}" alt="Avatar Option ${i}" class="w-full h-full object-contain">`;
+        div.innerHTML = `<img loading="lazy" src="${url}" alt="Avatar Option ${i}" class="w-full h-full object-contain">`;
         
         const selectAvatar = () => {
             document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('selected'));

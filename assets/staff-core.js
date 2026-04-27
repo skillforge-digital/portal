@@ -100,9 +100,17 @@ class StaffCore {
                         // Check if account is active
                         if (this.profile.status === 'pending') {
                             console.warn("[StaffCore] Account pending approval.");
-                            alert("Access Denied: Your personnel application is still pending Director approval.");
-                            await this.auth.signOut();
-                            window.location.href = '/staffs/login/';
+                            if (window['sf_report_error']) {
+                                window['sf_report_error']("permissions: Your personnel application is still pending Director approval.", "Account Pending", true);
+                                setTimeout(async () => {
+                                    await this.auth.signOut();
+                                    window.location.href = '/staffs/login/';
+                                }, 4000);
+                            } else {
+                                alert("Access Denied: Your personnel application is still pending Director approval.");
+                                await this.auth.signOut();
+                                window.location.href = '/staffs/login/';
+                            }
                             return;
                         }
 
@@ -127,7 +135,7 @@ class StaffCore {
         // Access map: path -> allowed roles
         /** @type {Object.<string, string[]>} */
         const accessMap = {
-            '/admin/': ['Director'],
+            '/staffs/director/': ['Director'],
             '/staffs/hod/': ['Director', 'HOD'],
             '/staffs/specialist/': ['Director', 'HOD', 'Specialist'],
             '/staffs/marketing/': ['Director', 'HOD', 'Digital Marketing'],
@@ -143,8 +151,13 @@ class StaffCore {
             
             if (!hasAccess) {
                 console.error("[StaffCore] Access Denied: Insufficient Clearances.");
-                alert("Unauthorized: Your clearance level is insufficient for this system node.");
-                window.location.href = '/staffs/login/';
+                if (window['sf_report_error']) {
+                    window['sf_report_error']("permissions: Insufficient Clearances for this system node.", "Access Denied", true);
+                    setTimeout(() => { window.location.href = '/staffs/login/'; }, 4000);
+                } else {
+                    alert("Unauthorized: Your clearance level is insufficient for this system node.");
+                    window.location.href = '/staffs/login/';
+                }
             }
         }
     }

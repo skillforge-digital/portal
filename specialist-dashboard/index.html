@@ -3,7 +3,47 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; img-src 'self' data: https: blob:; font-src 'self' https: data:; style-src 'self' https: 'unsafe-inline'; script-src 'self' https: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https: wss:;">
 <title>SkillForge — Specialist Command Center</title>
+
+  <!-- Advanced SEO Search Magnets -->
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="description" content="SkillForge Digital Portal - Access your Mastery Dashboard, track your XP, and connect with your cohort.">
+  <meta name="keywords" content="SkillForge Portal, Trainee Dashboard, Tech Academy Login, Student Portal, Mastery Hub, Digital Skills Nigeria">
+  <meta name="author" content="SkillForge Digital & Co. Ltd">
+  
+  <!-- Open Graph / Facebook / WhatsApp -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://portal.skillforgedigital.com.ng/">
+  <meta property="og:title" content="SkillForge Portal | Mastery Hub">
+  <meta property="og:description" content="Access your SkillForge Mastery Dashboard, track your study XP, and customize your learning environment.">
+  <meta property="og:image" itemprop="image" content="https://files.fm/thumb_show.php?i=sebxcfvhb7">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="SkillForge Portal">
+  <meta property="og:locale" content="en_US">
+  
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SkillForge Portal | Mastery Hub">
+  <meta name="twitter:description" content="Access your SkillForge Mastery Dashboard, track your study XP, and customize your learning environment.">
+  <meta name="twitter:image" content="https://files.fm/thumb_show.php?i=sebxcfvhb7">
+  
+  <!-- Schema.org JSON-LD for Google -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "SkillForge Portal",
+    "url": "https://portal.skillforgedigital.com.ng",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://portal.skillforgedigital.com.ng/verify/?id={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+
 <script>
   // Immediate UI Preparation - Hide content until Registry Core is ready
   (function() {
@@ -43,7 +83,8 @@ tailwind.config = {
   .status-accepted { background: rgba(34, 197, 94, 0.1); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.2); }
   .status-rejected { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); }
 </style>
-</head>
+
+    </head>
 <body class="overflow-x-hidden min-h-screen">
 
 <div id="loading-screen">
@@ -70,7 +111,7 @@ tailwind.config = {
     <nav class="space-y-1">
       <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Registry Control</p>
       <a href="../" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-arrow-left w-4"></i> Back to Portal</a>
-      <a href="#" onclick="showSection('approvals')" id="nav-approvals" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest bg-gold-500/10 text-gold-400 border-r-4 border-gold-500"><i class="fa-solid fa-shield-halved w-4"></i> Badge Approvals</a>
+      <a href="#" onclick="showSection('approvals')" id="nav-approvals" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest bg-gold-500/10 text-gold-400 border-r-4 border-gold-500"><img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" class="w-full h-full object-cover" alt="SF"> Badge Approvals</a>
       <a href="#" onclick="showSection('analytics')" id="nav-analytics" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-chart-line w-4"></i> Track Analytics</a>
       <a href="customize/" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-wand-magic-sparkles w-4"></i> Design Studio</a>
       <a href="#" onclick="showSection('directors')" id="nav-directors" class="nav-link hidden w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-crown w-4"></i> Director Forge</a>
@@ -91,7 +132,7 @@ tailwind.config = {
 </aside>
 
 <main class="md:ml-72 p-6 md:p-10 pt-24 md:pt-20">
-  <div class="max-w-6xl mx-auto space-y-12">
+  <div class="w-full max-w-[1800px] mx-auto space-y-12">
     <header class="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8">
       <div>
         <p class="text-gold-400 text-sm font-medium tracking-widest uppercase">Specialist Portal</p>

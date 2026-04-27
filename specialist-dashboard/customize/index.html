@@ -3,7 +3,47 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; img-src 'self' data: https: blob:; font-src 'self' https: data:; style-src 'self' https: 'unsafe-inline'; script-src 'self' https: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https: wss:;">
 <title>SkillForge — Command Design Studio</title>
+
+  <!-- Advanced SEO Search Magnets -->
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="description" content="SkillForge Digital Portal - Access your Mastery Dashboard, track your XP, and connect with your cohort.">
+  <meta name="keywords" content="SkillForge Portal, Trainee Dashboard, Tech Academy Login, Student Portal, Mastery Hub, Digital Skills Nigeria">
+  <meta name="author" content="SkillForge Digital & Co. Ltd">
+  
+  <!-- Open Graph / Facebook / WhatsApp -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://portal.skillforgedigital.com.ng/">
+  <meta property="og:title" content="SkillForge Portal | Mastery Hub">
+  <meta property="og:description" content="Access your SkillForge Mastery Dashboard, track your study XP, and customize your learning environment.">
+  <meta property="og:image" itemprop="image" content="https://files.fm/thumb_show.php?i=sebxcfvhb7">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="SkillForge Portal">
+  <meta property="og:locale" content="en_US">
+  
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SkillForge Portal | Mastery Hub">
+  <meta name="twitter:description" content="Access your SkillForge Mastery Dashboard, track your study XP, and customize your learning environment.">
+  <meta name="twitter:image" content="https://files.fm/thumb_show.php?i=sebxcfvhb7">
+  
+  <!-- Schema.org JSON-LD for Google -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "SkillForge Portal",
+    "url": "https://portal.skillforgedigital.com.ng",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://portal.skillforgedigital.com.ng/verify/?id={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+
 <script>
   (function() { document.documentElement.style.visibility = 'hidden'; })();
 </script>
@@ -58,7 +98,8 @@ tailwind.config = {
   .sidebar-link:hover { background: rgba(255,255,255,0.05); }
   .sidebar-link.active { background: rgba(var(--accent-color-rgb), 0.1); color: var(--accent-color); border-right: 3px solid var(--accent-color); }
 </style>
-</head>
+
+    </head>
 <body class="noise-bg text-white overflow-x-hidden min-h-screen">
 
 <div id="loading-screen">
@@ -74,7 +115,7 @@ tailwind.config = {
 <!-- Mobile Header -->
 <div class="md:hidden h-20 px-6 flex items-center justify-between glass sticky top-0 z-[100] border-b border-white/5">
   <div class="flex items-center gap-3">
-    <button onclick="window.history.back()" class="p-2 text-white/50 hover:text-white transition-all"><i class="fa-solid fa-arrow-left text-xl"></i></button>
+    <button aria-label="Navigate" onclick="window.history.back()" class="p-2 text-white/50 hover:text-white transition-all"><i class="fa-solid fa-arrow-left text-xl"></i></button>
     <div class="flex items-center gap-3">
       <div class="w-8 h-8 rounded-lg bg-black flex items-center justify-center border border-gold-500/30 overflow-hidden">
         <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" class="w-full h-full object-cover">
@@ -85,7 +126,7 @@ tailwind.config = {
       </div>
     </div>
   </div>
-  <button onclick="toggleSidebar()" class="p-2 text-white/50 hover:text-white transition-all"><i class="fa-solid fa-bars-staggered text-xl"></i></button>
+  <button aria-label="Menu" onclick="toggleSidebar()" class="p-2 text-white/50 hover:text-white transition-all"><i class="fa-solid fa-bars-staggered text-xl"></i></button>
 </div>
 
 <aside id="main-sidebar" class="w-72 glass-strong border-r border-white/5 flex flex-col fixed inset-y-0 z-50 transition-all duration-500 -translate-x-full md:translate-x-0">
@@ -102,7 +143,7 @@ tailwind.config = {
     <nav class="space-y-1">
       <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Registry Control</p>
       <a href="../" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-layer-group w-4"></i> Overview</a>
-      <a href="#" onclick="showSection('approvals')" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-shield-halved w-4"></i> Badge Approvals</a>
+      <a href="#" onclick="showSection('approvals')" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" class="w-full h-full object-cover" alt="SF"> Badge Approvals</a>
       <a href="#" onclick="showSection('analytics')" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-chart-line w-4"></i> Track Analytics</a>
       <a href="#" onclick="showSection('customize')" class="sidebar-link active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest"><i class="fa-solid fa-wand-magic-sparkles w-4"></i> Design Studio</a>
       <a href="#" onclick="showSection('directors')" id="nav-directors-link" class="sidebar-link hidden w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-crown w-4"></i> Director Forge</a>
@@ -123,7 +164,7 @@ tailwind.config = {
 </aside>
 
 <main class="md:ml-72 min-h-screen relative z-10 p-6 md:p-10 pt-24 md:pt-20">
-  <div class="max-w-6xl mx-auto space-y-12">
+  <div class="w-full max-w-[1800px] mx-auto space-y-12">
     <header class="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8">
       <div>
         <p class="text-gold-400 text-sm font-medium tracking-widest uppercase">Atmosphere Control</p>

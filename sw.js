@@ -39,11 +39,15 @@ self.addEventListener('install', (event) => {
             // Cache internal assets first
             const cacheInternal = cache.addAll(ASSETS_TO_CACHE);
             
-            // Attempt to cache external assets with no-cors if they fail regular fetch
+            // Attempt to cache external assets, only if they are valid and non-opaque
             const cacheExternal = Promise.all(
                 EXTERNAL_ASSETS.map(url => 
-                    fetch(url, { mode: 'no-cors' })
-                        .then(response => cache.put(url, response))
+                    fetch(url)
+                        .then(response => {
+                            if (response.status === 200 && response.type !== 'opaque') {
+                                return cache.put(url, response);
+                            }
+                        })
                         .catch(err => console.warn(`[OfflineRegistry] Failed to cache external asset: ${url}`, err))
                 )
             );
@@ -57,22 +61,18 @@ self.addEventListener('fetch', (event) => {
     // Skip non-GET requests
     if (event.request.method !== 'GET') return;
 
-    // Skip Firebase/Analytics requests to let them handle their own persistence
+    // Skip Firebase/Analytics and Cloudflare Beacon requests to let them handle their own persistence
     if (event.request.url.includes('googleapis.com') || 
         event.request.url.includes('firebase') ||
-        event.request.url.includes('cloudflareinsights.com')) {
-        return;
-    }
-
-    // Handle Cloudflare Beacon (RUM) to prevent 404 console errors
-    if (event.request.url.includes('/cdn-cgi/rum')) {
-        event.respondWith(new Response(null, { status: 204 }));
+        event.request.url.includes('cloudflareinsights.com') ||
+        event.request.url.includes('/cdn-cgi/')) {
         return;
     }
 
     event.respondWith(
         fetch(event.request).then((fetchResponse) => {
-            if (fetchResponse.status === 200) {
+            // Allow caching for valid, non-opaque responses
+            if (fetchResponse.status === 200 && fetchResponse.type !== 'opaque') {
                 const responseClone = fetchResponse.clone();
                 caches.open(CACHE_NAME).then((cache) => {
                     cache.put(event.request, responseClone);

@@ -3,7 +3,47 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; img-src 'self' data: https: blob:; font-src 'self' https: data:; style-src 'self' https: 'unsafe-inline'; script-src 'self' https: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https: wss:;">
 <title>SkillForge — Academy Vault</title>
+
+  <!-- Advanced SEO Search Magnets -->
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="description" content="SkillForge Digital Portal - Access your Mastery Dashboard, track your XP, and connect with your cohort.">
+  <meta name="keywords" content="SkillForge Portal, Trainee Dashboard, Tech Academy Login, Student Portal, Mastery Hub, Digital Skills Nigeria">
+  <meta name="author" content="SkillForge Digital & Co. Ltd">
+  
+  <!-- Open Graph / Facebook / WhatsApp -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://portal.skillforgedigital.com.ng/">
+  <meta property="og:title" content="SkillForge Portal | Mastery Hub">
+  <meta property="og:description" content="Access your SkillForge Mastery Dashboard, track your study XP, and customize your learning environment.">
+  <meta property="og:image" itemprop="image" content="https://files.fm/thumb_show.php?i=sebxcfvhb7">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="SkillForge Portal">
+  <meta property="og:locale" content="en_US">
+  
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SkillForge Portal | Mastery Hub">
+  <meta name="twitter:description" content="Access your SkillForge Mastery Dashboard, track your study XP, and customize your learning environment.">
+  <meta name="twitter:image" content="https://files.fm/thumb_show.php?i=sebxcfvhb7">
+  
+  <!-- Schema.org JSON-LD for Google -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "SkillForge Portal",
+    "url": "https://portal.skillforgedigital.com.ng",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://portal.skillforgedigital.com.ng/verify/?id={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+
 <script>
   (function() {
     // Immediate UI Preparation - Hide content until cloud session is verified
@@ -71,8 +111,12 @@
     background: linear-gradient(135deg, #e2e8f0 0%, #94a3b8 50%, #cbd5e1 100%);
     box-shadow: 0 0 20px rgba(148, 163, 184, 0.3), inset 0 0 10px rgba(255,255,255,0.5);
   }
+
+    #loading-screen { position: fixed; inset: 0; background: #040810; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease, visibility 0.5s ease; pointer-events: all; }
+    #loading-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
 </style>
-</head>
+
+    </head>
 <body class="noise-bg text-white overflow-x-hidden min-h-screen">
     <!-- Global News Ticker -->
     <div class="fixed top-0 left-0 right-0 md:left-72 h-8 bg-navy-950/90 backdrop-blur-xl border-b border-white/5 z-[60] overflow-hidden flex items-center no-print shadow-2xl">
@@ -134,7 +178,7 @@
     </div>
     <nav class="space-y-1">
       <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Academy Pages</p>
-      <a href="/trainee-dashboard/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-layer-group w-4"></i> Overview</a>
+      <a aria-label="The Vault" href="/trainee-dashboard/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-layer-group w-4"></i> Overview</a>
       <a href="/trainee-dashboard/dmc/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-id-card w-4"></i> Membership Card</a>
       <a href="/trainee-dashboard/leaderboard/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-ranking-star w-4"></i> Hall of Fame</a>
       <a href="/academy/" id="my-track-link" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-rocket w-4"></i> My Track</a>
@@ -148,8 +192,7 @@
             <span class="text-[7px] font-black uppercase tracking-widest opacity-60">Season 2026/B</span>
             <span class="text-[10px] font-bold uppercase">Register for Next Season</span>
           </div>
-          <i class="fa-solid fa-chevron-right text-xs group-hover:translate-x-1 transition-transform"></i>
-        </button>
+          <i class="fa-solid fa-chevron-right text-xs group-hover:translate-x-1 transition-transform"></i></button>
         <p id="next-season-locked-msg" class="hidden text-[7px] text-red-400 font-bold uppercase tracking-widest text-center px-4">Currently locked to active track session</p>
       </div>
 
@@ -170,14 +213,13 @@
     </nav>
   </div>
   <div class="p-8 border-t border-white/5">
-    <button type="button" onclick="logout()" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-red-400/70 hover:text-red-400 hover:bg-red-400/10 transition-all">
-      <i class="fa-solid fa-right-from-bracket w-4"></i> Sign Out
+    <button aria-label="Navigate" type="button" onclick="logout()" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-red-400/70 hover:text-red-400 hover:bg-red-400/10 transition-all"><i class="fa-solid fa-right-from-bracket w-4"></i> Sign Out
     </button>
   </div>
 </aside>
 
 <main class="md:ml-72 min-h-screen relative z-10 p-6 md:p-10 pt-24 md:pt-20">
-  <div class="max-w-7xl mx-auto space-y-12">
+  <div class="w-full max-w-[1800px] mx-auto space-y-12">
     <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 fade-in delay-100">
       <div>
         <p class="text-gold-400 text-sm font-medium tracking-widest uppercase">Registry Archives</p>
@@ -190,6 +232,10 @@
         </div>
       </div>
     </header>
+
+    <div id="vault-error" class="hidden mb-8 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-500 text-[10px] font-black uppercase tracking-widest text-center fade-in delay-100">
+        <!-- Error message injected here -->
+    </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 fade-in delay-200" id="vault-grid">
       <!-- Silver Badge Section -->
@@ -240,13 +286,29 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 let traineeData = null;
 let activeUid = null;
 
+function showVaultError(msg) {
+    const errEl = document.getElementById('vault-error');
+    if (errEl) {
+        errEl.innerText = msg;
+        errEl.classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
+function clearVaultError() {
+    const errEl = document.getElementById('vault-error');
+    if (errEl) errEl.classList.add('hidden');
+}
+
 // Handle File Uploads
 document.getElementById('vault-file-input').addEventListener('change', async (e) => {
   const file = e.target.files[0];
   if (!file || !activeUid) return;
 
+  clearVaultError();
   if (file.size > 5 * 1024 * 1024) {
-    alert("Asset exceeded 5MB registry limit.");
+    showVaultError("Registry File too large. Max limit is 5MB.");
+    e.target.value = '';
     return;
   }
 
@@ -299,7 +361,7 @@ document.getElementById('vault-file-input').addEventListener('change', async (e)
 
   } catch (err) {
     console.error(err);
-    alert("Archive failed. Portal sync interrupted.");
+    showVaultError("Archive failed. Portal sync interrupted.");
     text.innerHTML = originalHtml;
     icon.innerHTML = `<i class="fa-solid fa-cloud-arrow-up text-white/20 text-2xl"></i>`;
   }
@@ -471,9 +533,8 @@ function loadVault(data) {
       </div>
       <div class="pt-6 border-t border-white/5 flex items-center justify-between">
         <span class="text-[8px] font-black auto-contrast-muted uppercase tracking-widest">Mastered Node</span>
-        <a href="../../skill forge site/academy/${track}/${lesson}/" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center auto-contrast-muted hover:auto-contrast hover:bg-white/10 transition-all">
-          <i class="fa-solid fa-arrow-right text-[10px]"></i>
-        </a>
+        <a href="https://skillforgedigital.com.ng/academy/${track}/${lesson}/" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center auto-contrast-muted hover:auto-contrast hover:bg-white/10 transition-all">
+          <i class="fa-solid fa-arrow-right text-[10px]"></i></a>
       </div>
     `;
     grid.appendChild(card);
@@ -489,9 +550,7 @@ function loadVault(data) {
           <i class="fa-solid fa-${item.type === 'DOCUMENT' ? 'file-pdf' : 'image'} text-xl"></i>
         </div>
         <div class="flex gap-2">
-          <button onclick="deleteAsset(${index}, '${item.name}')" class="w-8 h-8 rounded-full bg-red-500/10 text-red-400 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500 hover:text-white">
-            <i class="fa-solid fa-trash-can text-[10px]"></i>
-          </button>
+          <button aria-label="Action button" onclick="deleteAsset(${index}, '${item.name}')" class="w-8 h-8 rounded-full bg-red-500/10 text-red-400 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500 hover:text-white"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
           <span class="px-3 py-1 rounded-full bg-white/5 text-[8px] font-black auto-contrast-muted uppercase tracking-widest">${item.type || 'ASSET'}</span>
         </div>
       </div>
@@ -501,9 +560,7 @@ function loadVault(data) {
       </div>
       <div class="pt-6 border-t border-white/5 flex items-center justify-between">
         <span class="text-[8px] font-black auto-contrast-muted uppercase tracking-widest">Mastery Asset</span>
-        <a href="${item.url}" target="_blank" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center auto-contrast-muted hover:auto-contrast hover:bg-white/10 transition-all">
-          <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-        </a>
+        <a aria-label="Navigate" href="${item.url}" target="_blank" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center auto-contrast-muted hover:auto-contrast hover:bg-white/10 transition-all"><i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a>
       </div>
     `;
     grid.appendChild(card);
@@ -547,6 +604,7 @@ window.logout = async () => {
   window.location.href = '../../trainee-login/';
 };
 </script>
+  <script type="module" src="../../assets/daily-canvas.js"></script>
   <script type="module" src="../../assets/sf-core.js"></script>
   <script type="module" src="../../assets/sf-turbo.js"></script>
 </body>

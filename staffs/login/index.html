@@ -17,6 +17,45 @@
   <meta property="twitter:image" content="https://i.postimg.cc/fRYD4HSw/Whats-App-Image-2026-01-16-at-1-20-06-PM.jpg">
 
   <title>Personnel Login — SkillForge Digital</title>
+
+  <!-- Advanced SEO Search Magnets -->
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="description" content="SkillForge Digital Portal - Access your Mastery Dashboard, track your XP, and connect with your cohort.">
+  <meta name="keywords" content="SkillForge Portal, Trainee Dashboard, Tech Academy Login, Student Portal, Mastery Hub, Digital Skills Nigeria">
+  <meta name="author" content="SkillForge Digital & Co. Ltd">
+  
+  <!-- Open Graph / Facebook / WhatsApp -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://portal.skillforgedigital.com.ng/">
+  <meta property="og:title" content="SkillForge Portal | Mastery Hub">
+  <meta property="og:description" content="Access your SkillForge Mastery Dashboard, track your study XP, and customize your learning environment.">
+  <meta property="og:image" itemprop="image" content="https://files.fm/thumb_show.php?i=sebxcfvhb7">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="SkillForge Portal">
+  <meta property="og:locale" content="en_US">
+  
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SkillForge Portal | Mastery Hub">
+  <meta name="twitter:description" content="Access your SkillForge Mastery Dashboard, track your study XP, and customize your learning environment.">
+  <meta name="twitter:image" content="https://files.fm/thumb_show.php?i=sebxcfvhb7">
+  
+  <!-- Schema.org JSON-LD for Google -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "SkillForge Portal",
+    "url": "https://portal.skillforgedigital.com.ng",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://portal.skillforgedigital.com.ng/verify/?id={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+
   <link rel="stylesheet" href="../../assets/style.css">
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -53,14 +92,14 @@
     @keyframes slide-up { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     .animate-slide-up { animation: slide-up 0.8s ease-out forwards; opacity: 0; }
   </style>
-</head>
+
+    </head>
 <body class="min-h-screen py-20 px-4">
   <canvas id="sundust-canvas"></canvas>
 
   <div class="relative z-10 max-w-xl mx-auto">
     <header class="text-center mb-16 space-y-4 animate-slide-up">
-        <a href="../" class="inline-flex items-center gap-2 text-gold font-black text-[10px] uppercase tracking-[0.3em] mb-8 hover:text-white transition-all">
-            <i data-lucide="arrow-left" class="w-3 h-3"></i> Back to Staff Gateway
+        <a aria-label="Action button" href="../" class="inline-flex items-center gap-2 text-gold font-black text-[10px] uppercase tracking-[0.3em] mb-8 hover:text-white transition-all"><i data-lucide="arrow-left" class="w-3 h-3"></i> Back to Staff Gateway
         </a>
         <h1 class="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter">Personnel Access</h1>
         <p class="text-slate-500 text-[10px] md:text-xs font-black uppercase tracking-[0.4em]">Secure Command Authentication</p>
@@ -89,13 +128,12 @@
                     <div class="relative">
                         <input required id="staff-password" name="password" type="password" placeholder="********" class="w-full p-4 rounded-2xl text-sm pr-12">
                         <button type="button" aria-label="Toggle password visibility" onclick="togglePassword('staff-password')" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-gold transition-colors">
-                            <i data-lucide="eye" class="w-4 h-4" id="eye-staff-password"></i>
-                        </button>
+                            <i data-lucide="eye" class="w-4 h-4" id="eye-staff-password"></i></button>
                     </div>
                 </div>
 
                 <button type="submit" id="login-btn" class="w-full py-5 bg-white text-navy font-black rounded-2xl uppercase text-[10px] tracking-[0.2em] shadow-xl hover:bg-gold transition-all flex items-center justify-center gap-2">
-                    Initialize Session <i data-lucide="shield-check" class="w-4 h-4"></i>
+                    Initialize Session <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" class="w-6 h-6 object-contain" alt="SF">
                 </button>
             </form>
 
@@ -247,7 +285,7 @@
             alert("Authentication failed: " + err.message);
         } finally {
             btn.disabled = false;
-            btn.innerHTML = 'Initialize Session <i data-lucide="shield-check" class="w-4 h-4"></i>';
+            btn.innerHTML = 'Initialize Session <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" class="w-6 h-6 object-contain" alt="SF">';
             if (window.lucide) window.lucide.createIcons();
         }
     };

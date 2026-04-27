@@ -3,7 +3,47 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; img-src 'self' data: https: blob:; font-src 'self' https: data:; style-src 'self' https: 'unsafe-inline'; script-src 'self' https: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https: wss:;">
 <title>SkillForge — Design Studio</title>
+
+  <!-- Advanced SEO Search Magnets -->
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="description" content="SkillForge Digital Portal - Access your Mastery Dashboard, track your XP, and connect with your cohort.">
+  <meta name="keywords" content="SkillForge Portal, Trainee Dashboard, Tech Academy Login, Student Portal, Mastery Hub, Digital Skills Nigeria">
+  <meta name="author" content="SkillForge Digital & Co. Ltd">
+  
+  <!-- Open Graph / Facebook / WhatsApp -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://portal.skillforgedigital.com.ng/">
+  <meta property="og:title" content="SkillForge Portal | Mastery Hub">
+  <meta property="og:description" content="Access your SkillForge Mastery Dashboard, track your study XP, and customize your learning environment.">
+  <meta property="og:image" itemprop="image" content="https://files.fm/thumb_show.php?i=sebxcfvhb7">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="SkillForge Portal">
+  <meta property="og:locale" content="en_US">
+  
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SkillForge Portal | Mastery Hub">
+  <meta name="twitter:description" content="Access your SkillForge Mastery Dashboard, track your study XP, and customize your learning environment.">
+  <meta name="twitter:image" content="https://files.fm/thumb_show.php?i=sebxcfvhb7">
+  
+  <!-- Schema.org JSON-LD for Google -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "SkillForge Portal",
+    "url": "https://portal.skillforgedigital.com.ng",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://portal.skillforgedigital.com.ng/verify/?id={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+
 <meta name="description" content="Personalize your SkillForge experience. Customize colors, wallpapers, and typography in the Design Studio.">
 <meta name="keywords" content="SkillForge, Design Studio, Personalization, Dashboard, Theme, Typography">
 <meta name="author" content="SkillForge Digital & Co. Ltd">
@@ -189,7 +229,8 @@
   .custom-scrollbar::-webkit-scrollbar { width: 4px; }
   .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--accent-color); border-radius: 10px; }
 </style>
-</head>
+
+    </head>
 <body class="noise-bg text-white overflow-x-hidden min-h-screen">
 
 <!-- Global News Ticker -->
@@ -252,7 +293,7 @@
     </div>
     <nav class="space-y-1">
       <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Academy Pages</p>
-      <a href="/trainee-dashboard/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-layer-group w-4"></i> Overview</a>
+      <a aria-label="The Vault" href="/trainee-dashboard/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-layer-group w-4"></i> Overview</a>
       <a href="/trainee-dashboard/dmc/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-id-card w-4"></i> Membership Card</a>
       <a href="/trainee-dashboard/leaderboard/" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-ranking-star w-4"></i> Hall of Fame</a>
       <a href="/academy/" id="my-track-link" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i class="fa-solid fa-rocket w-4"></i> My Track</a>
@@ -266,8 +307,7 @@
             <span class="text-[7px] font-black uppercase tracking-widest opacity-60">Season 2026/B</span>
             <span class="text-[10px] font-bold uppercase">Register for Next Season</span>
           </div>
-          <i class="fa-solid fa-chevron-right text-xs group-hover:translate-x-1 transition-transform"></i>
-        </button>
+          <i class="fa-solid fa-chevron-right text-xs group-hover:translate-x-1 transition-transform"></i></button>
         <p id="next-season-locked-msg" class="hidden text-[7px] text-red-400 font-bold uppercase tracking-widest text-center px-4">Currently locked to active track session</p>
       </div>
 
@@ -295,7 +335,7 @@
 </aside>
 
 <main id="main-content" class="md:ml-72 min-h-screen relative z-10 p-6 md:p-10 pt-24 md:pt-20">
-  <div class="w-full max-w-7xl mx-auto space-y-12">
+  <div class="w-full w-full max-w-[1800px] mx-auto space-y-12">
     <header class="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 px-4">
       <div>
         <p class="text-gold-400 text-sm font-medium tracking-widest uppercase">Atmosphere Control</p>
@@ -304,6 +344,7 @@
       <div class="flex gap-2 p-1.5 glass rounded-[24px]" role="tablist">
         <button type="button" onclick="setTab('colors')" id="tab-colors" class="tab-btn active" role="tab" aria-selected="true" aria-controls="section-colors">Colors</button>
         <button type="button" onclick="setTab('wallpapers')" id="tab-wallpapers" class="tab-btn" role="tab" aria-selected="false" aria-controls="section-wallpapers">Wallpapers</button>
+        <button type="button" onclick="setTab('avatars')" id="tab-avatars" class="tab-btn" role="tab" aria-selected="false" aria-controls="section-avatars">Avatars</button>
         <button type="button" onclick="setTab('fonts')" id="tab-fonts" class="tab-btn" role="tab" aria-selected="false" aria-controls="section-fonts">Fonts</button>
       </div>
     </header>
@@ -337,6 +378,52 @@
           <div class="space-y-8">
             <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">20+ Premium Motion Atmosphere</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="wallpaper-grid" aria-label="Wallpaper Selection"></div>
+          </div>
+        </section>
+
+        
+        <!-- Avatars Tab -->
+        <section id="section-avatars" class="hidden space-y-12" role="tabpanel" aria-labelledby="tab-avatars">
+          <div class="space-y-8">
+            <div class="flex items-center justify-between">
+              <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">Profile Pictures & Avatars</h2>
+            </div>
+            
+            <!-- Upload Section -->
+            <div class="glass-strong p-8 rounded-3xl space-y-6">
+              <h3 class="text-[10px] font-black uppercase tracking-widest text-gold-400">Upload New Profile Picture</h3>
+              <div class="flex flex-col md:flex-row items-center gap-6">
+                <label for="avatar-upload" class="flex-1 w-full border-2 border-dashed border-white/20 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer hover:border-gold-500 hover:bg-white/5 transition-all">
+                  <i class="fa-solid fa-cloud-arrow-up text-3xl text-white/50 mb-3"></i>
+                  <span class="text-xs font-bold uppercase tracking-widest text-white/70" id="avatar-upload-text">Select Image File</span>
+                </label>
+                <input type="file" id="avatar-upload" class="hidden" accept="image/*">
+                
+                <div class="flex flex-col gap-4 w-full md:w-auto">
+                  <label class="flex items-center gap-3 cursor-pointer">
+                    <input type="radio" name="avatar-storage" value="private" checked class="w-4 h-4 accent-gold-500">
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-white/80">Private Storage</span>
+                  </label>
+                  <label class="flex items-center gap-3 cursor-pointer">
+                    <input type="radio" name="avatar-storage" value="global" class="w-4 h-4 accent-gold-500">
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-white/80">Global Storage</span>
+                  </label>
+                  <button type="button" onclick="uploadAvatar()" id="upload-avatar-btn" class="mt-2 bg-gold-500 text-navy-950 px-6 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest shadow-lg hover:bg-white transition-all disabled:opacity-50 disabled:cursor-not-allowed">Upload & Apply</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Private Gallery -->
+            <div class="space-y-4">
+              <h3 class="text-sm font-black uppercase tracking-[0.3em] text-white/40">My Private Gallery</h3>
+              <div id="private-avatar-grid" class="grid grid-cols-4 md:grid-cols-6 gap-4"></div>
+            </div>
+
+            <!-- Global Gallery -->
+            <div class="space-y-4">
+              <h3 class="text-sm font-black uppercase tracking-[0.3em] text-white/40">Global Public Avatars</h3>
+              <div id="global-avatar-grid" class="grid grid-cols-4 md:grid-cols-6 gap-4"></div>
+            </div>
           </div>
         </section>
 
@@ -410,7 +497,7 @@
 import { themeManager } from '../../assets/theme-manager.js';
 import { db, auth } from '../../assets/firebase-config.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
-import { doc, updateDoc, getDoc } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+import { doc, updateDoc, getDoc, setDoc, arrayUnion } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
 const supabaseUrl = 'https://luxubaqztmbcpskyfgdp.supabase.co';
@@ -424,13 +511,23 @@ const dualColors = [
   { p: '#040810', s: '#f59e0b' }, // Default Gold
   { p: '#0f172a', s: '#38bdf8' }, // Slate Blue
   { p: '#1e1b4b', s: '#818cf8' }, // Indigo
-  { p: '#064e3b', s: '#10b981' }  // Emerald
+  { p: '#064e3b', s: '#10b981' }, // Emerald
+  { p: '#171717', s: '#a3e635' }, // Neon Green
+  { p: '#2e1065', s: '#d946ef' }, // Deep Purple
+  { p: '#4c1d95', s: '#fbbf24' }, // Royal Violet
+  { p: '#020617', s: '#e11d48' }, // Midnight Rose
+  { p: '#0f172a', s: '#94a3b8' }  // Silver Slate
 ];
 
 const premiumColors = [
   { p: '#000000', s: '#ffd700' }, // Pure Gold
   { p: '#1a1a1a', s: '#ff4500' }, // Crimson Command
-  { p: '#0a0a0a', s: '#00ff41' }  // Matrix Green
+  { p: '#0a0a0a', s: '#00ff41' }, // Matrix Green
+  { p: '#050505', s: '#c0c0c0' }, // Platinum Black
+  { p: '#10002b', s: '#f472b6' }, // Cosmic Pink
+  { p: '#001a2c', s: '#00d2ff' }, // Neon Aqua
+  { p: '#1a0b2e', s: '#ff0055' }, // Cyberpunk Red
+  { p: '#000000', s: '#ffffff' }  // Absolute Mono
 ];
 
 const gradients = [
@@ -456,7 +553,11 @@ const wallpapers = [
 const premiumWallpapers = [
   'https://images.unsplash.com/photo-1635776062127-d379bfcba9f8?auto=format&fit=crop&q=80&w=2000', // Gold Liquid
   'https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead?auto=format&fit=crop&q=80&w=2000', // Black Marble
-  'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&q=80&w=2000'  // Cyber Core
+  'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&q=80&w=2000', // Cyber Core
+  'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=2000', // Dark Tech
+  'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=2000', // Abstract Chip
+  'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80&w=2000', // Matrix
+  'https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?auto=format&fit=crop&q=80&w=2000'  // 3D Geometry
 ];
 
 async function init() {
@@ -565,6 +666,7 @@ async function init() {
   }
 
   syncWithRegistry();
+  loadAvatars();
 
   const wpUpload = document.getElementById('wallpaper-upload');
   if (wpUpload) {
@@ -708,7 +810,7 @@ function compareColors(c1, c2) {
 }
 
 window.setTab = (tab) => {
-  ['colors', 'wallpapers', 'fonts'].forEach(t => {
+  ['colors', 'wallpapers', 'fonts', 'avatars'].forEach(t => {
     const section = document.getElementById(`section-${t}`);
     const tabBtn = document.getElementById(`tab-${t}`);
     if (section) section.classList.toggle('hidden', t !== tab);
@@ -829,7 +931,188 @@ window.addEventListener('sf:turbo-render', () => {
 });
 
 init();
+
+let pendingAvatar = null;
+
+// Handle Avatar File Selection
+document.addEventListener('DOMContentLoaded', () => {
+  const avatarUpload = document.getElementById('avatar-upload');
+  const avatarText = document.getElementById('avatar-upload-text');
+  
+  if (avatarUpload) {
+    avatarUpload.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        pendingAvatar = file;
+        avatarText.innerText = file.name;
+      }
+    });
+  }
+});
+
+window.uploadAvatar = async () => {
+  if (!pendingAvatar) {
+    alert("Please select an image file first.");
+    return;
+  }
+  
+  const btn = document.getElementById('upload-avatar-btn');
+  const uid = auth.currentUser ? auth.currentUser.uid : localStorage.getItem('skillforge_mock_uid');
+  const storageType = document.querySelector('input[name="avatar-storage"]:checked').value;
+  
+  btn.disabled = true;
+  btn.innerText = "Uploading...";
+  
+  try {
+    const fileName = `avatars/${storageType}/${uid}_${Date.now()}.jpg`;
+    const { error } = await supabase.storage.from('avatars').upload(fileName, pendingAvatar);
+    if (error) throw error;
+    
+    const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(fileName);
+    
+    // Save to Firestore
+    if (storageType === 'global') {
+      const globalRef = doc(db, 'system', 'public_avatars');
+      await setDoc(globalRef, { urls: arrayUnion(publicUrl) }, { merge: true });
+    } else {
+      let userRef = doc(db, 'staffs', uid);
+      let userSnap = await getDoc(userRef);
+      if (!userSnap.exists()) {
+        userRef = doc(db, 'trainees', uid);
+      }
+      await updateDoc(userRef, { privateAvatars: arrayUnion(publicUrl) });
+    }
+    
+    // Apply as profile picture automatically
+    let userRef = doc(db, 'staffs', uid);
+    let userSnap = await getDoc(userRef);
+    if (!userSnap.exists()) {
+      userRef = doc(db, 'trainees', uid);
+    }
+    await updateDoc(userRef, { photoURL: publicUrl });
+    
+    // Reset UI
+    pendingAvatar = null;
+    document.getElementById('avatar-upload-text').innerText = "Select Image File";
+    btn.innerText = "Upload & Apply";
+    btn.disabled = false;
+    
+    alert("Avatar uploaded and applied successfully!");
+    loadAvatars();
+    
+  } catch (err) {
+    console.error('[Customize] Avatar upload failed:', err);
+    btn.innerText = "Upload Failed";
+    btn.disabled = false;
+    alert("Upload failed. Please try again.");
+  }
+};
+
+async function loadAvatars() {
+  const uid = auth.currentUser ? auth.currentUser.uid : localStorage.getItem('skillforge_mock_uid');
+  if (!uid) return;
+  
+  const privateGrid = document.getElementById('private-avatar-grid');
+  const globalGrid = document.getElementById('global-avatar-grid');
+  
+  try {
+    // Load Private
+    let userRef = doc(db, 'staffs', uid);
+    let userSnap = await getDoc(userRef);
+    if (!userSnap.exists()) {
+      userRef = doc(db, 'trainees', uid);
+      userSnap = await getDoc(userRef);
+    }
+    
+    if (userSnap.exists() && userSnap.data().privateAvatars) {
+      const privateUrls = userSnap.data().privateAvatars;
+      privateGrid.innerHTML = privateUrls.map(url => `
+        <div class="aspect-square rounded-2xl overflow-hidden border border-white/10 cursor-pointer hover:border-gold-500 transition-all group" onclick="applyAvatar('${url}')">
+          <img loading="lazy" src="${url}" class="w-full h-full object-cover group-hover:scale-110 transition-transform">
+        </div>
+      `).join('');
+    }
+    
+    // Load Global
+    const globalSnap = await getDoc(doc(db, 'system', 'public_avatars'));
+    if (globalSnap.exists() && globalSnap.data().urls) {
+      const globalUrls = globalSnap.data().urls;
+      globalGrid.innerHTML = globalUrls.map(url => `
+        <div class="aspect-square rounded-2xl overflow-hidden border border-white/10 cursor-pointer hover:border-gold-500 transition-all group" onclick="applyAvatar('${url}')">
+          <img loading="lazy" src="${url}" class="w-full h-full object-cover group-hover:scale-110 transition-transform">
+        </div>
+      `).join('');
+    }
+  } catch (err) {
+    console.error("Failed to load avatars:", err);
+  }
+}
+
+window.applyAvatar = async (url) => {
+  const uid = auth.currentUser ? auth.currentUser.uid : localStorage.getItem('skillforge_mock_uid');
+  if (!uid) return;
+  try {
+    let userRef = doc(db, 'staffs', uid);
+    let userSnap = await getDoc(userRef);
+    if (!userSnap.exists()) {
+      userRef = doc(db, 'trainees', uid);
+    }
+    await updateDoc(userRef, { photoURL: url });
+    alert("Profile picture updated!");
+    
+    // Attempt to update DOM elements immediately
+    document.querySelectorAll('.profile-avatar-target').forEach(img => img.src = url);
+  } catch (err) {
+    console.error("Failed to apply avatar:", err);
+  }
+};
+
+
+window.toggleDailyCanvas = async (isActive) => {
+  const uid = auth.currentUser ? auth.currentUser.uid : localStorage.getItem('skillforge_mock_uid');
+  if (!uid) return;
+  
+  // Dispatch local event to update immediately
+  const event = new CustomEvent('canvas-settings-changed', { detail: { active: isActive } });
+  window.dispatchEvent(event);
+  
+  // Save to user profile
+  try {
+    let userRef = doc(db, 'staffs', uid);
+    let userSnap = await getDoc(userRef);
+    if (!userSnap.exists()) {
+      userRef = doc(db, 'trainees', uid);
+    }
+    await updateDoc(userRef, { 'theme.canvasActive': isActive });
+  } catch(e) { console.error(e); }
+};
+
+window.setCanvasColor = async (bg, accent) => {
+  const uid = auth.currentUser ? auth.currentUser.uid : localStorage.getItem('skillforge_mock_uid');
+  if (!uid) return;
+  
+  const colors = bg && accent ? { bg, accent } : null;
+  
+  // Dispatch local event
+  const event = new CustomEvent('canvas-settings-changed', { detail: { colors } });
+  window.dispatchEvent(event);
+  
+  // Save to user profile
+  try {
+    let userRef = doc(db, 'staffs', uid);
+    let userSnap = await getDoc(userRef);
+    if (!userSnap.exists()) {
+      userRef = doc(db, 'trainees', uid);
+    }
+    await updateDoc(userRef, { 'theme.canvasColors': colors });
+    alert(colors ? 'Canvas colors overridden.' : 'Canvas reset to daily auto colors.');
+  } catch(e) { console.error(e); }
+};
+
+// Hook loadAvatars into init
+
 </script>
+  <script type="module" src="../../assets/daily-canvas.js"></script>
   <script type="module" src="../../assets/sf-core.js"></script>
   <script type="module" src="../../assets/sf-turbo.js"></script>
 </body>

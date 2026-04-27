@@ -142,6 +142,17 @@ class ThemeManager {
     }
 
     applyTheme(/** @type {any} */ theme) {
+
+        // Handle Daily Canvas globally
+        if (theme.canvasActive !== undefined || theme.canvasColors !== undefined) {
+            window.dispatchEvent(new CustomEvent('canvas-settings-changed', { 
+                detail: { 
+                    active: theme.canvasActive, 
+                    colors: theme.canvasColors 
+                } 
+            }));
+        }
+
         if (!theme || Object.keys(theme).length === 0) {
             theme = { type: 'solid-pair', primary: '#040810', secondary: '#f59e0b' };
         }
@@ -270,6 +281,9 @@ class ThemeManager {
             return true;
         } catch (err) {
             console.error('Layout Save Failed:', err);
+            if (window['sf_report_error']) {
+                window['sf_report_error'](`Layout Engine Error: Layout Save Failed. ${err.message}`, err.stack, true);
+            }
             return false;
         }
     }

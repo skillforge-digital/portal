@@ -251,7 +251,7 @@ UA: ${userAgent}
     console.error(`[SkillForge Error] ${errorMsg}`, stack);
 
     // Only show modal for critical errors or explicit manual reports
-    const criticalKeywords = ['permissions', 'quota', 'auth', 'registry', 'failed to fetch', 'layout engine'];
+    const criticalKeywords = ['permissions', 'quota', 'auth', 'registry', 'failed to fetch', 'layout engine', 'theme', 'customization', 'typeerror'];
     const isActuallyCritical = isCritical || criticalKeywords.some(kw => errorMsg.toLowerCase().includes(kw));
 
     if (isActuallyCritical) {

@@ -7,7 +7,7 @@ import { getFirestore } from 'firebase-admin/firestore';
 const SERVICE_ACCOUNT_PATH = './service-account.json';
 
 if (!existsSync(SERVICE_ACCOUNT_PATH)) {
-  console.error('\x1b[31m%s\x1b[0m', 'CRITICAL ERROR: service-account.json not found!');
+  console.error('\x1b[31m%s\x1b[0m', 'NOTICE: service-account.json not found. Skipping CLI provisioning.');
   console.log('\x1b[33m%s\x1b[0m', '\nTo run this CLI provisioning tool, you must:');
   console.log('1. Go to Firebase Console -> Project Settings -> Service Accounts');
   console.log('2. Click "Generate new private key"');
@@ -15,7 +15,7 @@ if (!existsSync(SERVICE_ACCOUNT_PATH)) {
   console.log('\nAlternatively, use the browser-based provisioning:');
   console.log('1. Open the Personnel Registration page in your browser');
   console.log('2. Enter code: SKF-MASTER-PROVISION-2026');
-  process.exit(1);
+  process.exit(0);
 }
 
 const serviceAccount = JSON.parse(readFileSync(SERVICE_ACCOUNT_PATH, 'utf8'));

@@ -3,7 +3,47 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; img-src 'self' data: https: blob:; font-src 'self' https: data:; style-src 'self' https: 'unsafe-inline'; script-src 'self' https: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https: wss:;">
   <title>Director Command Hub — SkillForge Digital</title>
+
+  <!-- Advanced SEO Search Magnets -->
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="description" content="SkillForge Digital Portal - Access your Mastery Dashboard, track your XP, and connect with your cohort.">
+  <meta name="keywords" content="SkillForge Portal, Trainee Dashboard, Tech Academy Login, Student Portal, Mastery Hub, Digital Skills Nigeria">
+  <meta name="author" content="SkillForge Digital & Co. Ltd">
+  
+  <!-- Open Graph / Facebook / WhatsApp -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://portal.skillforgedigital.com.ng/">
+  <meta property="og:title" content="SkillForge Portal | Mastery Hub">
+  <meta property="og:description" content="Access your SkillForge Mastery Dashboard, track your study XP, and customize your learning environment.">
+  <meta property="og:image" itemprop="image" content="https://files.fm/thumb_show.php?i=sebxcfvhb7">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="SkillForge Portal">
+  <meta property="og:locale" content="en_US">
+  
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SkillForge Portal | Mastery Hub">
+  <meta name="twitter:description" content="Access your SkillForge Mastery Dashboard, track your study XP, and customize your learning environment.">
+  <meta name="twitter:image" content="https://files.fm/thumb_show.php?i=sebxcfvhb7">
+  
+  <!-- Schema.org JSON-LD for Google -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "SkillForge Portal",
+    "url": "https://portal.skillforgedigital.com.ng",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://portal.skillforgedigital.com.ng/verify/?id={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+
   <link rel="stylesheet" href="../../assets/style.css">
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
@@ -46,8 +86,20 @@
       background: rgba(201,168,76,0.1);
       color: #C9A84C;
     }
+    @keyframes ticker {
+      0% { transform: translateX(0%); }
+      100% { transform: translateX(-50%); }
+    }
+    .animate-ticker { 
+      display: flex;
+      width: max-content;
+      animation: ticker 60s linear infinite; 
+      will-change: transform; 
+    }
+    .animate-ticker:hover { animation-play-state: paused; }
   </style>
-</head>
+
+    </head>
 <body class="overflow-x-hidden min-h-screen">
   <canvas id="sundust-canvas"></canvas>
 
@@ -56,7 +108,7 @@
     <div class="p-8 flex-1 overflow-y-auto">
       <div class="flex items-center gap-3 mb-12">
         <div class="w-12 h-12 rounded-2xl bg-gold/10 flex items-center justify-center text-gold border border-gold/20">
-          <i data-lucide="shield-check" class="w-6 h-6"></i>
+          <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" class="w-6 h-6 object-contain" alt="SF">
         </div>
         <div class="flex flex-col leading-none">
           <span class="font-black text-sm tracking-tighter uppercase">SkillForge</span>
@@ -78,6 +130,12 @@
         <button data-tab="staff" aria-label="View Personnel Registry" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
           <i data-lucide="user-check" class="w-4 h-4"></i> Personnel Registry
         </button>
+        <button data-tab="approvals" aria-label="Personnel Approvals" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+          <i data-lucide="clipboard-check" class="w-4 h-4"></i> Personnel Approvals
+        </button>
+        <button data-tab="faults" aria-label="System Faults" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+          <i data-lucide="alert-octagon" class="w-4 h-4"></i> System Faults
+        </button>
         <button data-tab="announcements" aria-label="View Announcements" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
           <i data-lucide="megaphone" class="w-4 h-4"></i> Announcements
         </button>
@@ -94,6 +152,19 @@
           <i data-lucide="user-cog" class="w-4 h-4"></i> Personnel Profile
         </button>
       </nav>
+          <!-- System Toggles -->
+          <div class="mt-8 px-6 space-y-4">
+            <p class="text-[9px] font-black text-white/30 uppercase tracking-[0.4em]">System Nodes</p>
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold uppercase text-white/50">Glow FX</span>
+              <button type="button" onclick="toggleControl('glow')" class="ctrl-glow-btn w-8 h-4 rounded-full bg-white/20 relative transition-all"><div class="absolute top-0.5 left-0.5 w-3 h-3 rounded-full bg-white transition-all"></div></button>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold uppercase text-white/50">Light Mode</span>
+              <button type="button" onclick="toggleControl('light')" class="ctrl-light-btn w-8 h-4 rounded-full bg-white/20 relative transition-all"><div class="absolute top-0.5 left-0.5 w-3 h-3 rounded-full bg-white transition-all"></div></button>
+            </div>
+          </div>
+
     </div>
 
     <div class="p-8 border-t border-white/5">
@@ -111,9 +182,21 @@
   </aside>
 
   <!-- Main Content -->
-  <main class="md:ml-72 p-6 md:p-12 pt-24 md:pt-20">
-    <div id="tab-content" class="max-w-6xl mx-auto space-y-12 animate-slide-up">
-      <!-- Content loaded dynamically -->
+  <main class="md:ml-72 min-h-screen relative flex flex-col z-10">
+    <!-- Global News Ticker -->
+    <div class="w-full h-8 bg-navy/90 backdrop-blur-xl border-b border-white/5 z-[60] overflow-hidden flex items-center sticky top-0 no-print shadow-2xl">
+      <div class="flex-1 overflow-hidden relative h-full flex items-center">
+        <div id="news-ticker-content" class="animate-ticker flex items-center gap-24 whitespace-nowrap">
+          <span class="text-[11px] font-bold text-white/90 uppercase tracking-[0.2em] italic">Welcome to SkillForge Season 2026. Portal Registry is Active.</span>
+          <span class="text-[11px] font-bold text-white/90 uppercase tracking-[0.2em] italic">Welcome to SkillForge Season 2026. Portal Registry is Active.</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="flex-1 p-6 md:p-12 pt-24 md:pt-12">
+      <div id="tab-content" class="w-full max-w-[1800px] mx-auto space-y-12 animate-slide-up">
+        <!-- Content loaded dynamically -->
+      </div>
     </div>
   </main>
 
@@ -123,12 +206,13 @@
     import { db, auth } from '../../assets/firebase-config.js';
     import { 
         collection, query, getDocs, doc, getDoc, setDoc, addDoc, 
-        deleteDoc, serverTimestamp, orderBy, onSnapshot, writeBatch, limit 
+        deleteDoc, updateDoc, serverTimestamp, orderBy, onSnapshot, writeBatch, limit, where 
     } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
     import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
 
     // Global state
     let currentTab = 'overview';
+    let currentTabUnsub = null;
 
     onAuthStateChanged(auth, async (user) => {
       if (!user) { window.location.href = '../../trainee-login/'; return; }
@@ -145,8 +229,40 @@
       document.getElementById('user-role').textContent = (staffCommand.userData.roles || []).join(' | ');
       document.getElementById('user-initials').textContent = (staffCommand.userData.name || 'D').charAt(0);
       
+      loadNewsTicker();
       showTab('overview');
     });
+
+    async function loadNewsTicker() {
+      const ticker = document.getElementById('news-ticker-content');
+      if (!ticker) return;
+
+      try {
+        const q = query(collection(db, 'announcements'), orderBy('timestamp', 'desc'), limit(5));
+        const snap = await getDocs(q);
+        
+        let messages = [];
+        if (snap.empty) {
+          messages = [
+            "Welcome to SkillForge Season 2026. Portal Registry is Active.",
+            "New Mastery Track: AI Content Creation now live in the Academy.",
+            "Specialist Command Center is now accepting Silver Badge requests.",
+            "Daily Pulse check: 1 XP per minute of active study time.",
+            "Join our global Discord for elite technical support and networking."
+          ];
+        } else {
+          snap.forEach(doc => {
+            const d = doc.data();
+            messages.push(d.message || d.title || "New Announcement");
+          });
+        }
+
+        ticker.innerHTML = messages.map(m => `<span class="text-[9px] font-bold text-white/60 uppercase tracking-widest flex items-center gap-4"><div class="w-1 h-1 rounded-full bg-gold"></div> ${m}</span>`).join('');
+        ticker.innerHTML += ticker.innerHTML;
+      } catch (err) {
+        console.warn("[Dashboard] News Ticker failed to load registry data.");
+      }
+    }
 
     // --- NAVIGATION ---
     
@@ -162,7 +278,48 @@
         window.location.href = '../../trainee-login/';
     });
 
+    
+    window.toggleControl = async (feature) => {
+      const uid = auth.currentUser ? auth.currentUser.uid : localStorage.getItem('skillforge_mock_uid');
+      if (!uid) return;
+      
+      try {
+        let userRef = doc(db, 'staffs', uid);
+        let userSnap = await getDoc(userRef);
+        if (!userSnap.exists()) userRef = doc(db, 'trainees', uid);
+        
+        let data = (await getDoc(userRef)).data();
+        if (!data) return;
+        
+        if (feature === 'light') {
+            const newVal = !data.isLightMode;
+            await updateDoc(userRef, { isLightMode: newVal });
+            if (newVal) document.documentElement.classList.add('light-mode');
+            else document.documentElement.classList.remove('light-mode');
+            
+            document.querySelectorAll('.ctrl-light-btn').forEach(b => {
+                if (newVal) b.classList.replace('bg-white/20', 'bg-gold-500');
+                else b.classList.replace('bg-gold-500', 'bg-white/20');
+                b.querySelector('div').style.transform = newVal ? 'translateX(16px)' : 'translateX(0)';
+            });
+        } else if (feature === 'glow') {
+            const controls = data.controls || {};
+            const newVal = !controls.glow;
+            await updateDoc(userRef, { 'controls.glow': newVal });
+            if (newVal) document.documentElement.classList.add('glow-enabled');
+            else document.documentElement.classList.remove('glow-enabled');
+            
+            document.querySelectorAll('.ctrl-glow-btn').forEach(b => {
+                if (newVal) b.classList.replace('bg-white/20', 'bg-gold-500');
+                else b.classList.replace('bg-gold-500', 'bg-white/20');
+                b.querySelector('div').style.transform = newVal ? 'translateX(16px)' : 'translateX(0)';
+            });
+        }
+      } catch (err) { console.error(err); }
+    };
+
     window.showTab = async function(tab) {
+      if (currentTabUnsub) { currentTabUnsub(); currentTabUnsub = null; }
       currentTab = tab;
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active', 'text-gold', 'bg-gold/10', 'border-r-4', 'border-gold'));
       const activeBtn = document.querySelector(`[data-tab="${tab}"]`);
@@ -173,9 +330,12 @@
       
       try {
           switch(tab) {
-            case 'overview': await renderOverview(content); break;
+            case 'design-studio': window.location.href = '../../trainee-dashboard/customize/'; break;
+              case 'overview': await renderOverview(content); break;
             case 'trainees': await renderTrainees(content); break;
             case 'staff': await renderStaff(content); break;
+            case 'approvals': await renderApprovals(content); break;
+            case 'faults': await renderFaults(content); break;
             case 'announcements': await renderAnnouncements(content); break;
             case 'seasons': await renderSeasons(content); break;
             case 'codes': await renderCodes(content); break;
@@ -355,8 +515,7 @@
             <h1 class="text-4xl md:text-6xl font-black mt-2 uppercase tracking-tighter">Global Hub</h1>
           </div>
           <div class="flex gap-4">
-            <a href="https://skillforgedigital.com.ng" target="_blank" class="glass px-6 py-3 rounded-2xl border border-white/5 hover:border-gold/50 transition-all flex items-center gap-2 group">
-              <i data-lucide="external-link" class="w-4 h-4 text-gold group-hover:scale-110 transition-transform"></i>
+            <a aria-label="Action button" href="https://skillforgedigital.com.ng" target="_blank" class="glass px-6 py-3 rounded-2xl border border-white/5 hover:border-gold/50 transition-all flex items-center gap-2 group"><i data-lucide="external-link" class="w-4 h-4 text-gold group-hover:scale-110 transition-transform"></i>
               <span class="text-[10px] font-black text-white/70 uppercase tracking-widest">Main Site</span>
             </a>
             <button onclick="showRegisterNowPopup()" class="glass px-6 py-3 rounded-2xl border border-gold/20 bg-gold/5 hover:bg-gold/10 transition-all flex items-center gap-2 group">
@@ -505,8 +664,7 @@
                     <div class="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between gap-4">
                         <p class="text-[10px] text-white/40 truncate flex-1 text-left">${portalUrl}</p>
                         <button onclick="copyToClipboard('${portalUrl}', this)" class="p-2 text-gold hover:text-white transition-colors">
-                            <i data-lucide="copy" class="w-4 h-4"></i>
-                        </button>
+                            <i data-lucide="copy" class="w-4 h-4"></i></button>
                     </div>
                     <p class="text-[9px] text-white/30 uppercase tracking-widest leading-relaxed">Scan to open the trainee registration portal immediately.</p>
                 </div>
@@ -567,7 +725,7 @@
                   <td class="py-4">
                     <div class="flex items-center gap-3">
                       <div class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 overflow-hidden">
-                        <img src="${d.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + doc.id}" class="w-full h-full object-cover">
+                        <img loading="lazy" src="${d.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + doc.id}" class="w-full h-full object-cover">
                       </div>
                       <div>
                         <div class="flex items-center gap-2">
@@ -586,9 +744,9 @@
                   </td>
                   <td class="py-4">
                     <div class="flex gap-2">
-                        <button onclick="viewTrainee('${doc.id}')" class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center hover:bg-gold/20 hover:text-gold transition-all"><i data-lucide="eye" class="w-4 h-4"></i></button>
-                        <button onclick="generateVerificationQR('${doc.id}', '${(d.name || 'Anonymous').replace(/'/g, "\\'")}')" class="w-8 h-8 rounded-lg bg-gold/10 text-gold flex items-center justify-center hover:bg-gold hover:text-navy transition-all"><i data-lucide="qr-code" class="w-4 h-4"></i></button>
-                        <button onclick="deleteTrainee('${doc.id}')" class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center hover:bg-red-500/20 hover:text-red-400 transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        <button aria-label="Action button" onclick="viewTrainee('${doc.id}')" class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center hover:bg-gold/20 hover:text-gold transition-all"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                        <button aria-label="Action button" onclick="generateVerificationQR('${doc.id}', '${(d.name || 'Anonymous').replace(/'/g, "\\'")}')" class="w-8 h-8 rounded-lg bg-gold/10 text-gold flex items-center justify-center hover:bg-gold hover:text-navy transition-all"><i data-lucide="qr-code" class="w-4 h-4"></i></button>
+                        <button aria-label="Action button" onclick="deleteTrainee('${doc.id}')" class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center hover:bg-red-500/20 hover:text-red-400 transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                     </div>
                   </td>
                 </tr>`;
@@ -640,7 +798,7 @@
                   <td class="py-4">
                     <div class="flex gap-2">
                         <button onclick="manageUserRoles('${doc.id}')" class="px-4 py-2 rounded-xl bg-white/5 text-[9px] font-black uppercase tracking-widest hover:bg-gold hover:text-navy transition-all">Roles</button>
-                        <button onclick="generateVerificationQR('${doc.id}', '${(d.name || 'Unknown').replace(/'/g, "\\'")}')" class="w-8 h-8 rounded-lg bg-gold/10 text-gold flex items-center justify-center hover:bg-gold hover:text-navy transition-all"><i data-lucide="qr-code" class="w-4 h-4"></i></button>
+                        <button aria-label="Action button" onclick="generateVerificationQR('${doc.id}', '${(d.name || 'Unknown').replace(/'/g, "\\'")}')" class="w-8 h-8 rounded-lg bg-gold/10 text-gold flex items-center justify-center hover:bg-gold hover:text-navy transition-all"><i data-lucide="qr-code" class="w-4 h-4"></i></button>
                     </div>
                   </td>
                 </tr>`;
@@ -657,7 +815,13 @@
         const d = snap.data();
         const currentRoles = d.roles || [];
         
-        const roleOptions = Object.values(ROLES).filter(r => r !== ROLES.TRAINEE);
+        // Fetch dynamic roles
+        const rolesDoc = await getDoc(doc(db, 'system', 'roles'));
+        const dynamicRoles = rolesDoc.exists() ? (rolesDoc.data().roles || []) : [];
+        
+        const standardRoles = Object.values(ROLES).filter(r => r !== ROLES.TRAINEE);
+        const roleOptions = [...new Set([...standardRoles, ...dynamicRoles])];
+        
         let roleHtml = roleOptions.map(r => `
             <div class="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
                 <span class="text-xs font-black uppercase tracking-widest">${r}</span>
@@ -673,22 +837,54 @@
         modal.id = 'role-manager-modal';
         modal.className = 'fixed inset-0 z-[300] bg-navy/90 flex items-center justify-center p-6 backdrop-blur-xl';
         modal.innerHTML = `
-            <div class="glass-strong p-10 rounded-[48px] border border-white/10 max-w-md w-full">
+            <div class="glass-strong p-10 rounded-[48px] border border-white/10 max-w-md w-full max-h-[90vh] overflow-y-auto custom-scrollbar">
                 <div class="flex justify-between items-center mb-8">
                     <div>
                         <p class="text-[8px] font-black text-gold uppercase tracking-[0.4em]">Discord Style</p>
                         <h2 class="text-2xl font-black uppercase tracking-tighter">Manage Roles</h2>
                     </div>
-                    <button onclick="document.getElementById('role-manager-modal').remove()" class="p-2 text-white/40 hover:text-red-400"><i data-lucide="x"></i></button>
+                    <button aria-label="Action button" onclick="document.getElementById('role-manager-modal').remove()" class="p-2 text-white/40 hover:text-red-400"><i data-lucide="x"></i></button>
                 </div>
                 <p class="text-xs text-white/60 mb-8 uppercase font-bold tracking-widest">Personnel: <span class="text-gold">${d.name}</span></p>
                 <div class="space-y-3 mb-8">${roleHtml}</div>
+                <div class="mb-8 pt-6 border-t border-white/10">
+                    <p class="text-[10px] font-black text-white/50 uppercase tracking-widest mb-4">Add Custom Role</p>
+                    <div class="flex gap-2">
+                        <input type="text" id="new-custom-role" placeholder="Role Name" class="flex-1 p-3 rounded-xl bg-white/5 border border-white/10 text-white text-xs uppercase font-bold tracking-widest">
+                        <button onclick="createCustomRole('${uid}')" class="px-4 py-3 rounded-xl bg-gold/10 text-gold text-[9px] font-black uppercase tracking-widest hover:bg-gold hover:text-navy transition-all">Create</button>
+                    </div>
+                </div>
                 <button onclick="document.getElementById('role-manager-modal').remove()" class="w-full py-4 rounded-2xl bg-white/5 text-[10px] font-black uppercase tracking-widest">Close Registry</button>
             </div>
         `;
         document.body.appendChild(modal);
         if (window.lucide) window.lucide.createIcons();
     }
+
+    window.createCustomRole = async function(uid) {
+        const input = document.getElementById('new-custom-role');
+        const roleName = input.value.trim();
+        if (!roleName) return;
+
+        try {
+            const rolesRef = doc(db, 'system', 'roles');
+            const snap = await getDoc(rolesRef);
+            let roles = [];
+            if (snap.exists()) {
+                roles = snap.data().roles || [];
+            }
+            if (!roles.includes(roleName)) {
+                roles.push(roleName);
+                await setDoc(rolesRef, { roles: roles }, { merge: true });
+            }
+            
+            document.getElementById('role-manager-modal').remove();
+            await manageUserRoles(uid);
+        } catch (error) {
+            console.error("Failed to create custom role:", error);
+            alert("Error creating custom role");
+        }
+    };
 
     window.toggleUserRole = async function(uid, role, isAssigned) {
         const res = isAssigned 
@@ -713,8 +909,7 @@
             <p class="text-gold text-xs font-black tracking-[0.4em] uppercase">Global Broadcast</p>
             <h1 class="text-4xl md:text-5xl font-black mt-2 uppercase tracking-tighter">Announcements</h1>
           </div>
-          <button onclick="showNewAnnouncementModal()" class="bg-gold text-navy-950 px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-white transition-all shadow-4K">
-            <i data-lucide="plus" class="w-4 h-4 inline mr-2"></i> New Broadcast
+          <button aria-label="Action button" onclick="showNewAnnouncementModal()" class="bg-gold text-navy-950 px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-white transition-all shadow-4K"><i data-lucide="plus" class="w-4 h-4 inline mr-2"></i> New Broadcast
           </button>
         </header>
 
@@ -747,7 +942,7 @@
                 <p class="text-[8px] font-black text-gold uppercase tracking-[0.4em]">System Broadcast</p>
                 <h2 class="text-3xl font-black uppercase tracking-tighter">Post Global Announcement</h2>
               </div>
-              <button onclick="closeAnnouncementModal()" class="p-3 rounded-xl bg-white/5 hover:text-red-400"><i data-lucide="x" class="w-6 h-6"></i></button>
+              <button aria-label="Action button" onclick="closeAnnouncementModal()" class="p-3 rounded-xl bg-white/5 hover:text-red-400"><i data-lucide="x" class="w-6 h-6"></i></button>
             </div>
             <div class="space-y-5">
               <div>
@@ -820,8 +1015,7 @@
                 </div>
                 <p class="text-xs text-slate-400 mb-8 leading-relaxed uppercase font-bold tracking-widest">Registry accepts new student enrollment for this generation.</p>
               </div>
-              <button onclick="initializeNewSeason()" class="w-full py-5 bg-orange text-navy-950 rounded-2xl font-black uppercase text-[10px] tracking-[0.3em] hover:bg-white transition-all shadow-4K">
-                <i data-lucide="calendar" class="w-4 h-4 inline mr-2"></i> Shift to New Season
+              <button aria-label="Action button" onclick="initializeNewSeason()" class="w-full py-5 bg-orange text-navy-950 rounded-2xl font-black uppercase text-[10px] tracking-[0.3em] hover:bg-white transition-all shadow-4K"><i data-lucide="calendar" class="w-4 h-4 inline mr-2"></i> Shift to New Season
               </button>
             </div>
 
@@ -917,6 +1111,168 @@
         btn.disabled = false;
         btn.innerText = "Global Reset";
       }
+    };
+
+    window.renderApprovals = async function(container) {
+      if (currentTabUnsub) currentTabUnsub();
+      currentTabUnsub = onSnapshot(query(collection(db, "staffs"), where("status", "==", "pending"), orderBy("created_at", "desc")), (snap) => {
+          let html = \`
+          <div class="space-y-8">
+              <div class="flex justify-between items-center">
+                  <h2 class="text-2xl font-black uppercase">Pending Personnel Approvals (\${snap.size})</h2>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">\`;
+
+          if (snap.empty) {
+              html += \`<div class="col-span-full py-20 text-center space-y-4">
+                  <div class="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mx-auto text-white/20">
+                      <i data-lucide="check-circle" class="w-8 h-8"></i>
+                  </div>
+                  <p class="text-white/40 italic uppercase text-[10px] tracking-widest">All personnel applications have been processed.</p>
+              </div>\`;
+          }
+
+          snap.forEach(d => {
+              const data = d.data();
+              html += \`
+              <div class="glass p-6 rounded-[32px] border-white/10 space-y-6">
+                  <div class="flex justify-between items-start">
+                      <div class="flex items-center gap-4">
+                          <div class="w-14 h-14 rounded-2xl bg-white/5 border border-gold/20 overflow-hidden">
+                              <img loading="lazy" src="\${data.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + d.id}" class="w-full h-full object-cover">
+                          </div>
+                          <div>
+                              <h3 class="font-black text-white uppercase tracking-tight">\${data.name || 'Anonymous Personnel'}</h3>
+                              <p class="text-[9px] text-slate-500 uppercase font-bold tracking-widest">\${data.email}</p>
+                          </div>
+                      </div>
+                      <div class="px-3 py-1 rounded-full bg-orange/10 border border-orange/20 text-orange text-[8px] font-black uppercase">Pending</div>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-4">
+                      <div class="p-3 rounded-xl bg-white/5 border border-white/5">
+                          <p class="text-[8px] text-slate-500 uppercase font-black mb-1">Assigned Role</p>
+                          <p class="text-[10px] font-black text-gold uppercase">\${data.primaryRole || 'Staff'}</p>
+                      </div>
+                      <div class="p-3 rounded-xl bg-white/5 border border-white/5">
+                          <p class="text-[8px] text-slate-500 uppercase font-black mb-1">Assigned Unit</p>
+                          <p class="text-[10px] font-black text-slate-300 uppercase">\${data.department || 'General'}</p>
+                      </div>
+                  </div>
+
+                  <div class="flex gap-3">
+                      <button onclick="window.approveStaff('\${d.id}')" class="flex-1 py-3 bg-white text-navy font-black rounded-xl uppercase text-[10px] tracking-widest hover:bg-gold transition-all">Approve Clearance</button>
+                      <button onclick="window.rejectStaff('\${d.id}')" class="px-4 py-3 bg-red-500/10 text-red-400 rounded-xl font-black uppercase text-[10px] hover:bg-red-500 hover:text-white transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                  </div>
+              </div>\`;
+          });
+
+          html += \`</div></div>\`;
+          container.innerHTML = html;
+          if (window.lucide) window.lucide.createIcons();
+      });
+    };
+
+    window.approveStaff = async (uid) => {
+        if (!confirm("Confirm authorization to ACTIVATE this personnel's clearance level?")) return;
+        try {
+            const staffRef = doc(db, "staffs", uid);
+            const staffSnap = await getDoc(staffRef);
+            if (!staffSnap.exists()) return;
+            
+            const data = staffSnap.data();
+            
+            // 1. Update Staff Status
+            await updateDoc(staffRef, { status: 'active' });
+            
+            // 2. Update Role Code status
+            if (data.roleCode) {
+                await updateDoc(doc(db, "role_codes", data.roleCode), { status: 'active' });
+                
+                // 3. Update Track Access status
+                await updateDoc(doc(db, "track_access", data.roleCode), { status: 'active' });
+            }
+            
+            alert("Personnel clearance activated successfully.");
+        } catch (err) {
+            alert("Approval Failed: " + err.message);
+        }
+    };
+
+    window.rejectStaff = async (uid) => {
+        if (!confirm("CRITICAL: Reject and PURGE this personnel application? This will delete their auth profile data.")) return;
+        try {
+            const staffRef = doc(db, "staffs", uid);
+            const staffSnap = await getDoc(staffRef);
+            if (staffSnap.exists()) {
+                const data = staffSnap.data();
+                if (data.roleCode) {
+                    // Reset role code to unused
+                    await updateDoc(doc(db, "role_codes", data.roleCode), { used: false, usedBy: null, status: 'available' });
+                    await deleteDoc(doc(db, "track_access", data.roleCode));
+                }
+            }
+            await deleteDoc(staffRef);
+            alert("Personnel application rejected and purged.");
+        } catch (err) {
+            alert("Operation Failed: " + err.message);
+        }
+    };
+
+    window.renderFaults = async function(container) {
+        if (currentTabUnsub) currentTabUnsub();
+        currentTabUnsub = onSnapshot(query(collection(db, "system_faults"), orderBy("timestamp", "desc")), (snap) => {
+            let html = \`<div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-black uppercase">System Faults (\${snap.size})</h2>
+            </div>
+            <div class="space-y-4">\`;
+            
+            if (snap.empty) {
+                html += '<p class="text-white/40 text-center py-12 italic">No active system faults reported.</p>';
+            }
+
+            snap.forEach(d => {
+                const data = d.data();
+                html += \`<div class="p-6 rounded-3xl glass border \${data.status === 'resolved' ? 'border-green-500/20' : 'border-red-500/20'} space-y-4">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-[10px] font-black uppercase tracking-widest \${data.status === 'resolved' ? 'text-green-400' : 'text-red-400'}">\${data.code || 'UNKNOWN_FAULT'}</p>
+                            <h3 class="font-bold text-lg">\${data.fault}</h3>
+                            <p class="text-[8px] text-slate-500 uppercase tracking-widest">Reported by: \${data.userName} (\${data.uid.substring(0,8)}...) • \${data.timestamp?.toDate().toLocaleString() || 'N/A'}</p>
+                        </div>
+                        <div class="flex gap-2">
+                            \${data.status !== 'resolved' ? \`<button onclick="window.resolveFault('\${d.id}')" class="px-4 py-2 bg-green-500/10 text-green-500 rounded-xl font-black text-[8px] uppercase tracking-widest hover:bg-green-500 hover:text-white transition-all">Resolve</button>\` : ''}
+                            <button aria-label="Action button" onclick="window.deleteFault('\${d.id}')" class="p-2 text-slate-500 hover:text-red-400"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </div>
+                    </div>
+                    <div class="p-4 bg-black/20 rounded-2xl text-[9px] font-mono text-slate-400">
+                        URL: \${data.context?.url}<br>
+                        UA: \${data.context?.userAgent}
+                    </div>
+                </div>\`;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+            if (window.lucide) window.lucide.createIcons();
+        });
+    }
+
+    window.resolveFault = async (id) => {
+        try {
+            await updateDoc(doc(db, "system_faults", id), { status: 'resolved' });
+        } catch (err) {
+            alert("Operation Failed: " + err.message);
+        }
+    };
+
+    window.deleteFault = async (id) => {
+        if (!confirm("Permanently purge this fault report?")) return;
+        try {
+            await deleteDoc(doc(db, "system_faults", id));
+        } catch (err) {
+            alert("Operation Failed: " + err.message);
+        }
     };
 
     window.renderCodes = async function(container) {

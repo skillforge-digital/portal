@@ -21,13 +21,16 @@ service cloud.firestore {
     function getUID() { return request.auth.uid; }
     
     // Unified Staff Role Check: Looks up roles in the centralized 'staffs' collection.
-    // Returns true if the user has ANY of the specified roles.
+    // Returns true if the user has ANY of the specified roles. Supports legacy single 'role'.
     function hasAnyRole(roles) {
       let staffDoc = get(/databases/$(database)/documents/staffs/$(getUID()));
       return isAuthenticated() && 
              staffDoc != null &&
              staffDoc.data.status == 'active' &&
-             staffDoc.data.roles.hasAny(roles);
+             (
+               staffDoc.data.get('roles', []).hasAny(roles) ||
+               (staffDoc.data.get('role', '') in roles)
+             );
     }
 
     // Role-specific helpers for common permission checks.
@@ -87,10 +90,16 @@ service cloud.firestore {
       allow write: if true; 
     }
 
-    // System Config: Current season and global settings.
+// System Config: Current season and global settings.
     match /system/{docId} {
       allow read: if true;
       allow write: if isDirector();
+    }
+    
+    // Global Avatar Storage
+    match /system/public_avatars {
+      allow read: if true;
+      allow update, create: if isAuthenticated();
     }
 
     // Seasons & Archives: Enrollment data and past generations.
