@@ -96,8 +96,8 @@ service cloud.firestore {
       allow write: if isDirector();
     }
     
-    // Global Avatar Storage
-    match /system/public_avatars {
+    // Global Wallpaper Storage
+    match /system/public_wallpapers {
       allow read: if true;
       allow update, create: if isAuthenticated();
     }
