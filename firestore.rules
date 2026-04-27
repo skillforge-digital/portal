@@ -23,9 +23,11 @@ service cloud.firestore {
     // Unified Staff Role Check: Looks up roles in the centralized 'staffs' collection.
     // Returns true if the user has ANY of the specified roles.
     function hasAnyRole(roles) {
+      let staffDoc = get(/databases/$(database)/documents/staffs/$(getUID()));
       return isAuthenticated() && 
-             exists(/databases/$(database)/documents/staffs/$(getUID())) &&
-             get(/databases/$(database)/documents/staffs/$(getUID())).data.roles.hasAny(roles);
+             staffDoc != null &&
+             staffDoc.data.status == 'active' &&
+             staffDoc.data.roles.hasAny(roles);
     }
 
     // Role-specific helpers for common permission checks.
@@ -44,16 +46,20 @@ service cloud.firestore {
     // Trainee Registry: Stores profiles, XP, and learning state.
     match /trainees/{traineeId} {
       // Robust Read/Write: Allows legacy mock reconciliation and cloud migration.
-      // We allow any read/write here to ensure NO student is ever "trapped".
-      allow read, write: if true;
+      // Explicitly allow list operations for leaderboard and directory.
+      allow read, get, list: if true;
+      allow create: if true; // Registration is open
+      allow update: if isOwner(traineeId) || isStaff();
+      allow delete: if isDirector();
     }
 
     // Unified Staff Registry: Stores personnel data and cumulative roles.
     match /staffs/{staffId} {
       // Staff can see each other; public can read for verification.
-      allow read: if true;
-      // Directors manage staff accounts; Staff can update their own data.
-      allow create, delete: if isDirector();
+      allow read, get, list: if true;
+      // Allow self-registration if authenticated; Directors manage staff accounts.
+      allow create: if isAuthenticated() && request.auth.uid == staffId;
+      allow delete: if isDirector();
       allow update: if isOwner(staffId) || isDirector();
     }
 
@@ -70,7 +76,8 @@ service cloud.firestore {
     // This MUST remain publicly readable to allow auto-auth from the Main Site.
     match /track_access/{pin} {
       allow read: if true;
-      allow write: if true; // Registration logic and SSO session management
+      allow create: if true; // Registration creates these
+      allow update, delete: if isStaff();
     }
 
     // Role Codes: One-time use codes for staff onboarding.
@@ -90,8 +97,24 @@ service cloud.firestore {
     match /seasons/{seasonId} {
       allow read: if true;
       allow write: if isStaff();
+      
+      // Allow trainees to update track counters during registration
+      match /artifacts/trainees/counters/tracks {
+        allow read, write: if true;
+      }
+      
+      // Allow general registration artifacts (referrals, stats, etc)
+      match /artifacts/registration/{docId} {
+        allow read, write: if true;
+      }
+      
       match /{document=**} { allow read: if true; allow write: if isStaff(); }
     }
+
+    // Password Management & SSO
+    match /password_resets/{id} { allow read, write: if true; }
+    match /academy_audit_logs/{id} { allow read: if isStaff(); allow create: if true; }
+    match /gate_audit_logs/{id} { allow read: if isStaff(); allow create: if true; }
 
     // =========================================================================
     // 4. TELEMETRY & LOGS (Publicly Writable, Restricted Read)
@@ -110,18 +133,17 @@ service cloud.firestore {
     match /mail/{id} { allow read, write: if isAuthenticated(); }
     match /feedback/{id} { allow read: if isStaff(); allow create: if true; }
     match /badge_requests/{id} { 
-      allow read: if isStaff() || isOwner(resource.data.uid);
+      allow read: if isStaff() || isOwner(request.resource.data.userId) || isOwner(resource.data.userId);
       allow create: if isAuthenticated();
       allow update: if isStaff();
     }
 
     // =========================================================================
-    // 6. SAFETY NET
+    // 6. SAFETY NET (TIGHTENED)
     // =========================================================================
     match /{document=**} {
-      // Default: Allow read/write for now to prevent breaking new features, 
-      // but log it for future hardening.
-      allow read, write: if true;
+      // Default: Block everything else by default
+      allow read, write: if isDirector();
     }
   }
 }

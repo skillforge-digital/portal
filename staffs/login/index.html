@@ -102,7 +102,7 @@
             <div class="text-center pt-4 space-y-2">
                 <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">New Command Personnel? <a href="../registration/" class="text-gold hover:text-white transition-all">Onboard Here</a></p>
                 <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Forgot Staff ID? <button onclick="retrieveStaffID()" class="text-gold hover:text-white transition-all">Find it here</button></p>
-                <button onclick="toggleDiagnostics()" class="text-[8px] text-white/10 hover:text-gold/40 uppercase tracking-[0.3em] font-black transition-all pt-4">Neural Diagnostic Portal</button>
+                <button onclick="toggleDiagnostics()" class="text-[8px] text-white/10 hover:text-gold/40 uppercase tracking-[0.3em] font-black transition-all pt-4">System Diagnostic Portal</button>
             </div>
         </section>
 
@@ -175,11 +175,12 @@
     };
 
     const DASHBOARD_MAP = {
-        'Director': '/director/',
+        'Director': '../../admin/',
         'HOD': '../hod/',
         'Specialist': '../specialist/',
         'Digital Marketing': '../marketing/',
-        'Support Staff': '../support/'
+        'Support Staff': '../support/',
+        'Staff': '../'
     };
 
     document.getElementById('staff-login-form').onsubmit = async (e) => {
@@ -224,7 +225,7 @@
                 // 5. Redirect to Primary Dashboard
                 // Directors always go to the root director portal
                 if (collectionName === 'directors' || profileData.primaryRole === 'Director') {
-                    window.location.href = '/director/';
+                    window.location.href = '../../admin/';
                     return;
                 }
 

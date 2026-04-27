@@ -68,7 +68,7 @@ class StaffCore {
                 if (user) {
                     this.user = user;
                     
-                    // Check multiple possible collections for personnel data
+                    // Check multiple possible collections for personnel data (Prioritize Unified 'staffs' collection)
                     const [staffDoc, directorDoc, specialistDoc, hodDoc] = await Promise.all([
                         getDoc(doc(this.db, 'staffs', user.uid)),
                         getDoc(doc(this.db, 'directors', user.uid)),
@@ -76,19 +76,36 @@ class StaffCore {
                         getDoc(doc(this.db, 'hods', user.uid))
                     ]);
                     
-                    if (directorDoc.exists()) {
+                    if (staffDoc.exists()) {
+                        this.profile = staffDoc.data();
+                        this.profile.roles = this.profile.roles || [this.profile.primaryRole || 'Staff'];
+                    } else if (directorDoc.exists()) {
                         this.profile = directorDoc.data();
                         this.profile.roles = this.profile.roles || ['Director'];
                         this.profile.primaryRole = this.profile.primaryRole || 'Director';
                     } else if (hodDoc.exists()) {
                         this.profile = hodDoc.data();
-                    } else if (staffDoc.exists()) {
-                        this.profile = staffDoc.data();
+                        this.profile.roles = this.profile.roles || ['HOD'];
                     } else if (specialistDoc.exists()) {
                         this.profile = specialistDoc.data();
+                        this.profile.roles = this.profile.roles || ['Specialist'];
                     }
 
                     if (this.profile) {
+                        // Ensure roles is always an array
+                        if (typeof this.profile.roles === 'string') {
+                            this.profile.roles = [this.profile.roles];
+                        }
+                        
+                        // Check if account is active
+                        if (this.profile.status === 'pending') {
+                            console.warn("[StaffCore] Account pending approval.");
+                            alert("Access Denied: Your personnel application is still pending Director approval.");
+                            await this.auth.signOut();
+                            window.location.href = '/staffs/login/';
+                            return;
+                        }
+
                         this.verifyAccess();
                         this.revealContent();
                         resolve(undefined);
@@ -110,7 +127,7 @@ class StaffCore {
         // Access map: path -> allowed roles
         /** @type {Object.<string, string[]>} */
         const accessMap = {
-            '/staffs/director/': ['Director'],
+            '/admin/': ['Director'],
             '/staffs/hod/': ['Director', 'HOD'],
             '/staffs/specialist/': ['Director', 'HOD', 'Specialist'],
             '/staffs/marketing/': ['Director', 'HOD', 'Digital Marketing'],

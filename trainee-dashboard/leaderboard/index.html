@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SkillForge — Academy Hall of Fame</title>
 <script>
-  // Immediate UI Preparation - Hide content until Neural Core is ready
+  // Immediate UI Preparation - Hide content until Portal Core is ready
   (function() {
     document.documentElement.style.visibility = 'hidden';
     // Failsafe: reveal content after 3 seconds regardless of script status
@@ -71,6 +71,16 @@
 </head>
 <body class="noise-bg text-white overflow-x-hidden min-h-screen">
 
+<!-- Global News Ticker -->
+<div class="fixed top-0 left-0 right-0 md:left-72 h-8 bg-navy-950/90 backdrop-blur-xl border-b border-white/5 z-[60] overflow-hidden flex items-center no-print shadow-2xl">
+    <div class="flex-1 overflow-hidden relative h-full flex items-center">
+        <div id="news-ticker-content" class="animate-ticker flex items-center gap-24">
+            <span class="text-[11px] font-bold text-white/90 uppercase tracking-[0.2em] italic">Welcome to SkillForge Season 2026. Portal Registry is Active.</span>
+            <span class="text-[11px] font-bold text-white/90 uppercase tracking-[0.2em] italic">Welcome to SkillForge Season 2026. Portal Registry is Active.</span>
+        </div>
+    </div>
+</div>
+
 <div id="loading-screen">
   <div class="flex flex-col items-center gap-6">
     <div class="w-16 h-16 border-4 border-gold-500/20 border-t-gold-500 rounded-full animate-spin"></div>
@@ -101,15 +111,7 @@
 
 <canvas id="gold-dust" class="fixed inset-0 pointer-events-none z-0"></canvas>
 
-<!-- Global News Ticker -->
-<div class="fixed top-0 left-0 right-0 md:left-72 h-8 bg-navy-950/80 backdrop-blur-md border-b border-white/5 z-[55] overflow-hidden flex items-center no-print">
-  <div class="px-4 bg-gold-500 text-navy-950 text-[8px] font-black uppercase tracking-widest h-full flex items-center z-10">Academy Flash</div>
-  <div class="flex-1 overflow-hidden relative h-full">
-    <div id="news-ticker-content" class="absolute whitespace-nowrap flex items-center h-full gap-20 animate-ticker">
-      <span class="text-[9px] font-bold text-white/60 uppercase tracking-widest italic">Loading Registry, please wait...</span>
-    </div>
-  </div>
-</div>
+
 
 <div class="ambient-blob w-96 h-96 bg-gold-500/5 top-0 left-0"></div>
 <div class="ambient-blob w-80 h-80 bg-navy-600/30 bottom-0 right-0"></div>
@@ -208,144 +210,243 @@
         </tbody>
       </table>
     </div>
+
+    <script type="module">
+    import { themeManager } from '../../assets/theme-manager.js';
+    import { DailyAtmosphere } from '../../assets/canvas-daily.js';
+    import { db, auth } from '../../assets/firebase-config.js';
+    import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+    import { doc, getDoc, collection, query, orderBy, limit, getDocs, onSnapshot, where } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+
+    let atmosphere;
+    let currentFilter = 'all';
+    let leaderboardUnsubscribe = null;
+    let authUnsubscribe = null;
+    let traineeUnsubscribe = null;
+
+    const UNITS = {
+      "Forex Synthetic Indices": "Trading Unit", 
+      "Forex Currency Pairs": "Trading Unit",
+      "AI Content Creation": "Digital Innovation Unit", 
+      "Photography & Editing": "Creative Media Unit",
+      "Graphic Design": "Creative Media Unit", 
+      "Digital Marketing": "Digital Innovation Unit",
+      "Mobile Cinematography": "Creative Media Unit", 
+      "Discord Development": "Development & Tech Unit",
+      "Web Development": "Development & Tech Unit", 
+      "Cyber Security": "Development & Tech Unit"
+    };
+
+    const TELEGRAM_CHANNELS = {
+      "Forex Synthetic Indices": "https://t.me/+KWyN-sKQNMExZjg8",
+      "Forex Currency Pairs": "https://t.me/+9cAdAp2Pw_FjNmJk",
+      "AI Content Creation": "https://t.me/+I5vUYuIuaMw4N2Rk",
+      "Photography & Editing": "https://t.me/+mkRAltkqJd41YTE0",
+      "Graphic Design": "https://t.me/+PTJq2zoyz0M3ZDZk",
+      "Digital Marketing": "https://t.me/+uIkOfw5x2MpmNjI0",
+      "Mobile Cinematography": "https://t.me/+un1weOJ0HcsyZDdk",
+      "Discord Development": "https://t.me/+Y5wcP_PIQf1kMzlk",
+      "Web Development": "https://t.me/+vEJTv3fBRl43Yjlk",
+      "Cyber Security": "https://t.me/+M4ZYMfz5tiYzZWVk"
+    };
+
+    window.initPage = () => {
+        console.log("[Leaderboard] Initializing Hall of Fame...");
+        
+        // Cleanup previous listeners to prevent memory leaks and duplicate updates
+        if (authUnsubscribe) authUnsubscribe();
+        if (traineeUnsubscribe) traineeUnsubscribe();
+        if (leaderboardUnsubscribe) leaderboardUnsubscribe();
+        
+        // Initialize Atmosphere if not already done (with singleton guard)
+        if (!atmosphere && typeof DailyAtmosphere !== 'undefined') {
+            atmosphere = window._dailyAtmosphere || new DailyAtmosphere();
+        }
+
+        authUnsubscribe = onAuthStateChanged(auth, (user) => {
+            const uid = user ? user.uid : localStorage.getItem('skillforge_mock_uid');
+            
+            if (uid) {
+                traineeUnsubscribe = onSnapshot(doc(db, 'trainees', uid), (snap) => {
+                    if (snap.exists()) {
+                        const data = snap.data();
+                        
+                        // Update UI with user data
+                        const nameEl = document.getElementById('user-name-target');
+                        if (nameEl) {
+                            const firstName = data.name ? data.name.split(' ')[0] : 'Trainee';
+                            nameEl.innerText = firstName;
+                        }
+                        
+                        // Update Telegram link
+                        const tgLink = TELEGRAM_CHANNELS[data.track] || 'https://t.me/skillforgeorg';
+                        document.querySelectorAll('.telegram-join-target').forEach(el => {
+                            el.href = tgLink;
+                            el.classList.remove('opacity-20', 'pointer-events-none');
+                        });
+                        
+                        // Update My Track link
+                        const myTrackLink = document.getElementById('my-track-link');
+                        if (myTrackLink && data.track) {
+                            const trackIdMap = {
+                                'Forex Synthetic Indices': 'forex-synthetic-indices',
+                                'Forex Currency Pairs': 'forex-currency-pairs',
+                                'AI Content Creation': 'ai-content-creation',
+                                'Photography & Editing': 'photography-editing',
+                                'Graphic Design': 'graphic-design',
+                                'Digital Marketing': 'digital-marketing',
+                                'Mobile Cinematography': 'mobile-cinematography',
+                                'Discord Development': 'discord-development',
+                                'Web Development': 'web-development',
+                                'Cyber Security': 'cyber-security'
+                            };
+                            const trackId = trackIdMap[data.track];
+                            if (trackId) myTrackLink.href = `/academy/?track=${trackId}`;
+                        }
+
+                        if (data.theme && window.themeManager) {
+                            window.themeManager.applyTheme(data.theme);
+                        }
+                    }
+                });
+                
+                // Initial leaderboard load
+                loadLeaderboard('all');
+            } else {
+                window.location.href = '../../trainee-login/';
+            }
+        });
+
+        if (window.lucide) window.lucide.createIcons();
+        
+        // Hide loading screen
+        const loader = document.getElementById('loading-screen');
+        if (loader) {
+            loader.style.opacity = '0';
+            loader.style.pointerEvents = 'none';
+            setTimeout(() => loader.remove(), 500);
+        }
+    };
+
+    async function loadLeaderboard(category) {
+      if (leaderboardUnsubscribe) leaderboardUnsubscribe();
+      
+      currentFilter = category;
+      const tbody = document.getElementById('leaderboard-body');
+      tbody.innerHTML = '<tr><td colspan="4" class="px-8 py-10 text-center auto-contrast-muted">Recalculating Standings...</td></tr>';
+      
+      try {
+        const q = query(collection(db, 'trainees'), orderBy('xp', 'desc'), limit(50));
+        
+        leaderboardUnsubscribe = onSnapshot(q, (snap) => {
+            document.getElementById('total-trainees-count').innerText = snap.size;
+            tbody.innerHTML = '';
+            let rank = 1;
+            
+            snap.forEach(doc => {
+              const data = doc.data();
+              const unitType = UNITS[data.track] || 'Other Unit';
+              
+              if (category !== 'all' && unitType !== category) return;
+              
+              const row = document.createElement('tr');
+              row.className = 'hover:bg-white/5 transition-colors group';
+              row.innerHTML = `
+                <td class="px-8 py-6">
+                  <span class="w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs ${rank <= 3 ? 'bg-gold-500 text-black' : 'bg-white/5 auto-contrast'}">${rank}</span>
+                </td>
+                <td class="px-8 py-6">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-gold-500/20 to-navy-600/20 flex items-center justify-center border border-white/10 overflow-hidden">
+                      ${data.photoURL ? `<img src="${data.photoURL}" class="w-full h-full object-cover">` : `<span class="text-xs font-bold auto-contrast">${data.name ? data.name.charAt(0) : '?'}</span>`}
+                    </div>
+                    <div>
+                      <p class="text-sm font-bold auto-contrast">${data.name || 'Anonymous Master'}</p>
+                      <p class="text-[10px] auto-contrast-muted uppercase tracking-tighter">${data.track || 'Unassigned'}</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-8 py-6">
+                  <span class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[8px] font-black uppercase tracking-widest auto-contrast-muted group-hover:auto-contrast transition-colors">${unitType}</span>
+                </td>
+                <td class="px-8 py-6 text-right">
+                  <p class="text-sm font-black auto-contrast">${(data.xp || 0).toLocaleString()}</p>
+                </td>
+              `;
+              tbody.appendChild(row);
+              rank++;
+            });
+
+            if (tbody.children.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="px-8 py-10 text-center auto-contrast-muted">No trainees found in this unit.</td></tr>';
+            }
+        }, (err) => {
+            console.error("[Leaderboard] Snapshot error:", err);
+            tbody.innerHTML = '<tr><td colspan="4" class="px-8 py-10 text-center text-red-400">Registry connection failure.</td></tr>';
+        });
+      } catch (err) {
+        console.error("[Leaderboard] Load error:", err);
+        tbody.innerHTML = '<tr><td colspan="4" class="px-8 py-10 text-center text-red-400">Registry connection failure.</td></tr>';
+      }
+    }
+
+    window.filterLeaderboard = (cat, btn) => {
+      document.querySelectorAll('#leaderboard-filters button').forEach(b => {
+        b.classList.remove('bg-gold-500/20', 'active-filter');
+      });
+      if (btn) btn.classList.add('bg-gold-500/20', 'active-filter');
+      loadLeaderboard(cat);
+    };
+
+    window.logout = async () => {
+        try {
+            await signOut(auth);
+            window.location.href = '../../trainee-login/';
+        } catch (err) {
+            console.error("Logout error:", err);
+        }
+    };
+
+    window.registerNextSeason = () => {
+        // Logic for next season registration
+        alert("Next season registration will open soon. Stay tuned to your unit's Telegram channel!");
+    };
+
+    window.toggleSidebar = () => {
+      const sidebar = document.getElementById('main-sidebar');
+      sidebar.classList.toggle('-translate-x-full');
+    };
+
+    // Handle Turbo Navigation
+    if (!window._leaderboardInit) {
+        window.addEventListener('sf:turbo-render', () => {
+            if (window.location.pathname.includes('/leaderboard/')) {
+                window.initPage();
+            }
+        });
+        window._leaderboardInit = true;
+    }
+
+    // Initial call for direct page load
+    if (document.readyState === 'complete') window.initPage();
+    else window.addEventListener('load', window.initPage);
+    </script>
   </div>
 </main>
 
-<script type="module">
-import { themeManager } from '../../assets/theme-manager.js';
-import { DailyAtmosphere } from '../../assets/canvas-daily.js';
-import { db, auth } from '../../assets/firebase-config.js';
-import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
-import { getFirestore, doc, getDoc, collection, query, orderBy, limit, getDocs, onSnapshot } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
-
-const atmosphere = new DailyAtmosphere('atmospheric-glow');
-let currentFilter = 'all';
-
-const UNITS = {
-  "Forex Synthetics Indices": "Trading Unit", 
-  "Forex Currency Pairs": "Trading Unit",
-  "AI Content Creation": "Digital Innovation Unit", 
-  "Photography & Editing": "Creative Media Unit",
-  "Graphic Design": "Creative Media Unit", 
-  "Digital Marketing": "Digital Innovation Unit",
-  "Mobile Cinematography": "Creative Media Unit", 
-  "Discord Development": "Development & Tech Unit",
-  "Web Development": "Development & Tech Unit", 
-  "Cyber Security": "Development & Tech Unit"
-};
-
-const TELEGRAM_CHANNELS = {
-  "Forex Synthetic Indices": "https://t.me/+KWyN-sKQNMExZjg8",
-  "Forex Currency Pairs": "https://t.me/+9cAdAp2Pw_FjNmJk",
-  "AI Content Creation": "https://t.me/+I5vUYuIuaMw4N2Rk",
-  "Photography & Editing": "https://t.me/+mkRAltkqJd41YTE0",
-  "Graphic Design": "https://t.me/+PTJq2zoyz0M3ZDZk",
-  "Digital Marketing": "https://t.me/+uIkOfw5x2MpmNjI0",
-  "Mobile Cinematography": "https://t.me/+un1weOJ0HcsyZDdk",
-  "Discord Development": "https://t.me/+Y5wcP_PIQf1kMzlk",
-  "Web Development": "https://t.me/+vEJTv3fBRl43Yjlk",
-  "Cyber Security": "https://t.me/+M4ZYMfz5tiYzZWVk"
-};
-
-window.initPage = () => {
-    console.log("[Leaderboard] Initializing Hall of Fame...");
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            onSnapshot(doc(db, 'trainees', user.uid), (snap) => {
-                if (snap.exists()) {
-                    const data = snap.data();
-                    const firstName = data.name ? data.name.split(' ')[0] : 'Trainee';
-                    const nameEl = document.getElementById('user-name-target');
-                    if (nameEl) nameEl.innerText = firstName;
-                    
-                    // Update Telegram link
-                    const tgLink = TELEGRAM_CHANNELS[data.track] || 'https://t.me/skillforgeorg';
-                    document.querySelectorAll('.telegram-join-target').forEach(el => el.href = tgLink);
-                    
-                    if (data.theme) {
-                        themeManager.applyTheme(data.theme);
-                    }
-                }
-            });
-            loadLeaderboard('all');
-        } else {
-            window.location.href = '../../trainee-login/';
-        }
-    });
-    if (window.lucide) window.lucide.createIcons();
-};
-
-// Initial load
-window.addEventListener('DOMContentLoaded', window.initPage);
-window.addEventListener('sf:turbo-render', window.initPage);
-
-async function loadLeaderboard(category) {
-  currentFilter = category;
-  const tbody = document.getElementById('leaderboard-body');
-  tbody.innerHTML = '<tr><td colspan="4" class="px-8 py-10 text-center auto-contrast-muted">Recalculating Ranks...</td></tr>';
-  
-  try {
-    const q = query(collection(db, 'trainees'), orderBy('xp', 'desc'), limit(50));
-    const snap = await getDocs(q);
-    document.getElementById('total-trainees-count').innerText = snap.size;
-    
-    tbody.innerHTML = '';
-    let rank = 1;
-    
-    snap.forEach(doc => {
-      const data = doc.data();
-      const unitType = UNITS[data.track] || 'other';
-      
-      if (category !== 'all' && unitType !== category) return;
-      
-      const row = document.createElement('tr');
-      row.className = 'hover:bg-white/5 transition-colors group';
-      row.innerHTML = `
-        <td class="px-8 py-6">
-          <span class="w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs ${rank <= 3 ? 'bg-gold-500 text-black' : 'bg-white/5 auto-contrast'}">${rank}</span>
-        </td>
-        <td class="px-8 py-6">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-gold-500/20 to-navy-600/20 flex items-center justify-center border border-white/10">
-              <span class="text-xs font-bold auto-contrast">${data.name ? data.name.charAt(0) : '?'}</span>
-            </div>
-            <div>
-              <p class="text-sm font-bold auto-contrast">${data.name || 'Anonymous Master'}</p>
-              <p class="text-[10px] auto-contrast-muted uppercase tracking-tighter">${data.track || 'Unassigned'}</p>
-            </div>
-          </div>
-        </td>
-        <td class="px-8 py-6">
-          <span class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[8px] font-black uppercase tracking-widest auto-contrast-muted group-hover:auto-contrast transition-colors">${unitType}</span>
-        </td>
-        <td class="px-8 py-6 text-right">
-          <p class="text-sm font-black auto-contrast">${(data.xp || 0).toLocaleString()}</p>
-        </td>
-      `;
-      tbody.appendChild(row);
-      rank++;
-    });
-  } catch (err) {
-    console.error(err);
-    tbody.innerHTML = '<tr><td colspan="4" class="px-8 py-10 text-center text-red-400">Registry connection failure.</td></tr>';
+<style>
+  #loading-screen {
+    position: fixed;
+    inset: 0;
+    background: var(--global-bg);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.5s ease;
   }
-}
+</style>
 
-window.filterLeaderboard = (cat) => {
-  document.querySelectorAll('#leaderboard-filters button').forEach(btn => {
-    btn.classList.remove('bg-gold-500/20', 'active-filter');
-  });
-  event.target.classList.add('bg-gold-500/20', 'active-filter');
-  loadLeaderboard(cat);
-};
-
-window.toggleSidebar = () => {
-  const sidebar = document.getElementById('main-sidebar');
-  sidebar.classList.toggle('-translate-x-full');
-};
-
- 
-</script>
   <script type="module" src="../../assets/sf-core.js"></script>
   <script type="module" src="../../assets/sf-turbo.js"></script>
 </body>

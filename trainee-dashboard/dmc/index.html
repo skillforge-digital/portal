@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SkillForge — Academy Membership Card (DMC)</title>
 <script>
-  // Immediate UI Preparation - Hide content until Neural Core is ready
+  // Immediate UI Preparation - Hide content until Registry Core is ready
   (function() {
     document.documentElement.style.visibility = 'hidden';
     // Failsafe: reveal content after 3 seconds regardless of script status
@@ -227,7 +227,16 @@
   }
 </style>
 </head>
-<body class="noise-bg text-white overflow-x-hidden min-h-screen">
+<body class="bg-gradient-to-br from-navy-900 to-slate-950 text-white font-sans overflow-x-hidden">
+    <!-- Global News Ticker -->
+    <div class="fixed top-0 left-0 right-0 md:left-72 h-8 bg-navy-950/90 backdrop-blur-xl border-b border-white/5 z-[60] overflow-hidden flex items-center no-print shadow-2xl">
+        <div class="flex-1 overflow-hidden relative h-full flex items-center">
+            <div id="news-ticker-content" class="animate-ticker flex items-center gap-24">
+                <span class="text-[11px] font-bold text-white/90 uppercase tracking-[0.2em] italic">Welcome to SkillForge Season 2026. Portal Registry is Active.</span>
+                <span class="text-[11px] font-bold text-white/90 uppercase tracking-[0.2em] italic">Welcome to SkillForge Season 2026. Portal Registry is Active.</span>
+            </div>
+        </div>
+    </div>
 
 <div id="loading-screen">
   <div class="flex flex-col items-center gap-6">
@@ -259,16 +268,7 @@
 
 <canvas id="gold-dust" class="fixed inset-0 pointer-events-none z-0"></canvas>
 
-<!-- Global News Ticker -->
-<div class="fixed top-0 left-0 right-0 md:left-72 h-8 bg-navy-950/90 backdrop-blur-xl border-b border-white/5 z-[60] overflow-hidden flex items-center no-print shadow-2xl">
-  <div class="px-4 bg-gold-500 text-navy-950 text-[10px] font-black uppercase tracking-widest h-full flex items-center z-20">Academy Flash</div>
-  <div class="flex-1 overflow-hidden relative h-full flex items-center">
-    <div id="news-ticker-content" class="animate-ticker flex items-center gap-24">
-      <span class="text-[11px] font-bold text-white/90 uppercase tracking-[0.2em] italic">Welcome to SkillForge Season 2026. Neural Registry is Active.</span>
-      <span class="text-[11px] font-bold text-white/90 uppercase tracking-[0.2em] italic">Welcome to SkillForge Season 2026. Neural Registry is Active.</span>
-    </div>
-  </div>
-</div>
+
 
 <div class="ambient-blob w-96 h-96 bg-gold-500/5 top-0 left-0"></div>
 <div class="ambient-blob w-80 h-80 bg-navy-600/30 bottom-0 right-0"></div>
@@ -703,7 +703,7 @@ window.downloadCard = async () => {
       link.href = canvas.toDataURL('image/png', 1.0);
       link.click();
     } else {
-      throw new Error("Neural Profile Photo not yet fully synchronized.");
+      throw new Error("Registry Profile Photo not yet fully synchronized.");
     }
   } catch (err) {
     console.error("Export Error:", err);

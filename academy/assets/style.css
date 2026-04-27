@@ -1,0 +1,6 @@
+/* Academy Redirection Styles */
+body { margin: 0; background: #040810; }
+.glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }
+.text-gold { color: #C9A84C; }
+.bg-gold { background-color: #C9A84C; }
+.border-gold { border-color: #C9A84C; }

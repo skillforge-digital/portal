@@ -238,7 +238,7 @@
                             
                             // Delete old legacy mock document
                             await deleteDoc(doc(db, "trainees", querySnap.docs[0].id));
-                            console.log("[Auth] Migration complete. Neural link established.");
+                            console.log("[Auth] Migration complete. Portal link established.");
                         } else {
                             throw new Error("Access Denied: Legacy password mismatch.");
                         }
@@ -250,7 +250,7 @@
                 }
             }
 
-            console.log("[Auth] Neural core linked. Checking registry for UID:", user.uid);
+            console.log("[Auth] Portal core linked. Checking registry for UID:", user.uid);
             
             // Step 3: Check for Registry Match (Direct UID lookup)
             const traineeDoc = await getDoc(doc(db, "trainees", user.uid));
@@ -433,7 +433,7 @@
     };
 
     window.purgeIdentity = async (id) => {
-        if (!confirm("CRITICAL: This identity and all associated activity logs will be permanently purged from the Neural Registry. Proceed?")) return;
+        if (!confirm("CRITICAL: This identity and all associated activity logs will be permanently purged from the Main Registry. Proceed?")) return;
         
         const btn = document.getElementById(`del-${id}`);
         btn.disabled = true;

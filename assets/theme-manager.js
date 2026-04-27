@@ -16,20 +16,20 @@ class ThemeManager {
         };
         this.fonts = [
             { name: 'Space Grotesk', family: "'Space Grotesk', sans-serif" },
-            { name: 'Instrument Serif', family: "'Instrument Serif', serif" },
-            { name: 'JetBrains Mono', family: "'JetBrains Mono', monospace" },
-            { name: 'Unbounded', family: "'Unbounded', sans-serif" },
-            { name: 'Caveat', family: "'Caveat', cursive" },
-            { name: 'Inter', family: "'Inter', sans-serif" },
-            { name: 'Playfair Display', family: "'Playfair Display', serif" },
-            { name: 'Outfit', family: "'Outfit', sans-serif" },
-            { name: 'Syne', family: "'Syne', sans-serif" },
-            { name: 'Clash Display', family: "'Clash Display', sans-serif" },
-            { name: 'Lexend', family: "'Lexend', sans-serif" },
             { name: 'Cabinet Grotesk', family: "'Cabinet Grotesk', sans-serif" },
             { name: 'Satoshi', family: "'Satoshi', sans-serif" },
             { name: 'General Sans', family: "'General Sans', sans-serif" },
-            { name: 'Plus Jakarta Sans', family: "'Plus Jakarta Sans', sans-serif" }
+            { name: 'Clash Display', family: "'Clash Display', sans-serif" },
+            { name: 'Instrument Serif', family: "'Instrument Serif', serif" },
+            { name: 'Unbounded', family: "'Unbounded', sans-serif" },
+            { name: 'Plus Jakarta Sans', family: "'Plus Jakarta Sans', sans-serif" },
+            { name: 'Syne', family: "'Syne', sans-serif" },
+            { name: 'Outfit', family: "'Outfit', sans-serif" },
+            { name: 'Lexend', family: "'Lexend', sans-serif" },
+            { name: 'JetBrains Mono', family: "'JetBrains Mono', monospace" },
+            { name: 'Playfair Display', family: "'Playfair Display', serif" },
+            { name: 'Montserrat', family: "'Montserrat', sans-serif" },
+            { name: 'Cinzel', family: "'Cinzel', serif" }
         ];
         
         this.init();

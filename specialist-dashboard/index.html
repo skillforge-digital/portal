@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SkillForge — Specialist Command Center</title>
 <script>
-  // Immediate UI Preparation - Hide content until Neural Core is ready
+  // Immediate UI Preparation - Hide content until Registry Core is ready
   (function() {
     document.documentElement.style.visibility = 'hidden';
   })();
@@ -377,7 +377,7 @@ window.clearSeason = async () => {
         presence.forEach(pDoc => batch.delete(doc(db, 'presence', pDoc.id)));
 
         await batch.commit();
-        alert("Neural Registry Purged. Season 2026-01 Archived.");
+        alert("System Registry Purged. Season 2026-01 Archived.");
         
         await addDoc(collection(db, 'audit_logs'), {
             userId: auth.currentUser.uid,

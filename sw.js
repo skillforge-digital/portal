@@ -64,6 +64,12 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
+    // Handle Cloudflare Beacon (RUM) to prevent 404 console errors
+    if (event.request.url.includes('/cdn-cgi/rum')) {
+        event.respondWith(new Response(null, { status: 204 }));
+        return;
+    }
+
     event.respondWith(
         fetch(event.request).then((fetchResponse) => {
             if (fetchResponse.status === 200) {

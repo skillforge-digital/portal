@@ -201,6 +201,16 @@ tailwind.config = {
 </script>
 </head>
 <body class="noise-bg text-white overflow-x-hidden min-h-screen relative">
+
+<!-- Global News Ticker -->
+<div class="fixed top-0 left-0 right-0 md:left-72 h-8 bg-navy-950/90 backdrop-blur-xl border-b border-white/5 z-[60] overflow-hidden flex items-center no-print shadow-2xl">
+  <div class="flex-1 overflow-hidden relative h-full flex items-center">
+    <div id="news-ticker-content" class="animate-ticker flex items-center gap-24">
+      <span class="text-[11px] font-bold text-white/90 uppercase tracking-[0.2em] italic">Welcome to SkillForge Season 2026. Portal Registry is Active.</span>
+      <span class="text-[11px] font-bold text-white/90 uppercase tracking-[0.2em] italic">Welcome to SkillForge Season 2026. Portal Registry is Active.</span>
+    </div>
+  </div>
+</div>
   
   <!-- Emergency Click Restoration Script -->
   <script>
@@ -247,16 +257,7 @@ tailwind.config = {
 
 <canvas id="gold-dust" class="fixed inset-0 pointer-events-none z-0"></canvas>
 
-<!-- Global News Ticker -->
-<div class="fixed top-0 left-0 right-0 md:left-72 h-8 bg-navy-950/90 backdrop-blur-xl border-b border-white/5 z-[60] overflow-hidden flex items-center no-print shadow-2xl">
-  <div class="px-4 bg-gold-500 text-navy-950 text-[10px] font-black uppercase tracking-widest h-full flex items-center z-20">Academy Flash</div>
-  <div class="flex-1 overflow-hidden relative h-full flex items-center">
-    <div id="news-ticker-content" class="animate-ticker flex items-center gap-24">
-      <span class="text-[11px] font-bold text-white/90 uppercase tracking-[0.2em] italic">Welcome to SkillForge Season 2026. Neural Registry is Active.</span>
-      <span class="text-[11px] font-bold text-white/90 uppercase tracking-[0.2em] italic">Welcome to SkillForge Season 2026. Neural Registry is Active.</span>
-    </div>
-  </div>
-</div>
+
 
 <!-- Floating Layout Switcher -->
 <div class="fixed top-24 md:top-4 left-1/2 -translate-x-1/2 z-[60] no-print" id="layout-switcher-container">
@@ -423,10 +424,10 @@ tailwind.config = {
             </div>
           </div>
         </div>
-        <!-- Neural Activity Timeline -->
+        <!-- Portal Activity Timeline -->
         <div class="glass rounded-[40px] p-10 col-span-2 md:col-span-4 flex flex-col gap-6 fade-in-4">
           <div class="flex justify-between items-center">
-            <p class="text-white/40 text-[10px] uppercase font-black tracking-[0.3em]">Neural Activity Timeline</p>
+            <p class="text-white/40 text-[10px] uppercase font-black tracking-[0.3em]">Portal Activity Timeline</p>
             <div class="flex items-center gap-4">
                 <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-gold-500"></span><span class="text-[8px] font-black text-white/40 uppercase tracking-widest">Mastery</span></div>
                 <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-white/10"></span><span class="text-[8px] font-black text-white/40 uppercase tracking-widest">Idle</span></div>
@@ -674,7 +675,7 @@ tailwind.config = {
       <div class="lg:w-1/2 p-10 lg:p-20 space-y-12 flex flex-col justify-center">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div class="glass rounded-[48px] p-12 space-y-6">
-            <p class="text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">Neural Connection Time</p>
+            <p class="text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">Portal Connection Time</p>
             <p class="text-6xl lg:text-7xl font-black study-time-target">00D 00H</p>
           </div>
           <div class="glass rounded-[48px] p-12 space-y-6">
@@ -958,7 +959,7 @@ tailwind.config = {
           <div class="space-y-2" id="diag-faults-container">
             <p class="text-[10px] font-bold text-white/40 italic">Scanning connections...</p>
           </div>
-          <button onclick="window._neuralDebugger?.toggle()" class="w-full py-3 bg-white/5 border border-white/10 rounded-xl text-[8px] font-black uppercase tracking-widest hover:bg-gold-500 hover:text-navy transition-all">Open System Debugger</button>
+          <button onclick="window._systemDebugger?.toggle()" class="w-full py-3 bg-white/5 border border-white/10 rounded-xl text-[8px] font-black uppercase tracking-widest hover:bg-gold-500 hover:text-navy transition-all">Open System Debugger</button>
         </div>
 
         <p class="text-[10px] font-black text-white/30 uppercase tracking-[0.4em] px-4">Certification</p>
@@ -1231,7 +1232,7 @@ function updateDynamicUI(data) {
     el.dataset.width = `${certProgress}%`;
   });
 
-  // Neural Connection Time (Study Time)
+  // Portal Connection Time (Study Time)
   const totalMs = data.totalTimeSpent || 0;
   const d_val = Math.floor(totalMs / 86400000);
   const h_val = Math.floor((totalMs % 86400000) / 3600000);
@@ -1284,7 +1285,7 @@ function startRealtimePresence(targetUid) {
     const h_val = Math.floor((p.totalTime % 86400000) / 3600000);
     document.querySelectorAll('.study-time-target').forEach(el => el.innerText = `${d_val}D ${h_val}H`);
     
-    // Render Neural Activity Timeline
+    // Render Portal Activity Timeline
     renderTimeline(p.dailyStats || {});
   });
 }
@@ -1470,7 +1471,7 @@ async function loadNewsTicker() {
     let messages = [];
     if (snap.empty) {
       messages = [
-        "Welcome to SkillForge Season 2026. Neural Registry is Active.",
+        "Welcome to SkillForge Season 2026. Portal Registry is Active.",
         "New Mastery Track: AI Content Creation now live in the Academy.",
         "Specialist Command Center is now accepting Silver Badge requests.",
         "Daily Pulse check: 1 XP per minute of active study time.",
@@ -1486,7 +1487,7 @@ async function loadNewsTicker() {
   }
 }
 
-function updateNeuralResume(data) {
+function updateSessionResume(data) {
   const container = document.getElementById('continue-learning-container');
   const btn = document.getElementById('continue-learning-btn');
   const nameEl = document.getElementById('last-lesson-name');
@@ -1530,7 +1531,7 @@ window.addEventListener('sf:turbo-render', () => {
     console.log("[Dashboard] Re-hydrating Command Center...");
     if (dashboardState && dashboardState.userData) {
         updateUI(dashboardState.userData, dashboardState.permissions);
-        updateNeuralResume(dashboardState.userData);
+        updateSessionResume(dashboardState.userData);
         loadNewsTicker();
         updateDiagnostics(); // Explicitly call diagnostics on re-render
     }

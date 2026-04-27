@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillForge — Portal Redirection</title>
+    <link rel="stylesheet" href="/assets/style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background: #040810; color: white; font-family: 'Inter', sans-serif; overflow: hidden; }
+        .glow { box-shadow: 0 0 50px rgba(201, 168, 76, 0.2); }
+        @keyframes pulse-gold { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+        .animate-pulse-gold { animation: pulse-gold 2s infinite; }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen">
+    <div class="relative">
+        <div class="w-32 h-32 rounded-full border-4 border-gold/10 border-t-gold animate-spin"></div>
+        <div class="absolute inset-0 flex items-center justify-center">
+            <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" alt="SF" class="w-12 h-12 rounded-lg opacity-50">
+        </div>
+    </div>
+    
+    <div class="mt-12 text-center space-y-4">
+        <h1 class="text-xl font-black uppercase tracking-[0.3em] text-gold animate-pulse-gold">Portal Link Established</h1>
+        <p class="text-[10px] text-white/40 uppercase tracking-widest">Synchronizing credentials with Main Registry...</p>
+    </div>
+
+    <div class="mt-8 px-6 py-3 glass rounded-2xl border border-white/5 bg-white/5 text-[10px] font-bold uppercase tracking-widest text-white/60">
+        Redirecting to <span class="text-gold">SkillForge Main Site</span>
+    </div>
+
+    <script type="module">
+        import { auth, db } from '../assets/firebase-config.js';
+        import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+        import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+
+        // Redirection Logic
+        const MAIN_SITE_URL = 'https://skillforgedigital.com.ng/academy/';
+
+        onAuthStateChanged(auth, async (user) => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const targetTrack = urlParams.get('track');
+            
+            let redirectUrl = MAIN_SITE_URL;
+            
+            // If a specific track is requested, adjust the base redirect URL
+            if (targetTrack) {
+                // Ensure trailing slash
+                if (!redirectUrl.endsWith('/')) redirectUrl += '/';
+                redirectUrl += targetTrack + '/';
+            }
+
+            if (user) {
+                try {
+                    // Try to get the trainee's PIN to pass to the gate
+                    const traineeDoc = await getDoc(doc(db, 'trainees', user.uid));
+                    if (traineeDoc.exists()) {
+                        const data = traineeDoc.data();
+                        if (data.pin) {
+                            // Append Passkey for auto-gate verification on main site
+                            const separator = redirectUrl.includes('?') ? '&' : '?';
+                            redirectUrl += `${separator}passkey=${data.pin}`;
+                        }
+                    }
+                } catch (err) {
+                    console.error("System sync error:", err);
+                }
+            }
+
+            // Small delay for visual effect
+            setTimeout(() => {
+                window.location.href = redirectUrl;
+            }, 1500);
+        });
+    </script>
+</body>
+</html>

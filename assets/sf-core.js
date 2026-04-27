@@ -111,7 +111,7 @@ class SkillForgeCore {
                     // Fallback to Legacy Mock UID for desynced users
                     const mockUid = localStorage.getItem('skillforge_mock_uid');
                     if (mockUid) {
-                        console.warn("[NeuralCore] Cloud session missing. Using Legacy Mock Identity:", mockUid);
+                        console.warn("[PortalCore] Cloud session missing. Using Legacy Mock Identity:", mockUid);
                         this.onAuthChange({ uid: mockUid, isMock: true }, resolve);
                     } else {
                         this.onAuthChange(null, resolve);
@@ -288,7 +288,7 @@ class SkillForgeCore {
             const traineeSnap = await getDoc(traineeRef);
             
             if (!traineeSnap.exists()) {
-                newFaults.push({ type: 'CRITICAL', msg: 'Neural profile missing from registry', code: 'REG_MISSING' });
+                newFaults.push({ type: 'CRITICAL', msg: 'Portal profile missing from registry', code: 'REG_MISSING' });
             } else {
                 const data = traineeSnap.data();
                 if (!data.sfid) newFaults.push({ type: 'WARNING', msg: 'Permanent SFID not yet assigned', code: 'SFID_PENDING' });
@@ -311,7 +311,7 @@ class SkillForgeCore {
             this.faults = newFaults;
             console.log(`[FaultDetector] Scan complete. ${newFaults.length} issues identified.`);
         } catch (err) {
-            console.error("[FaultDetector] Neural scan interrupted:", err);
+            console.error("[FaultDetector] System scan interrupted:", err);
         }
     }
 
@@ -369,7 +369,7 @@ class SkillForgeCore {
             if (event.data.type === 'PULSE_HEARTBEAT') {
                 // Another tab is already pulsing
                 if (this.isMasterTab) {
-                    console.log("[NeuralCore] Relinquishing Master Status to newer tab.");
+                    console.log("[PortalCore] Relinquishing Master Status to newer tab.");
                     this.isMasterTab = false;
                     this.stopPulseInterval();
                 }
@@ -389,7 +389,7 @@ class SkillForgeCore {
             this.registryState = traineeSnap.data();
         } else {
             // CRITICAL: If Auth exists but Firestore profile is missing, force logout/re-login
-            console.error("[NeuralCore] Profile missing from Registry. Forcing re-authentication.");
+            console.error("[PortalCore] Profile missing from Registry. Forcing re-authentication.");
             // Only redirect if we are in the dashboard area
             if (window.location.pathname.includes('/trainee-dashboard/')) {
                 window.location.href = '/trainee-login/?error=profile_missing';
@@ -408,13 +408,13 @@ class SkillForgeCore {
             const hasPasscodeSession = this.verifyPasscodeSession(trackId);
 
             if (hasPasscodeSession) {
-                console.log(`[NeuralCore] Academy Access Confirmed: ${trackId}. Activating Trackers.`);
-                this.startNeuralSync();
+                console.log(`[PortalCore] Academy Access Confirmed: ${trackId}. Activating Trackers.`);
+                this.startPortalSync();
                 this.handleAcademyActivity();
                 this.trackCurrentLesson(trackId, lessonId);
             }
         } else {
-            console.log("[NeuralCore] Outside Academy Scope. Neural trackers in standby.");
+            console.log("[PortalCore] Outside Academy Scope. System trackers in standby.");
             this.stopPulse();
         }
     }
@@ -481,7 +481,7 @@ class SkillForgeCore {
     async trackCurrentLesson(track, lesson) {
         if (!this.uid || !lesson || lesson === track) return;
 
-        console.log(`[NeuralCore] Tracking: ${track} > ${lesson}`);
+        console.log(`[RegistryCore] Tracking: ${track} > ${lesson}`);
         const traineeRef = doc(this.db, 'trainees', this.uid);
         try {
             const snap = await getDoc(traineeRef);
@@ -501,10 +501,10 @@ class SkillForgeCore {
                     });
                 }
             }
-        } catch (err) { console.error("[NeuralCore] Track Error:", err); }
+        } catch (err) { console.error("[RegistryCore] Track Error:", err); }
     }
 
-    async startNeuralSync() {
+    async startRegistrySync() {
         if (this.isTracking) return;
         this.isTracking = true;
         this.lastPulse = Date.now();
@@ -537,7 +537,7 @@ class SkillForgeCore {
     startPulse() {
         if (this.isTracking) return;
         this.lastPulse = Date.now();
-        this.startNeuralSync();
+        this.startRegistrySync();
     }
 
     async pulse() {
@@ -619,7 +619,7 @@ class SkillForgeCore {
                 this.checkTierUpgrade(traineeRef);
             }
         } catch (err) {
-            console.error("[NeuralCore] Pulse Failed:", err);
+            console.error("[RegistryCore] Pulse Failed:", err);
         }
     }
 
@@ -662,7 +662,7 @@ class SkillForgeCore {
                     <div class="w-28 h-28 bg-gradient-to-br from-gold to-orange-600 rounded-full flex items-center justify-center mx-auto mb-8 animate-bounce">
                         <i class="fa-solid fa-bolt-lightning text-5xl text-navy"></i>
                     </div>
-                    <p class="text-gold font-black uppercase tracking-[0.5em] text-[10px] mb-4">Neural Advancement Detected</p>
+                    <p class="text-gold font-black uppercase tracking-[0.5em] text-[10px] mb-4">Advancement Detected</p>
                     <h2 class="text-5xl font-black text-white mb-6 uppercase tracking-tighter">Level ${level} <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-white to-white/40">Reached</span></h2>
                     <div class="inline-flex items-center gap-3 px-6 py-2 rounded-full bg-gold/10 border border-gold/20 mb-10">
                         <span class="text-gold text-[10px] font-black uppercase tracking-widest">${tier} Status Confirmed</span>
@@ -699,7 +699,7 @@ class SkillForgeCore {
                 </div>
                 <h2 class="text-4xl font-black text-white mb-4 uppercase tracking-tighter">Happy Birthday, <br><span class="text-gold">${name.split(' ')[0]}</span>!</h2>
                 <p class="text-slate-300 text-sm font-medium mb-10 uppercase tracking-widest">A gift from the SkillForge Command Center awaits you.</p>
-                <button onclick="document.getElementById('birthday-modal').remove()" class="w-full py-6 bg-gold text-navy font-black rounded-2xl uppercase text-[10px] tracking-[0.2em] shadow-xl hover:bg-white transition-all">Claim Neural Gift</button>
+                <button onclick="document.getElementById('birthday-modal').remove()" class="w-full py-6 bg-gold text-navy font-black rounded-2xl uppercase text-[10px] tracking-[0.2em] shadow-xl hover:bg-white transition-all">Claim Gift</button>
             </div>
         </div>`;
         document.body.insertAdjacentHTML('beforeend', modalHtml);

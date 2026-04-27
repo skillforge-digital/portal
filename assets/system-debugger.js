@@ -6,8 +6,8 @@
 
 export class SystemDebugger {
     constructor(core) {
-        if (window['_neuralDebugger']) return;
-        window['_neuralDebugger'] = this;
+        if (window['_systemDebugger']) return;
+        window['_systemDebugger'] = this;
         this.core = core;
         this.enabled = false;
         this.logs = [];

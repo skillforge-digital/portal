@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SkillForge — Neural Authorization</title>
+<title>SkillForge — Command Authorization</title>
 <link rel="stylesheet" href="./assets/style.css">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
 <style>
@@ -16,7 +16,7 @@
 </head>
 <body>
   <div class="glass">
-    <h1 class="text-amber-500 text-3xl mb-4">Neural Authorization</h1>
+    <h1 class="text-amber-500 text-3xl mb-4">Command Authorization</h1>
     <p class="text-white/60 text-sm mb-8">Enter your **Command Key** to elevate your current identity to **Specialist Status**.</p>
     <label for="command-key" class="sr-only">Command Key</label>
     <input type="password" id="command-key" aria-label="Enter Staff Key" placeholder="Enter Staff Key" class="w-full bg-black/30 border border-white/10 p-4 rounded-2xl text-white mb-6 text-center font-['Space_Grotesk',sans-serif]">
@@ -72,7 +72,7 @@ window.activate = async () => {
       track: 'Web Development' // Default track for testing
     });
     
-    status.innerText = "Neural Authorization Complete. You are now a Specialist.";
+    status.innerText = "Command Authorization Complete. You are now a Specialist.";
     status.style.color = "#22c55e";
     btn.innerText = "Access Command Center";
     btn.onclick = () => window.location.href = './specialist-dashboard/';

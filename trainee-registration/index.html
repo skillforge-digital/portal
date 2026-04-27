@@ -532,7 +532,7 @@
     document.getElementById('reg-form').onsubmit = async (e) => {
         e.preventDefault();
         const btn = document.getElementById('reg-btn');
-        btn.disabled = true; btn.innerHTML = "Initializing Neural Identity...";
+        btn.disabled = true; btn.innerHTML = "Initializing Identity...";
         clearRegError();
 
         const formData = new FormData(e.target);
@@ -600,7 +600,7 @@
                 }
             }
 
-            console.log("[Registry] Committing to Neural core...");
+            console.log("[Registry] Committing to Portal core...");
             const result = await runTransaction(db, async (tx) => {
                 const counterRef = doc(db, 'seasons', '2026', 'artifacts', 'trainees', 'counters', 'tracks');
                 const traineeRef = doc(db, 'trainees', user.uid);
@@ -641,7 +641,7 @@
                 return { sfid: newSFID, pin };
             });
 
-            console.log("[Registry] Neural link stabilized. Launching Onboarding Node...");
+            console.log("[Registry] Portal link stabilized. Launching Onboarding Center...");
             document.getElementById('final-sfid').innerText = result.sfid;
             document.getElementById('final-pin').innerText = result.pin;
             

@@ -54,18 +54,22 @@
   <!-- Sidebar -->
   <aside class="w-72 glass-strong border-r border-white/5 flex flex-col fixed inset-y-0 z-50 transition-all duration-500 md:translate-x-0 -translate-x-full" id="sidebar">
     <div class="p-8 flex-1 overflow-y-auto">
-      <div class="flex items-center gap-3 mb-12">
-        <div class="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center text-purple-400 border border-purple-400/20">
-          <i data-lucide="shield" class="w-6 h-6"></i>
+      <div class="flex items-center justify-between mb-12">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center text-purple-400 border border-purple-400/20">
+            <i data-lucide="shield" class="w-6 h-6"></i>
+          </div>
+          <div class="flex flex-col leading-none">
+            <span class="font-black text-sm tracking-tighter uppercase">SkillForge</span>
+            <span class="text-[8px] text-purple-400 font-bold tracking-[0.3em] uppercase">HOD Unit</span>
+          </div>
         </div>
-        <div class="flex flex-col leading-none">
-          <span class="font-black text-sm tracking-tighter uppercase">SkillForge</span>
-          <span class="text-[8px] text-purple-400 font-bold tracking-[0.3em] uppercase">HOD Unit</span>
-        </div>
+        <!-- Role Switcher -->
+        <div id="role-switcher" class="hidden flex gap-2 p-1 rounded-xl bg-white/5 border border-white/10"></div>
       </div>
 
       <nav class="space-y-1">
-        <p class="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">System Nodes</p>
+        <p class="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Command Center</p>
         <button data-tab="overview" aria-label="View Unit Overview" class="nav-btn active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
           <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Unit Overview
         </button>
@@ -124,6 +128,30 @@
     });
 
     async function showTab(tab) {
+      // Role Switcher Logic
+      if (window.staffCore && window.staffCore.profile && window.staffCore.profile.roles && window.staffCore.profile.roles.length > 1) {
+          const switcher = document.getElementById('role-switcher');
+          const rolePaths = {
+              'Director': '/admin/',
+              'HOD': '/staffs/hod/',
+              'Specialist': '/staffs/specialist/',
+              'Digital Marketing': '/staffs/marketing/',
+              'Support Staff': '/staffs/support/'
+          };
+
+          switcher.innerHTML = window.staffCore.profile.roles.map(role => {
+              const path = rolePaths[role];
+              if (!path) return '';
+              const isActive = window.location.pathname.includes(path);
+              return `
+                  <a href="${path}" class="px-2 py-1 rounded-lg text-[7px] font-black uppercase tracking-widest transition-all ${isActive ? 'bg-purple-500 text-white' : 'text-slate-500 hover:text-white'}">
+                      ${role.charAt(0)}
+                  </a>
+              `;
+          }).join('');
+          switcher.classList.remove('hidden');
+      }
+
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active', 'text-purple-400', 'bg-purple-400/10', 'border-r-4', 'border-purple-400'));
       const activeBtn = document.querySelector(`[data-tab="${tab}"]`);
       if (activeBtn) activeBtn.classList.add('active', 'text-purple-400', 'bg-purple-400/10', 'border-r-4', 'border-purple-400');
@@ -311,7 +339,7 @@
       container.innerHTML = `
         <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
           <div>
-            <p class="text-purple-400 text-xs font-black tracking-[0.4em] uppercase">HOD Command Node</p>
+            <p class="text-purple-400 text-xs font-black tracking-[0.4em] uppercase">HOD Command Center</p>
             <h1 class="text-4xl md:text-6xl font-black mt-2 uppercase tracking-tighter">Unit Hub</h1>
           </div>
         </header>

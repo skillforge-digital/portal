@@ -25,7 +25,7 @@
 <!-- Favicon -->
 <link rel="icon" type="image/png" href="https://files.fm/thumb_show.php?i=sebxcfvhb7">
 <script>
-  // Immediate UI Preparation - Hide content until Neural Core is ready
+  // Immediate UI Preparation - Hide content until Portal Core is ready
   (function() {
     document.documentElement.style.visibility = 'hidden';
     // Failsafe: reveal content after 3 seconds regardless of script status
@@ -192,6 +192,16 @@
 </head>
 <body class="noise-bg text-white overflow-x-hidden min-h-screen">
 
+<!-- Global News Ticker -->
+<div class="fixed top-0 left-0 right-0 md:left-72 h-8 bg-navy-950/90 backdrop-blur-xl border-b border-white/5 z-[60] overflow-hidden flex items-center no-print shadow-2xl">
+  <div class="flex-1 overflow-hidden relative h-full flex items-center">
+    <div id="news-ticker-content" class="animate-ticker flex items-center gap-24">
+      <span class="text-[11px] font-bold text-white/90 uppercase tracking-[0.2em] italic">Welcome to SkillForge Season 2026. Portal Registry is Active.</span>
+      <span class="text-[11px] font-bold text-white/90 uppercase tracking-[0.2em] italic">Welcome to SkillForge Season 2026. Portal Registry is Active.</span>
+    </div>
+  </div>
+</div>
+
 <div id="loading-screen">
   <div class="flex flex-col items-center gap-6">
     <div class="w-16 h-16 border-4 border-gold-500/20 border-t-gold-500 rounded-full animate-spin"></div>
@@ -222,15 +232,7 @@
 
 <canvas id="gold-dust" class="fixed inset-0 pointer-events-none z-0"></canvas>
 
-<!-- Global News Ticker -->
-<div class="fixed top-0 left-0 right-0 md:left-72 h-8 bg-navy-950/80 backdrop-blur-md border-b border-white/5 z-[55] overflow-hidden flex items-center no-print">
-  <div class="px-4 bg-gold-500 text-navy-950 text-[8px] font-black uppercase tracking-widest h-full flex items-center z-10">Academy Flash</div>
-  <div class="flex-1 overflow-hidden relative h-full">
-    <div id="news-ticker-content" class="absolute whitespace-nowrap flex items-center h-full gap-20 animate-ticker">
-      <span class="text-[9px] font-bold text-white/60 uppercase tracking-widest italic">Loading Registry, please wait...</span>
-    </div>
-  </div>
-</div>
+
 
 <div class="ambient-blob w-96 h-96 bg-gold-500/5 top-0 left-0"></div>
 <div class="ambient-blob w-80 h-80 bg-navy-600/30 bottom-0 right-0"></div>
@@ -454,7 +456,7 @@ const wallpapers = [
 const premiumWallpapers = [
   'https://images.unsplash.com/photo-1635776062127-d379bfcba9f8?auto=format&fit=crop&q=80&w=2000', // Gold Liquid
   'https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead?auto=format&fit=crop&q=80&w=2000', // Black Marble
-  'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&q=80&w=2000'  // Cyber Neural
+  'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&q=80&w=2000'  // Cyber Core
 ];
 
 async function init() {
@@ -550,7 +552,7 @@ async function init() {
       card.setAttribute('tabindex', '0');
       card.setAttribute('aria-label', `Font: ${f.name}`);
       card.style.fontFamily = f.family;
-      card.innerHTML = `<p class="text-[8px] font-black uppercase tracking-widest text-white/30 mb-2">${f.name}</p><p class="text-xl font-bold">Neural Typography</p>`;
+      card.innerHTML = `<p class="text-[8px] font-black uppercase tracking-widest text-white/30 mb-2">${f.name}</p><p class="text-xl font-bold">SkillForge</p>`;
       const select = () => {
           currentDesign.fontFamily = f.family;
           currentDesign.fontName = f.name;
@@ -797,7 +799,7 @@ window.saveDesign = async () => {
     console.error('[Customize] Save failed:', err);
     btn.innerText = "Save Interrupted";
     btn.disabled = false;
-    alert("Save failed. Neural sync interrupted.");
+    alert("Save failed. Portal sync interrupted.");
   }
 };
 

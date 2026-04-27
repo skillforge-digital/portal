@@ -135,6 +135,9 @@ class SkillForgeTurbo {
             window.dispatchEvent(new CustomEvent('sf:turbo-render'));
             window.scrollTo({ top: 0, behavior: 'auto' });
 
+            // 5. Auto-Refresh Engine (5s after click/load)
+            this.scheduleAutoRefresh(url);
+
         } catch (err) {
             if (err.name !== 'AbortError') {
                 console.error("[Turbo] Page Sync Failure. Refreshing context...", err);
@@ -144,6 +147,18 @@ class SkillForgeTurbo {
         } finally {
             this.isNavigating = false;
         }
+    }
+
+    scheduleAutoRefresh(url) {
+        if (this.refreshTimer) clearTimeout(this.refreshTimer);
+        this.refreshTimer = setTimeout(() => {
+            // Only refresh if we are still on the same page and not currently navigating
+            const currentUrl = window.location.pathname + window.location.search + window.location.hash;
+            if (currentUrl === url && !this.isNavigating) {
+                console.log("[Turbo] Auto-refreshing current node...");
+                this.navigate(url, false); // Refresh without pushing state
+            }
+        }, 5000);
     }
 
     async rehydrate(newDoc) {

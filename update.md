@@ -10,7 +10,7 @@ This update implements a robust identity reconciliation layer and secures the Fi
     - Auto-provision a new Firebase Auth account.
     - Migrate all trainee data, progress, and settings to the new Cloud UID.
     - Securely purge the legacy mock identity.
-- **UID Desync Resolution**: If a user is authenticated but their UID doesn't match the Firestore document ID, the system performs an automatic, non-destructive migration to stabilize the "Neural Link".
+- **UID Desync Resolution**: If a user is authenticated but their UID doesn't match the Firestore document ID, the system performs an automatic, non-destructive migration to stabilize the "System Link".
 - **Registry Fail-safe**: Added a redirect loop prevention in `sf-core.js`. If a user is authenticated but their profile is missing, they are redirected to login with a specific error code for troubleshooting.
 
 ### 2. Firestore Security Rules (Robust Shield)
