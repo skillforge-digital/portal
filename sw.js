@@ -8,6 +8,7 @@ const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
     '/404.html',
+    '/favicon.ico',
     '/trainee-login/',
     '/trainee-login/index.html',
     '/trainee-login/forgot-password.html',
@@ -16,6 +17,8 @@ const ASSETS_TO_CACHE = [
     '/assets/sf-core.js',
     '/assets/sf-turbo.js',
     '/assets/sf-atmosphere-3d.js',
+    '/assets/webgl-guard.js',
+    '/assets/tailwind.css',
     '/assets/theme-manager.js',
     '/assets/error-reporter.js',
     '/assets/firebase-config.js'
@@ -23,7 +26,6 @@ const ASSETS_TO_CACHE = [
 
 // External assets that might not support CORS for pre-caching
 const EXTERNAL_ASSETS = [
-    'https://cdn.tailwindcss.com',
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css',
     'https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js',
     'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js',
@@ -93,4 +95,3 @@ self.addEventListener('fetch', (event) => {
         })
     );
 });
-
