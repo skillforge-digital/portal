@@ -230,7 +230,8 @@
   .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--accent-color); border-radius: 10px; }
 </style>
 
-    </head>
+    <script>window.history.scrollRestoration = "manual"; window.scrollTo(0, 0);</script>
+</head>
 <body class="noise-bg text-white overflow-x-hidden min-h-screen">
 
 <!-- Global News Ticker -->
@@ -990,12 +991,7 @@ window.uploadAvatar = async () => {
     await updateDoc(userRef, { privateAvatars: arrayUnion(publicUrl) });
     
     // Apply as profile picture automatically
-    let userRef = doc(db, 'staffs', uid);
-    let userSnap = await getDoc(userRef);
-    if (!userSnap.exists()) {
-      userRef = doc(db, 'trainees', uid);
-    }
-    await updateDoc(userRef, { photoURL: publicUrl });
+      await updateDoc(userRef, { photoURL: publicUrl });
     
     // Reset UI
     pendingAvatar = null;
@@ -1023,34 +1019,25 @@ async function loadAvatars() {
   const globalGrid = document.getElementById('global-avatar-grid');
   
   try {
-    // Load Private
-    let userRef = doc(db, 'staffs', uid);
-    let userSnap = await getDoc(userRef);
-    if (!userSnap.exists()) {
-      userRef = doc(db, 'trainees', uid);
-      userSnap = await getDoc(userRef);
-    }
-    
-    if (userSnap.exists() && userSnap.data().privateAvatars) {
-      const privateUrls = userSnap.data().privateAvatars;
-      privateGrid.innerHTML = privateUrls.map(url => `
-        <div class="aspect-square rounded-2xl overflow-hidden border border-white/10 cursor-pointer hover:border-gold-500 transition-all group" onclick="applyAvatar('${url}')">
-          <img loading="lazy" src="${url}" class="w-full h-full object-cover group-hover:scale-110 transition-transform">
-        </div>
-      `).join('');
-    }
-    
-    // Load Global
-    const globalSnap = await getDoc(doc(db, 'system', 'public_avatars'));
-    if (globalSnap.exists() && globalSnap.data().urls) {
-      const globalUrls = globalSnap.data().urls;
-      globalGrid.innerHTML = globalUrls.map(url => `
-        <div class="aspect-square rounded-2xl overflow-hidden border border-white/10 cursor-pointer hover:border-gold-500 transition-all group" onclick="applyAvatar('${url}')">
-          <img loading="lazy" src="${url}" class="w-full h-full object-cover group-hover:scale-110 transition-transform">
-        </div>
-      `).join('');
-    }
-  } catch (err) {
+      // Load Private
+      let userRef = doc(db, 'staffs', uid);
+      let userSnap = await getDoc(userRef);
+      if (!userSnap.exists()) {
+        userRef = doc(db, 'trainees', uid);
+        userSnap = await getDoc(userRef);
+      }
+
+      if (userSnap.exists() && userSnap.data().privateAvatars) {
+        const privateUrls = userSnap.data().privateAvatars;
+        if(privateGrid) {
+          privateGrid.innerHTML = privateUrls.map(url => `
+            <div class="aspect-square rounded-2xl overflow-hidden border border-white/10 cursor-pointer hover:border-gold-500 transition-all group" onclick="applyAvatar('${url}')">
+              <img loading="lazy" src="${url}" class="w-full h-full object-cover group-hover:scale-110 transition-transform">
+            </div>
+          `).join('');
+        }
+      }
+    } catch (err) {
     console.error("Failed to load avatars:", err);
   }
 }

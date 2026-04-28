@@ -265,7 +265,8 @@
     #loading-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
 </style>
 
-    </head>
+    <script>window.history.scrollRestoration = "manual"; window.scrollTo(0, 0);</script>
+</head>
 <body class="bg-gradient-to-br from-navy-900 to-slate-950 text-white font-sans overflow-x-hidden">
     <!-- Global News Ticker -->
     <div class="fixed top-0 left-0 right-0 md:left-72 h-8 bg-navy-950/90 backdrop-blur-xl border-b border-white/5 z-[60] overflow-hidden flex items-center no-print shadow-2xl">
@@ -623,7 +624,7 @@ function updateCardUI() {
     socialBadge?.classList.add('hidden');
   }
   
-  let avatarUrl = traineeData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${traineeData.name}`;
+  let avatarUrl = traineeData.photoURL || traineeData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${traineeData.name}`;
   if (avatarUrl.includes('supabase.co')) {
     avatarUrl = `https://res.cloudinary.com/db8pknwmz/image/fetch/f_auto,q_auto,w_800/${encodeURIComponent(avatarUrl)}`;
   }

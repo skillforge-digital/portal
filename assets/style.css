@@ -1152,3 +1152,47 @@
     }
   }
 }
+
+/* Light Mode Overrides for text visibility */
+body.light-mode {
+    background: #f8fafc !important;
+    color: #0f172a !important;
+}
+
+body.light-mode .text-white,
+body.light-mode .text-white\/50,
+body.light-mode .text-white\/40,
+body.light-mode .text-white\/30,
+body.light-mode .text-white\/20,
+body.light-mode .text-white\/60,
+body.light-mode .text-white\/70,
+body.light-mode .text-white\/80,
+body.light-mode .text-white\/90 {
+    color: #1e293b !important;
+}
+
+body.light-mode .bg-navy-950,
+body.light-mode .bg-navy-900,
+body.light-mode .bg-black,
+body.light-mode .bg-slate-950 {
+    background-color: #ffffff !important;
+}
+
+body.light-mode .border-white\/5,
+body.light-mode .border-white\/10,
+body.light-mode .border-white\/20 {
+    border-color: rgba(15, 23, 42, 0.1) !important;
+}
+
+body.light-mode .bg-white\/5,
+body.light-mode .bg-white\/10 {
+    background-color: rgba(15, 23, 42, 0.05) !important;
+}
+
+/* Ensure glass panels look good in light mode */
+body.light-mode .glass,
+body.light-mode .glass-strong {
+    background: rgba(255, 255, 255, 0.8) !important;
+    border-color: rgba(15, 23, 42, 0.1) !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+}

@@ -393,6 +393,30 @@ class SkillForgeCore {
         const traineeSnap = await getDoc(doc(this.db, 'trainees', this.uid));
         if (traineeSnap.exists()) {
             this.registryState = traineeSnap.data();
+
+    // Update My Track link if it exists
+    const myTrackLink = document.getElementById('my-track-link');
+    if (myTrackLink && this.registryState && this.registryState.track) {
+      const trackIdMap = {
+        'Forex Synthetics Indices': 'forex-synthetics',
+        'Forex Currency Pairs': 'forex-currency',
+        'AI Content Creation': 'ai-content-creation',
+        'Photography & Editing': 'photography-and-editing',
+        'Graphic Design': 'graphic-design',
+        'Digital Marketing': 'digital-marketing',
+        'Mobile Cinematography': 'mobile-cinematography',
+        'Discord Development': 'discord-development',
+        'Web Development': 'web-development',
+        'Cyber Security': 'cyber-security',
+        'Forex Synthetic Indices': 'forex-synthetics',
+        'Forex Currency Pairs': 'forex-currency'
+      };
+      const trackId = trackIdMap[this.registryState.track] || this.registryState.track.toLowerCase().replace(/\s+/g, '-');
+      const passkey = this.registryState.pin || this.registryState.roleCode || '';
+      myTrackLink.href = `https://skillforgedigital.com.ng/academy/gate.html?track=${encodeURIComponent(trackId)}${passkey ? '&passkey=' + passkey : ''}`;
+      myTrackLink.classList.remove('opacity-30', 'pointer-events-none');
+    }
+
         } else {
             // Check staffs collection as well just in case
             const staffSnap = await getDoc(doc(this.db, 'staffs', this.uid));

@@ -140,7 +140,15 @@ function initDailyCanvas() {
     if (!document.getElementById('daily-canvas')) {
       const canvas = document.createElement('canvas');
       canvas.id = 'daily-canvas';
-      canvas.className = 'fixed inset-0 w-full h-full pointer-events-none z-[-1] opacity-50 mix-blend-screen';
+      canvas.style.position = 'fixed';
+      canvas.style.top = '0';
+      canvas.style.left = '0';
+      canvas.style.width = '100vw';
+      canvas.style.height = '100vh';
+      canvas.style.pointerEvents = 'none';
+      canvas.style.zIndex = '-1';
+      canvas.style.opacity = '0.5';
+      canvas.style.mixBlendMode = 'screen';
       document.body.insertBefore(canvas, document.body.firstChild);
     }
     if (!window.dailyCanvasInstance) {

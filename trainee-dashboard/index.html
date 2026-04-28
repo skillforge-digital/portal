@@ -249,7 +249,8 @@ tailwind.config = {
   
 </script>
 
-    </head>
+    <script>window.history.scrollRestoration = "manual"; window.scrollTo(0, 0);</script>
+</head>
 <body class="noise-bg text-white overflow-x-hidden min-h-screen relative">
 
 <!-- Global News Ticker moved to main -->
@@ -1329,7 +1330,15 @@ function updateDynamicUI(data) {
   const roleDisplay = (data.roles && data.roles.length > 0) ? data.roles.join(' | ') : (data.track || 'Academy Trainee');
   document.querySelectorAll('.profile-track-target').forEach(el => el.innerText = roleDisplay);
   
-  document.querySelectorAll('.profile-initials-target').forEach(el => {
+  
+    // Profile Avatar
+    const avatarUrl = data.photoURL || data.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${data.name || 'User'}`;
+    document.querySelectorAll('.profile-avatar-target').forEach(el => {
+      el.src = avatarUrl;
+    });
+
+    document.querySelectorAll('.profile-initials-target').forEach(el => {
+
     if (!el.querySelector('.profile-avatar-target')) {
       el.innerText = initials;
     }
