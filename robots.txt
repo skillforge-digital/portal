@@ -1,7 +1,14 @@
 User-agent: *
 Allow: /
-Disallow: /staffs/
+Disallow: /trainee-dashboard/
+Disallow: /specialist-dashboard/
+Disallow: /staffs/director/
+Disallow: /staffs/hod/
+Disallow: /staffs/specialist/
+Disallow: /staffs/marketing/
+Disallow: /staffs/support/
 Disallow: /admin/
 Disallow: /seed-staff.js
+Disallow: /my-project/
 
 Sitemap: https://portal.skillforgedigital.com.ng/sitemap.xml
