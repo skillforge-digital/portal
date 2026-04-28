@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; img-src 'self' data: https: blob:; font-src 'self' https: data:; style-src 'self' https: 'unsafe-inline'; script-src 'self' https: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https: wss:;">
+  <title>Marketing Hub — SkillForge Digital</title>
+
+  <!-- Advanced SEO Search Magnets -->
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="description" content="SkillForge Digital Portal - Access your Mastery Dashboard, track your XP, and connect with your cohort.">
+  <meta name="keywords" content="SkillForge Portal, Trainee Dashboard, Tech Academy Login, Student Portal, Mastery Hub, Digital Skills Nigeria">
+  <meta name="author" content="SkillForge Digital & Co. Ltd">
+  
+  <!-- Open Graph / Facebook / WhatsApp -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://portal.skillforgedigital.com.ng/">
+  <meta property="og:title" content="SkillForge Portal | Mastery Hub">
+  <meta property="og:description" content="Access your SkillForge Mastery Dashboard, track your study XP, and customize your learning environment.">
+  <meta property="og:image" itemprop="image" content="https://files.fm/thumb_show.php?i=sebxcfvhb7">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="SkillForge Portal">
+  <meta property="og:locale" content="en_US">
+  
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SkillForge Portal | Mastery Hub">
+  <meta name="twitter:description" content="Access your SkillForge Mastery Dashboard, track your study XP, and customize your learning environment.">
+  <meta name="twitter:image" content="https://files.fm/thumb_show.php?i=sebxcfvhb7">
+  
+  <!-- Schema.org JSON-LD for Google -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "SkillForge Portal",
+    "url": "https://portal.skillforgedigital.com.ng",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://portal.skillforgedigital.com.ng/verify/?id={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+
+  <link rel="stylesheet" href="../../assets/style.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: '#040810',
+            gold: '#C9A84C',
+            orange: '#E87722',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+    body { font-family:'Plus Jakarta Sans',sans-serif; background:#040810; color:#f1f5f9; overflow-x:hidden; min-height: 100dvh; }
+    #sundust-canvas { position:fixed; inset:0; width:100%; height:100dvh; z-index:0; pointer-events:none }
+    .glass { background: rgba(255,255,255,0.02); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
+    .glass-strong { background: rgba(255,255,255,0.05); -webkit-backdrop-filter: blur(30px); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.1); }
+    @keyframes slide-up { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .animate-slide-up { animation: slide-up 0.8s ease-out forwards; }
+    .nav-link.active { background: rgba(232,119,34,0.1); color: #E87722; border-right: 4px solid #E87722; }
+    
+    /* Focus States & Accessibility */
+    button:focus-visible, 
+    a:focus-visible, 
+    input:focus-visible, 
+    select:focus-visible, 
+    textarea:focus-visible {
+      outline: 2px solid #E87722; /* Orange for Specialist */
+      outline-offset: 2px;
+    }
+    
+    .nav-link:focus-visible {
+      background: rgba(232,119,34,0.1);
+      color: #E87722;
+    }
+    @keyframes ticker {
+      0% { transform: translateX(0%); }
+      100% { transform: translateX(-50%); }
+    }
+    .animate-ticker { 
+      display: flex;
+      width: max-content;
+      animation: ticker 60s linear infinite; 
+      will-change: transform; 
+    }
+    .animate-ticker:hover { animation-play-state: paused; }
+  </style>
+
+    <script>window.history.scrollRestoration = "manual"; window.scrollTo(0, 0);</script>
+</head>
+<body class="overflow-x-hidden min-h-screen">
+  <canvas id="sundust-canvas"></canvas>
+
+  <!-- Sidebar -->
+  <aside class="w-72 glass-strong border-r border-white/5 flex flex-col fixed inset-y-0 z-50 transition-all duration-500 md:translate-x-0 -translate-x-full" id="sidebar">
+    <div class="p-8 flex-1 overflow-y-auto">
+      <div class="flex items-center justify-between mb-12">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl bg-orange/10 flex items-center justify-center text-orange border border-orange/20">
+            <i data-lucide="zap" class="w-6 h-6"></i>
+          </div>
+          <div class="flex flex-col leading-none">
+            <span class="font-black text-sm tracking-tighter uppercase">SkillForge</span>
+            <span class="text-[8px] text-orange font-bold tracking-[0.3em] uppercase">Marketing Hub</span>
+          </div>
+        </div>
+        <!-- Role Switcher -->
+        <div id="role-switcher" class="hidden flex gap-2 p-1 rounded-xl bg-white/5 border border-white/10"></div>
+      </div>
+
+      <nav class="space-y-1">
+        <p class="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Command Center</p>
+        <a aria-label="Action button" href="#" class="nav-link active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Path Overview
+        </a>
+        <a href="#" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+          <i data-lucide="user-check" class="w-4 h-4"></i> Trainee Registry
+        </a>
+        <a href="customize/" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+          <i data-lucide="palette" class="w-4 h-4"></i> Design Studio
+        </a>
+        <button onclick="showTab('profile')" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+          <i data-lucide="user-cog" class="w-4 h-4"></i> Personnel Profile
+        </button>
+        <a href="#" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+          <i data-lucide="award" class="w-4 h-4"></i> Badge Validation
+        </a>
+      </nav>
+          <!-- System Toggles -->
+          <div class="mt-8 px-6 space-y-4">
+            <p class="text-[9px] font-black text-white/30 uppercase tracking-[0.4em]">System Nodes</p>
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold uppercase text-white/50">Glow FX</span>
+              <button type="button" onclick="toggleControl('glow')" class="ctrl-glow-btn w-8 h-4 rounded-full bg-white/20 relative transition-all"><div class="absolute top-0.5 left-0.5 w-3 h-3 rounded-full bg-white transition-all"></div></button>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold uppercase text-white/50">Light Mode</span>
+              <button type="button" onclick="toggleControl('light')" class="ctrl-light-btn w-8 h-4 rounded-full bg-white/20 relative transition-all"><div class="absolute top-0.5 left-0.5 w-3 h-3 rounded-full bg-white transition-all"></div></button>
+            </div>
+          </div>
+
+    </div>
+
+    <div class="p-8 border-t border-white/5">
+        <div class="flex items-center gap-4 mb-6 p-4 rounded-2xl bg-white/5 border border-white/5">
+            <div class="w-10 h-10 rounded-xl bg-orange/10 flex items-center justify-center text-orange font-black text-xs" id="user-initials">S</div>
+            <div class="min-w-0">
+                <p class="text-[10px] font-black text-white uppercase truncate" id="user-name">Loading...</p>
+                <p class="text-[8px] text-orange font-bold uppercase tracking-widest truncate" id="user-role">Specialist Access</p>
+            </div>
+        </div>
+        <button type="button" onclick="window.staffCore.logout()" aria-label="Sign Out of Marketing Hub" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-red-400/70 hover:text-red-400 hover:bg-red-400/10 transition-all">
+            <i data-lucide="log-out" class="w-4 h-4"></i> Sign Out
+        </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="md:ml-72 min-h-screen relative flex flex-col z-10">
+    <!-- Global News Ticker -->
+    <div class="w-full h-8 bg-navy/90 backdrop-blur-xl border-b border-white/5 z-[60] overflow-hidden flex items-center sticky top-0 no-print shadow-2xl">
+      <div class="flex-1 overflow-hidden relative h-full flex items-center">
+        <div id="news-ticker-content" class="animate-ticker flex items-center gap-24 whitespace-nowrap">
+          <span class="text-[11px] font-bold text-white/90 uppercase tracking-[0.2em] italic">Welcome to SkillForge Season 2026. Portal Registry is Active.</span>
+          <span class="text-[11px] font-bold text-white/90 uppercase tracking-[0.2em] italic">Welcome to SkillForge Season 2026. Portal Registry is Active.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex-1 p-6 md:p-12 pt-24 md:pt-12">
+      <div id="tab-content" class="w-full max-w-[1800px] mx-auto space-y-12 animate-slide-up">
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
+            <div>
+                <p class="text-orange text-xs font-black tracking-[0.4em] uppercase">Marketing Hub</p>
+                <h1 class="text-4xl md:text-6xl font-black mt-2 uppercase tracking-tighter">Path Registry</h1>
+            </div>
+            <div class="flex gap-4">
+                <div class="glass px-6 py-3 rounded-2xl border border-white/5">
+                    <p class="text-[8px] font-black text-white/30 uppercase tracking-widest">Active Presence</p>
+                    <p class="text-xl font-bold text-orange" id="pulse-count">ACTIVE</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="glass p-8 rounded-[40px] border border-white/5">
+                <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-4">Assigned Path Trainees</p>
+                <p class="text-5xl font-black text-orange" id="trainee-count">0</p>
+                <p class="text-[8px] text-white/20 uppercase tracking-[0.3em] mt-2">Active registry entries</p>
+            </div>
+            <div class="glass p-8 rounded-[40px] border border-white/5">
+                <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-4">Pending Validations</p>
+                <p class="text-5xl font-black text-orange" id="badge-count">0</p>
+                <p class="text-[8px] text-white/20 uppercase tracking-[0.3em] mt-2">Badges awaiting review</p>
+            </div>
+        </div>
+
+        <!-- Main Workspace -->
+        <div class="glass-strong rounded-[40px] p-10 border border-white/5 min-h-[400px]">
+            <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40 mb-8">Recent Path Activity</h2>
+            <div class="flex items-center justify-center h-64 text-white/20 italic">
+                Scanning assigned path activity...
+            </div>
+        </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import StaffCore from '../../assets/staff-core.js';
+    import { db } from '../../assets/firebase-config.js';
+    import { collection, query, getDocs, onSnapshot, doc, getDoc, where, updateDoc, orderBy, limit } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+
+    
+    window.toggleControl = async (feature) => {
+      const uid = auth.currentUser ? auth.currentUser.uid : localStorage.getItem('skillforge_mock_uid');
+      if (!uid) return;
+      
+      try {
+        let userRef = doc(db, 'staffs', uid);
+        let userSnap = await getDoc(userRef);
+        if (!userSnap.exists()) userRef = doc(db, 'trainees', uid);
+        
+        let data = (await getDoc(userRef)).data();
+        if (!data) return;
+        
+        if (feature === 'light') {
+            const newVal = !data.isLightMode;
+            await updateDoc(userRef, { isLightMode: newVal });
+            if (newVal) document.documentElement.classList.add('light-mode');
+            else document.documentElement.classList.remove('light-mode');
+            
+            document.querySelectorAll('.ctrl-light-btn').forEach(b => {
+                if (newVal) b.classList.replace('bg-white/20', 'bg-gold-500');
+                else b.classList.replace('bg-gold-500', 'bg-white/20');
+                b.querySelector('div').style.transform = newVal ? 'translateX(16px)' : 'translateX(0)';
+            });
+        } else if (feature === 'glow') {
+            const controls = data.controls || {};
+            const newVal = !controls.glow;
+            await updateDoc(userRef, { 'controls.glow': newVal });
+            if (newVal) document.documentElement.classList.add('glow-enabled');
+            else document.documentElement.classList.remove('glow-enabled');
+            
+            document.querySelectorAll('.ctrl-glow-btn').forEach(b => {
+                if (newVal) b.classList.replace('bg-white/20', 'bg-gold-500');
+                else b.classList.replace('bg-gold-500', 'bg-white/20');
+                b.querySelector('div').style.transform = newVal ? 'translateX(16px)' : 'translateX(0)';
+            });
+        }
+      } catch (err) { void(err); }
+    };
+
+    window.showTab = async (tab) => {
+        // Role Switcher Logic
+        if (window.staffCore && window.staffCore.profile && window.staffCore.profile.roles && window.staffCore.profile.roles.length > 1) {
+            const switcher = document.getElementById('role-switcher');
+            const rolePaths = {
+                'Director': '/staffs/director/',
+                'HOD': '/staffs/hod/',
+                'Specialist': '/staffs/specialist/',
+                'Digital Marketing': '/staffs/marketing/',
+                'Support Staff': '/staffs/support/'
+            };
+
+            switcher.innerHTML = window.staffCore.profile.roles.map(role => {
+                const path = rolePaths[role];
+                if (!path) return '';
+                const isActive = window.location.pathname.includes(path);
+                return `
+                    <a href="${path}" class="px-2 py-1 rounded-lg text-[7px] font-black uppercase tracking-widest transition-all ${isActive ? 'bg-orange text-navy-950' : 'text-slate-500 hover:text-white'}">
+                        ${role.charAt(0)}
+                    </a>
+                `;
+            }).join('');
+            switcher.classList.remove('hidden');
+        }
+
+        const content = document.getElementById('tab-content');
+        const profile = window.staffCore.profile;
+        
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        if (event && event.target.closest('.nav-link')) event.target.closest('.nav-link').classList.add('active');
+
+        if (tab === 'profile') {
+            content.innerHTML = `
+                <div class="max-w-4xl mx-auto animate-slide-up">
+                    <header class="mb-12">
+                        <p class="text-orange text-xs font-black tracking-[0.4em] uppercase">Specialist Dossier</p>
+                        <h1 class="text-4xl md:text-6xl font-black mt-2 uppercase tracking-tighter">Personnel Profile</h1>
+                    </header>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="md:col-span-1 space-y-6">
+                            <div class="glass p-8 rounded-[40px] border border-white/5 flex flex-col items-center text-center">
+                                <div class="w-24 h-24 rounded-3xl bg-orange/10 flex items-center justify-center text-orange text-3xl font-black mb-6 border border-orange/20">
+                                    ${(profile.name || 'S').charAt(0)}
+                                </div>
+                                <h3 class="text-xl font-black uppercase tracking-tight">${profile.name || 'Specialist'}</h3>
+                                <p class="text-[10px] text-orange font-bold uppercase tracking-widest mt-1">${profile.primaryRole} Access</p>
+                            </div>
+
+                            <div class="p-4 rounded-2xl bg-white/5 border border-white/5">
+                                <p class="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Personnel ID</p>
+                                <p class="text-lg font-black text-white tracking-[0.2em]">${profile.sfid || 'PENDING'}</p>
+                            </div>
+                            <div class="p-4 rounded-2xl bg-white/5 border border-white/5">
+                                <p class="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Access Passkey</p>
+                                <p class="text-lg font-black text-orange tracking-[0.2em]">${profile.roleCode || 'XXXXXX'}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            if (window.lucide) window.lucide.createIcons();
+        } else {
+            // Reset to Path Overview without full reload
+            content.innerHTML = `
+                <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 animate-slide-up">
+                    <div>
+                        <p class="text-orange text-xs font-black tracking-[0.4em] uppercase">Specialist Command Center</p>
+                        <h1 class="text-4xl md:text-6xl font-black mt-2 uppercase tracking-tighter">Path Registry</h1>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="glass px-6 py-3 rounded-2xl border border-white/5">
+                            <p class="text-[8px] font-black text-white/30 uppercase tracking-widest">Active Pulse</p>
+                            <p class="text-xl font-bold text-orange" id="pulse-count">ACTIVE</p>
+                        </div>
+                    </div>
+                </header>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 animate-slide-up" style="animation-delay: 0.1s">
+                    <div class="glass p-8 rounded-[40px] border border-white/5">
+                        <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-4">Assigned Path Trainees</p>
+                        <p class="text-5xl font-black text-orange" id="trainee-count-sub">0</p>
+                        <p class="text-[8px] text-white/20 uppercase tracking-[0.3em] mt-2">Active registry entries</p>
+                    </div>
+                    <div class="glass p-8 rounded-[40px] border border-white/5">
+                        <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-4">Pending Validations</p>
+                        <p class="text-5xl font-black text-orange" id="badge-count-sub">0</p>
+                        <p class="text-[8px] text-white/20 uppercase tracking-[0.3em] mt-2">Badges awaiting review</p>
+                    </div>
+                </div>
+
+                <div class="glass-strong rounded-[40px] p-10 border border-white/5 min-h-[400px] animate-slide-up" style="animation-delay: 0.2s">
+                    <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40 mb-8">Recent Path Activity</h2>
+                    <div class="flex items-center justify-center h-64 text-white/20 italic">
+                        Scanning assigned path pulse for activity...
+                    </div>
+                </div>
+            `;
+            initDashboard(); // Re-bind counters
+        }
+    };
+
+    window.addSocialRow = () => {
+        const container = document.getElementById('social-handles-container');
+        if (!container) return;
+        const row = document.createElement('div');
+        const rowId = Date.now();
+        row.className = 'grid grid-cols-1 md:grid-cols-2 gap-4 social-row items-end animate-slide-up';
+        row.innerHTML = `
+            <div class="space-y-2">
+                <label for="platform-${rowId}" class="text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">Platform</label>
+                <select id="platform-${rowId}" name="socialPlatform[]" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10 text-white">
+                    <option value="Instagram">Instagram</option>
+                    <option value="Twitter">X (Twitter)</option>
+                    <option value="LinkedIn">LinkedIn</option>
+                    <option value="Facebook">Facebook</option>
+                    <option value="TikTok">TikTok</option>
+                    <option value="Discord">Discord</option>
+                    <option value="Telegram">Telegram</option>
+                </select>
+            </div>
+            <div class="relative space-y-2">
+                <label for="handle-${rowId}" class="text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">Handle</label>
+                <div class="flex gap-2">
+                    <input id="handle-${rowId}" name="socialHandle[]" type="text" placeholder="@username" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10 text-white">
+                    <button type="button" onclick="this.closest('.social-row').remove()" class="p-4 text-red-400 hover:bg-red-400/10 rounded-2xl transition-all">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                </div>
+            </div>
+        `;
+        container.appendChild(row);
+        if (window.lucide) window.lucide.createIcons();
+    };
+
+    async function updateSocialRegistry(e) {
+        e.preventDefault();
+        const btn = e.target.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        btn.innerText = 'Syncing...';
+
+        const formData = new FormData(e.target);
+        const platforms = formData.getAll('socialPlatform[]');
+        const handles = formData.getAll('socialHandle[]');
+        
+        const matrix = platforms.map((p, i) => ({
+            platform: p,
+            handle: handles[i]
+        })).filter(s => s.handle);
+
+        try {
+            await updateDoc(doc(db, 'staffs', window.staffCore.uid), {
+                socialMatrix: matrix
+            });
+            alert("Social Registry Updated Successfully.");
+            window.staffCore.profile.socialMatrix = matrix;
+            showTab('profile');
+        } catch (err) {
+            void(err);
+            alert("Update Failed: Registry link interrupted.");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = 'Update Social Registry';
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
+        const checkCore = setInterval(() => {
+            if (window.staffCore && window.staffCore.profile) {
+                clearInterval(checkCore);
+                const profile = window.staffCore.profile;
+                document.getElementById('user-name').innerText = profile.name || 'SPECIALIST';
+                document.getElementById('user-role').innerText = profile.primaryRole + ' Access';
+                document.getElementById('user-initials').innerText = (profile.name || 'S').charAt(0);
+                
+                loadNewsTicker();
+                window.showTab('overview');
+            }
+        }, 100);
+    });
+
+    async function loadNewsTicker() {
+      const ticker = document.getElementById('news-ticker-content');
+      if (!ticker) return;
+
+      try {
+        const q = query(collection(db, 'announcements'), orderBy('timestamp', 'desc'), limit(5));
+        const snap = await getDocs(q);
+        
+        let messages = [];
+        if (snap.empty) {
+          messages = [
+            "Welcome to SkillForge Season 2026. Portal Registry is Active.",
+            "New Mastery Track: AI Content Creation now live in the Academy.",
+            "Specialist Command Center is now accepting Silver Badge requests.",
+            "Daily Pulse check: 1 XP per minute of active study time.",
+            "Join our global Discord for elite technical support and networking."
+          ];
+        } else {
+          snap.forEach(doc => {
+            const d = doc.data();
+            messages.push(d.message || d.title || "New Announcement");
+          });
+        }
+
+        ticker.innerHTML = messages.map(m => `<span class="text-[9px] font-bold text-white/60 uppercase tracking-widest flex items-center gap-4"><div class="w-1 h-1 rounded-full bg-gold"></div> ${m}</span>`).join('');
+        ticker.innerHTML += ticker.innerHTML;
+      } catch (err) {
+        void("[Dashboard] News Ticker failed to load registry data.");
+      }
+    }
+
+    async function initDashboard() {
+        // Real-time Trainee Count for assigned track (placeholder logic)
+        onSnapshot(collection(db, "trainees"), (snap) => {
+            document.getElementById('trainee-count').innerText = snap.size;
+        });
+
+        // Real-time Badge Requests
+        onSnapshot(collection(db, "badge_requests"), (snap) => {
+            let pending = 0;
+            snap.forEach(doc => { if (doc.data().status === 'pending') pending++ });
+            document.getElementById('badge-count').innerText = pending;
+        });
+    }
+
+    // Sundust Background
+    class Sundust {
+      constructor() {
+        this.canvas = document.getElementById('sundust-canvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.particles = [];
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+        this.initParticles();
+        this.animate();
+      }
+      resize(){ this.canvas.width=window.innerWidth; this.canvas.height=window.innerHeight }
+      initParticles(){ for(let i=0;i<40;i++) this.particles.push(this.createParticle()) }
+      createParticle(){ return { x:Math.random()*this.canvas.width,y:Math.random()*this.canvas.height,size:Math.random()*1.2+0.5,alpha:Math.random()*0.3+0.1,vx:(Math.random()-0.5)*0.2,vy:(Math.random()-0.5)*0.2,p:Math.random()*Math.PI*2 } }
+      animate(){
+        this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
+        this.particles.forEach(p=>{
+          p.x+=p.vx; p.y+=p.vy; p.p+=0.01;
+          if(p.x<0)p.x=this.canvas.width; if(p.x>this.canvas.width)p.x=0;
+          if(p.y<0)p.y=this.canvas.height; if(p.y>this.canvas.height)p.y=0;
+          this.ctx.fillStyle=`rgba(232,119,34,${p.alpha+Math.sin(p.p)*0.1})`;
+          this.ctx.beginPath(); this.ctx.arc(p.x,p.y,p.size,0,Math.PI*2); this.ctx.fill();
+        });
+        requestAnimationFrame(()=>this.animate());
+      }
+    }
+    new Sundust();
+    if (window.lucide) window.lucide.createIcons();
+  </script>
+</body>
+</html>

@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; img-src 'self' data: https: blob:; font-src 'self' https: data:; style-src 'self' https: 'unsafe-inline'; script-src 'self' https: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https: wss:;">
+<title>Design Studio — SkillForge</title>
+
+  <!-- Advanced SEO Search Magnets -->
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="description" content="SkillForge Digital Portal - Access your Mastery Dashboard, track your XP, and connect with your cohort.">
+  <meta name="keywords" content="SkillForge Portal, Trainee Dashboard, Tech Academy Login, Student Portal, Mastery Hub, Digital Skills Nigeria">
+  <meta name="author" content="SkillForge Digital & Co. Ltd">
+  
+  <!-- Open Graph / Facebook / WhatsApp -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://portal.skillforgedigital.com.ng/">
+  <meta property="og:title" content="SkillForge Portal | Mastery Hub">
+  <meta property="og:description" content="Access your SkillForge Mastery Dashboard, track your study XP, and customize your learning environment.">
+  <meta property="og:image" itemprop="image" content="https://files.fm/thumb_show.php?i=sebxcfvhb7">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="SkillForge Portal">
+  <meta property="og:locale" content="en_US">
+  
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SkillForge Portal | Mastery Hub">
+  <meta name="twitter:description" content="Access your SkillForge Mastery Dashboard, track your study XP, and customize your learning environment.">
+  <meta name="twitter:image" content="https://files.fm/thumb_show.php?i=sebxcfvhb7">
+  
+  <!-- Schema.org JSON-LD for Google -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "SkillForge Portal",
+    "url": "https://portal.skillforgedigital.com.ng",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://portal.skillforgedigital.com.ng/verify/?id={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+
+<script>
+  
+</script>
+<link rel="stylesheet" href="../../../assets/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;700&family=Caveat:wght@400;700&family=Unbounded:wght@400;700&family=Inter:wght@400;700&family=Playfair+Display:wght@400;700&family=Outfit:wght@400;700&family=Syne:wght@400;700&family=Lexend:wght@400;700&family=Plus+Jakarta+Sans:wght@400;700&family=Cinzel:wght@400;700&family=Montserrat:wght@400;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        navy: { 950:'#040810', 900:'#070d1a', 800:'#0c1829', 700:'#112240', 600:'#1a3358' },
+        orange: { 400:'#f97316', 500:'#ea580c', 600:'#c2410c' },
+      }
+    }
+  }
+}
+</script>
+<style>
+  :root { --font-main: 'Space Grotesk', sans-serif; --accent-color: #ea580c; --accent-color-rgb: 234, 88, 12; --accent-color-light: #f97316; }
+  * { font-family: var(--font-main); transition: all 0.3s ease; }
+  body { background: #040810; color: white; min-height: 100dvh; display: flex; flex-direction: column; overflow-x: hidden; }
+  .glass { background: rgba(12, 24, 50, 0.55); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
+  .glass-strong { background: rgba(12, 24, 50, 0.75); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.1); }
+  
+  .swatch { width: 100%; aspect-ratio: 1; border-radius: 20px; cursor: pointer; border: 2px solid transparent; position: relative; overflow: visible; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+  .swatch:hover { transform: scale(1.05); z-index: 10; }
+  .swatch.active { border-color: white; transform: scale(1.1); box-shadow: 0 0 25px rgba(var(--accent-color-rgb), 0.4); }
+  .swatch:focus-visible { outline: 2px solid var(--accent-color); outline-offset: 4px; transform: scale(1.05); }
+
+  .dual-inner { position: absolute; inset: 0; display: flex; transform: rotate(45deg) scale(1.5); pointer-events: none; }
+  .dual-1 { flex: 1; pointer-events: none; }
+  .dual-2 { flex: 1; pointer-events: none; }
+
+  .wallpaper-swatch { width: 100%; aspect-ratio: 16/9; border-radius: 24px; cursor: pointer; border: 2px solid transparent; background-size: cover; background-position: center; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+  .wallpaper-swatch:hover { transform: translateY(-4px); }
+  .wallpaper-swatch.active { border-color: var(--accent-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+  .wallpaper-swatch:focus-visible { outline: 2px solid var(--accent-color); outline-offset: 4px; transform: translateY(-4px); }
+
+  .font-card { cursor: pointer; border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; padding: 24px; transition: all 0.3s ease; }
+  .font-card:hover { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.1); }
+  .font-card.active { border-color: var(--accent-color); background: rgba(var(--accent-color-rgb), 0.1); }
+  .font-card:focus-visible { outline: 2px solid var(--accent-color); outline-offset: 4px; background: rgba(255,255,255,0.03); }
+  
+  #loading-screen { position: fixed; inset: 0; background: #040810; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease; }
+  
+  .tab-btn { padding: 14px 28px; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.2em; border-radius: 18px; transition: all 0.3s ease; color: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.05); }
+  .tab-btn.active { background: var(--accent-color); color: #040810; border-color: var(--accent-color); box-shadow: 0 0 20px rgba(var(--accent-color-rgb), 0.3); }
+  .tab-btn:focus-visible { outline: 2px solid var(--accent-color); outline-offset: 2px; }
+
+  .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--accent-color); border-radius: 10px; }
+  
+  .sidebar-link { transition: all 0.3s ease; }
+  .sidebar-link:hover { background: rgba(255,255,255,0.05); }
+  .sidebar-link.active { background: rgba(var(--accent-color-rgb), 0.1); color: var(--accent-color); border-right: 3px solid var(--accent-color); }
+  .sidebar-link:focus-visible { outline: 2px solid var(--accent-color); outline-offset: -2px; background: rgba(255,255,255,0.05); }
+
+  /* Global focus states */
+  button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+  }
+</style>
+
+    <script>window.history.scrollRestoration = "manual"; window.scrollTo(0, 0);</script>
+</head>
+<body class="overflow-x-hidden min-h-screen">
+
+<div id="loading-screen">
+  <div class="flex flex-col items-center gap-6">
+    <div class="w-16 h-16 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin"></div>
+    <div class="text-center">
+      <p class="text-[10px] font-black uppercase tracking-[0.5em] text-orange-400">Loading Design Studio</p>
+      <p class="text-[8px] text-white/20 uppercase tracking-[0.3em] mt-2">Preparing Command Interface...</p>
+    </div>
+  </div>
+</div>
+
+<!-- Mobile Header -->
+<div class="md:hidden h-20 px-6 flex items-center justify-between glass sticky top-0 z-[100] border-b border-white/5">
+  <div class="flex items-center gap-3">
+    <button aria-label="Action button" onclick="window.history.back()" class="p-2 text-white/50 hover:text-white transition-all"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-lg bg-black flex items-center justify-center border border-orange-500/30 overflow-hidden">
+        <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" class="w-full h-full object-cover">
+      </div>
+      <div class="flex flex-col leading-none">
+        <span class="font-black text-sm tracking-tighter uppercase">SkillForge</span>
+        <span class="text-[6px] text-orange-400 font-bold tracking-[0.2em] uppercase">Marketing Hub</span>
+      </div>
+    </div>
+  </div>
+  <button aria-label="Action button" onclick="toggleSidebar()" class="p-2 text-white/50 hover:text-white transition-all"><i data-lucide="menu" class="w-5 h-5"></i></button>
+</div>
+
+<aside id="main-sidebar" class="w-72 glass-strong border-r border-white/5 flex flex-col fixed inset-y-0 z-50 transition-all duration-500 -translate-x-full md:translate-x-0">
+  <div class="p-8 flex-1 overflow-y-auto custom-scrollbar">
+    <div class="flex items-center gap-3 mb-10">
+      <div class="w-10 h-10 rounded-xl bg-orange/10 flex items-center justify-center text-orange border border-orange/20">
+        <i data-lucide="zap" class="w-5 h-5"></i>
+      </div>
+      <div class="flex flex-col leading-none">
+        <span class="font-black text-sm tracking-tighter uppercase">SkillForge</span>
+        <span class="text-[7px] text-orange-400 font-bold tracking-[0.2em] uppercase">Marketing Hub</span>
+      </div>
+    </div>
+    <nav class="space-y-1">
+      <p class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Command Nodes</p>
+      <a href="../" class="sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white"><i data-lucide="layout-dashboard" class="w-4"></i> Path Overview</a>
+      <a href="./" class="sidebar-link active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest"><i data-lucide="palette" class="w-4"></i> Design Studio</a>
+    </nav>
+          <!-- System Toggles -->
+          <div class="mt-8 px-6 space-y-4">
+            <p class="text-[9px] font-black text-white/30 uppercase tracking-[0.4em]">System Nodes</p>
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold uppercase text-white/50">Glow FX</span>
+              <button type="button" onclick="toggleControl('glow')" class="ctrl-glow-btn w-8 h-4 rounded-full bg-white/20 relative transition-all"><div class="absolute top-0.5 left-0.5 w-3 h-3 rounded-full bg-white transition-all"></div></button>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold uppercase text-white/50">Light Mode</span>
+              <button type="button" onclick="toggleControl('light')" class="ctrl-light-btn w-8 h-4 rounded-full bg-white/20 relative transition-all"><div class="absolute top-0.5 left-0.5 w-3 h-3 rounded-full bg-white transition-all"></div></button>
+            </div>
+          </div>
+
+  </div>
+  <div class="p-8 border-t border-white/5">
+    <div class="flex items-center gap-4 mb-6 p-4 rounded-2xl bg-white/5 border border-white/5">
+      <div class="w-10 h-10 rounded-xl bg-orange/10 flex items-center justify-center text-orange font-black text-xs" id="user-initials">S</div>
+      <div class="min-w-0">
+        <p class="text-[10px] font-black text-white uppercase truncate" id="user-name">Loading...</p>
+        <p class="text-[8px] text-orange-400 font-bold uppercase tracking-widest truncate" id="user-role">Specialist</p>
+      </div>
+    </div>
+    <button onclick="window.staffCore.logout()" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-red-400/70 hover:text-red-400 hover:bg-red-400/10 transition-all">
+      <i data-lucide="log-out" class="w-4"></i> Sign Out
+    </button>
+  </div>
+</aside>
+
+<main class="md:ml-72 min-h-screen relative z-10 p-6 md:p-10 pt-24 md:pt-20">
+  <div class="w-full max-w-[1800px] mx-auto space-y-12">
+    <header class="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8">
+      <div>
+        <p class="text-orange-400 text-sm font-medium tracking-widest uppercase">Atmosphere Control</p>
+        <h1 class="text-4xl md:text-6xl font-black mt-1 uppercase tracking-tighter">Design Studio</h1>
+      </div>
+      <div class="flex gap-2 p-1.5 glass rounded-[24px]">
+        <button onclick="setTab('colors')" id="tab-colors" class="tab-btn active">Colors</button>
+        <button onclick="setTab('wallpapers')" id="tab-wallpapers" class="tab-btn">Wallpapers</button>
+        <button onclick="setTab('fonts')" id="tab-fonts" class="tab-btn">Fonts</button>
+      </div>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+      <div class="lg:col-span-2 space-y-16">
+        <section id="section-colors" class="space-y-12">
+          <div class="space-y-8">
+            <div class="flex items-center justify-between">
+              <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">35 Premium Dual Color Masters</h2>
+              <span class="text-[8px] font-bold text-orange-500 bg-orange-500/10 px-3 py-1 rounded-full uppercase">Solid Pairs</span>
+            </div>
+            <div class="grid grid-cols-4 md:grid-cols-7 gap-5" id="dual-grid"></div>
+          </div>
+          <div class="space-y-8">
+            <div class="flex items-center justify-between">
+              <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">Atmospheric Portal Gradients</h2>
+              <span class="text-[8px] font-bold text-orange-500 bg-orange-500/10 px-3 py-1 rounded-full uppercase">Gradients</span>
+            </div>
+            <div class="grid grid-cols-3 md:grid-cols-5 gap-5" id="gradient-grid"></div>
+          </div>
+        </section>
+
+        <section id="section-wallpapers" class="hidden space-y-12">
+          <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">20+ Premium Motion Atmosphere</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="wallpaper-grid"></div>
+        </section>
+
+        <section id="section-fonts" class="hidden space-y-12">
+          <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40">15 Premium Portal Typography</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="font-grid"></div>
+        </section>
+      </div>
+
+      <div class="space-y-8">
+        <div class="glass p-10 rounded-[48px] sticky top-24 space-y-10">
+          <div class="space-y-2">
+            <h3 class="text-[11px] font-black uppercase tracking-[0.5em] text-orange-500">Design Identity</h3>
+            <p class="text-[9px] text-white/30 uppercase tracking-widest">Active Portal Profile</p>
+          </div>
+          
+          <div class="p-8 rounded-[32px] bg-white/5 border border-white/5 space-y-6 overflow-hidden relative group" id="preview-box">
+            <div class="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-50"></div>
+            <div class="relative z-10">
+              <p class="text-orange-400 text-[10px] font-black uppercase tracking-widest mb-1">Atmosphere Preview</p>
+              <h4 class="text-3xl font-black tracking-tighter mb-6" id="preview-text">Command Center</h4>
+              <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden shadow-inner">
+                <div class="h-full bg-orange-500 w-2/3 transition-all duration-1000" id="preview-bar"></div>
+              </div>
+              <p class="text-[8px] font-bold text-white/20 uppercase mt-4 tracking-[0.2em]">Portal Registry Sync Active</p>
+            </div>
+          </div>
+
+          <div class="space-y-5 pt-6 border-t border-white/5">
+            <div class="flex items-center justify-between p-5 rounded-3xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all cursor-pointer" onclick="toggleCanvas()">
+              <div class="flex flex-col">
+                <span class="text-[10px] font-black uppercase tracking-widest text-white/60">7-Day Dynamic Canvas</span>
+                <span class="text-[8px] font-bold text-white/20 uppercase mt-1">Automatic Daily Updates</span>
+              </div>
+              <button id="canvas-toggle" class="w-14 h-7 rounded-full bg-white/10 relative transition-all pointer-events-none">
+                <div class="absolute top-1 left-1 w-5 h-5 rounded-full bg-white transition-all shadow-lg"></div>
+              </button>
+            </div>
+
+            <label for="wallpaper-upload" class="w-full glass-strong p-6 rounded-3xl flex items-center justify-between cursor-pointer hover:bg-white/10 transition-all group">
+              <div class="flex flex-col">
+                <p class="text-[10px] font-black uppercase tracking-widest text-white/60">Upload Portal Skin</p>
+                <p class="text-[8px] font-bold text-white/20 uppercase mt-1">JPG / PNG / WEBP Assets</p>
+              </div>
+              <div class="w-12 h-12 rounded-2xl bg-orange-500/10 flex items-center justify-center text-orange-500 group-hover:bg-orange-500 group-hover:text-navy-950 transition-all shadow-lg">
+                <i data-lucide="cloud-upload" class="w-5 h-5"></i>
+              </div>
+              <input type="file" id="wallpaper-upload" class="hidden" accept="image/*" aria-label="Upload custom wallpaper skin">
+            </label>
+          </div>
+
+          <div class="grid grid-cols-1 gap-4">
+            <button onclick="saveDesign()" id="save-btn" class="w-full bg-orange-500 text-navy-950 py-7 rounded-[32px] font-black uppercase text-[11px] tracking-[0.4em] shadow-4K hover:bg-orange-400 hover:scale-[1.02] active:scale-[0.98] transition-all">
+              Save Atmosphere Matrix
+            </button>
+            <button onclick="restoreDefaults()" class="w-full py-4 rounded-2xl bg-white/5 text-white/20 text-[9px] font-black uppercase tracking-widest hover:text-red-400 hover:bg-red-400/10 transition-all border border-white/5">
+              Restore Default State
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script type="module">
+import { db, auth } from '../../../assets/firebase-config.js';
+import { doc, onSnapshot, updateDoc, getDoc } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+
+let specialistUid = null;
+let currentDesign = { type: 'solid-pair', primary: '#040810', secondary: '#ea580c', fontFamily: 'Space Grotesk' };
+let pendingFile = null;
+
+const dualColors = [
+  { p: '#040810', s: '#ea580c' }, { p: '#070d1a', s: '#f97316' }, { p: '#0c1829', s: '#fb923c' },
+  { p: '#112240', s: '#60a5fa' }, { p: '#1a3358', s: '#3b82f6' }, { p: '#1e1b4b', s: '#8b5cf6' },
+  { p: '#312e81', s: '#a78bfa' }, { p: '#4c1d95', s: '#c084fc' }, { p: '#581c87', s: '#d8b4fe' },
+  { p: '#701a75', s: '#f0abfc' }, { p: '#86198f', s: '#fae8ff' }, { p: '#9d174d', s: '#fbcfe8' },
+  { p: '#be123c', s: '#fda4af' }, { p: '#9f1239', s: '#fecdd3' }, { p: '#7f1d1d', s: '#fca5a5' },
+  { p: '#991b1b', s: '#fecaca' }, { p: '#b91c1c', s: '#fee2e2' }, { p: '#9a3412', s: '#fdba74' },
+  { p: '#c2410c', s: '#fed7aa' }, { p: '#ea580c', s: '#ffedd5' }, { p: '#d97706', s: '#fef3c7' },
+  { p: '#b45309', s: '#fffbeb' }, { p: '#854d0e', s: '#fef9c3' }, { p: '#713f12', s: '#fef08a' },
+  { p: '#3f6212', s: '#bef264' }, { p: '#4d7c0f', s: '#d9f99d' }, { p: '#166534', s: '#bbf7d0' },
+  { p: '#15803d', s: '#dcfce7' }, { p: '#14532d', s: '#f0fdf4' }, { p: '#065f46', s: '#99f6e4' },
+  { p: '#0f766e', s: '#ccfbf1' }, { p: '#115e59', s: '#2dd4bf' }, { p: '#134e4a', s: '#5eead4' },
+  { p: '#1e3a8a', s: '#bfdbfe' }, { p: '#1e40af', s: '#dbeafe' }, { p: '#1e1b4b', s: '#818cf8' },
+  { p: '#312e81', s: '#c7d2fe' }, { p: '#3730a3', s: '#e0e7ff' }, { p: '#4338ca', s: '#eef2ff' },
+  { p: '#1e3a8a', s: '#93c5fd' }, { p: '#1e40af', s: '#bfdbfe' }, { p: '#1e3a8a', s: '#dbeafe' }
+];
+
+const gradients = [
+  { c1: '#040810', c2: '#1a3358' }, { c1: '#0f172a', c2: '#1e293b' }, { c1: '#111827', c2: '#1f2937' },
+  { c1: '#0c0a09', c2: '#1c1917' }, { c1: '#171717', c2: '#262626' }, { c1: '#020617', c2: '#0f172a' },
+  { c1: '#050505', c2: '#1a1a1a' }, { c1: '#080c14', c2: '#141c2c' }, { c1: '#0a101d', c2: '#162231' },
+  { c1: '#000000', c2: '#121212' }, { c1: '#1a365d', c2: '#2a4365' }, { c1: '#1c4532', c2: '#22543d' },
+  { c1: '#702459', c2: '#3b122d' }, { c1: '#2d3748', c2: '#1a202c' }, { c1: '#4a5568', c2: '#2d3748' },
+  { c1: '#1e3a8a', c2: '#1e40af' }, { c1: '#312e81', c2: '#3730a3' }, { c1: '#4c1d95', c2: '#5b21b6' },
+  { c1: '#701a75', c2: '#86198f' }, { c1: '#9d174d', c2: '#be123c' }, { c1: '#991b1b', c2: '#b91c1c' },
+  { c1: '#9a3412', c2: '#c2410c' }, { c1: '#b45309', c2: '#d97706' }, { c1: '#854d0e', c2: '#a16207' },
+  { c1: '#3f6212', c2: '#4d7c0f' }, { c1: '#166534', c2: '#15803d' }, { c1: '#0f766e', c2: '#115e59' },
+  { c1: '#0e7490', c2: '#0369a1' }, { c1: '#1d4ed8', c2: '#1e40af' }, { c1: '#4338ca', c2: '#3730a3' }
+];
+
+const fonts = [
+  { name: 'Space Grotesk', family: "'Space Grotesk', sans-serif", desc: 'Modern tech-forward' },
+  { name: 'Instrument Serif', family: "'Instrument Serif', serif", desc: 'Elegant & classic' },
+  { name: 'JetBrains Mono', family: "'JetBrains Mono', monospace", desc: 'Developer vibes' },
+  { name: 'Unbounded', family: "'Unbounded', sans-serif", desc: 'Bold geometric' },
+  { name: 'Caveat', family: "'Caveat', cursive", desc: 'Handwritten flair' },
+  { name: 'Inter', family: "'Inter', sans-serif", desc: 'Clean readability' },
+  { name: 'Playfair Display', family: "'Playfair Display', serif", desc: 'Editorial elegance' },
+  { name: 'Outfit', family: "'Outfit', sans-serif", desc: 'Minimalist modern' },
+  { name: 'Syne', family: "'Syne', sans-serif", desc: 'Avant-garde edge' },
+  { name: 'Lexend', family: "'Lexend', sans-serif", desc: 'Reading optimized' },
+  { name: 'Plus Jakarta Sans', family: "'Plus Jakarta Sans', sans-serif", desc: 'Versatile clean' },
+  { name: 'Cinzel', family: "'Cinzel', serif", desc: 'Regal authority' },
+  { name: 'Montserrat', family: "'Montserrat', sans-serif", desc: 'Urban geometric' },
+  { name: 'Cabinet Grotesk', family: "'Cabinet Grotesk', sans-serif", desc: 'Premium sans' },
+  { name: 'General Sans', family: "'General Sans', sans-serif", desc: 'Contemporary neutral' }
+];
+
+const wallpapers = [
+  "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=2574&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1635776062127-d379bfcba9f8?q=80&w=2532&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=2670&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2670&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2658&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=2670&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1506318137071-a8e063b4b477?q=80&w=2670&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?q=80&w=2671&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1477346611705-65d1883cee1e?q=80&w=2670&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=2670&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1439405326854-014607f694d7?q=80&w=2670&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=2670&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=2670&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=2674&auto=format&fit=crop"
+];
+
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    specialistUid = user.uid;
+    
+    const specialistDoc = await getDoc(doc(db, 'specialists', specialistUid));
+    if (specialistDoc.exists()) {
+      const data = specialistDoc.data();
+      document.getElementById('user-name').innerText = data.name || 'Specialist';
+      document.getElementById('user-role').innerText = data.track || 'Specialist Access';
+      document.getElementById('user-initials').innerText = (data.name || 'S').charAt(0).toUpperCase();
+      
+      if (data.theme) {
+        currentDesign = { ...currentDesign, ...data.theme };
+      }
+      
+      applyControlUI({ canvasDaily: localStorage.getItem('sf_canvas_enabled') !== 'false' });
+      updatePreview();
+    }
+    
+    hideLoading();
+    
+  } else {
+    window.location.href = '../../../trainee-login/';
+  }
+});
+
+function hideLoading() {
+  const loader = document.getElementById('loading-screen');
+  if (loader) {
+    loader.style.opacity = '0';
+    setTimeout(() => loader.classList.add('hidden'), 500);
+  }
+}
+
+function init() {
+  const dGrid = document.getElementById('dual-grid');
+  if (dGrid) {
+    dualColors.forEach(d => {
+      const sw = document.createElement('div');
+      sw.className = 'swatch';
+      sw.setAttribute('role', 'button');
+      sw.setAttribute('tabindex', '0');
+      sw.setAttribute('aria-label', `Apply dual color theme: ${d.p} and ${d.s}`);
+      sw.innerHTML = `<div class="dual-inner"><div class="dual-1" style="background:${d.p}"></div><div class="dual-2" style="background:${d.s}"></div></div>`;
+      const select = () => { 
+        currentDesign.primary = d.p; 
+        currentDesign.secondary = d.s; 
+        currentDesign.type = 'solid-pair'; 
+        updatePreview(); 
+      };
+      sw.onclick = select;
+      sw.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(); } };
+      dGrid.appendChild(sw);
+    });
+  }
+
+  const gGrid = document.getElementById('gradient-grid');
+  if (gGrid) {
+    gradients.forEach(g => {
+      const sw = document.createElement('div');
+      sw.className = 'swatch';
+      sw.setAttribute('role', 'button');
+      sw.setAttribute('tabindex', '0');
+      sw.setAttribute('aria-label', `Apply gradient theme: ${g.c1} to ${g.c2}`);
+      sw.style.background = `linear-gradient(135deg, ${g.c1}, ${g.c2})`;
+      const select = () => { 
+        currentDesign.c1 = g.c1; 
+        currentDesign.c2 = g.c2; 
+        currentDesign.type = 'gradient'; 
+        updatePreview(); 
+      };
+      sw.onclick = select;
+      sw.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(); } };
+      gGrid.appendChild(sw);
+    });
+  }
+
+  const wGrid = document.getElementById('wallpaper-grid');
+  if (wGrid) {
+    wallpapers.forEach((w, i) => {
+      const sw = document.createElement('div');
+      sw.className = 'wallpaper-swatch';
+      sw.setAttribute('role', 'button');
+      sw.setAttribute('tabindex', '0');
+      sw.setAttribute('aria-label', `Apply wallpaper atmosphere ${i + 1}`);
+      sw.style.backgroundImage = `url(${w})`;
+      const select = () => { 
+        currentDesign.wallpaper = w; 
+        currentDesign.type = 'wallpaper'; 
+        updatePreview(); 
+      };
+      sw.onclick = select;
+      sw.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(); } };
+      wGrid.appendChild(sw);
+    });
+  }
+
+  const fGrid = document.getElementById('font-grid');
+  if (fGrid) {
+    fonts.forEach(f => {
+      const card = document.createElement('div');
+      card.className = 'font-card';
+      card.setAttribute('role', 'button');
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('aria-label', `Apply typography: ${f.name}`);
+      card.style.fontFamily = f.family;
+      card.innerHTML = `<p class="text-[8px] font-black uppercase tracking-widest text-white/30 mb-2">${f.name}</p><p class="text-xl font-bold mb-2">SkillForge</p><p class="text-[9px] text-white/40">${f.desc}</p>`;
+      const select = () => { 
+        currentDesign.fontFamily = f.family; 
+        currentDesign.fontName = f.name; 
+        updatePreview(); 
+      };
+      card.onclick = select;
+      card.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(); } };
+      fGrid.appendChild(card);
+    });
+  }
+
+  const wpUpload = document.getElementById('wallpaper-upload');
+  if (wpUpload) {
+    wpUpload.onchange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        pendingFile = file;
+        currentDesign.type = 'wallpaper';
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const box = document.getElementById('preview-box');
+          if (box) {
+            box.style.background = `url(${ev.target.result})`;
+            box.style.backgroundSize = 'cover';
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+  }
+
+  setTimeout(hideLoading, 5000);
+}
+
+function updatePreview() {
+  const box = document.getElementById('preview-box');
+  const text = document.getElementById('preview-text');
+  const bar = document.getElementById('preview-bar');
+  
+  if (!box || !text || !bar) return;
+  
+  document.querySelectorAll('.swatch, .wallpaper-swatch, .font-card').forEach(el => el.classList.remove('active'));
+
+  try {
+    if (currentDesign.type === 'solid-pair' || currentDesign.type === 'dual') {
+      const p = currentDesign.primary || currentDesign.c1;
+      const s = currentDesign.secondary || currentDesign.c2;
+      box.style.background = p;
+      box.style.backgroundImage = 'none';
+      bar.style.backgroundColor = s;
+      document.documentElement.style.setProperty('--accent-color', s);
+      document.documentElement.style.setProperty('--accent-color-rgb', hexToRgb(s));
+    } else if (currentDesign.type === 'gradient') {
+      const grad = `linear-gradient(135deg, ${currentDesign.c1}, ${currentDesign.c2})`;
+      box.style.background = grad;
+      box.style.backgroundImage = 'none';
+      bar.style.backgroundColor = currentDesign.c1;
+      document.documentElement.style.setProperty('--accent-color', currentDesign.c1);
+      document.documentElement.style.setProperty('--accent-color-rgb', hexToRgb(currentDesign.c1));
+    } else if (currentDesign.type === 'wallpaper') {
+      const wpUrl = currentDesign.wallpaper || '';
+      box.style.background = `url(${wpUrl})`;
+      box.style.backgroundSize = 'cover';
+      box.style.backgroundPosition = 'center';
+      bar.style.backgroundColor = '#ea580c';
+      document.documentElement.style.setProperty('--accent-color', '#ea580c');
+      document.documentElement.style.setProperty('--accent-color-rgb', '234, 88, 12');
+    }
+    
+    if (currentDesign.fontFamily) {
+      text.style.fontFamily = currentDesign.fontFamily;
+    }
+  } catch (err) {
+    void('[Design Studio] Preview update failed:', err);
+    if (window['sf_report_error']) {
+      window['sf_report_error'](`Layout Engine Error: Preview update failed. ${err.message}`, err.stack, true);
+    }
+  }
+}
+
+function hexToRgb(hex) {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '234, 88, 12';
+}
+
+window.setTab = (tab) => {
+  ['colors', 'wallpapers', 'fonts'].forEach(t => {
+    document.getElementById(`section-${t}`).classList.toggle('hidden', t !== tab);
+    document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
+  });
+};
+
+window.toggleCanvas = () => {
+  const isEnabled = localStorage.getItem('sf_canvas_enabled') !== 'false';
+  localStorage.setItem('sf_canvas_enabled', !isEnabled);
+  applyControlUI({ canvasDaily: !isEnabled });
+};
+
+function applyControlUI(controls) {
+  const toggle = document.getElementById('canvas-toggle');
+  if (!toggle) return;
+  const isEnabled = controls.canvasDaily !== false;
+  toggle.classList.toggle('bg-orange-500', isEnabled);
+  toggle.querySelector('div').style.left = isEnabled ? '1.75rem' : '0.25rem';
+}
+
+window.saveDesign = async () => {
+  const btn = document.getElementById('save-btn');
+  if (btn.disabled || !specialistUid) return;
+  
+  btn.disabled = true; 
+  btn.innerText = "Saving Atmosphere Matrix...";
+
+  try {
+    const finalTheme = {
+      type: currentDesign.type || 'solid-pair',
+      primary: currentDesign.primary || currentDesign.c1 || '#040810',
+      secondary: currentDesign.secondary || currentDesign.c2 || '#ea580c',
+      c1: currentDesign.c1 || currentDesign.primary || '#040810',
+      c2: currentDesign.c2 || currentDesign.secondary || '#ea580c',
+      wallpaper: currentDesign.wallpaper || '',
+      fontFamily: currentDesign.fontFamily || 'Space Grotesk',
+      fontName: currentDesign.fontName || 'Space Grotesk'
+    };
+
+    await updateDoc(doc(db, 'specialists', specialistUid), { 
+      theme: finalTheme
+    });
+    
+    btn.innerText = "Atmosphere Saved";
+    setTimeout(() => {
+      btn.innerText = "Save Atmosphere Matrix";
+      btn.disabled = false;
+    }, 2000);
+
+    alert("Atmosphere Saved. Your command center matrix is now active.");
+
+  } catch (err) {
+    void('[Design Studio] Save failed:', err);
+    btn.innerText = "Save Interrupted";
+    btn.disabled = false;
+    if (window['sf_report_error']) {
+      window['sf_report_error'](`Layout Engine Error: Save failed. Portal sync interrupted. ${err.message}`, err.stack, true);
+    } else {
+      alert("Save failed. Portal sync interrupted. Please check your connection.");
+    }
+  }
+};
+
+window.restoreDefaults = async () => {
+  if (!confirm("Restore default atmosphere? This will reset your colors and fonts.")) return;
+  
+  currentDesign = {
+    type: 'solid-pair',
+    primary: '#040810',
+    secondary: '#ea580c',
+    fontFamily: 'Space Grotesk',
+    fontName: 'Space Grotesk',
+    wallpaper: ''
+  };
+  
+  updatePreview();
+  await saveDesign();
+};
+
+window.toggleSidebar = () => {
+  const sidebar = document.getElementById('main-sidebar');
+  if (sidebar) sidebar.classList.toggle('-translate-x-full');
+};
+
+init();
+window.addEventListener('load', () => { if (window.lucide) window.lucide.createIcons(); });
+</script>
+</body>
+</html>
