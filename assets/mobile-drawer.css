@@ -45,10 +45,20 @@ html.sf-drawer-open .sf-mobile-overlay {
   z-index: var(--sf-drawer-z-sidebar);
 }
 
+@media (max-width: 767px) {
+  html.sf-drawer-open .sf-mobile-hamburger {
+    left: auto;
+    right: calc(env(safe-area-inset-right, 0px) + 10px);
+  }
+
+  .sf-drawer-sidebar {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 68px);
+  }
+}
+
 @media (min-width: 768px) {
   .sf-mobile-overlay,
   .sf-mobile-hamburger {
     display: none !important;
   }
 }
-

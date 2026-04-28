@@ -19,20 +19,27 @@
   button.className = 'sf-mobile-hamburger md:hidden';
   button.setAttribute('aria-label', 'Open navigation menu');
   button.setAttribute('aria-expanded', 'false');
-  button.innerHTML =
+  const ICON_MENU =
     '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+  const ICON_CLOSE =
+    '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+  button.innerHTML = ICON_MENU;
 
   function setOpen(isOpen) {
     if (isOpen) {
       html.classList.add('sf-drawer-open');
       document.body.style.overflow = 'hidden';
       button.setAttribute('aria-expanded', 'true');
+      button.setAttribute('aria-label', 'Close navigation menu');
+      button.innerHTML = ICON_CLOSE;
       sidebar.classList.remove('-translate-x-full');
       sidebar.classList.add('translate-x-0');
     } else {
       html.classList.remove('sf-drawer-open');
       document.body.style.overflow = '';
       button.setAttribute('aria-expanded', 'false');
+      button.setAttribute('aria-label', 'Open navigation menu');
+      button.innerHTML = ICON_MENU;
       sidebar.classList.add('-translate-x-full');
       sidebar.classList.remove('translate-x-0');
     }
@@ -73,4 +80,3 @@
   document.body.appendChild(overlay);
   document.body.appendChild(button);
 })();
-
