@@ -114,6 +114,7 @@
 <style id="sf-logo-round-style">img[src*="assets/brand-logo.jpg"],img[src*="assets/brand-logo.svg"],img[src*="assets/brand-logo.png"],img[src*="assets/brand-logo.jpeg"]{border-radius:9999px;border:1px solid rgba(201,168,76,0.45);box-shadow:0 0 0 4px rgba(201,168,76,0.10),0 12px 35px rgba(0,0,0,0.55);background:rgba(201,168,76,0.06);padding:4px;box-sizing:content-box}</style>
 
 <link rel="stylesheet" href="/assets/responsive.css">
+<script src="/assets/webgl-guard.js"></script>
 </head>
 <body class="min-h-screen py-12 md:py-20 px-4 md:px-6">
   <canvas id="sundust-canvas"></canvas>
@@ -145,7 +146,7 @@
     <main class="space-y-8">
         <!-- Registration Form -->
         <section id="reg-section" class="glass p-6 md:p-12 rounded-[32px] md:rounded-[40px] border-white/10 animate-slide-up">
-            <div id="reg-error" class="hidden mb-8 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-500 text-[10px] font-black uppercase tracking-widest text-center">
+            <div id="reg-error" class="hidden mb-8 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-500 text-[10px] font-black uppercase tracking-widest text-center" aria-live="polite">
                 <!-- Error message injected here -->
             </div>
             <div class="flex items-center gap-4 mb-8 md:mb-10">
@@ -286,7 +287,7 @@
         <section id="onboarding-section" class="hidden space-y-6 animate-slide-up">
             <div class="glass p-12 rounded-[40px] border-t-4 border-gold text-center">
                 <div class="w-20 h-20 bg-gold/10 rounded-full flex items-center justify-center mx-auto mb-8 text-gold border border-gold/20">
-                    <img src="/assets/brand-logo.jpg" class="w-6 h-6 object-contain" alt="SkillForge Digital logo">
+                    <img width="24" height="24" src="/assets/brand-logo.jpg" class="w-6 h-6 object-contain" alt="SkillForge Digital logo">
                 </div>
                 <h2 id="welcome-message" class="text-3xl font-black text-white uppercase tracking-tighter mb-2">Welcome to the Future of Mastery</h2>
                 <p class="text-slate-500 text-[10px] font-black uppercase tracking-[0.4em] mb-12">Skillforge Digital & Co. Ltd • Academy Onboarding</p>
@@ -388,7 +389,7 @@
                 <p class="text-[8px] text-slate-600 font-bold uppercase tracking-widest">Use this Access Code to access your Trainee Center</p>
             </div>
             <a href="../trainee-dashboard/" class="inline-flex items-center gap-3 bg-gold text-navy px-12 py-5 rounded-2xl font-black uppercase text-xs tracking-widest shadow-2xl hover:bg-white transition-all">
-                Enter Academy Center <img src="/assets/brand-logo.jpg" class="w-6 h-6 object-contain" alt="SkillForge Digital logo">
+                Enter Academy Center <img width="24" height="24" src="/assets/brand-logo.jpg" class="w-6 h-6 object-contain" alt="SkillForge Digital logo">
             </a>
         </section>
     </main>

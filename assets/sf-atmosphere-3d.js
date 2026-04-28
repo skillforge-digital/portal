@@ -5,18 +5,33 @@
 
 class Atmosphere3D {
     constructor() {
+        if (typeof window.__SF_WEBGL_OK !== 'boolean') {
+            try {
+                const c = document.createElement('canvas');
+                const gl = c.getContext('webgl') || c.getContext('experimental-webgl');
+                window.__SF_WEBGL_OK = !!gl;
+            } catch (e) {
+                window.__SF_WEBGL_OK = false;
+            }
+        }
+        if (!window.__SF_WEBGL_OK) return;
+
         this.container = document.createElement('div');
         this.container.id = 'dynamic-atmosphere-3d';
         this.container.style.cssText = 'position:fixed; inset:0; z-index:-1; pointer-events:none; opacity:0.4;';
         document.body.prepend(this.container);
 
-        this.scene = new THREE.Scene();
-        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        this.container.appendChild(this.renderer.domElement);
+        try {
+            this.scene = new THREE.Scene();
+            this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            this.renderer.setSize(window.innerWidth, window.innerHeight);
+            this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            this.container.appendChild(this.renderer.domElement);
+        } catch (e) {
+            try { this.container.remove(); } catch (err) { void(err); }
+            return;
+        }
 
         this.particlesCount = 2000;
         this.initParticles();
@@ -77,14 +92,14 @@ class Atmosphere3D {
             this.points.material.color.set(accentHex);
         }
 
-        this.renderer.render(this.scene, this.camera);
+        if (this.renderer) this.renderer.render(this.scene, this.camera);
     }
 }
 
 // Initialize when Three.js is ready
 window.addEventListener('load', () => {
     if (window.THREE) {
-        window.atmosphere3D = new Atmosphere3D();
+        try { window.atmosphere3D = new Atmosphere3D(); } catch (e) { void(e); }
     }
 });
 
@@ -94,4 +109,3 @@ window.addEventListener('turbo:load', () => {
         window.atmosphere3D.onResize();
     }
 });
-
