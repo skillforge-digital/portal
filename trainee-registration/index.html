@@ -291,6 +291,21 @@
                 <h2 id="welcome-message" class="text-3xl font-black text-white uppercase tracking-tighter mb-2">Welcome to the Future of Mastery</h2>
                 <p class="text-slate-500 text-[10px] font-black uppercase tracking-[0.4em] mb-12">Skillforge Digital & Co. Ltd • Academy Onboarding</p>
 
+                <div class="max-w-md mx-auto mb-10 p-6 rounded-3xl bg-white/5 border border-gold/20">
+                    <p class="text-[8px] font-black text-gold uppercase tracking-[0.4em]">Registration Saved</p>
+                    <p class="mt-3 text-[10px] text-slate-300 font-black uppercase tracking-widest">Your SFID and Access Code are secured. Complete onboarding to unlock your track.</p>
+                    <div class="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="p-4 rounded-2xl bg-black/20 border border-white/10">
+                            <p class="text-[8px] font-black text-white/30 uppercase tracking-widest mb-2">SFID</p>
+                            <p id="onboarding-sfid" class="text-white font-black tracking-[0.2em] break-words">—</p>
+                        </div>
+                        <div class="p-4 rounded-2xl bg-black/20 border border-white/10">
+                            <p class="text-[8px] font-black text-white/30 uppercase tracking-widest mb-2">Access Code</p>
+                            <p id="onboarding-pin" class="text-white font-black tracking-[0.3em]">—</p>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="space-y-4 max-w-md mx-auto">
                     <div id="step-1" class="step-card p-6 glass rounded-2xl border-white/5 flex items-center justify-between">
                         <div class="flex items-center gap-4">
@@ -388,19 +403,6 @@
     const supabaseUrl = 'https://luxubaqztmbcpskyfgdp.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1eHViYXF6dG1iY3Bza3lmZ2RwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDYzNTcsImV4cCI6MjA5MTQyMjM1N30.Kmon8jh22u5KgWWpXf-7cdZ4qxlKXuUbVm6Mh-GHd8Q';
     const supabase = createClient(supabaseUrl, supabaseKey);
-
-    const TELEGRAM_NODES = {
-      "Forex Synthetics Indices": "https://t.me/skillforge_forex",
-      "Forex Currency Pairs": "https://t.me/skillforge_forex",
-      "AI Content Creation": "https://t.me/skillforge_ai",
-      "Photography & Editing": "https://t.me/skillforge_creative",
-      "Graphic Design": "https://t.me/skillforge_creative",
-      "Digital Marketing": "https://t.me/skillforge_marketing",
-      "Mobile Cinematography": "https://t.me/skillforge_creative",
-      "Discord Development": "https://t.me/skillforge_tech",
-      "Web Development": "https://t.me/skillforge_tech",
-      "Cyber Security": "https://t.me/skillforge_tech"
-    };
 
     // Check for season reset and display banner
     async function checkSeasonReset() {
@@ -542,7 +544,7 @@
     };
 
     const TELEGRAM_NODES = {
-      "Forex Synthetic Indices": "https://t.me/+KWyN-sKQNMExZjg8",
+      "Forex Synthetics Indices": "https://t.me/+KWyN-sKQNMExZjg8",
       "Forex Currency Pairs": "https://t.me/+9cAdAp2Pw_FjNmJk",
       "AI Content Creation": "https://t.me/+I5vUYuIuaMw4N2Rk",
       "Photography & Editing": "https://t.me/+mkRAltkqJd41YTE0",
@@ -694,6 +696,11 @@
             void("[Registry] Portal link stabilized. Launching Onboarding Center...");
             document.getElementById('final-sfid').innerText = result.sfid;
             document.getElementById('final-pin').innerText = result.pin;
+
+            const onboardingSfid = document.getElementById('onboarding-sfid');
+            const onboardingPin = document.getElementById('onboarding-pin');
+            if (onboardingSfid) onboardingSfid.innerText = result.sfid;
+            if (onboardingPin) onboardingPin.innerText = result.pin;
             
             // Set track-specific Telegram node
             const tgBtn = document.getElementById('tg-node-btn');
@@ -770,4 +777,3 @@
     <script type="module" src="../assets/sf-atmosphere-3d.js"></script>
 </body>
 </html>
-

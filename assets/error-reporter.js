@@ -169,11 +169,28 @@
   const actionBuffer = [];
   const maxActions = 10;
 
+  function getTargetLabel(target) {
+    if (!target || !(target instanceof Element)) return 'unknown';
+
+    const tag = target.tagName || 'unknown';
+    const id = target.id ? `#${target.id}` : '';
+
+    const rawClass =
+      typeof target.className === 'string' ? target.className :
+      (target.className && typeof target.className.baseVal === 'string') ? target.className.baseVal :
+      (typeof target.getAttribute === 'function' ? (target.getAttribute('class') || '') : '');
+
+    const firstClass = String(rawClass || '').trim().split(/\s+/)[0];
+    const cls = firstClass ? `.${firstClass}` : '';
+
+    return `${tag}${id}${cls}`;
+  }
+
   function captureAction(type, target, details = {}) {
     actionBuffer.push({
       timestamp: new Date().toLocaleTimeString(),
       type,
-      target: target ? (target.tagName + (target.id ? `#${target.id}` : '') + (target.className ? `.${target.className.split(' ')[0]}` : '')) : 'unknown',
+      target: getTargetLabel(target),
       details
     });
     if (actionBuffer.length > maxActions) actionBuffer.shift();
@@ -296,4 +313,3 @@ UA: ${userAgent}
   window['sf_report_error'] = showErrorReport;
   void("🛠️ SkillForge Error Reporter Initialized");
 })();
-
