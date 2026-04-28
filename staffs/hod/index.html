@@ -245,7 +245,7 @@
       content.innerHTML = '<div class="flex items-center justify-center h-64"><div class="w-10 h-10 border-4 border-purple-400/20 border-t-purple-400 rounded-full animate-spin"></div></div>';
       
       switch(tab) {
-        case 'design-studio': window.location.href = '../../trainee-dashboard/customize/'; break;
+        case 'design-studio': window.location.href = '/staffs/hod/customize/'; break;
               case 'overview': await renderOverview(content); break;
         case 'announcements': await renderAnnouncements(content); break;
         case 'trainees': await renderTrainees(content); break;
@@ -262,11 +262,10 @@
       if (!uid) return;
       
       try {
-        let userRef = doc(db, 'staffs', uid);
-        let userSnap = await getDoc(userRef);
-        if (!userSnap.exists()) userRef = doc(db, 'trainees', uid);
-        
-        let data = (await getDoc(userRef)).data();
+        const userRef = doc(db, 'staffs', uid);
+        const userSnap = await getDoc(userRef);
+        if (!userSnap.exists()) return;
+        const data = userSnap.data();
         if (!data) return;
         
         if (feature === 'light') {

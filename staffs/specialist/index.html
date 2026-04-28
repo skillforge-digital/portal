@@ -235,11 +235,10 @@
       if (!uid) return;
       
       try {
-        let userRef = doc(db, 'staffs', uid);
-        let userSnap = await getDoc(userRef);
-        if (!userSnap.exists()) userRef = doc(db, 'trainees', uid);
-        
-        let data = (await getDoc(userRef)).data();
+        const userRef = doc(db, 'staffs', uid);
+        const userSnap = await getDoc(userRef);
+        if (!userSnap.exists()) return;
+        const data = userSnap.data();
         if (!data) return;
         
         if (feature === 'light') {

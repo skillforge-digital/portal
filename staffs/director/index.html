@@ -311,11 +311,10 @@
       if (!uid) return;
       
       try {
-        let userRef = doc(db, 'staffs', uid);
-        let userSnap = await getDoc(userRef);
-        if (!userSnap.exists()) userRef = doc(db, 'trainees', uid);
-        
-        let data = (await getDoc(userRef)).data();
+        const userRef = doc(db, 'staffs', uid);
+        const userSnap = await getDoc(userRef);
+        if (!userSnap.exists()) return;
+        const data = userSnap.data();
         if (!data) return;
         
         if (feature === 'light') {
@@ -357,7 +356,7 @@
       
       try {
           switch(tab) {
-            case 'design-studio': window.location.href = '../../trainee-dashboard/customize/'; break;
+            case 'design-studio': window.location.href = '/staffs/director/customize/'; break;
               case 'overview': await renderOverview(content); break;
             case 'trainees': await renderTrainees(content); break;
             case 'staff': await renderStaff(content); break;
