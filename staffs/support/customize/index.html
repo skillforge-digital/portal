@@ -368,29 +368,41 @@ const wallpapers = [
   "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=2674&auto=format&fit=crop"
 ];
 
+function showNetworkFault() {
+  const loader = document.getElementById('loading-screen');
+  if (!loader) return;
+  const lines = loader.querySelectorAll('p');
+  if (lines[0]) lines[0].innerText = 'Network Unstable';
+  if (lines[1]) lines[1].innerText = 'Check connection and refresh.';
+}
+
 onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    specialistUid = user.uid;
-    
-    const specialistDoc = await getDoc(doc(db, 'specialists', specialistUid));
-    if (specialistDoc.exists()) {
-      const data = specialistDoc.data();
-      document.getElementById('user-name').innerText = data.name || 'Specialist';
-      document.getElementById('user-role').innerText = data.track || 'Specialist Access';
-      document.getElementById('user-initials').innerText = (data.name || 'S').charAt(0).toUpperCase();
-      
-      if (data.theme) {
-        currentDesign = { ...currentDesign, ...data.theme };
+  try {
+    if (user) {
+      specialistUid = user.uid;
+      const specialistDoc = await getDoc(doc(db, 'specialists', specialistUid)).catch(() => null);
+      if (!specialistDoc) {
+        showNetworkFault();
+        return;
       }
-      
-      applyControlUI({ canvasDaily: localStorage.getItem('sf_canvas_enabled') !== 'false' });
-      updatePreview();
+      if (specialistDoc.exists()) {
+        const data = specialistDoc.data();
+        document.getElementById('user-name').innerText = data.name || 'Specialist';
+        document.getElementById('user-role').innerText = data.track || 'Specialist Access';
+        document.getElementById('user-initials').innerText = (data.name || 'S').charAt(0).toUpperCase();
+        if (data.theme) {
+          currentDesign = { ...currentDesign, ...data.theme };
+        }
+        applyControlUI({ canvasDaily: localStorage.getItem('sf_canvas_enabled') !== 'false' });
+        updatePreview();
+      }
+      hideLoading();
+      return;
     }
-    
-    hideLoading();
-    
-  } else {
     window.location.href = '/staffs/login/';
+  } catch (err) {
+    void(err);
+    showNetworkFault();
   }
 });
 

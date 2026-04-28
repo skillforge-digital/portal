@@ -355,33 +355,44 @@ const wallpapers = [
   "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=2674&auto=format&fit=crop"
 ];
 
+function showNetworkFault() {
+  const loader = document.getElementById('loading-screen');
+  if (!loader) return;
+  const lines = loader.querySelectorAll('p');
+  if (lines[0]) lines[0].innerText = 'Network Unstable';
+  if (lines[1]) lines[1].innerText = 'Check connection and refresh.';
+}
+
 onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    specialistUid = user.uid;
-    
-    const specialistDoc = await getDoc(doc(db, 'specialists', specialistUid));
-    if (specialistDoc.exists()) {
-      currentSpecialist = specialistDoc.data();
-      document.getElementById('specialist-name').innerText = currentSpecialist.name || 'Specialist';
-      document.getElementById('specialist-track').innerText = currentSpecialist.track || 'Academy Staff';
-      document.getElementById('specialist-initials').innerText = (currentSpecialist.name || 'S').charAt(0).toUpperCase();
-      
-      if (currentSpecialist.level === 'Director') {
-        document.getElementById('nav-directors-link').classList.remove('hidden');
+  try {
+    if (user) {
+      specialistUid = user.uid;
+      const specialistDoc = await getDoc(doc(db, 'specialists', specialistUid)).catch(() => null);
+      if (!specialistDoc) {
+        showNetworkFault();
+        return;
       }
-      
-      if (currentSpecialist.theme) {
-        currentDesign = { ...currentDesign, ...currentSpecialist.theme };
+      if (specialistDoc.exists()) {
+        currentSpecialist = specialistDoc.data();
+        document.getElementById('specialist-name').innerText = currentSpecialist.name || 'Specialist';
+        document.getElementById('specialist-track').innerText = currentSpecialist.track || 'Academy Staff';
+        document.getElementById('specialist-initials').innerText = (currentSpecialist.name || 'S').charAt(0).toUpperCase();
+        if (currentSpecialist.level === 'Director') {
+          document.getElementById('nav-directors-link').classList.remove('hidden');
+        }
+        if (currentSpecialist.theme) {
+          currentDesign = { ...currentDesign, ...currentSpecialist.theme };
+        }
+        applyControlUI({ canvasDaily: localStorage.getItem('sf_canvas_enabled') !== 'false' });
+        updatePreview();
       }
-      
-      applyControlUI({ canvasDaily: localStorage.getItem('sf_canvas_enabled') !== 'false' });
-      updatePreview();
+      hideLoading();
+      return;
     }
-    
-    hideLoading();
-    
-  } else {
-    window.location.href = '../../trainee-login/';
+    window.location.href = '/staffs/login/';
+  } catch (err) {
+    void(err);
+    showNetworkFault();
   }
 });
 
@@ -612,7 +623,7 @@ window.logout = () => {
   import('https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js').then(({ signOut }) => {
     signOut(auth).then(() => {
       localStorage.removeItem('skillforge_mock_uid');
-      window.location.href = '../../trainee-login/';
+      window.location.href = '/staffs/login/';
     });
   });
 };

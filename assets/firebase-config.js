@@ -1,6 +1,6 @@
 import { initializeApp, getApp, getApps } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js';
 import { getAuth } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
-import { initializeFirestore } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+import { initializeFirestore, setLogLevel } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 import { getStorage } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-storage.js';
 
 // Primary App Configuration (Updated to 2CND as per user request)
@@ -31,6 +31,8 @@ try {
 } catch (err) {
     app = initializeApp(secondaryConfig, "failover");
 }
+
+setLogLevel('silent');
 
 // Optimized Firestore initialization to bypass aggressive ad-blockers
 const db = initializeFirestore(app, {
