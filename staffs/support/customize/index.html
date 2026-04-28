@@ -297,6 +297,7 @@ tailwind.config = {
 import { db, auth } from '../../../assets/firebase-config.js';
 import { doc, onSnapshot, updateDoc, getDoc } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+import { logStaffActivity } from '../../../assets/staff-activity.js';
 
 let specialistUid = null;
 let currentDesign = { type: 'solid-pair', primary: '#040810', secondary: '#ea580c', fontFamily: 'Space Grotesk' };
@@ -616,6 +617,7 @@ window.saveDesign = async () => {
       theme: finalTheme
     });
     
+    await logStaffActivity({ action: 'THEME_COMMIT', details: 'Theme commit', scope: 'global' });
     btn.innerText = "Atmosphere Saved";
     setTimeout(() => {
       btn.innerText = "Save Atmosphere Matrix";

@@ -139,6 +139,8 @@ service cloud.firestore {
     match /tracking/{userId} { allow read: if true; allow write: if true; }
     match /system_faults/{id} { allow read: if isStaff(); allow create: if true; }
     match /audit_logs/{id} { allow read: if isStaff(); allow create: if true; }
+    match /staff_activity_global/{id} { allow read: if isStaff(); allow create: if isStaff(); }
+    match /staff_activity_units/{unit}/entries/{id} { allow read: if isStaff(); allow create: if isStaff(); }
 
     // =========================================================================
     // 5. COMMUNICATIONS & SOCIAL

@@ -7,12 +7,13 @@
 import { db, auth } from './firebase-config.js';
 import { 
     collection, doc, getDoc, getDocs, setDoc, updateDoc, 
-    addDoc, serverTimestamp, query, where, orderBy, limit,
+    addDoc, serverTimestamp, query, where, orderBy, limit, deleteDoc,
     writeBatch
 } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 import { SeasonEngine } from './season-engine.js';
 import { ROLES, PERMISSIONS, hasPermission } from './rbac-config.js';
 import { resolveStaffIdentity } from './staff-identity.js';
+import { logStaffActivity } from './staff-activity.js';
 
 export class StaffCommandSuite {
     constructor() {
@@ -44,7 +45,7 @@ export class StaffCommandSuite {
         try {
             const configRef = doc(db, 'system', 'config');
             await setDoc(configRef, { [flag]: value }, { merge: true });
-            await this.logAudit('SYSTEM_TOGGLE', `Flag ${flag} set to ${value}`);
+            await this.logAudit('SYSTEM_TOGGLE', `Flag ${flag} set to ${value}`, { scope: 'global' });
             return { success: true };
         } catch (e) {
             return { success: false, error: e.message };
@@ -56,7 +57,7 @@ export class StaffCommandSuite {
         
         try {
             await this.seasonEngine.updateRegistrationDates(start, end);
-            await this.logAudit('DATE_UPDATE', `Registration dates set: ${start} to ${end}`);
+            await this.logAudit('DATE_UPDATE', `Registration dates set: ${start} to ${end}`, { scope: 'global' });
             return { success: true };
         } catch (e) {
             return { success: false, error: e.message };
@@ -77,7 +78,7 @@ export class StaffCommandSuite {
             if (!currentRoles.includes(roleName)) {
                 currentRoles.push(roleName);
                 await updateDoc(userRef, { roles: currentRoles });
-                await this.logAudit('ROLE_ASSIGN', `Role ${roleName} assigned to ${targetUid}`);
+                await this.logAudit('ROLE_ASSIGN', `Role ${roleName} assigned to ${targetUid}`, { scope: 'global', targetUid, targetType: collectionType === 'trainees' ? 'trainee' : 'staff' });
             }
             return { success: true };
         } catch (e) {
@@ -96,7 +97,7 @@ export class StaffCommandSuite {
             let currentRoles = userSnap.data().roles || [];
             currentRoles = currentRoles.filter(r => r !== roleName);
             await updateDoc(userRef, { roles: currentRoles });
-            await this.logAudit('ROLE_REMOVE', `Role ${roleName} removed from ${targetUid}`);
+            await this.logAudit('ROLE_REMOVE', `Role ${roleName} removed from ${targetUid}`, { scope: 'global', targetUid, targetType: collectionType === 'trainees' ? 'trainee' : 'staff' });
             return { success: true };
         } catch (e) {
             return { success: false, error: e.message };
@@ -122,7 +123,18 @@ export class StaffCommandSuite {
                 timestamp: serverTimestamp()
             });
             
-            await this.logAudit('ANNOUNCEMENT', `Broadcast: ${title} to ${target}`);
+            await this.logAudit('ANNOUNCEMENT_CREATE', `Broadcast: ${title} to ${target}`, { scope: String(target || 'Global').toLowerCase() });
+            return { success: true };
+        } catch (e) {
+            return { success: false, error: e.message };
+        }
+    }
+
+    async deleteAnnouncement(announcementId) {
+        if (!this.can(PERMISSIONS.GLOBAL_ANNOUNCEMENT)) return { success: false, error: "Unauthorized" };
+        try {
+            await deleteDoc(doc(db, 'announcements', announcementId));
+            await this.logAudit('ANNOUNCEMENT_DELETE', `Deleted announcement ${announcementId}`, { scope: 'global' });
             return { success: true };
         } catch (e) {
             return { success: false, error: e.message };
@@ -131,7 +143,7 @@ export class StaffCommandSuite {
 
     // --- AUDIT & UTILS ---
 
-    async logAudit(action, details) {
+    async logAudit(action, details, meta = {}) {
         try {
             await addDoc(collection(db, 'audit_logs'), {
                 action,
@@ -139,6 +151,13 @@ export class StaffCommandSuite {
                 performedBy: this.userData.name,
                 performerUid: this.uid,
                 timestamp: serverTimestamp()
+            });
+            await logStaffActivity({
+                action,
+                details,
+                scope: meta.scope || 'global',
+                targetUid: meta.targetUid,
+                targetType: meta.targetType
             });
         } catch (e) {
             void("Audit log failed:", e);

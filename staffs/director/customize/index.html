@@ -278,6 +278,7 @@ tailwind.config = {
 import { db, auth } from '../../../assets/firebase-config.js';
 import { doc, updateDoc, getDoc } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+import { logStaffActivity } from '../../../assets/staff-activity.js';
 
 let directorUid = null;
 let currentDesign = { type: 'solid-pair', primary: '#040810', secondary: '#C9A84C', fontFamily: 'Space Grotesk' };
@@ -544,6 +545,7 @@ window.saveDesign = async () => {
       fontName: currentDesign.fontName || 'Space Grotesk'
     };
     await updateDoc(doc(db, 'directors', directorUid), { theme: finalTheme });
+    await logStaffActivity({ action: 'THEME_COMMIT', details: 'Theme commit', scope: 'global' });
     btn.innerText = "Atmosphere Saved";
     setTimeout(() => { btn.innerText = "Save Atmosphere Matrix"; btn.disabled = false; }, 2000);
     alert("Atmosphere Saved. Your command center matrix is now active.");

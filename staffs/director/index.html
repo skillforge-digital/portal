@@ -927,7 +927,16 @@
     }
 
     window.renderAnnouncements = async function(container) {
-      const snap = await getDocs(query(collection(db, 'announcements'), orderBy('priority', 'desc'), orderBy('timestamp', 'desc')));
+      const snap = await getDocs(query(collection(db, 'announcements'), orderBy('timestamp', 'desc'), limit(150)));
+      const items = snap.docs.map(doc => ({ id: doc.id, data: doc.data() }));
+      items.sort((a, b) => {
+        const ap = Number(a.data.priority || 0);
+        const bp = Number(b.data.priority || 0);
+        if (bp !== ap) return bp - ap;
+        const at = a.data.timestamp?.toMillis ? a.data.timestamp.toMillis() : 0;
+        const bt = b.data.timestamp?.toMillis ? b.data.timestamp.toMillis() : 0;
+        return bt - at;
+      });
       
       container.innerHTML = `
         <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-8">
@@ -940,9 +949,8 @@
         </header>
 
         <div class="glass-strong rounded-[40px] p-8 border border-white/5 space-y-4">
-          ${snap.empty ? '<p class="text-center text-white/40 py-12 italic">No announcements in history.</p>' : ''}
-          ${snap.docs.map(doc => {
-            const d = doc.data();
+          ${items.length === 0 ? '<p class="text-center text-white/40 py-12 italic">No announcements in history.</p>' : ''}
+          ${items.map(({ id, data: d }) => {
             const isCEO = d.priority >= 100;
             return `<div class="p-8 rounded-3xl bg-white/5 border ${isCEO ? 'border-gold/30' : 'border-white/5'} relative overflow-hidden group">
               ${isCEO ? '<div class="absolute top-0 right-0 px-4 py-1 bg-gold text-navy-950 text-[7px] font-black uppercase tracking-widest rounded-bl-xl">CEO Priority</div>' : ''}
@@ -951,7 +959,7 @@
                   <h3 class="font-black uppercase text-xl ${isCEO ? 'text-gold' : 'text-white'}">${d.title || 'Untitled'}</h3>
                   <p class="text-[9px] text-slate-500 uppercase tracking-widest mt-1">Authorized Author: ${d.author} • ${d.timestamp?.toDate().toLocaleString() || 'N/A'}</p>
                 </div>
-                <button onclick="deleteAnnouncement('${doc.id}')" class="p-3 rounded-xl bg-white/5 text-white/20 hover:bg-red-500/20 hover:text-red-400 transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                <button onclick="deleteAnnouncement('${id}')" class="p-3 rounded-xl bg-white/5 text-white/20 hover:bg-red-500/20 hover:text-red-400 transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
               </div>
               <p class="text-sm text-slate-300 leading-relaxed">${d.content || ''}</p>
               <div class="mt-6 pt-6 border-t border-white/5 flex gap-2">
@@ -1012,6 +1020,16 @@
         } else {
             alert(res.error);
         }
+    };
+
+    window.deleteAnnouncement = async (id) => {
+      if (!confirm('Delete this announcement?')) return;
+      const res = await staffCommand.deleteAnnouncement(id);
+      if (res.success) {
+        window.showTab('announcements');
+      } else {
+        alert(res.error);
+      }
     };
 
     window.renderSeasons = async function(container) {
@@ -1369,8 +1387,6 @@
     };
 
     window.renderAudit = async function(container) {
-      const snap = await getDocs(query(collection(db, 'audit_logs'), orderBy('timestamp', 'desc'), limit(100)));
-      
       container.innerHTML = `
         <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-8">
           <div>
@@ -1379,22 +1395,95 @@
           </div>
         </header>
 
-        <div class="glass-strong rounded-[40px] p-8 border border-white/5 max-h-[700px] overflow-y-auto custom-scrollbar">
-          ${snap.empty ? '<p class="text-center text-white/40 py-12 italic uppercase font-bold tracking-widest">Ledger is empty.</p>' : ''}
-          ${snap.docs.map(doc => {
-            const d = doc.data();
-            return `<div class="py-6 border-b border-white/5 hover:bg-white/[0.02] transition-colors px-4 rounded-2xl">
-              <div class="flex justify-between items-center mb-3">
-                <span class="px-3 py-1 rounded-full bg-gold/10 text-gold text-[7px] font-black uppercase tracking-widest border border-gold/20">${d.action}</span>
-                <span class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">${d.timestamp?.toDate().toLocaleString() || 'N/A'}</span>
-              </div>
-              <p class="text-sm text-white font-black uppercase tracking-tight">${d.performedBy || 'System'}</p>
-              <p class="text-[10px] text-slate-400 mt-2 font-mono bg-black/30 p-3 rounded-xl border border-white/5 leading-relaxed">${d.details || ''}</p>
-            </div>`;
-          }).join('')}
+        <div class="glass-strong rounded-[40px] p-8 border border-white/5 space-y-6">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div class="flex gap-2 p-1.5 glass rounded-[24px]">
+              <button id="log-mode-activity" class="tab-btn active" onclick="window.setLogMode('activity')">Staff Activity</button>
+              <button id="log-mode-audit" class="tab-btn" onclick="window.setLogMode('audit')">System Audit</button>
+            </div>
+            <div id="staff-log-filters" class="flex items-center gap-3">
+              <span class="text-[8px] font-black text-white/30 uppercase tracking-[0.4em]">View</span>
+              <select id="staff-log-scope" class="bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-[10px] font-black uppercase tracking-widest text-white/70">
+                <option value="global">Global</option>
+                <option value="director">Director</option>
+                <option value="hod">HOD</option>
+                <option value="specialist">Specialist</option>
+                <option value="marketing">Marketing</option>
+                <option value="support">Support</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="logs-container" class="max-h-[700px] overflow-y-auto custom-scrollbar"></div>
         </div>
       `;
+
+      const scopeSel = document.getElementById('staff-log-scope');
+      if (scopeSel) scopeSel.onchange = () => window.renderStaffActivity(scopeSel.value);
+      window.setLogMode('activity');
     }
+
+    window.setLogMode = async (mode) => {
+      const aBtn = document.getElementById('log-mode-activity');
+      const sBtn = document.getElementById('log-mode-audit');
+      const filters = document.getElementById('staff-log-filters');
+      if (aBtn) aBtn.classList.toggle('active', mode === 'activity');
+      if (sBtn) sBtn.classList.toggle('active', mode === 'audit');
+      if (filters) filters.classList.toggle('hidden', mode !== 'activity');
+      if (mode === 'audit') {
+        await window.renderSystemAudit();
+      } else {
+        const scopeSel = document.getElementById('staff-log-scope');
+        await window.renderStaffActivity(scopeSel ? scopeSel.value : 'global');
+      }
+    };
+
+    window.renderStaffActivity = async (scopeKey) => {
+      const container = document.getElementById('logs-container');
+      if (!container) return;
+      container.innerHTML = '<div class="flex items-center justify-center h-48"><div class="w-10 h-10 border-4 border-gold/20 border-t-gold rounded-full animate-spin"></div></div>';
+      const baseQuery = scopeKey && scopeKey !== 'global'
+        ? query(collection(db, 'staff_activity_units', scopeKey, 'entries'), orderBy('timestamp', 'desc'), limit(200))
+        : query(collection(db, 'staff_activity_global'), orderBy('timestamp', 'desc'), limit(200));
+      const snap = await getDocs(baseQuery);
+      if (snap.empty) {
+        container.innerHTML = '<p class="text-center text-white/40 py-12 italic uppercase font-bold tracking-widest">No activity recorded yet.</p>';
+        return;
+      }
+      container.innerHTML = snap.docs.map(d0 => {
+        const d = d0.data() || {};
+        return `<div class="py-6 border-b border-white/5 hover:bg-white/[0.02] transition-colors px-4 rounded-2xl">
+          <div class="flex justify-between items-center mb-3 gap-4">
+            <span class="px-3 py-1 rounded-full bg-gold/10 text-gold text-[7px] font-black uppercase tracking-widest border border-gold/20">${d.action || 'EVENT'}</span>
+            <span class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">${d.timestamp?.toDate().toLocaleString() || 'N/A'}</span>
+          </div>
+          <p class="text-sm text-white font-black uppercase tracking-tight">${d.actorName || 'System'} <span class="text-white/30">•</span> ${d.actorRole || 'Staff'}</p>
+          <p class="text-[10px] text-slate-400 mt-2 font-mono bg-black/30 p-3 rounded-xl border border-white/5 leading-relaxed">${d.details || ''}</p>
+        </div>`;
+      }).join('');
+    };
+
+    window.renderSystemAudit = async () => {
+      const container = document.getElementById('logs-container');
+      if (!container) return;
+      container.innerHTML = '<div class="flex items-center justify-center h-48"><div class="w-10 h-10 border-4 border-gold/20 border-t-gold rounded-full animate-spin"></div></div>';
+      const snap = await getDocs(query(collection(db, 'audit_logs'), orderBy('timestamp', 'desc'), limit(150)));
+      if (snap.empty) {
+        container.innerHTML = '<p class="text-center text-white/40 py-12 italic uppercase font-bold tracking-widest">Ledger is empty.</p>';
+        return;
+      }
+      container.innerHTML = snap.docs.map(d0 => {
+        const d = d0.data() || {};
+        return `<div class="py-6 border-b border-white/5 hover:bg-white/[0.02] transition-colors px-4 rounded-2xl">
+          <div class="flex justify-between items-center mb-3 gap-4">
+            <span class="px-3 py-1 rounded-full bg-gold/10 text-gold text-[7px] font-black uppercase tracking-widest border border-gold/20">${d.action}</span>
+            <span class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">${d.timestamp?.toDate().toLocaleString() || 'N/A'}</span>
+          </div>
+          <p class="text-sm text-white font-black uppercase tracking-tight">${d.performedBy || 'System'}</p>
+          <p class="text-[10px] text-slate-400 mt-2 font-mono bg-black/30 p-3 rounded-xl border border-white/5 leading-relaxed">${d.details || ''}</p>
+        </div>`;
+      }).join('');
+    };
 
     // Trainee Actions
     window.viewTrainee = async function(uid) {

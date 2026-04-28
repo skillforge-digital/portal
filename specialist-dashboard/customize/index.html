@@ -283,6 +283,7 @@ tailwind.config = {
 import { db, auth } from '../../assets/firebase-config.js';
 import { doc, onSnapshot, updateDoc, getDoc } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 import { onAuthStateChanged, signInAnonymously } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+import { logStaffActivity } from '../../assets/staff-activity.js';
 
 let currentSpecialist = null;
 let specialistUid = null;
@@ -583,6 +584,7 @@ window.saveDesign = async () => {
       theme: finalTheme
     });
     
+    await logStaffActivity({ action: 'THEME_COMMIT', details: 'Theme commit', scope: 'global' });
     btn.innerText = "Atmosphere Structure Saved";
     setTimeout(() => {
       btn.innerText = "Save Atmosphere Structure";

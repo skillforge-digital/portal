@@ -9,6 +9,7 @@ import { db, auth } from './firebase-config.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
 // @ts-ignore
 import { doc, getDoc, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+import { logStaffActivity } from './staff-activity.js';
 
 class StaffCore {
     constructor() {
@@ -283,14 +284,10 @@ class StaffCore {
         if (!this.user || !this.profile) return;
         
         try {
-            await addDoc(collection(this.db, 'staff_audit_logs'), {
-                uid: this.user.uid,
-                name: this.profile.name,
-                role: this.profile.primaryRole,
-                action: action,
-                details: details,
-                timestamp: serverTimestamp(),
-                ip: 'unknown' // Cannot get real IP client-side
+            await logStaffActivity({
+                action,
+                details: typeof details === 'string' ? details : JSON.stringify(details),
+                scope: 'global'
             });
         } catch (err) {
             void('[StaffCore] Audit log failed:', err);

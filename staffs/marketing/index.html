@@ -137,6 +137,9 @@
         <a href="customize/" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
           <i data-lucide="palette" class="w-4 h-4"></i> Design Studio
         </a>
+        <button onclick="showTab('logs')" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+          <i data-lucide="scroll-text" class="w-4 h-4"></i> Activity Logs
+        </button>
         <button onclick="showTab('profile')" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
           <i data-lucide="user-cog" class="w-4 h-4"></i> Personnel Profile
         </button>
@@ -299,7 +302,25 @@
         document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
         if (event && event.target.closest('.nav-link')) event.target.closest('.nav-link').classList.add('active');
 
-        if (tab === 'profile') {
+        if (tab === 'logs') {
+            content.innerHTML = `
+                <div class="max-w-5xl mx-auto animate-slide-up">
+                    <header class="mb-10">
+                        <p class="text-orange text-xs font-black tracking-[0.4em] uppercase">Unit Ledger</p>
+                        <h1 class="text-4xl md:text-6xl font-black mt-2 uppercase tracking-tighter">Activity Logs</h1>
+                    </header>
+                    <div class="glass-strong rounded-[40px] p-8 border border-white/5 space-y-6">
+                        <div class="flex gap-2 p-1.5 glass rounded-[24px]">
+                            <button id="mkt-log-unit" class="tab-btn active" onclick="window.setMarketingLogMode('unit')">Marketing Unit</button>
+                            <button id="mkt-log-global" class="tab-btn" onclick="window.setMarketingLogMode('global')">Global</button>
+                        </div>
+                        <div id="mkt-logs-container" class="max-h-[700px] overflow-y-auto custom-scrollbar"></div>
+                    </div>
+                </div>
+            `;
+            if (window.lucide) window.lucide.createIcons();
+            await window.setMarketingLogMode('unit');
+        } else if (tab === 'profile') {
             content.innerHTML = `
                 <div class="max-w-4xl mx-auto animate-slide-up">
                     <header class="mb-12">
@@ -368,6 +389,35 @@
             `;
             initDashboard(); // Re-bind counters
         }
+    };
+
+    window.setMarketingLogMode = async (mode) => {
+        const unitBtn = document.getElementById('mkt-log-unit');
+        const globalBtn = document.getElementById('mkt-log-global');
+        if (unitBtn) unitBtn.classList.toggle('active', mode === 'unit');
+        if (globalBtn) globalBtn.classList.toggle('active', mode === 'global');
+        const container = document.getElementById('mkt-logs-container');
+        if (!container) return;
+        container.innerHTML = '<div class="flex items-center justify-center h-48"><div class="w-10 h-10 border-4 border-orange/20 border-t-orange rounded-full animate-spin"></div></div>';
+        const q = mode === 'global'
+            ? query(collection(db, 'staff_activity_global'), orderBy('timestamp', 'desc'), limit(200))
+            : query(collection(db, 'staff_activity_units', 'marketing', 'entries'), orderBy('timestamp', 'desc'), limit(200));
+        const snap = await getDocs(q);
+        if (snap.empty) {
+            container.innerHTML = '<p class="text-center text-white/40 py-12 italic uppercase font-bold tracking-widest">No activity recorded yet.</p>';
+            return;
+        }
+        container.innerHTML = snap.docs.map(d0 => {
+            const d = d0.data() || {};
+            return `<div class="py-6 border-b border-white/5 hover:bg-white/[0.02] transition-colors px-4 rounded-2xl">
+              <div class="flex justify-between items-center mb-3 gap-4">
+                <span class="px-3 py-1 rounded-full bg-orange/10 text-orange text-[7px] font-black uppercase tracking-widest border border-orange/20">${d.action || 'EVENT'}</span>
+                <span class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">${d.timestamp?.toDate().toLocaleString() || 'N/A'}</span>
+              </div>
+              <p class="text-sm text-white font-black uppercase tracking-tight">${d.actorName || 'System'} <span class="text-white/30">•</span> ${d.actorRole || 'Staff'}</p>
+              <p class="text-[10px] text-slate-400 mt-2 font-mono bg-black/30 p-3 rounded-xl border border-white/5 leading-relaxed">${d.details || ''}</p>
+            </div>`;
+        }).join('');
     };
 
     window.addSocialRow = () => {
