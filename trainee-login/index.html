@@ -224,27 +224,46 @@
     import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
     import { resolveStaffIdentity, getStaffDashboardPath } from '../assets/staff-identity.js';
 
-    onAuthStateChanged(auth, async (user) => {
-        if (!user) return;
+    function isOfflineFirestoreError(err) {
+        const msg = (err && err.message ? String(err.message) : '').toLowerCase();
+        const code = (err && err.code ? String(err.code) : '').toLowerCase();
+        return !navigator.onLine || msg.includes('client is offline') || msg.includes('offline') || code.includes('unavailable');
+    }
 
+    function showSessionBanner(message) {
         const banner = document.getElementById('session-banner');
         const bannerText = document.getElementById('session-banner-text');
         if (!banner || !bannerText) return;
-
-        const traineeSnap = await getDoc(doc(db, 'trainees', user.uid)).catch(() => null);
-        if (traineeSnap && traineeSnap.exists()) {
-            bannerText.innerText = 'You are already signed in. Continue to Trainee dashboard or logout to switch account.';
-        } else {
-            const staffResolved = await resolveStaffIdentity(user.uid);
-            if (staffResolved.found) {
-                bannerText.innerText = 'You are signed in as Staff. Continue to Staff dashboard or logout to switch account.';
-            } else {
-                bannerText.innerText = 'Active session detected, but no registry profile was found. Logout to re-authenticate.';
-            }
-        }
-
+        bannerText.innerText = message;
         banner.classList.remove('hidden');
         if (window.lucide) window.lucide.createIcons();
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) return;
+
+        try {
+            const traineeSnap = await getDoc(doc(db, 'trainees', user.uid)).catch(() => null);
+            if (traineeSnap && traineeSnap.exists()) {
+                showSessionBanner('You are already signed in. Continue to Trainee dashboard or logout to switch account.');
+                return;
+            }
+            const staffResolved = await resolveStaffIdentity(user.uid);
+            if (staffResolved.offline) {
+                showSessionBanner('Network is unstable. Please check your internet connection and retry.');
+                return;
+            }
+            if (staffResolved.found) {
+                showSessionBanner('You are signed in as Staff. Continue to Staff dashboard or logout to switch account.');
+            } else {
+                showSessionBanner('Active session detected, but no registry profile was found. Logout to re-authenticate.');
+            }
+        } catch (err) {
+            void(err);
+            if (isOfflineFirestoreError(err)) {
+                showSessionBanner('Network is unstable. Please check your internet connection and retry.');
+            }
+        }
     });
 
     window.dismissSessionBanner = () => {
@@ -268,6 +287,10 @@
         }
 
         const staffResolved = await resolveStaffIdentity(user.uid);
+        if (staffResolved.offline) {
+            showSessionBanner('Network is unstable. Please check your internet connection and retry.');
+            return;
+        }
         if (staffResolved.found && staffResolved.profile) {
             window.location.href = getStaffDashboardPath(staffResolved.profile);
         }

@@ -198,7 +198,7 @@
             if (user) {
                 let docFound = false;
                 for (const coll of ['staffs', 'directors', 'hods', 'specialists']) {
-                    const snap = await getDoc(doc(db, coll, user.uid));
+                    const snap = await getDoc(doc(db, coll, user.uid)).catch(() => null);
                     if (snap.exists()) { docFound = true; break; }
                 }
                 document.getElementById('diag-doc').innerText = docFound ? "Linked (Verified)" : "Missing from Registry";
@@ -244,26 +244,46 @@
         'Staff': '../'
     };
 
-    onAuthStateChanged(auth, async (user) => {
-        if (!user) return;
+    function isOfflineFirestoreError(err) {
+        const msg = (err && err.message ? String(err.message) : '').toLowerCase();
+        const code = (err && err.code ? String(err.code) : '').toLowerCase();
+        return !navigator.onLine || msg.includes('client is offline') || msg.includes('offline') || code.includes('unavailable');
+    }
 
+    function showSessionBanner(message) {
         const banner = document.getElementById('session-banner');
         const bannerText = document.getElementById('session-banner-text');
         if (!banner || !bannerText) return;
-
-        const staffResolved = await resolveStaffIdentity(user.uid);
-        if (staffResolved.found) {
-            bannerText.innerText = 'You are already signed in. Continue to Staff dashboard or logout to switch account.';
-        } else {
-            const traineeSnap = await getDoc(doc(db, 'trainees', user.uid)).catch(() => null);
-            if (traineeSnap && traineeSnap.exists()) {
-                bannerText.innerText = 'You are signed in as a Trainee. Continue to Trainee dashboard or logout to switch account.';
-            } else {
-                bannerText.innerText = 'Active session detected, but no registry profile was found. Logout to re-authenticate.';
-            }
-        }
+        bannerText.innerText = message;
         banner.classList.remove('hidden');
         if (window.lucide) window.lucide.createIcons();
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) return;
+
+        try {
+            const staffResolved = await resolveStaffIdentity(user.uid);
+            if (staffResolved.offline) {
+                showSessionBanner('Network is unstable. Please check your internet connection and retry.');
+                return;
+            }
+            if (staffResolved.found) {
+                showSessionBanner('You are already signed in. Continue to Staff dashboard or logout to switch account.');
+                return;
+            }
+            const traineeSnap = await getDoc(doc(db, 'trainees', user.uid)).catch(() => null);
+            if (traineeSnap && traineeSnap.exists()) {
+                showSessionBanner('You are signed in as a Trainee. Continue to Trainee dashboard or logout to switch account.');
+            } else {
+                showSessionBanner('Active session detected, but no registry profile was found. Logout to re-authenticate.');
+            }
+        } catch (err) {
+            void(err);
+            if (isOfflineFirestoreError(err)) {
+                showSessionBanner('Network is unstable. Please check your internet connection and retry.');
+            }
+        }
     });
 
     window.dismissSessionBanner = () => {
@@ -281,9 +301,12 @@
         if (!user) return;
 
         const staffResolved = await resolveStaffIdentity(user.uid);
+        if (staffResolved.offline) {
+            showSessionBanner('Network is unstable. Please check your internet connection and retry.');
+            return;
+        }
         if (staffResolved.found && staffResolved.profile) {
-            const target = getStaffDashboardPath(staffResolved.profile);
-            window.location.href = target;
+            window.location.href = getStaffDashboardPath(staffResolved.profile);
             return;
         }
 
@@ -337,7 +360,11 @@
             window.location.href = target;
         } catch (err) {
             void(err);
-            alert("Authentication failed: " + err.message);
+            if (isOfflineFirestoreError(err)) {
+                showSessionBanner('Network is unstable. Please check your internet connection and retry.');
+            } else {
+                alert("Authentication failed: " + err.message);
+            }
         } finally {
             btn.disabled = false;
             btn.innerHTML = 'Initialize Session <img width="24" height="24" src="../../assets/brand-logo.jpg" class="w-6 h-6 object-contain" alt="SkillForge Digital logo">';

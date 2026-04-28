@@ -16,7 +16,13 @@ export async function resolveStaffIdentity(uid) {
     ];
 
     for (const entry of refs) {
-        const snap = await getDoc(entry.ref);
+        let snap;
+        try {
+            snap = await getDoc(entry.ref);
+        } catch (err) {
+            const offline = !navigator.onLine || (err && typeof err.message === 'string' && err.message.toLowerCase().includes('offline'));
+            return { found: false, source: 'none', profile: null, offline, error: err };
+        }
         if (!snap.exists()) continue;
 
         const data = snap.data() || {};
@@ -54,4 +60,3 @@ export function getStaffDashboardPath(profile) {
     };
     return map[role] || '/staffs/';
 }
-
