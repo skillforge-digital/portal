@@ -50,6 +50,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <link rel="stylesheet" href="/assets/tailwind.css">
+<script src="/assets/tailwind-runtime-stub.js"></script>
 <script>
 tailwind.config = {
   theme: {
@@ -1191,6 +1192,19 @@ let isRedirecting = false;
 let staffUnsub = null;
 let traineeUnsub = null;
 
+function addSidebarLink(parent, href, label, iconClass, extraClass) {
+  if (!parent) return;
+  const a = document.createElement('a');
+  a.href = href;
+  a.className = 'sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white';
+  if (extraClass) a.classList.add(extraClass);
+  const icon = document.createElement('i');
+  icon.className = `fa-solid ${iconClass} w-4`;
+  a.appendChild(icon);
+  a.appendChild(document.createTextNode(` ${label}`));
+  parent.appendChild(a);
+}
+
 function startRegistrySync(uid) {
   if (staffUnsub) staffUnsub();
   if (traineeUnsub) traineeUnsub();
@@ -1793,4 +1807,3 @@ function applyControlState(state) {
   <script src="../assets/error-reporter.js"></script>
 </body>
 </html>
-
