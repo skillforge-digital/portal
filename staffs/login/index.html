@@ -118,7 +118,7 @@
                 </div>
             </div>
 
-            <form id="staff-login-form" class="space-y-6">
+            <form id="staff-login-form" class="space-y-6" onsubmit="event.preventDefault();">
                 <div class="space-y-2">
                     <label for="staff-email" class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Command Email</label>
                     <input required id="staff-email" name="email" type="email" placeholder="personnel@skillforgedigital.com.ng" class="w-full p-4 rounded-2xl text-sm">
@@ -162,7 +162,7 @@
   <script type="module">
     import { db, auth } from '../../assets/firebase-config.js';
     import { doc, getDoc, updateDoc, serverTimestamp, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
-    import { signInWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+    import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
 
     window.toggleDiagnostics = async () => {
         const portal = document.getElementById('diagnostic-portal');
@@ -222,7 +222,23 @@
         'Staff': '../'
     };
 
+    
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            void("[Auth] Active session detected. Routing to dashboard...");
+            const staffDoc = await getDoc(doc(db, "staffs", user.uid)).catch(e => null);
+            if (staffDoc && staffDoc.exists()) {
+                const data = staffDoc.data();
+                const target = DASHBOARD_MAP[data.primaryRole || data.role] || '../';
+                window.location.href = target;
+            } else {
+                window.location.href = '../../trainee-dashboard/';
+            }
+        }
+    });
+
     document.getElementById('staff-login-form').onsubmit = async (e) => {
+
         e.preventDefault();
         const btn = document.getElementById('login-btn');
         const formData = new FormData(e.target);
