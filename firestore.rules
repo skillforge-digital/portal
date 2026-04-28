@@ -51,8 +51,9 @@ service cloud.firestore {
       // Robust Read/Write: Allows legacy mock reconciliation and cloud migration.
       // Explicitly allow list operations for leaderboard and directory.
       allow read, get, list: if true;
-      allow create: if true; // Registration is open
-      allow update: if isOwner(traineeId) || isStaff();
+      allow create: if isAuthenticated() && request.auth.uid == traineeId; // Must be authenticated as the trainee
+      // Owners can update their profile but cannot manipulate their XP or Level. Only Staff can grant XP.
+      allow update: if (isOwner(traineeId) && request.resource.data.get('xp', 0) == resource.data.get('xp', 0)) || isStaff();
       allow delete: if isDirector();
     }
 
@@ -60,10 +61,11 @@ service cloud.firestore {
     match /staffs/{staffId} {
       // Staff can see each other; public can read for verification.
       allow read, get, list: if true;
-      // Allow self-registration if authenticated; Directors manage staff accounts.
-      allow create: if isAuthenticated() && request.auth.uid == staffId;
+      // Allow self-registration if authenticated; FORCE status to be 'pending' to prevent privilege escalation.
+      allow create: if (isAuthenticated() && request.auth.uid == staffId && request.resource.data.status == 'pending') || isDirector();
       allow delete: if isDirector();
-      allow update: if isOwner(staffId) || isDirector();
+      // Owners can update their profile but cannot change their role, roles, or status. Only Directors can elevate privileges.
+      allow update: if (isOwner(staffId) && request.resource.data.status == resource.data.status && request.resource.data.get('role', '') == resource.data.get('role', '') && request.resource.data.get('roles', []) == resource.data.get('roles', [])) || isDirector();
     }
 
     // LEGACY COMPATIBILITY: Support for old collection-based role documents.
