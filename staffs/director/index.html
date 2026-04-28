@@ -1140,35 +1140,35 @@
     window.renderApprovals = async function(container) {
       if (currentTabUnsub) currentTabUnsub();
       currentTabUnsub = onSnapshot(query(collection(db, "staffs"), where("status", "==", "pending"), orderBy("created_at", "desc")), (snap) => {
-          let html = \`
+          let html = `
           <div class="space-y-8">
               <div class="flex justify-between items-center">
-                  <h2 class="text-2xl font-black uppercase">Pending Personnel Approvals (\${snap.size})</h2>
+                  <h2 class="text-2xl font-black uppercase">Pending Personnel Approvals (${snap.size})</h2>
               </div>
 
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">\`;
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">`;
 
           if (snap.empty) {
-              html += \`<div class="col-span-full py-20 text-center space-y-4">
+              html += `<div class="col-span-full py-20 text-center space-y-4">
                   <div class="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mx-auto text-white/20">
                       <i data-lucide="check-circle" class="w-8 h-8"></i>
                   </div>
                   <p class="text-white/40 italic uppercase text-[10px] tracking-widest">All personnel applications have been processed.</p>
-              </div>\`;
+              </div>`;
           }
 
           snap.forEach(d => {
               const data = d.data();
-              html += \`
+              html += `
               <div class="glass p-6 rounded-[32px] border-white/10 space-y-6">
                   <div class="flex justify-between items-start">
                       <div class="flex items-center gap-4">
                           <div class="w-14 h-14 rounded-2xl bg-white/5 border border-gold/20 overflow-hidden">
-                              <img loading="lazy" src="\${data.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + d.id}" class="w-full h-full object-cover" alt="SkillForge Interface Element">
+                              <img loading="lazy" src="${data.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + d.id}" class="w-full h-full object-cover" alt="SkillForge Interface Element">
                           </div>
                           <div>
-                              <h3 class="font-black text-white uppercase tracking-tight">\${data.name || 'Anonymous Personnel'}</h3>
-                              <p class="text-[9px] text-slate-500 uppercase font-bold tracking-widest">\${data.email}</p>
+                              <h3 class="font-black text-white uppercase tracking-tight">${data.name || 'Anonymous Personnel'}</h3>
+                              <p class="text-[9px] text-slate-500 uppercase font-bold tracking-widest">${data.email}</p>
                           </div>
                       </div>
                       <div class="px-3 py-1 rounded-full bg-orange/10 border border-orange/20 text-orange text-[8px] font-black uppercase">Pending</div>
@@ -1177,22 +1177,22 @@
                   <div class="grid grid-cols-2 gap-4">
                       <div class="p-3 rounded-xl bg-white/5 border border-white/5">
                           <p class="text-[8px] text-slate-500 uppercase font-black mb-1">Assigned Role</p>
-                          <p class="text-[10px] font-black text-gold uppercase">\${data.primaryRole || 'Staff'}</p>
+                          <p class="text-[10px] font-black text-gold uppercase">${data.primaryRole || 'Staff'}</p>
                       </div>
                       <div class="p-3 rounded-xl bg-white/5 border border-white/5">
                           <p class="text-[8px] text-slate-500 uppercase font-black mb-1">Assigned Unit</p>
-                          <p class="text-[10px] font-black text-slate-300 uppercase">\${data.department || 'General'}</p>
+                          <p class="text-[10px] font-black text-slate-300 uppercase">${data.department || 'General'}</p>
                       </div>
                   </div>
 
                   <div class="flex gap-3">
-                      <button onclick="window.approveStaff('\${d.id}')" class="flex-1 py-3 bg-white text-navy font-black rounded-xl uppercase text-[10px] tracking-widest hover:bg-gold transition-all">Approve Clearance</button>
-                      <button onclick="window.rejectStaff('\${d.id}')" class="px-4 py-3 bg-red-500/10 text-red-400 rounded-xl font-black uppercase text-[10px] hover:bg-red-500 hover:text-white transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                      <button onclick="window.approveStaff('${d.id}')" class="flex-1 py-3 bg-white text-navy font-black rounded-xl uppercase text-[10px] tracking-widest hover:bg-gold transition-all">Approve Clearance</button>
+                      <button onclick="window.rejectStaff('${d.id}')" class="px-4 py-3 bg-red-500/10 text-red-400 rounded-xl font-black uppercase text-[10px] hover:bg-red-500 hover:text-white transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                   </div>
-              </div>\`;
+              </div>`;
           });
 
-          html += \`</div></div>\`;
+          html += `</div></div>`;
           container.innerHTML = html;
           if (window.lucide) window.lucide.createIcons();
       });
@@ -1247,10 +1247,10 @@
     window.renderFaults = async function(container) {
         if (currentTabUnsub) currentTabUnsub();
         currentTabUnsub = onSnapshot(query(collection(db, "system_faults"), orderBy("timestamp", "desc")), (snap) => {
-            let html = \`<div class="flex justify-between items-center mb-8">
-                <h2 class="text-2xl font-black uppercase">System Faults (\${snap.size})</h2>
+            let html = `<div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-black uppercase">System Faults (${snap.size})</h2>
             </div>
-            <div class="space-y-4">\`;
+            <div class="space-y-4">`;
             
             if (snap.empty) {
                 html += '<p class="text-white/40 text-center py-12 italic">No active system faults reported.</p>';
@@ -1258,23 +1258,23 @@
 
             snap.forEach(d => {
                 const data = d.data();
-                html += \`<div class="p-6 rounded-3xl glass border \${data.status === 'resolved' ? 'border-green-500/20' : 'border-red-500/20'} space-y-4">
+                html += `<div class="p-6 rounded-3xl glass border ${data.status === 'resolved' ? 'border-green-500/20' : 'border-red-500/20'} space-y-4">
                     <div class="flex justify-between items-start">
                         <div>
-                            <p class="text-[10px] font-black uppercase tracking-widest \${data.status === 'resolved' ? 'text-green-400' : 'text-red-400'}">\${data.code || 'UNKNOWN_FAULT'}</p>
-                            <h3 class="font-bold text-lg">\${data.fault}</h3>
-                            <p class="text-[8px] text-slate-500 uppercase tracking-widest">Reported by: \${data.userName} (\${data.uid.substring(0,8)}...) • \${data.timestamp?.toDate().toLocaleString() || 'N/A'}</p>
+                            <p class="text-[10px] font-black uppercase tracking-widest ${data.status === 'resolved' ? 'text-green-400' : 'text-red-400'}">${data.code || 'UNKNOWN_FAULT'}</p>
+                            <h3 class="font-bold text-lg">${data.fault}</h3>
+                            <p class="text-[8px] text-slate-500 uppercase tracking-widest">Reported by: ${data.userName} (${data.uid.substring(0,8)}...) • ${data.timestamp?.toDate().toLocaleString() || 'N/A'}</p>
                         </div>
                         <div class="flex gap-2">
-                            \${data.status !== 'resolved' ? \`<button onclick="window.resolveFault('\${d.id}')" class="px-4 py-2 bg-green-500/10 text-green-500 rounded-xl font-black text-[8px] uppercase tracking-widest hover:bg-green-500 hover:text-white transition-all">Resolve</button>\` : ''}
-                            <button aria-label="Action button" onclick="window.deleteFault('\${d.id}')" class="p-2 text-slate-500 hover:text-red-400"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            ${data.status !== 'resolved' ? `<button onclick="window.resolveFault('${d.id}')" class="px-4 py-2 bg-green-500/10 text-green-500 rounded-xl font-black text-[8px] uppercase tracking-widest hover:bg-green-500 hover:text-white transition-all">Resolve</button>` : ''}
+                            <button aria-label="Action button" onclick="window.deleteFault('${d.id}')" class="p-2 text-slate-500 hover:text-red-400"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                         </div>
                     </div>
                     <div class="p-4 bg-black/20 rounded-2xl text-[9px] font-mono text-slate-400">
-                        URL: \${data.context?.url}<br>
-                        UA: \${data.context?.userAgent}
+                        URL: ${data.context?.url}<br>
+                        UA: ${data.context?.userAgent}
                     </div>
-                </div>\`;
+                </div>`;
             });
             html += '</div>';
             container.innerHTML = html;
