@@ -46,9 +46,7 @@
 
 <script>
   // Immediate UI Preparation - Hide content until Registry Core is ready
-  (function() {
-    document.documentElement.style.visibility = 'hidden';
-  })();
+  
 </script>
 <link rel="stylesheet" href="../assets/style.css">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -238,7 +236,7 @@ onAuthStateChanged(auth, async (user) => {
 
       initDashboard();
       hideLoading();
-      document.documentElement.style.visibility = 'visible';
+      
     } else {
       // If not a specialist, redirect to login
       console.warn('Unauthorized Access Attempt: UID', user.uid);
@@ -486,7 +484,6 @@ window.addEventListener('sf:turbo-render', () => {
 });
 
 </script>
-  <script type="module" src="../assets/sf-turbo.js"></script>
-</body>
+  </body>
 </html>
 

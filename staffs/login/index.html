@@ -213,7 +213,7 @@
     };
 
     const DASHBOARD_MAP = {
-        'Director': '../../admin/',
+        'Director': '../director/',
         'HOD': '../hod/',
         'Specialist': '../specialist/',
         'Digital Marketing': '../marketing/',
@@ -263,7 +263,7 @@
                 // 5. Redirect to Primary Dashboard
                 // Directors always go to the root director portal
                 if (collectionName === 'directors' || profileData.primaryRole === 'Director') {
-                    window.location.href = '../../admin/';
+                    window.location.href = '../director/';
                     return;
                 }
 

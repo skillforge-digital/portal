@@ -52,7 +52,7 @@ class StaffCore {
         };
         
         // Hide content until authorized
-        document.documentElement.style.visibility = 'hidden';
+        
     }
 
     static async start() {
@@ -163,7 +163,7 @@ class StaffCore {
     }
 
     revealContent() {
-        document.documentElement.style.visibility = 'visible';
+        
     }
 
     redirectLogin() {

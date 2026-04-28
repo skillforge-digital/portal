@@ -59,10 +59,10 @@
   <script>
     // Immediate UI Preparation - Hide content until cloud session is verified
     (function() {
-      document.documentElement.style.visibility = 'hidden';
+      
       // Failsafe: reveal content after 3 seconds regardless of script status
       setTimeout(() => {
-        document.documentElement.style.visibility = 'visible';
+        
       }, 3000);
     })();
   </script>
@@ -540,7 +540,7 @@
     
     // Reveal content once the UI has been hydrated
     window.addEventListener('load', () => {
-      document.documentElement.style.visibility = 'visible';
+      
       
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.get('error') === 'profile_missing') {

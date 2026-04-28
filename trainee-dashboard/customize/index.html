@@ -67,10 +67,10 @@
 <script>
   // Immediate UI Preparation - Hide content until Portal Core is ready
   (function() {
-    document.documentElement.style.visibility = 'hidden';
+    
     // Failsafe: reveal content after 3 seconds regardless of script status
     setTimeout(() => {
-      document.documentElement.style.visibility = 'visible';
+      
     }, 3000);
   })();
 </script>
@@ -1121,6 +1121,5 @@ window.setCanvasColor = async (bg, accent) => {
 </script>
   <script type="module" src="../../assets/daily-canvas.js"></script>
   <script type="module" src="../../assets/sf-core.js"></script>
-  <script type="module" src="../../assets/sf-turbo.js"></script>
-</body>
+  </body>
 </html>

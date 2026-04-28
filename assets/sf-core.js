@@ -367,7 +367,7 @@ class SkillForgeCore {
         if (mainContent) {
             mainContent.style.display = this.originalDisplay || 'block';
         }
-        document.documentElement.style.visibility = 'visible';
+        
     }
 
     setupMasterTabLogic() {

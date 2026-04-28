@@ -136,12 +136,20 @@ class DailyCanvas {
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  if (!document.getElementById('daily-canvas')) {
-    const canvas = document.createElement('canvas');
-    canvas.id = 'daily-canvas';
-    canvas.className = 'fixed inset-0 w-full h-full pointer-events-none z-[-1] opacity-50 mix-blend-screen';
-    document.body.insertBefore(canvas, document.body.firstChild);
-  }
-  window.dailyCanvasInstance = new DailyCanvas();
-});
+function initDailyCanvas() {
+    if (!document.getElementById('daily-canvas')) {
+      const canvas = document.createElement('canvas');
+      canvas.id = 'daily-canvas';
+      canvas.className = 'fixed inset-0 w-full h-full pointer-events-none z-[-1] opacity-50 mix-blend-screen';
+      document.body.insertBefore(canvas, document.body.firstChild);
+    }
+    if (!window.dailyCanvasInstance) {
+        window.dailyCanvasInstance = new DailyCanvas();
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDailyCanvas);
+} else {
+    initDailyCanvas();
+}

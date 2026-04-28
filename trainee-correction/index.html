@@ -46,9 +46,7 @@
 
 <script>
   // Immediate UI Preparation - Hide content until Registry Core is ready
-  (function() {
-    document.documentElement.style.visibility = 'hidden';
-  })();
+  
 </script>
 <link rel="stylesheet" href="../assets/style.css">
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -263,7 +261,7 @@
     
     // Reveal content once the UI has been hydrated
     setTimeout(() => {
-        document.documentElement.style.visibility = 'visible';
+        
     }, 100);
 
     // Re-hydration for Turbo
