@@ -67,7 +67,7 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
     body { font-family:'Plus Jakarta Sans',sans-serif; background:#040810; color:#f1f5f9; min-height: 100dvh; }
-    #sundust-canvas { position:fixed; inset:0; width:100%; height:100vh; z-index:0; pointer-events:none }
+    #sundust-canvas { position:fixed; inset:0; width:100%; height:100dvh; z-index:0; pointer-events:none }
     .glass { background: rgba(255,255,255,0.02); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
     .glass-strong { background: rgba(255,255,255,0.05); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.1); }
     @keyframes slide-up { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -81,8 +81,9 @@
     
     /* Staff Membership Card Styles */
     .staff-card {
-      width: 420px;
-      height: 660px;
+      width: min(420px, calc(100vw - 2rem));
+      height: auto;
+      min-height: 660px;
       background: linear-gradient(135deg, #0a1628 0%, #1a1a2e 50%, #16213e 100%);
       border-radius: 32px;
       position: relative;
@@ -107,7 +108,7 @@
         radial-gradient(circle at 80% 20%, rgba(232,119,34,0.08) 0%, transparent 50%);
     }
     
-    .card-content { position: relative; z-index: 10; padding: 2.5rem; height: 100%; display: flex; flex-direction: column; }
+    .card-content { position: relative; z-index: 10; padding: 2.5rem; min-height: 660px; display: flex; flex-direction: column; }
     
     .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; }
     
@@ -217,6 +218,7 @@
     <script>window.history.scrollRestoration = "manual"; window.scrollTo(0, 0);</script>
 <style id="sf-logo-round-style">img[src*="assets/brand-logo.jpg"],img[src*="assets/brand-logo.svg"],img[src*="assets/brand-logo.png"],img[src*="assets/brand-logo.jpeg"]{border-radius:9999px;border:1px solid rgba(201,168,76,0.45);box-shadow:0 0 0 4px rgba(201,168,76,0.10),0 12px 35px rgba(0,0,0,0.55);background:rgba(201,168,76,0.06);padding:4px;box-sizing:content-box}</style>
 
+<link rel="stylesheet" href="/assets/responsive.css">
 </head>
 <body class="overflow-x-hidden min-h-screen">
   <canvas id="sundust-canvas"></canvas>
