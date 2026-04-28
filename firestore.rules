@@ -19,6 +19,10 @@ service cloud.firestore {
     
     // Gets the current user's UID.
     function getUID() { return request.auth.uid; }
+
+    function isLegacyDirector() { return isAuthenticated() && exists(/databases/$(database)/documents/directors/$(getUID())); }
+    function isLegacyHOD() { return isAuthenticated() && exists(/databases/$(database)/documents/hods/$(getUID())); }
+    function isLegacySpecialist() { return isAuthenticated() && exists(/databases/$(database)/documents/specialists/$(getUID())); }
     
     // Unified Staff Role Check: Looks up roles in the centralized 'staffs' collection.
     // Returns true if the user has ANY of the specified roles. Supports legacy single 'role'.
@@ -34,10 +38,10 @@ service cloud.firestore {
     }
 
     // Role-specific helpers for common permission checks.
-    function isDirector() { return hasAnyRole(['Director']); }
-    function isHOD() { return hasAnyRole(['Director', 'HOD']); }
-    function isSpecialist() { return hasAnyRole(['Director', 'HOD', 'Specialist']); }
-    function isStaff() { return isAuthenticated() && exists(/databases/$(database)/documents/staffs/$(getUID())); }
+    function isDirector() { return hasAnyRole(['Director']) || isLegacyDirector(); }
+    function isHOD() { return hasAnyRole(['Director', 'HOD']) || isLegacyDirector() || isLegacyHOD(); }
+    function isSpecialist() { return hasAnyRole(['Director', 'HOD', 'Specialist']) || isLegacyDirector() || isLegacyHOD() || isLegacySpecialist(); }
+    function isStaff() { return isAuthenticated() && (exists(/databases/$(database)/documents/staffs/$(getUID())) || isLegacyDirector() || isLegacyHOD() || isLegacySpecialist()); }
     
     // Checks if the user is the owner of the document.
     function isOwner(userId) { return isAuthenticated() && getUID() == userId; }
@@ -69,9 +73,9 @@ service cloud.firestore {
     }
 
     // LEGACY COMPATIBILITY: Support for old collection-based role documents.
-    match /directors/{uid} { allow read, write: if isDirector(); }
-    match /hods/{uid} { allow read, write: if isHOD(); }
-    match /specialists/{uid} { allow read, write: if isSpecialist(); }
+    match /directors/{uid} { allow read: if isOwner(uid) || isDirector(); allow write: if isDirector(); }
+    match /hods/{uid} { allow read: if isOwner(uid) || isHOD(); allow write: if isHOD(); }
+    match /specialists/{uid} { allow read: if isOwner(uid) || isSpecialist(); allow write: if isSpecialist(); }
 
     // =========================================================================
     // 3. ACADEMY INFRASTRUCTURE

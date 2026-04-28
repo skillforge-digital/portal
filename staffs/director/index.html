@@ -108,8 +108,8 @@
   <aside class="w-72 glass-strong border-r border-white/5 flex flex-col fixed inset-y-0 z-50 transition-all duration-500 md:translate-x-0 -translate-x-full" id="sidebar">
     <div class="p-8 flex-1 overflow-y-auto">
       <div class="flex items-center gap-3 mb-12">
-        <div class="w-12 h-12 rounded-2xl bg-gold/10 flex items-center justify-center text-gold border border-gold/20">
-          <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" class="w-6 h-6 object-contain" alt="SF">
+        <div class="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center text-gold border border-gold/20 overflow-hidden shadow-xl">
+          <img src="../../assets/brand-logo.svg" class="w-7 h-7 object-contain" alt="SkillForge Digital logo">
         </div>
         <div class="flex flex-col leading-none">
           <span class="font-black text-sm tracking-tighter uppercase">SkillForge</span>
@@ -214,14 +214,33 @@
     // Global state
     let currentTab = 'overview';
     let currentTabUnsub = null;
+    const __arm = new Map();
+    const __ARM_WINDOW_MS = 5000;
+
+    function requireArm(key, firstClickMessage) {
+      const now = Date.now();
+      const last = __arm.get(key) || 0;
+      if (now - last < __ARM_WINDOW_MS) {
+        __arm.delete(key);
+        return true;
+      }
+      __arm.set(key, now);
+      alert(firstClickMessage || 'Click again to confirm.');
+      return false;
+    }
+
+    function requireTypedConfirm(promptText, requiredWord) {
+      const value = prompt(promptText || 'Type APPROVE to continue');
+      return (value || '').trim().toUpperCase() === (requiredWord || 'APPROVE');
+    }
 
     onAuthStateChanged(auth, async (user) => {
-      if (!user) { window.location.href = '../../trainee-login/'; return; }
+      if (!user) { window.location.href = '../login/'; return; }
       
       const success = await staffCommand.init(user.uid);
       if (!success) {
           void("Staff authorization failed.");
-          window.location.href = '../../trainee-login/?error=unauthorized';
+          window.location.href = '../login/?error=unauthorized';
           return;
       }
 
@@ -276,7 +295,7 @@
     
     document.getElementById('logout-btn').addEventListener('click', async () => {
         await auth.signOut();
-        window.location.href = '../../trainee-login/';
+        window.location.href = '../login/';
     });
 
     
@@ -432,7 +451,7 @@
             </div>
         `;
         
-        document.getElementById('social-registry-form').onsubmit = updateSocialRegistry;
+        document.getElementById('social-matrix-form').onsubmit = updateSocialRegistry;
         if (window.lucide) window.lucide.createIcons();
     }
 
@@ -1176,7 +1195,7 @@
     };
 
     window.approveStaff = async (uid) => {
-        if (!confirm("Confirm authorization to ACTIVATE this personnel's clearance level?")) return;
+        if (!requireArm(`approve:${uid}`, 'Click Approve again to confirm clearance activation.')) return;
         try {
             const staffRef = doc(db, "staffs", uid);
             const staffSnap = await getDoc(staffRef);
@@ -1189,10 +1208,10 @@
             
             // 2. Update Role Code status
             if (data.roleCode) {
-                await updateDoc(doc(db, "role_codes", data.roleCode), { status: 'active' });
+                await setDoc(doc(db, "role_codes", data.roleCode), { status: 'active' }, { merge: true });
                 
                 // 3. Update Track Access status
-                await updateDoc(doc(db, "track_access", data.roleCode), { status: 'active' });
+                await setDoc(doc(db, "track_access", data.roleCode), { status: 'active' }, { merge: true });
             }
             
             alert("Personnel clearance activated successfully.");
@@ -1202,7 +1221,7 @@
     };
 
     window.rejectStaff = async (uid) => {
-        if (!confirm("CRITICAL: Reject and PURGE this personnel application? This will delete their auth profile data.")) return;
+        if (!requireTypedConfirm("CRITICAL: Type APPROVE to reject and purge this personnel application.", "APPROVE")) return;
         try {
             const staffRef = doc(db, "staffs", uid);
             const staffSnap = await getDoc(staffRef);
@@ -1210,7 +1229,7 @@
                 const data = staffSnap.data();
                 if (data.roleCode) {
                     // Reset role code to unused
-                    await updateDoc(doc(db, "role_codes", data.roleCode), { used: false, usedBy: null, status: 'available' });
+                    await setDoc(doc(db, "role_codes", data.roleCode), { used: false, usedBy: null, status: 'available' }, { merge: true });
                     await deleteDoc(doc(db, "track_access", data.roleCode));
                 }
             }

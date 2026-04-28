@@ -12,6 +12,7 @@ import {
 } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 import { SeasonEngine } from './season-engine.js';
 import { ROLES, PERMISSIONS, hasPermission } from './rbac-config.js';
+import { resolveStaffIdentity } from './staff-identity.js';
 
 export class StaffCommandSuite {
     constructor() {
@@ -25,15 +26,14 @@ export class StaffCommandSuite {
         if (this.isInitialized) return;
         this.uid = uid;
         this.seasonEngine = new SeasonEngine(uid);
-        
-        const staffSnap = await getDoc(doc(db, 'staffs', uid));
-        if (staffSnap.exists()) {
-            this.userData = staffSnap.data();
-            this.isInitialized = true;
-            void("🛠️ Staff Command Suite Initialized for:", this.userData.name);
-            return true;
-        }
-        return false;
+
+        const resolved = await resolveStaffIdentity(uid);
+        if (!resolved.found || !resolved.profile) return false;
+
+        this.userData = resolved.profile;
+        this.isInitialized = true;
+        void("🛠️ Staff Command Suite Initialized for:", this.userData.name);
+        return true;
     }
 
     // --- SYSTEM CONTROL (GOD MODE) ---

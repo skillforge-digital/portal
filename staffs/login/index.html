@@ -118,6 +118,22 @@
                 </div>
             </div>
 
+            <div id="session-banner" class="hidden p-6 rounded-3xl bg-white/5 border border-gold/20 space-y-4">
+                <div class="flex items-start justify-between gap-4">
+                    <div class="min-w-0">
+                        <p class="text-[8px] font-black text-gold uppercase tracking-[0.4em]">Session Detected</p>
+                        <p id="session-banner-text" class="text-[10px] text-slate-300 font-black uppercase tracking-widest mt-2">Loading...</p>
+                    </div>
+                    <button type="button" onclick="window.dismissSessionBanner()" class="p-2 rounded-xl bg-white/5 text-white/40 hover:text-red-400 transition-all" aria-label="Dismiss session banner">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <div class="flex gap-3">
+                    <button type="button" onclick="window.continueSession()" class="flex-1 py-4 rounded-2xl bg-gold text-navy font-black uppercase text-[9px] tracking-[0.3em] hover:bg-white transition-all">Continue</button>
+                    <button type="button" onclick="window.logoutSession()" class="flex-1 py-4 rounded-2xl bg-white/5 text-white font-black uppercase text-[9px] tracking-[0.3em] hover:bg-red-500/15 hover:text-red-300 transition-all">Logout</button>
+                </div>
+            </div>
+
             <form id="staff-login-form" class="space-y-6" onsubmit="event.preventDefault();">
                 <div class="space-y-2">
                     <label for="staff-email" class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Command Email</label>
@@ -134,7 +150,7 @@
                 </div>
 
                 <button type="submit" id="login-btn" class="w-full py-5 bg-white text-navy font-black rounded-2xl uppercase text-[10px] tracking-[0.2em] shadow-xl hover:bg-gold transition-all flex items-center justify-center gap-2">
-                    Initialize Session <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" class="w-6 h-6 object-contain" alt="SF">
+                    Initialize Session <img src="../../assets/brand-logo.svg" class="w-6 h-6 object-contain" alt="SkillForge Digital logo">
                 </button>
             </form>
 
@@ -164,6 +180,7 @@
     import { db, auth } from '../../assets/firebase-config.js';
     import { doc, getDoc, updateDoc, serverTimestamp, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
     import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+    import { resolveStaffIdentity, getStaffDashboardPath } from '../../assets/staff-identity.js';
 
     window.toggleDiagnostics = async () => {
         const portal = document.getElementById('diagnostic-portal');
@@ -223,20 +240,54 @@
         'Staff': '../'
     };
 
-    
     onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            void("[Auth] Active session detected. Routing to dashboard...");
-            const staffDoc = await getDoc(doc(db, "staffs", user.uid)).catch(e => null);
-            if (staffDoc && staffDoc.exists()) {
-                const data = staffDoc.data();
-                const target = DASHBOARD_MAP[data.primaryRole || data.role] || '../';
-                window.location.href = target;
+        if (!user) return;
+
+        const banner = document.getElementById('session-banner');
+        const bannerText = document.getElementById('session-banner-text');
+        if (!banner || !bannerText) return;
+
+        const staffResolved = await resolveStaffIdentity(user.uid);
+        if (staffResolved.found) {
+            bannerText.innerText = 'You are already signed in. Continue to Staff dashboard or logout to switch account.';
+        } else {
+            const traineeSnap = await getDoc(doc(db, 'trainees', user.uid)).catch(() => null);
+            if (traineeSnap && traineeSnap.exists()) {
+                bannerText.innerText = 'You are signed in as a Trainee. Continue to Trainee dashboard or logout to switch account.';
             } else {
-                window.location.href = '../../trainee-dashboard/';
+                bannerText.innerText = 'Active session detected, but no registry profile was found. Logout to re-authenticate.';
             }
         }
+        banner.classList.remove('hidden');
+        if (window.lucide) window.lucide.createIcons();
     });
+
+    window.dismissSessionBanner = () => {
+        const banner = document.getElementById('session-banner');
+        if (banner) banner.classList.add('hidden');
+    };
+
+    window.logoutSession = async () => {
+        await signOut(auth);
+        window.location.reload();
+    };
+
+    window.continueSession = async () => {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        const staffResolved = await resolveStaffIdentity(user.uid);
+        if (staffResolved.found && staffResolved.profile) {
+            const target = getStaffDashboardPath(staffResolved.profile);
+            window.location.href = target;
+            return;
+        }
+
+        const traineeSnap = await getDoc(doc(db, 'trainees', user.uid)).catch(() => null);
+        if (traineeSnap && traineeSnap.exists()) {
+            window.location.href = '../../trainee-dashboard/';
+        }
+    };
 
     document.getElementById('staff-login-form').onsubmit = async (e) => {
 
@@ -249,61 +300,43 @@
         btn.innerHTML = 'Authenticating...';
 
         try {
-            // 1. Firebase Login
             const userCred = await signInWithEmailAndPassword(auth, email, password);
             const user = userCred.user;
 
-            // 2. Fetch Personnel Profile across all collections in order of precedence
-            const collections = ['staffs', 'directors', 'hods', 'specialists'];
-            let profileData = null;
-            let collectionName = '';
-
-            for (const coll of collections) {
-                const snap = await getDoc(doc(db, coll, user.uid));
-                if (snap.exists()) {
-                    profileData = snap.data();
-                    collectionName = coll;
-                    break;
-                }
-            }
-
-            if (profileData) {
-                // 3. Update last login
-                await updateDoc(doc(db, collectionName, user.uid), { 
-                    lastLogin: serverTimestamp(),
-                    status: 'active'
-                });
-
-                // 4. Set Session Cookie for Academy Access
-                const cookieDomain = window.location.hostname.includes('skillforgedigital.com.ng') ? '.skillforgedigital.com.ng' : window.location.hostname;
-                document.cookie = `sf_staff_uid=${user.uid}; path=/; domain=${cookieDomain}; max-age=86400; SameSite=Lax; Secure`;
-
-                // 5. Redirect to Primary Dashboard
-                // Directors always go to the root director portal
-                if (collectionName === 'directors' || profileData.primaryRole === 'Director') {
-                    window.location.href = '../director/';
-                    return;
-                }
-
-                const target = DASHBOARD_MAP[profileData.primaryRole || profileData.role] || '../';
-                window.location.href = target;
-            } else {
-                // Check if they are a trainee
+            const staffResolved = await resolveStaffIdentity(user.uid);
+            if (!staffResolved.found || !staffResolved.profile) {
                 const traineeSnap = await getDoc(doc(db, 'trainees', user.uid));
                 if (traineeSnap.exists()) {
-                    alert("Trainee Identity Detected. Redirecting to Academy Hub...");
+                    alert('Trainee Identity Detected. Redirecting to Trainee Login...');
                     window.location.href = '../../trainee-login/';
                     return;
                 }
-                alert("Unauthorized: Personnel registry profile missing.");
+                alert('Unauthorized: Personnel registry profile missing.');
                 await signOut(auth);
+                return;
             }
+
+            if (staffResolved.source === 'staffs' && staffResolved.profile.status === 'pending') {
+                alert('Access Denied: Your personnel application is still pending Director approval.');
+                await signOut(auth);
+                return;
+            }
+
+            if (staffResolved.source === 'staffs') {
+                await updateDoc(doc(db, 'staffs', user.uid), { lastLogin: serverTimestamp() });
+            }
+
+            const cookieDomain = window.location.hostname.includes('skillforgedigital.com.ng') ? '.skillforgedigital.com.ng' : window.location.hostname;
+            document.cookie = `sf_staff_uid=${user.uid}; path=/; domain=${cookieDomain}; max-age=86400; SameSite=Lax; Secure`;
+
+            const target = getStaffDashboardPath(staffResolved.profile);
+            window.location.href = target;
         } catch (err) {
             void(err);
             alert("Authentication failed: " + err.message);
         } finally {
             btn.disabled = false;
-            btn.innerHTML = 'Initialize Session <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" class="w-6 h-6 object-contain" alt="SF">';
+            btn.innerHTML = 'Initialize Session <img src="../../assets/brand-logo.svg" class="w-6 h-6 object-contain" alt="SkillForge Digital logo">';
             if (window.lucide) window.lucide.createIcons();
         }
     };
