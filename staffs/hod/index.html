@@ -349,7 +349,7 @@
                                         <div class="relative space-y-2">
                                             <label for="handle-${i}" class="text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">Handle</label>
                                             <div class="flex gap-2">
-                                                <input id="handle-${i}" name="socialHandle[]" type="text" value="${s.handle}" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10 text-white">
+                                                <input id="handle-${i}" name="socialHandle[]" type="text" value="${s.handle}" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10 text-white" aria-label="socialHandle[]">
                                                 <button type="button" onclick="this.closest('.social-row').remove()" aria-label="Remove Social Handle" class="p-4 text-red-400 hover:bg-red-400/10 rounded-2xl transition-all">
                                                     <i data-lucide="trash-2" class="w-4 h-4"></i>
                                                 </button>
@@ -393,7 +393,7 @@
             <div class="relative space-y-2">
                 <label for="handle-${rowId}" class="text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">Handle</label>
                 <div class="flex gap-2">
-                    <input id="handle-${rowId}" name="socialHandle[]" type="text" placeholder="@username" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10 text-white">
+                    <input id="handle-${rowId}" name="socialHandle[]" type="text" placeholder="@username" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10 text-white" aria-label="@username">
                     <button type="button" onclick="this.closest('.social-row').remove()" aria-label="Remove Social Handle" class="p-4 text-red-400 hover:bg-red-400/10 rounded-2xl transition-all">
                         <i data-lucide="trash-2" class="w-4 h-4"></i>
                     </button>
@@ -560,7 +560,7 @@
             <div class="space-y-4">
               <div>
                 <label for="ann-title" class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Title</label>
-                <input type="text" id="ann-title" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl mt-2" placeholder="Announcement Title">
+                <input type="text" id="ann-title" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl mt-2" placeholder="Announcement Title" aria-label="Announcement Title">
               </div>
               <div>
                 <label for="ann-content" class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Content</label>
@@ -620,7 +620,7 @@
           <td class="py-4">
             <div class="flex items-center gap-3">
               <div class="w-10 h-10 rounded-full bg-white/5 overflow-hidden">
-                <img loading="lazy" src="${d.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + doc.id}" class="w-full h-full object-cover">
+                <img loading="lazy" src="${d.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + doc.id}" class="w-full h-full object-cover" alt="SkillForge Interface Element">
               </div>
               <p class="font-bold text-white uppercase text-xs">${d.name || 'Anonymous'}</p>
             </div>

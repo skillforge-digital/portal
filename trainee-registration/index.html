@@ -159,23 +159,23 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                     <div class="space-y-2">
                         <label for="trainee-name" class="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Full Name</label>
-                        <input required id="trainee-name" name="name" type="text" autocomplete="name" placeholder="FIRSTNAME SURNAME" class="w-full p-3 md:p-4 rounded-xl md:rounded-2xl text-sm uppercase">
+                        <input required id="trainee-name" name="name" type="text" autocomplete="name" placeholder="FIRSTNAME SURNAME" class="w-full p-3 md:p-4 rounded-xl md:rounded-2xl text-sm uppercase" aria-label="FIRSTNAME SURNAME">
                     </div>
                     <div class="space-y-2">
                         <label for="phone-number" class="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">WhatsApp Number</label>
-                        <input required id="phone-number" name="phone" type="tel" autocomplete="tel" placeholder="+234..." class="w-full p-3 md:p-4 rounded-xl md:rounded-2xl text-sm">
+                        <input required id="phone-number" name="phone" type="tel" autocomplete="tel" placeholder="+234..." class="w-full p-3 md:p-4 rounded-xl md:rounded-2xl text-sm" aria-label="+234...">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                     <div class="space-y-2">
                         <label for="email-address" class="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Email Address</label>
-                        <input required id="email-address" name="email" type="email" autocomplete="email" placeholder="trainee@skillforgedigital.com.ng" class="w-full p-3 md:p-4 rounded-xl md:rounded-2xl text-sm">
+                        <input required id="email-address" name="email" type="email" autocomplete="email" placeholder="trainee@skillforgedigital.com.ng" class="w-full p-3 md:p-4 rounded-xl md:rounded-2xl text-sm" aria-label="trainee@skillforgedigital.com.ng">
                     </div>
                     <div class="space-y-2 relative">
                         <label for="reg-password" class="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Mastery Password</label>
                         <div class="relative">
-                            <input required id="reg-password" name="password" type="password" autocomplete="new-password" placeholder="********" class="w-full p-3 md:p-4 rounded-xl md:rounded-2xl text-sm pr-12">
+                            <input required id="reg-password" name="password" type="password" autocomplete="new-password" placeholder="********" class="w-full p-3 md:p-4 rounded-xl md:rounded-2xl text-sm pr-12" aria-label="********">
                             <button type="button" aria-label="Toggle Password Visibility" onclick="togglePassword('reg-password')" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-gold transition-colors">
                                 <i data-lucide="eye" class="w-4 h-4" id="eye-reg-password"></i>
                             </button>
@@ -186,7 +186,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                     <div class="space-y-2">
                         <label for="dob-input" class="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Date of Birth (DD/MM)</label>
-                        <input required id="dob-input" name="dob" type="text" placeholder="e.g. 24/05" class="w-full p-3 md:p-4 rounded-xl md:rounded-2xl text-sm">
+                        <input required id="dob-input" name="dob" type="text" placeholder="e.g. 24/05" class="w-full p-3 md:p-4 rounded-xl md:rounded-2xl text-sm" aria-label="e.g. 24/05">
                     </div>
                     <div class="space-y-2">
                         <label for="gender-select" class="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Gender</label>

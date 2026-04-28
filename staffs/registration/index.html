@@ -121,7 +121,7 @@
 
             <div class="space-y-4">
                 <label for="role-code-input" class="sr-only">Assigned Role Code</label>
-                <input type="text" id="role-code-input" name="role-code" autocomplete="one-time-code" placeholder="ENTER ROLE CODE..." class="w-full p-5 rounded-2xl text-sm font-black tracking-widest uppercase">
+                <input type="text" id="role-code-input" name="role-code" autocomplete="one-time-code" placeholder="ENTER ROLE CODE..." class="w-full p-5 rounded-2xl text-sm font-black tracking-widest uppercase" aria-label="ENTER ROLE CODE...">
                 <button type="button" onclick="verifyRoleCode()" id="verify-btn" aria-label="Verify Assigned Role Code" class="w-full py-5 bg-white text-navy font-black rounded-2xl uppercase text-[10px] tracking-[0.2em] shadow-xl hover:bg-gold transition-all flex items-center justify-center gap-2">
                     Verify Authorization <img src="https://files.fm/thumb_show.php?i=sebxcfvhb7" class="w-6 h-6 object-contain" alt="SF">
                 </button>
@@ -150,23 +150,23 @@
                     <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Unit Assignment (Select up to 2)</p>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="unit-selection">
                         <label for="unit-trading" class="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all unit-label">
-                            <input type="checkbox" id="unit-trading" name="units[]" value="Trading Unit" class="w-4 h-4 rounded border-gold bg-navy text-gold focus:ring-gold unit-checkbox">
+                            <input type="checkbox" id="unit-trading" name="units[]" value="Trading Unit" class="w-4 h-4 rounded border-gold bg-navy text-gold focus:ring-gold unit-checkbox" aria-label="units[]">
                             <span class="text-sm font-bold uppercase">Trading Unit</span>
                         </label>
                         <label for="unit-dev" class="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all unit-label">
-                            <input type="checkbox" id="unit-dev" name="units[]" value="Development & Tech Unit" class="w-4 h-4 rounded border-gold bg-navy text-gold focus:ring-gold unit-checkbox">
+                            <input type="checkbox" id="unit-dev" name="units[]" value="Development & Tech Unit" class="w-4 h-4 rounded border-gold bg-navy text-gold focus:ring-gold unit-checkbox" aria-label="units[]">
                             <span class="text-sm font-bold uppercase">Dev & Tech Unit</span>
                         </label>
                         <label for="unit-creative" class="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all unit-label">
-                            <input type="checkbox" id="unit-creative" name="units[]" value="Creative Media Unit" class="w-4 h-4 rounded border-gold bg-navy text-gold focus:ring-gold unit-checkbox">
+                            <input type="checkbox" id="unit-creative" name="units[]" value="Creative Media Unit" class="w-4 h-4 rounded border-gold bg-navy text-gold focus:ring-gold unit-checkbox" aria-label="units[]">
                             <span class="text-sm font-bold uppercase">Creative Media Unit</span>
                         </label>
                         <label for="unit-digital" class="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all unit-label">
-                            <input type="checkbox" id="unit-digital" name="units[]" value="Digital Innovation Unit" class="w-4 h-4 rounded border-gold bg-navy text-gold focus:ring-gold unit-checkbox">
+                            <input type="checkbox" id="unit-digital" name="units[]" value="Digital Innovation Unit" class="w-4 h-4 rounded border-gold bg-navy text-gold focus:ring-gold unit-checkbox" aria-label="units[]">
                             <span class="text-sm font-bold uppercase">Digital Innovation Unit</span>
                         </label>
                         <label for="unit-support" class="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all unit-label">
-                            <input type="checkbox" id="unit-support" name="units[]" value="Support Staff / Team" class="w-4 h-4 rounded border-gold bg-navy text-gold focus:ring-gold unit-checkbox">
+                            <input type="checkbox" id="unit-support" name="units[]" value="Support Staff / Team" class="w-4 h-4 rounded border-gold bg-navy text-gold focus:ring-gold unit-checkbox" aria-label="units[]">
                             <span class="text-sm font-bold uppercase">Support Staff / Team</span>
                         </label>
                     </div>
@@ -174,7 +174,7 @@
 
                 <div class="space-y-2">
                     <label for="full-name" class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Full Command Name</label>
-                    <input required id="full-name" name="name" type="text" autocomplete="name" placeholder="FIRSTNAME LASTNAME" class="w-full p-4 rounded-2xl text-sm uppercase">
+                    <input required id="full-name" name="name" type="text" autocomplete="name" placeholder="FIRSTNAME LASTNAME" class="w-full p-4 rounded-2xl text-sm uppercase" aria-label="FIRSTNAME LASTNAME">
                 </div>
 
                 <!-- Social Media Integration (Multi-Handle Support) -->
@@ -198,7 +198,7 @@
                             </div>
                             <div class="relative space-y-1">
                                 <label class="sr-only" for="social-handle-0">Social Handle or URL</label>
-                                <input required id="social-handle-0" name="socialHandle[]" type="text" placeholder="@username or handle" class="w-full p-4 rounded-2xl text-sm" onblur="extractSocialHandle(this)">
+                                <input required id="social-handle-0" name="socialHandle[]" type="text" placeholder="@username or handle" class="w-full p-4 rounded-2xl text-sm" onblur="extractSocialHandle(this)" aria-label="@username or handle">
                             </div>
                         </div>
                     </div>
@@ -209,13 +209,13 @@
                 
                 <div class="space-y-2">
                     <label for="email-address" class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Personnel Email</label>
-                    <input required id="email-address" name="email" type="email" autocomplete="email" placeholder="personnel@skillforgedigital.com.ng" class="w-full p-4 rounded-2xl text-sm">
+                    <input required id="email-address" name="email" type="email" autocomplete="email" placeholder="personnel@skillforgedigital.com.ng" class="w-full p-4 rounded-2xl text-sm" aria-label="personnel@skillforgedigital.com.ng">
                 </div>
 
                 <div class="space-y-2 relative">
                     <label for="password" class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Secure Password</label>
                     <div class="relative">
-                        <input required id="password" name="password" type="password" autocomplete="new-password" placeholder="********" class="w-full p-4 rounded-2xl text-sm pr-12">
+                        <input required id="password" name="password" type="password" autocomplete="new-password" placeholder="********" class="w-full p-4 rounded-2xl text-sm pr-12" aria-label="********">
                         <button type="button" aria-label="Toggle password visibility" onclick="togglePassword('password')" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-gold transition-colors">
                             <i data-lucide="eye" class="w-4 h-4" id="eye-password"></i></button>
                     </div>
@@ -289,7 +289,7 @@
             </div>
             <div class="relative space-y-1">
                 <label class="sr-only" for="social-handle-${rowCount}">Social Handle or URL</label>
-                <input required id="social-handle-${rowCount}" name="socialHandle[]" type="text" placeholder="@username or handle" class="w-full p-4 rounded-2xl text-sm" onblur="extractSocialHandle(this)">
+                <input required id="social-handle-${rowCount}" name="socialHandle[]" type="text" placeholder="@username or handle" class="w-full p-4 rounded-2xl text-sm" onblur="extractSocialHandle(this)" aria-label="@username or handle">
                 <button aria-label="Action button" type="button" onclick="this.closest('.social-row').remove()" class="absolute -right-8 top-1/2 -translate-y-1/2 text-red-400 hover:text-white transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
             </div>
         `;

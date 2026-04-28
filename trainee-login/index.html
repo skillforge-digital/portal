@@ -139,12 +139,12 @@
         <form id="login-form" class="space-y-6" onsubmit="event.preventDefault();">
             <div class="space-y-2">
                 <label for="email" class="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Email Address</label>
-                <input required id="email" name="email" type="email" autocomplete="email" placeholder="trainee@skillforgedigital.com.ng" class="w-full p-3 md:p-4 rounded-xl md:rounded-2xl text-sm focus:border-gold outline-none transition-all">
+                <input required id="email" name="email" type="email" autocomplete="email" placeholder="trainee@skillforgedigital.com.ng" class="w-full p-3 md:p-4 rounded-xl md:rounded-2xl text-sm focus:border-gold outline-none transition-all" aria-label="trainee@skillforgedigital.com.ng">
             </div>
             <div class="space-y-2">
                 <label for="password" class="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Mastery Password</label>
                 <div class="relative">
-                    <input required id="password" name="password" type="password" autocomplete="current-password" placeholder="********" class="w-full p-3 md:p-4 rounded-xl md:rounded-2xl text-sm focus:border-gold outline-none transition-all pr-12">
+                    <input required id="password" name="password" type="password" autocomplete="current-password" placeholder="********" class="w-full p-3 md:p-4 rounded-xl md:rounded-2xl text-sm focus:border-gold outline-none transition-all pr-12" aria-label="********">
                     <button type="button" aria-label="Toggle password visibility" onclick="togglePassword('password')" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-gold transition-colors">
                         <i data-lucide="eye" class="w-4 h-4" id="eye-password"></i></button>
                 </div>

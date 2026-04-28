@@ -372,12 +372,12 @@
               <div class="space-y-4">
                 <div>
                   <label for="card-name-input" class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block">Display Name</label>
-                  <input type="text" id="card-name-input" value="${p.name || ''}" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl text-sm" placeholder="Your Name">
+                  <input type="text" id="card-name-input" value="${p.name || ''}" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl text-sm" placeholder="Your Name" aria-label="Your Name">
                 </div>
                 
                 <div>
                   <label for="card-photo-input" class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block">Avatar URL</label>
-                  <input type="text" id="card-photo-input" value="${p.avatar || ''}" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl text-sm" placeholder="https://...">
+                  <input type="text" id="card-photo-input" value="${p.avatar || ''}" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl text-sm" placeholder="https://..." aria-label="https://...">
                 </div>
                 
                 <button onclick="updateCardPreview()" class="w-full py-4 bg-gold text-navy-950 rounded-xl font-black uppercase text-[10px] tracking-widest hover:bg-white transition-all">
