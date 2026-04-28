@@ -216,7 +216,7 @@
                     throw new Error("Not found");
                 }
             } catch (err) {
-                console.error("Verification error:", err);
+                void("Verification error:", err);
                 loadingView.classList.add('hidden');
                 errorView.classList.remove('hidden');
             }

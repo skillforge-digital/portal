@@ -248,7 +248,7 @@ ${stack}
 UA: ${userAgent}
 -----------------------------------`;
 
-    console.error(`[SkillForge Error] ${errorMsg}`, stack);
+    void(`[SkillForge Error] ${errorMsg}`, stack);
 
     // Only show modal for critical errors or explicit manual reports
     const criticalKeywords = ['permissions', 'quota', 'auth', 'registry', 'failed to fetch', 'layout engine', 'theme', 'customization', 'typeerror'];
@@ -294,6 +294,6 @@ UA: ${userAgent}
 
   // Export to window for manual calls
   window['sf_report_error'] = showErrorReport;
-  console.log("🛠️ SkillForge Error Reporter Initialized");
+  void("🛠️ SkillForge Error Reporter Initialized");
 })();
 

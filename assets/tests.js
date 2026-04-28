@@ -6,7 +6,7 @@
 import { ROLES, PERMISSIONS, hasPermission, getCumulativePermissions } from './rbac-config.js';
 
 export async function runTests() {
-    console.log("🛠️ Starting SkillForge Core Validation...");
+    void("🛠️ Starting SkillForge Core Validation...");
 
     // 1. RBAC Tests
     console.group("🛡️ RBAC Logic Validation");
@@ -23,10 +23,10 @@ export async function runTests() {
     console.group("🔄 State Sync Validation");
     // Mocking DashboardState for test
     const mockData = { name: "Test User", roles: [ROLES.DIRECTOR] };
-    console.log("Mocking sync with data:", mockData);
+    void("Mocking sync with data:", mockData);
     const cumulative = getCumulativePermissions(mockData.roles);
     console.assert(cumulative.length > 5, "Director should have many permissions");
     console.groupEnd();
 
-    console.log("✅ Validation Complete. Systems Nominal.");
+    void("✅ Validation Complete. Systems Nominal.");
 }

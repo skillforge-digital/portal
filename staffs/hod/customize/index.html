@@ -457,7 +457,7 @@ function updatePreview() {
       document.documentElement.style.setProperty('--accent-color-rgb', '168, 85, 247');
     }
     if (currentDesign.fontFamily) text.style.fontFamily = currentDesign.fontFamily;
-  } catch (err) { console.error('[Design Studio] Preview update failed:', err); }
+  } catch (err) { void('[Design Studio] Preview update failed:', err); }
 }
 
 function hexToRgb(hex) {
@@ -506,7 +506,7 @@ window.saveDesign = async () => {
     setTimeout(() => { btn.innerText = "Save Atmosphere Matrix"; btn.disabled = false; }, 2000);
     alert("Atmosphere Saved. Your command center matrix is now active.");
   } catch (err) {
-    console.error('[Design Studio] Save failed:', err);
+    void('[Design Studio] Save failed:', err);
     btn.innerText = "Save Interrupted"; btn.disabled = false;
     alert("Save failed. Portal sync interrupted.");
   }

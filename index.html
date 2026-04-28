@@ -101,7 +101,7 @@
         // Global Registry Router: Sends logged-in users to their correct Academy Center
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                console.log("[RegistryRouter] Active session detected. Determining destination...");
+                void("[RegistryRouter] Active session detected. Determining destination...");
                 
                 // Wait for page to breathe
                 await new Promise(r => setTimeout(r, 500));
@@ -585,7 +585,7 @@
                     });
                 }
             }
-        } catch (e) { console.error("Config fetch failed:", e); }
+        } catch (e) { void("Config fetch failed:", e); }
     }
     loadSystemConfig();
   </script>

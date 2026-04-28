@@ -7,7 +7,7 @@
 class SkillForgeTurbo {
     constructor() {
         if (window._sfTurboInstance) {
-            console.log("[Turbo] Engine already running, skipping duplicate.");
+            void("[Turbo] Engine already running, skipping duplicate.");
             return;
         }
         this.cache = new Map();
@@ -52,14 +52,14 @@ class SkillForgeTurbo {
             this.navigate(window.location.pathname + window.location.search + window.location.hash, false);
         });
 
-        console.log("[Turbo] Engine Initialized & Monitoring Navigation Links");
+        void("[Turbo] Engine Initialized & Monitoring Navigation Links");
     }
 
     async navigate(url, pushState = true) {
         if (this.isNavigating) return;
         this.isNavigating = true;
 
-        console.log(`[Turbo] Syncing Page: ${url}`);
+        void(`[Turbo] Syncing Page: ${url}`);
         this.showProgressBar();
 
         try {
@@ -140,7 +140,7 @@ class SkillForgeTurbo {
 
         } catch (err) {
             if (err.name !== 'AbortError') {
-                console.error("[Turbo] Page Sync Failure. Refreshing context...", err);
+                void("[Turbo] Page Sync Failure. Refreshing context...", err);
                 // On 404 or other errors, let the browser handle it (which will show our new 404.html)
                 window.location.href = url;
             }
@@ -155,14 +155,14 @@ class SkillForgeTurbo {
             // Only refresh if we are still on the same page and not currently navigating
             const currentUrl = window.location.pathname + window.location.search + window.location.hash;
             if (currentUrl === url && !this.isNavigating) {
-                console.log("[Turbo] Auto-refreshing current node...");
+                void("[Turbo] Auto-refreshing current node...");
                 this.navigate(url, false); // Refresh without pushing state
             }
         }, 5000);
     }
 
     async rehydrate(newDoc) {
-        console.log("[Turbo] Re-hydrating Registry Matrix...");
+        void("[Turbo] Re-hydrating Registry Matrix...");
 
         // A. Re-execute Page-Specific Scripts
         const mainOrBody = document.querySelector('main') || document.body;
@@ -200,7 +200,7 @@ class SkillForgeTurbo {
         // E. Dispatch Render Event for manual initialization
         window.dispatchEvent(new CustomEvent('sf:turbo-render', { detail: { newDoc } }));
 
-        console.log("[Turbo] Hydration complete.");
+        void("[Turbo] Hydration complete.");
     }
 
     showProgressBar() {

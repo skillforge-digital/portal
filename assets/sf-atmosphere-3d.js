@@ -27,7 +27,7 @@ class Atmosphere3D {
         window.addEventListener('resize', () => this.onResize());
         this.animate();
         
-        console.log("[Atmosphere3D] GPU Atmosphere Initialized");
+        void("[Atmosphere3D] GPU Atmosphere Initialized");
     }
 
     initParticles() {

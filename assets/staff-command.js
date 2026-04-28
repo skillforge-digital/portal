@@ -30,7 +30,7 @@ export class StaffCommandSuite {
         if (staffSnap.exists()) {
             this.userData = staffSnap.data();
             this.isInitialized = true;
-            console.log("🛠️ Staff Command Suite Initialized for:", this.userData.name);
+            void("🛠️ Staff Command Suite Initialized for:", this.userData.name);
             return true;
         }
         return false;
@@ -141,7 +141,7 @@ export class StaffCommandSuite {
                 timestamp: serverTimestamp()
             });
         } catch (e) {
-            console.error("Audit log failed:", e);
+            void("Audit log failed:", e);
         }
     }
 

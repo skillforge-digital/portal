@@ -344,7 +344,7 @@
                 alert("Unauthorized: Invalid ROLE code detected.");
             }
         } catch (err) {
-            console.error(err);
+            void(err);
             alert("Connection error. Command registry unreachable.");
         } finally {
             btn.disabled = false;
@@ -359,7 +359,7 @@
         btn.innerHTML = 'Provisioning Staff Matrix...';
         
         try {
-            console.log("[Registry] Starting atomic provisioning of staff matrix...");
+            void("[Registry] Starting atomic provisioning of staff matrix...");
             const batch = writeBatch(db);
             let count = 0;
             
@@ -376,10 +376,10 @@
             }
             
             await batch.commit();
-            console.log(`[Registry] Successfully provisioned ${count} codes.`);
+            void(`[Registry] Successfully provisioned ${count} codes.`);
             alert(`Provisioning Complete: ${count} staff authorization codes initialized in the registry.`);
         } catch (err) {
-            console.error("[Registry] Provisioning Failed:", err);
+            void("[Registry] Provisioning Failed:", err);
             if (err.message.includes('permission-denied')) {
                 alert("Provisioning Failed: Access Denied. Please ensure Firestore rules are deployed.");
             } else {
@@ -487,7 +487,7 @@
                 successSubtext.innerHTML = 'Welcome to the SkillForge Command Registry. Your application is <b>PENDING APPROVAL</b> from the Director. You will be notified once your clearance is activated.';
             }
         } catch (err) {
-            console.error(err);
+            void(err);
             alert("Onboarding failed: " + err.message);
         } finally {
             btn.disabled = false;
@@ -522,7 +522,7 @@
                     val = pathParts[0];
                 }
             }
-        } catch (e) { console.warn("Social parse error:", e); }
+        } catch (e) { void("Social parse error:", e); }
 
         // Clean handle format
         val = val.replace('@', '');

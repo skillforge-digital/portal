@@ -259,7 +259,7 @@
                 b.querySelector('div').style.transform = newVal ? 'translateX(16px)' : 'translateX(0)';
             });
         }
-      } catch (err) { console.error(err); }
+      } catch (err) { void(err); }
     };
 
     window.showTab = async (tab) => {
@@ -419,7 +419,7 @@
             window.staffCore.profile.socialMatrix = matrix;
             showTab('profile');
         } catch (err) {
-            console.error(err);
+            void(err);
             alert("Update Failed: Registry link interrupted.");
         } finally {
             btn.disabled = false;
@@ -469,7 +469,7 @@
         ticker.innerHTML = messages.map(m => `<span class="text-[9px] font-bold text-white/60 uppercase tracking-widest flex items-center gap-4"><div class="w-1 h-1 rounded-full bg-gold"></div> ${m}</span>`).join('');
         ticker.innerHTML += ticker.innerHTML;
       } catch (err) {
-        console.warn("[Dashboard] News Ticker failed to load registry data.");
+        void("[Dashboard] News Ticker failed to load registry data.");
       }
     }
 

@@ -52,7 +52,7 @@ export class DailyAtmosphere {
     
     // Turbo integration: Re-initialize on navigation
     window.addEventListener('sf:turbo-render', () => {
-                console.log("[DailyAtmosphere] Atmosphere Re-Sync: Recalculating canvas boundaries");
+                void("[DailyAtmosphere] Atmosphere Re-Sync: Recalculating canvas boundaries");
                 this.canvas = ensureCanvas();
         if (this.canvas) {
           this.ctx = this.canvas.getContext('2d');
@@ -64,7 +64,7 @@ export class DailyAtmosphere {
     // Listen for custom toggle events from Dashboard
     window.addEventListener('sf:toggle-canvas', (e) => {
         this.enabled = e.detail.enabled;
-        console.log("[DailyAtmosphere] Atmosphere Toggled:", this.enabled);
+        void("[DailyAtmosphere] Atmosphere Toggled:", this.enabled);
     });
 
     this.resize();

@@ -208,7 +208,7 @@
                 alert(`Personnel Identity Verified.\n\nName: ${data.name}\nStaff ID: ${data.sfid}`);
             }
         } catch (err) {
-            console.error(err);
+            void(err);
             alert("Registry link interrupted. Please try again later.");
         }
     };
@@ -282,7 +282,7 @@
                 await signOut(auth);
             }
         } catch (err) {
-            console.error(err);
+            void(err);
             alert("Authentication failed: " + err.message);
         } finally {
             btn.disabled = false;

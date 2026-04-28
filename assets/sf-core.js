@@ -85,16 +85,16 @@ class SkillForgeCore {
 
         try {
             if (this.uid) {
-                console.log(`[RegistryCore] Cloud Session Verified: ${this.uid}`);
+                void(`[RegistryCore] Cloud Session Verified: ${this.uid}`);
                 await this.syncRegistryState();
                 await this.initRankEngine(); // Initialize Rank Engine
                 this.setupEngagementTracking(); // Initialize Analytics
                 this.startFaultDetector(); // Initialize Intelligent Fault Detection
             } else {
-                console.warn("[RegistryCore] Access Denied: No active cloud session.");
+                void("[RegistryCore] Access Denied: No active cloud session.");
             }
         } catch (err) {
-            console.error("[RegistryCore] Error during initialization:", err);
+            void("[RegistryCore] Error during initialization:", err);
             if (window['sf_report_error']) window['sf_report_error']("RegistryCore Init Failed", err.stack);
         } finally {
             this.revealContent();
@@ -111,7 +111,7 @@ class SkillForgeCore {
                     // Fallback to Legacy Mock UID for desynced users
                     const mockUid = localStorage.getItem('skillforge_mock_uid');
                     if (mockUid) {
-                        console.warn("[PortalCore] Cloud session missing. Using Legacy Mock Identity:", mockUid);
+                        void("[PortalCore] Cloud session missing. Using Legacy Mock Identity:", mockUid);
                         this.onAuthChange({ uid: mockUid, isMock: true }, resolve);
                     } else {
                         this.onAuthChange(null, resolve);
@@ -182,7 +182,7 @@ class SkillForgeCore {
         }
 
         if (newLevel > currentLevel) {
-            console.log(`[RankEngine] Promotion Eligibility Detected: Tier ${currentLevel} -> ${newLevel}`);
+            void(`[RankEngine] Promotion Eligibility Detected: Tier ${currentLevel} -> ${newLevel}`);
             await this.promoteUser(currentLevel, newLevel);
         }
     }
@@ -212,12 +212,12 @@ class SkillForgeCore {
                 timestamp: serverTimestamp()
             });
 
-            console.log(`[RankEngine] Promotion Ledger Committed: Tier ${newLevel}`);
+            void(`[RankEngine] Promotion Ledger Committed: Tier ${newLevel}`);
             
             // Dispatch event for UI update
             window.dispatchEvent(new CustomEvent('sf:promotion', { detail: { level: newLevel } }));
         } catch (err) {
-            console.error("[RankEngine] Promotion Failed:", err);
+            void("[RankEngine] Promotion Failed:", err);
         }
     }
 
@@ -309,9 +309,9 @@ class SkillForgeCore {
             }
 
             this.faults = newFaults;
-            console.log(`[FaultDetector] Scan complete. ${newFaults.length} issues identified.`);
+            void(`[FaultDetector] Scan complete. ${newFaults.length} issues identified.`);
         } catch (err) {
-            console.error("[FaultDetector] System scan interrupted:", err);
+            void("[FaultDetector] System scan interrupted:", err);
             if (window['sf_report_error']) {
                 window['sf_report_error']("Fault Scan Interrupted", err.stack || err.message);
             }
@@ -342,9 +342,9 @@ class SkillForgeCore {
                 
                 this.escalatedCodes.add(fault.code);
             }
-            if (faults.length > 0) console.warn(`[FaultDetector] ${faults.length} critical faults escalated to Command Center.`);
+            if (faults.length > 0) void(`[FaultDetector] ${faults.length} critical faults escalated to Command Center.`);
         } catch (err) {
-            console.error("[FaultDetector] Escalation Failed:", err);
+            void("[FaultDetector] Escalation Failed:", err);
             if (window['sf_report_error']) {
                 window['sf_report_error']("Fault Escalation Failed", err.stack || err.message);
             }
@@ -375,7 +375,7 @@ class SkillForgeCore {
             if (event.data.type === 'PULSE_HEARTBEAT') {
                 // Another tab is already pulsing
                 if (this.isMasterTab) {
-                    console.log("[PortalCore] Relinquishing Master Status to newer tab.");
+                    void("[PortalCore] Relinquishing Master Status to newer tab.");
                     this.isMasterTab = false;
                     this.stopPulseInterval();
                 }
@@ -423,7 +423,7 @@ class SkillForgeCore {
             if (staffSnap.exists()) {
                 this.registryState = staffSnap.data();
             } else {
-                console.error("[PortalCore] Profile missing from Registry. Forcing re-authentication.");
+                void("[PortalCore] Profile missing from Registry. Forcing re-authentication.");
                 // Strictly delete the fake mock uid if it's invalid so they can't get stuck in a loop
                 if (localStorage.getItem('skillforge_mock_uid') === this.uid) {
                     localStorage.removeItem('skillforge_mock_uid');
@@ -448,13 +448,13 @@ class SkillForgeCore {
             const hasPasscodeSession = this.verifyPasscodeSession(trackId);
 
             if (hasPasscodeSession) {
-                console.log(`[PortalCore] Academy Access Confirmed: ${trackId}. Activating Trackers.`);
+                void(`[PortalCore] Academy Access Confirmed: ${trackId}. Activating Trackers.`);
                 this.startPortalSync();
                 this.handleAcademyActivity();
                 this.trackCurrentLesson(trackId, lessonId);
             }
         } else {
-            console.log("[PortalCore] Outside Academy Scope. System trackers in standby.");
+            void("[PortalCore] Outside Academy Scope. System trackers in standby.");
             this.stopPulse();
         }
     }
@@ -521,7 +521,7 @@ class SkillForgeCore {
     async trackCurrentLesson(track, lesson) {
         if (!this.uid || !lesson || lesson === track) return;
 
-        console.log(`[RegistryCore] Tracking: ${track} > ${lesson}`);
+        void(`[RegistryCore] Tracking: ${track} > ${lesson}`);
         const traineeRef = doc(this.db, 'trainees', this.uid);
         try {
             const snap = await getDoc(traineeRef);
@@ -541,7 +541,7 @@ class SkillForgeCore {
                     });
                 }
             }
-        } catch (err) { console.error("[RegistryCore] Track Error:", err); }
+        } catch (err) { void("[RegistryCore] Track Error:", err); }
     }
 
     async startRegistrySync() {
@@ -659,7 +659,7 @@ class SkillForgeCore {
                 this.checkTierUpgrade(traineeRef);
             }
         } catch (err) {
-            console.error("[RegistryCore] Pulse Failed:", err);
+            void("[RegistryCore] Pulse Failed:", err);
         }
     }
 

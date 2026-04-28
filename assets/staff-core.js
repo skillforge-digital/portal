@@ -99,7 +99,7 @@ class StaffCore {
                         
                         // Check if account is active
                         if (this.profile.status === 'pending') {
-                            console.warn("[StaffCore] Account pending approval.");
+                            void("[StaffCore] Account pending approval.");
                             if (window['sf_report_error']) {
                                 window['sf_report_error']("permissions: Your personnel application is still pending Director approval.", "Account Pending", true);
                                 setTimeout(async () => {
@@ -118,11 +118,11 @@ class StaffCore {
                         this.revealContent();
                         resolve(undefined);
                     } else {
-                        console.warn("[StaffCore] Identity not found in Personnel Registry.");
+                        void("[StaffCore] Identity not found in Personnel Registry.");
                         this.redirectLogin();
                     }
                 } else {
-                    console.warn("[StaffCore] No session detected.");
+                    void("[StaffCore] No session detected.");
                     this.redirectLogin();
                 }
             });
@@ -150,7 +150,7 @@ class StaffCore {
             const hasAccess = this.profile.roles.some((r) => allowed.includes(r));
             
             if (!hasAccess) {
-                console.error("[StaffCore] Access Denied: Insufficient Clearances.");
+                void("[StaffCore] Access Denied: Insufficient Clearances.");
                 if (window['sf_report_error']) {
                     window['sf_report_error']("permissions: Insufficient Clearances for this system node.", "Access Denied", true);
                     setTimeout(() => { window.location.href = '/staffs/login/'; }, 4000);
@@ -293,7 +293,7 @@ class StaffCore {
                 ip: 'unknown' // Cannot get real IP client-side
             });
         } catch (err) {
-            console.error('[StaffCore] Audit log failed:', err);
+            void('[StaffCore] Audit log failed:', err);
         }
     }
 
@@ -378,7 +378,7 @@ class StaffCore {
             }
             return null;
         } catch (err) {
-            console.error('[StaffCore] Failed to get current season:', err);
+            void('[StaffCore] Failed to get current season:', err);
             return null;
         }
     }

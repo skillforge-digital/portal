@@ -202,7 +202,7 @@
                 alert("Registry profile not found.");
             }
         } catch (err) {
-            console.error(err);
+            void(err);
             alert("Search failed.");
         } finally {
             btn.disabled = false; btn.innerText = "Locate Profile";
@@ -223,7 +223,7 @@
             document.getElementById('edit-section').classList.add('hidden');
             document.getElementById('success-section').classList.remove('hidden');
         } catch (err) {
-            console.error(err);
+            void(err);
             alert("Update failed.");
         } finally {
             btn.disabled = false; btn.innerHTML = `Update Mastery Profile <i data-lucide="save" class="w-4 h-4"></i>`;

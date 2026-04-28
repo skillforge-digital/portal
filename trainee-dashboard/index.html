@@ -1164,7 +1164,7 @@ onAuthStateChanged(auth, (user) => {
             if (loader) loader.style.display = 'none'; 
         } 
     } catch (e) { 
-        console.error("Manual loader override triggered:", e); 
+        void("Manual loader override triggered:", e); 
         document.body.classList.remove('loading'); // Common pattern 
     }
   });
@@ -1197,7 +1197,7 @@ function startRegistrySync(uid) {
           if (tSnap.exists()) {
             dashboardState.update(tSnap.data());
           } else {
-            console.error("User not found in any registry.");
+            void("User not found in any registry.");
             if (!isRedirecting) {
               isRedirecting = true;
               if (staffUnsub) staffUnsub();
@@ -1312,7 +1312,7 @@ function initSortable(layoutNum, savedOrder) {
             if (activeUid) {
                 const userRef = dashboardState.userData.roles ? doc(db, 'staffs', activeUid) : doc(db, 'trainees', activeUid);
                 await updateDoc(userRef, { 'theme.widgetOrder': newOrder });
-                console.log("[Dashboard] Widget configuration persisted.");
+                void("[Dashboard] Widget configuration persisted.");
             }
         }
     });
@@ -1497,7 +1497,7 @@ async function loadLeaderboard() {
       });
     });
   } catch (err) {
-    console.error("[Dashboard] Leaderboard failed to load:", err);
+    void("[Dashboard] Leaderboard failed to load:", err);
   }
 }
 
@@ -1507,7 +1507,7 @@ let currentLayoutId = null;
 
 window.showLayout = async (num) => {
   if (isLayoutRendering) {
-    console.warn(`[LayoutEngine] Already rendering a layout. Ignoring request for T${num}`);
+    void(`[LayoutEngine] Already rendering a layout. Ignoring request for T${num}`);
     return;
   }
 
@@ -1515,11 +1515,11 @@ window.showLayout = async (num) => {
   const currentActive = document.querySelector('.template-section.active-template');
   
   if (currentActive && currentActive.id === targetId && currentLayoutId === num) {
-    console.log(`[LayoutEngine] Structure T${num} is already active. Skipping.`);
+    void(`[LayoutEngine] Structure T${num} is already active. Skipping.`);
     return;
   }
 
-  console.log(`[LayoutEngine] Activating structure: T${num}`);
+  void(`[LayoutEngine] Activating structure: T${num}`);
   isLayoutRendering = true;
 
   try {
@@ -1547,7 +1547,7 @@ window.showLayout = async (num) => {
 
     const target = document.getElementById(targetId);
     if (!target) {
-      console.warn(`[LayoutEngine] Structure ${targetId} not found in DOM.`);
+      void(`[LayoutEngine] Structure ${targetId} not found in DOM.`);
       return;
     }
 
@@ -1616,7 +1616,7 @@ window.showLayout = async (num) => {
         });
       }, 50);
   } catch (err) {
-    console.error(`[LayoutEngine] Error rendering T${num}:`, err);
+    void(`[LayoutEngine] Error rendering T${num}:`, err);
   } finally {
     isLayoutRendering = false;
   }
@@ -1657,7 +1657,7 @@ async function loadNewsTicker() {
     // Duplicate messages to create continuous scroll effect
     ticker.innerHTML += ticker.innerHTML;
   } catch (err) {
-    console.warn("[Dashboard] News Ticker failed to load registry data.");
+    void("[Dashboard] News Ticker failed to load registry data.");
   }
 }
 
@@ -1702,7 +1702,7 @@ window.toggleLayoutSwitcher = () => {
 
 // Handle re-initialization on Turbo loads
 window.addEventListener('sf:turbo-render', () => {
-    console.log("[Dashboard] Re-hydrating Command Center...");
+    void("[Dashboard] Re-hydrating Command Center...");
     if (dashboardState && dashboardState.userData) {
         updateUI(dashboardState.userData, dashboardState.permissions);
         updateSessionResume(dashboardState.userData);
@@ -1743,7 +1743,7 @@ window.toggleControl = async (feature) => {
 
   const userRef = dashboardState.userData.roles ? doc(db, 'staffs', activeUid) : doc(db, 'trainees', activeUid);
   await updateDoc(userRef, update);
-  console.log(`[Dashboard] Control ${feature} toggled.`);
+  void(`[Dashboard] Control ${feature} toggled.`);
 };
 
 function updateControlButtons(data) {

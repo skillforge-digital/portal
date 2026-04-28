@@ -419,7 +419,7 @@
                 }
             }
         } catch (err) {
-            console.log('[SeasonCheck] Using default season 2026');
+            void('[SeasonCheck] Using default season 2026');
         }
         
         // Reveal content after all modules and async operations have completed
@@ -600,14 +600,14 @@
         }
 
         try {
-            console.log("[Registry] Forging Firebase Identity...");
+            void("[Registry] Forging Firebase Identity...");
             // Step 1: Create Firebase Auth User (The Permanent Cloud ID)
             const userCredential = await createUserWithEmailAndPassword(auth, traineeData.email, registrationPassword);
             const user = userCredential.user;
 
             let avatarUrl = traineeData.avatar;
             if (uploadedProfileFile) {
-                console.log("[Registry] Archiving profile passport...");
+                void("[Registry] Archiving profile passport...");
                 // Check if file is actually an image and not too large (5MB limit)
                 if (uploadedProfileFile.size > 5 * 1024 * 1024) throw new Error("Registry File too large. Max limit is 5MB.");
 
@@ -621,7 +621,7 @@
                 avatarUrl = publicUrl;
             }
 
-            console.log("[Registry] Calculating SFID sequence...");
+            void("[Registry] Calculating SFID sequence...");
             // Pre-transaction read: Check for missing SFID numbers (gap-filling)
             const traineesQuery = query(
                 collection(db, 'trainees'), 
@@ -647,7 +647,7 @@
                 }
             }
 
-            console.log("[Registry] Committing to Portal core...");
+            void("[Registry] Committing to Portal core...");
             const result = await runTransaction(db, async (tx) => {
                 const counterRef = doc(db, 'seasons', '2026', 'artifacts', 'trainees', 'counters', 'tracks');
                 const traineeRef = doc(db, 'trainees', user.uid);
@@ -688,7 +688,7 @@
                 return { sfid: newSFID, pin };
             });
 
-            console.log("[Registry] Portal link stabilized. Launching Onboarding Center...");
+            void("[Registry] Portal link stabilized. Launching Onboarding Center...");
             document.getElementById('final-sfid').innerText = result.sfid;
             document.getElementById('final-pin').innerText = result.pin;
             
@@ -705,7 +705,7 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
 
         } catch (err) {
-            console.error("[Registry] Registration failure:", err);
+            void("[Registry] Registration failure:", err);
             let userMsg = "Registration failed. Verify registry details.";
             if (err.code === 'auth/email-already-in-use') userMsg = "This identity already exists. Proceed to Login.";
             else if (err.code === 'auth/weak-password') userMsg = "Password strength insufficient.";

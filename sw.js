@@ -35,7 +35,7 @@ const EXTERNAL_ASSETS = [
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
-            console.log('[OfflineRegistry] Archiving core assets to local cache');
+            void('[OfflineRegistry] Archiving core assets to local cache');
             // Cache internal assets first
             const cacheInternal = cache.addAll(ASSETS_TO_CACHE);
             
@@ -48,7 +48,7 @@ self.addEventListener('install', (event) => {
                                 return cache.put(url, response);
                             }
                         })
-                        .catch(err => console.warn(`[OfflineRegistry] Failed to cache external asset: ${url}`, err))
+                        .catch(err => void(`[OfflineRegistry] Failed to cache external asset: ${url}`, err))
                 )
             );
 

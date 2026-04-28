@@ -240,7 +240,7 @@ onAuthStateChanged(auth, async (user) => {
       
     } else {
       // If not a specialist, redirect to login
-      console.warn('Unauthorized Access Attempt: UID', user.uid);
+      void('Unauthorized Access Attempt: UID', user.uid);
       alert('Access Denied: Specialist credentials required.');
       window.location.href = '../trainee-login/';
     }
@@ -426,7 +426,7 @@ window.clearSeason = async () => {
             timestamp: serverTimestamp()
         });
     } catch (err) {
-        console.error(err);
+        void(err);
         alert("Purge Failed. Registry integrity preserved.");
     }
 };
@@ -468,7 +468,7 @@ window.updateRequest = async (id, status) => {
     });
     
   } catch (err) {
-    console.error('Update Failed:', err);
+    void('Update Failed:', err);
     alert('Failed to update request registry.');
   }
 };

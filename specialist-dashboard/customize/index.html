@@ -512,7 +512,7 @@ function updatePreview() {
       text.style.fontFamily = currentDesign.fontFamily;
     }
   } catch (err) {
-    console.error('[Design Studio] Preview update failed:', err);
+    void('[Design Studio] Preview update failed:', err);
   }
 }
 
@@ -574,7 +574,7 @@ window.saveDesign = async () => {
     alert("Atmosphere Saved. Your command center is now active.");
 
   } catch (err) {
-    console.error('[Design Studio] Save failed:', err);
+    void('[Design Studio] Save failed:', err);
     btn.innerText = "Save Interrupted";
     btn.disabled = false;
     alert("Save failed. System sync interrupted. Please check your connection.");

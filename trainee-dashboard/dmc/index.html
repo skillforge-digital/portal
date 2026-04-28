@@ -519,7 +519,7 @@ function init() {
     if (window._dmcInitialized) return;
     window._dmcInitialized = true;
     
-    console.log("[DMC] Initializing Academy Membership...");
+    void("[DMC] Initializing Academy Membership...");
     onAuthStateChanged(auth, (user) => {
         if (user) {
             activeUid = user.uid;
@@ -695,7 +695,7 @@ window.saveCard = async () => {
     alert("Identity Card Synced Successfully.");
     pendingAvatar = null;
   } catch (err) {
-    console.error(err);
+    void(err);
     alert("Sync Failed. Please check permissions.");
   } finally {
     btn.disabled = false;
@@ -746,7 +746,7 @@ window.downloadCard = async () => {
       throw new Error("Registry Profile Photo not yet fully synchronized.");
     }
   } catch (err) {
-    console.error("Export Error:", err);
+    void("Export Error:", err);
     alert("Export failed: " + err.message);
   } finally {
     btn.innerHTML = originalText;

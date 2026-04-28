@@ -701,7 +701,7 @@ async function syncWithRegistry() {
       applyControlUI(data.controls || {});
     }
   } catch (err) {
-    console.error("[Customize] Sync failed:", err);
+    void("[Customize] Sync failed:", err);
   } finally {
     hideLoading();
   }
@@ -784,7 +784,7 @@ function updatePreview() {
       });
     }
   } catch (err) {
-    console.error('[Customize] Preview update failed:', err);
+    void('[Customize] Preview update failed:', err);
   }
 }
 
@@ -851,7 +851,7 @@ async function loadGlobalWallpapers() {
     } else {
        grid.innerHTML = '<p class="text-white/40 text-xs italic col-span-2">No community wallpapers shared yet.</p>';
     }
-  } catch(e) { console.error("Failed to load global wallpapers:", e); }
+  } catch(e) { void("Failed to load global wallpapers:", e); }
 }
 
 window.saveDesign = async () => {
@@ -910,7 +910,7 @@ window.saveDesign = async () => {
     alert("Atmosphere Saved Successfully.");
 
   } catch (err) {
-    console.error('[Customize] Save failed:', err);
+    void('[Customize] Save failed:', err);
     btn.innerText = "Save Interrupted";
     btn.disabled = false;
     alert("Save failed. Portal sync interrupted.");
@@ -1004,7 +1004,7 @@ window.uploadAvatar = async () => {
   loadGlobalWallpapers();
     
   } catch (err) {
-    console.error('[Customize] Avatar upload failed:', err);
+    void('[Customize] Avatar upload failed:', err);
     btn.innerText = "Upload Failed";
     btn.disabled = false;
     alert("Upload failed. Please try again.");
@@ -1038,7 +1038,7 @@ async function loadAvatars() {
         }
       }
     } catch (err) {
-    console.error("Failed to load avatars:", err);
+    void("Failed to load avatars:", err);
   }
 }
 
@@ -1057,7 +1057,7 @@ window.applyAvatar = async (url) => {
     // Attempt to update DOM elements immediately
     document.querySelectorAll('.profile-avatar-target').forEach(img => img.src = url);
   } catch (err) {
-    console.error("Failed to apply avatar:", err);
+    void("Failed to apply avatar:", err);
   }
 };
 
@@ -1078,7 +1078,7 @@ window.toggleDailyCanvas = async (isActive) => {
       userRef = doc(db, 'trainees', uid);
     }
     await updateDoc(userRef, { 'theme.canvasActive': isActive });
-  } catch(e) { console.error(e); }
+  } catch(e) { void(e); }
 };
 
 window.setCanvasColor = async (bg, accent) => {
@@ -1100,7 +1100,7 @@ window.setCanvasColor = async (bg, accent) => {
     }
     await updateDoc(userRef, { 'theme.canvasColors': colors });
     alert(colors ? 'Canvas colors overridden.' : 'Canvas reset to daily auto colors.');
-  } catch(e) { console.error(e); }
+  } catch(e) { void(e); }
 };
 
 // Hook loadAvatars into init

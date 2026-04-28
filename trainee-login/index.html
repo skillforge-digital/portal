@@ -245,7 +245,7 @@
         clearLoginError();
 
         try {
-            console.log("[Auth] Initiating master link...");
+            void("[Auth] Initiating master link...");
             let user;
             try {
                 // Step 1: Attempt standard Firebase Auth Cloud Session
@@ -254,7 +254,7 @@
             } catch (authErr) {
                 // Step 2: Fallback - Check for Legacy Registry Identity (Mock UID system)
                 if (authErr.code === 'auth/user-not-found' || authErr.code === 'auth/invalid-credential') {
-                    console.warn("[Auth] Cloud session not found. Scanning Legacy Registry for email:", emailInput);
+                    void("[Auth] Cloud session not found. Scanning Legacy Registry for email:", emailInput);
                     const q = query(collection(db, "trainees"), where("email", "==", emailInput));
                     const querySnap = await getDocs(q);
                     
@@ -262,7 +262,7 @@
                         const legacyData = querySnap.docs[0].data();
                         // Verify legacy password stored in Firestore
                         if (legacyData.password === passwordInput) {
-                            console.log("[Auth] Legacy Registry Verified. Provisioning Cloud Identity...");
+                            void("[Auth] Legacy Registry Verified. Provisioning Cloud Identity...");
                             // Auto-migrate to Firebase Auth
                             const newAuthUser = await createUserWithEmailAndPassword(auth, emailInput, passwordInput);
                             user = newAuthUser.user;
@@ -277,7 +277,7 @@
                             
                             // Delete old legacy mock document
                             await deleteDoc(doc(db, "trainees", querySnap.docs[0].id));
-                            console.log("[Auth] Migration complete. Portal link established.");
+                            void("[Auth] Migration complete. Portal link established.");
                         } else {
                             throw new Error("Access Denied: Legacy password mismatch.");
                         }
@@ -289,13 +289,13 @@
                 }
             }
 
-            console.log("[Auth] Portal core linked. Checking registry for UID:", user.uid);
+            void("[Auth] Portal core linked. Checking registry for UID:", user.uid);
             
             // Step 3: Check for Registry Match (Direct UID lookup)
             const traineeDoc = await getDoc(doc(db, "trainees", user.uid));
             
             if (traineeDoc.exists()) {
-                console.log("[Auth] Registry entry verified. Synchronizing node...");
+                void("[Auth] Registry entry verified. Synchronizing node...");
                 finalizeLogin(user.uid);
                 return;
             }
@@ -303,7 +303,7 @@
             // Step 3.5: Cross-Portal Check (Is this a staff member?)
             const staffDoc = await getDoc(doc(db, "staffs", user.uid));
             if (staffDoc.exists()) {
-                console.log("[Auth] Staff Identity Detected. Redirecting to Command Center...");
+                void("[Auth] Staff Identity Detected. Redirecting to Command Center...");
                 alert("Personnel Identity Detected. Redirecting to Command Center...");
                 window.location.href = '../staffs/login/';
                 return;
@@ -316,7 +316,7 @@
             if (!querySnap.empty) {
                 const legacyDoc = querySnap.docs[0];
                 if (legacyDoc.id !== user.uid) {
-                    console.log("[Auth] Automatic Migration: Syncing " + legacyDoc.id + " -> " + user.uid);
+                    void("[Auth] Automatic Migration: Syncing " + legacyDoc.id + " -> " + user.uid);
                     await setDoc(doc(db, "trainees", user.uid), {
                         ...legacyDoc.data(),
                         uid: user.uid,
@@ -329,7 +329,7 @@
                     finalizeLogin(user.uid);
                 }
             } else {
-                console.warn("[Auth] Firestore registry completely missing for Auth UID and Email. Auto-provisioning skeleton profile...");
+                void("[Auth] Firestore registry completely missing for Auth UID and Email. Auto-provisioning skeleton profile...");
                 
                 const skeletonData = {
                     uid: user.uid,
@@ -344,11 +344,11 @@
                 };
                 
                 await setDoc(doc(db, "trainees", user.uid), skeletonData);
-                console.log("[Auth] Skeleton profile provisioned. Proceeding to Hub.");
+                void("[Auth] Skeleton profile provisioned. Proceeding to Hub.");
                 finalizeLogin(user.uid);
             }
         } catch (err) {
-            console.error("[Auth] Connection error:", err);
+            void("[Auth] Connection error:", err);
             let userMsg = "Authentication failed. Verify credentials.";
             
             if (err.code === 'auth/user-not-found') {
@@ -430,7 +430,7 @@
         btn.innerText = "Migrating...";
 
         try {
-            console.log("[Migration] Moving legacy data to new Cloud UID...");
+            void("[Migration] Moving legacy data to new Cloud UID...");
             const legacyRef = doc(db, "trainees", legacyId);
             const cloudRef = doc(db, "trainees", user.uid);
             
@@ -452,7 +452,7 @@
                 finalizeLogin(user.uid);
             }
         } catch (err) {
-            console.error("[Migration] Failed:", err);
+            void("[Migration] Failed:", err);
             alert("Migration failed: " + err.message);
             btn.disabled = false;
             btn.innerText = "Migrate to Cloud";
@@ -503,7 +503,7 @@
             alert("Identity and linked telemetry purged successfully. Link stabilized.");
             location.reload(); // Refresh to check remaining accounts
         } catch (err) {
-            console.error(err);
+            void(err);
             alert("Purge failed: Access denied or network error.");
             btn.disabled = false;
             btn.innerText = "Purge";

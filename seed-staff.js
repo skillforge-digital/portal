@@ -7,14 +7,14 @@ import { getFirestore } from 'firebase-admin/firestore';
 const SERVICE_ACCOUNT_PATH = './service-account.json';
 
 if (!existsSync(SERVICE_ACCOUNT_PATH)) {
-  console.error('\x1b[31m%s\x1b[0m', 'NOTICE: service-account.json not found. Skipping CLI provisioning.');
-  console.log('\x1b[33m%s\x1b[0m', '\nTo run this CLI provisioning tool, you must:');
-  console.log('1. Go to Firebase Console -> Project Settings -> Service Accounts');
-  console.log('2. Click "Generate new private key"');
-  console.log(`3. Rename the downloaded file to "service-account.json" and place it in: ${process.cwd()}`);
-  console.log('\nAlternatively, use the browser-based provisioning:');
-  console.log('1. Open the Personnel Registration page in your browser');
-  console.log('2. Enter code: SKF-MASTER-PROVISION-2026');
+  void('\x1b[31m%s\x1b[0m', 'NOTICE: service-account.json not found. Skipping CLI provisioning.');
+  void('\x1b[33m%s\x1b[0m', '\nTo run this CLI provisioning tool, you must:');
+  void('1. Go to Firebase Console -> Project Settings -> Service Accounts');
+  void('2. Click "Generate new private key"');
+  void(`3. Rename the downloaded file to "service-account.json" and place it in: ${process.cwd()}`);
+  void('\nAlternatively, use the browser-based provisioning:');
+  void('1. Open the Personnel Registration page in your browser');
+  void('2. Enter code: SKF-MASTER-PROVISION-2026');
   process.exit(0);
 }
 
@@ -136,21 +136,21 @@ const STAFF_SEED_DATA = [
 ];
 
 async function seed() {
-  console.log('--- SkillForge Staff Matrix Provisioning ---');
+  void('--- SkillForge Staff Matrix Provisioning ---');
   let count = 0;
   for (const staff of STAFF_SEED_DATA) {
     await db.collection('role_codes').doc(staff.code).set({
       ...staff,
       created_at: new Date()
     }, { merge: true });
-    console.log(`[Provisioned] ${staff.code} -> ${staff.name}`);
+    void(`[Provisioned] ${staff.code} -> ${staff.name}`);
     count++;
   }
-  console.log(`\nSuccess: ${count} staff authorization codes initialized.`);
+  void(`\nSuccess: ${count} staff authorization codes initialized.`);
   process.exit(0);
 }
 
 seed().catch(err => {
-  console.error('Provisioning Failed:', err);
+  void('Provisioning Failed:', err);
   process.exit(1);
 });

@@ -36,7 +36,7 @@ class ThemeManager {
         
         // Zero-Refresh Engine (PJAX) Integration
         window.addEventListener('sf:turbo-render', () => {
-            console.log(`[ThemeManager] Registry Re-Sync: Performing Layout Hydration`);
+            void(`[ThemeManager] Registry Re-Sync: Performing Layout Hydration`);
             this.applyTheme(this.currentTheme);
             this.applyControls(this.controls);
         });
@@ -62,11 +62,11 @@ class ThemeManager {
             this.uid = user ? user.uid : localStorage.getItem('skillforge_mock_uid');
 
             if (this.uid) {
-                console.log('ThemeManager: Identity linked for:', this.uid);
+                void('ThemeManager: Identity linked for:', this.uid);
                 this.startSync();
             } else {
                 if (isProtectedPage && !isAuthPage) {
-                    console.warn('ThemeManager: No identity found. Redirecting to cloud portal...');
+                    void('ThemeManager: No identity found. Redirecting to cloud portal...');
                     const base = window.location.pathname.split('/trainee-dashboard')[0] || '';
                     window.location.href = `${base}/trainee-login/`;
                 }
@@ -77,20 +77,20 @@ class ThemeManager {
     startSync() {
         if (!this.uid) return;
         
-        console.log('ThemeManager: Syncing with registry using identity:', this.uid);
+        void('ThemeManager: Syncing with registry using identity:', this.uid);
         
         const syncData = (data) => {
             if (data.theme) {
-                console.log('ThemeManager: Applying remote theme:', data.theme.type || 'custom');
+                void('ThemeManager: Applying remote theme:', data.theme.type || 'custom');
                 this.currentTheme = data.theme;
                 this.applyTheme(data.theme);
             } else {
-                console.log('ThemeManager: No remote theme found, applying default.');
+                void('ThemeManager: No remote theme found, applying default.');
                 this.applyTheme({}); // This triggers the default theme logic
             }
             
             if (data.fontFamily) {
-                console.log('ThemeManager: Applying remote font:', data.fontFamily);
+                void('ThemeManager: Applying remote font:', data.fontFamily);
                 this.applyFont(data.fontFamily);
             } else {
                 this.applyFont("'Space Grotesk', sans-serif"); // Default font
@@ -106,7 +106,7 @@ class ThemeManager {
             }
 
             if (data.wallpaper) {
-                console.log('ThemeManager: Applying remote wallpaper');
+                void('ThemeManager: Applying remote wallpaper');
                 this.applyWallpaper(data.wallpaper);
             }
 
@@ -126,7 +126,7 @@ class ThemeManager {
                 onSnapshot(doc(db, 'trainees', this.uid), (tSnap) => {
                     if (tSnap.exists()) syncData(tSnap.data());
                     else {
-                        console.warn('ThemeManager: Registry document missing for identity:', this.uid);
+                        void('ThemeManager: Registry document missing for identity:', this.uid);
                         if (window.location.pathname.includes('trainee-dashboard')) {
                             window.location.href = '../trainee-login/?error=stale_session';
                         }
@@ -280,7 +280,7 @@ class ThemeManager {
             this.applyTheme(themeUpdate);
             return true;
         } catch (err) {
-            console.error('Layout Save Failed:', err);
+            void('Layout Save Failed:', err);
             if (window['sf_report_error']) {
                 window['sf_report_error'](`Layout Engine Error: Layout Save Failed. ${err.message}`, err.stack, true);
             }

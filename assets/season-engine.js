@@ -16,7 +16,7 @@ export class SeasonEngine {
      * @param {string} seasonName e.g., "Season 2026-A"
      */
     async startNewSeason(seasonName) {
-        console.log(`[SeasonEngine] Initiating transition to: ${seasonName}`);
+        void(`[SeasonEngine] Initiating transition to: ${seasonName}`);
         
         try {
             // 1. Snapshot the current trainee registry
@@ -59,10 +59,10 @@ export class SeasonEngine {
             }, { merge: true });
 
             await batch.commit();
-            console.log("[SeasonEngine] Season transition successful.");
+            void("[SeasonEngine] Season transition successful.");
             return { success: true, archived: traineesSnap.size };
         } catch (err) {
-            console.error("[SeasonEngine] Transition failed:", err);
+            void("[SeasonEngine] Transition failed:", err);
             return { success: false, error: err.message };
         }
     }

@@ -220,7 +220,7 @@
       
       const success = await staffCommand.init(user.uid);
       if (!success) {
-          console.error("Staff authorization failed.");
+          void("Staff authorization failed.");
           window.location.href = '../../trainee-login/?error=unauthorized';
           return;
       }
@@ -261,7 +261,7 @@
         ticker.innerHTML = messages.map(m => `<span class="text-[9px] font-bold text-white/60 uppercase tracking-widest flex items-center gap-4"><div class="w-1 h-1 rounded-full bg-gold"></div> ${m}</span>`).join('');
         ticker.innerHTML += ticker.innerHTML;
       } catch (err) {
-        console.warn("[Dashboard] News Ticker failed to load registry data.");
+        void("[Dashboard] News Ticker failed to load registry data.");
       }
     }
 
@@ -316,7 +316,7 @@
                 b.querySelector('div').style.transform = newVal ? 'translateX(16px)' : 'translateX(0)';
             });
         }
-      } catch (err) { console.error(err); }
+      } catch (err) { void(err); }
     };
 
     window.showTab = async function(tab) {
@@ -492,7 +492,7 @@
             staffCommand.userData.socialMatrix = matrix;
             showTab('profile');
         } catch (err) {
-            console.error(err);
+            void(err);
             alert("Update Failed: Registry link interrupted.");
         } finally {
             btn.disabled = false;
@@ -882,7 +882,7 @@
             document.getElementById('role-manager-modal').remove();
             await manageUserRoles(uid);
         } catch (error) {
-            console.error("Failed to create custom role:", error);
+            void("Failed to create custom role:", error);
             alert("Error creating custom role");
         }
     };

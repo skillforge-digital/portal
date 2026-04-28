@@ -541,7 +541,7 @@ function updatePreview() {
       text.style.fontFamily = currentDesign.fontFamily;
     }
   } catch (err) {
-    console.error('[Design Studio] Preview update failed:', err);
+    void('[Design Studio] Preview update failed:', err);
     if (window['sf_report_error']) {
       window['sf_report_error'](`Layout Engine Error: Preview update failed. ${err.message}`, err.stack, true);
     }
@@ -606,7 +606,7 @@ window.saveDesign = async () => {
     alert("Atmosphere Saved. Your command center matrix is now active.");
 
   } catch (err) {
-    console.error('[Design Studio] Save failed:', err);
+    void('[Design Studio] Save failed:', err);
     btn.innerText = "Save Interrupted";
     btn.disabled = false;
     if (window['sf_report_error']) {

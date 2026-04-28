@@ -286,7 +286,7 @@
                 b.querySelector('div').style.transform = newVal ? 'translateX(16px)' : 'translateX(0)';
             });
         }
-      } catch (err) { console.error(err); }
+      } catch (err) { void(err); }
     };
 
     window.showTab = showTab;
@@ -431,7 +431,7 @@
             btn.innerText = "REGISTRY UPDATED";
             btn.style.background = "#10b981";
         } catch (err) {
-            console.error(err);
+            void(err);
             btn.innerText = "SYNC FAILED";
             btn.style.background = "#ef4444";
         } finally {
@@ -787,7 +787,7 @@
             document.getElementById('assignment-modal').remove();
             showTab('staff');
         } catch (err) {
-            console.error(err);
+            void(err);
             alert("Assignment Failed: Registry connection error.");
         }
     };
@@ -835,7 +835,7 @@
         ticker.innerHTML = messages.map(m => `<span class="text-[9px] font-bold text-white/60 uppercase tracking-widest flex items-center gap-4"><div class="w-1 h-1 rounded-full bg-gold"></div> ${m}</span>`).join('');
         ticker.innerHTML += ticker.innerHTML;
       } catch (err) {
-        console.warn("[Dashboard] News Ticker failed to load registry data.");
+        void("[Dashboard] News Ticker failed to load registry data.");
       }
     }
 

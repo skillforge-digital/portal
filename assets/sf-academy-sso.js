@@ -17,14 +17,14 @@ export async function handleAcademySSO() {
 
     if (!passkey || !trackId) return;
 
-    console.log("[SSO] Passkey detected. Initializing auto-auth...");
+    void("[SSO] Passkey detected. Initializing auto-auth...");
 
     try {
         // 1. Verify Passkey (this is the 6-digit PIN or Role Code)
         const accessSnap = await getDoc(doc(db, 'track_access', passkey));
 
         if (!accessSnap.exists()) {
-            console.warn("[SSO] Invalid Passkey provided.");
+            void("[SSO] Invalid Passkey provided.");
             return;
         }
 
@@ -38,13 +38,13 @@ export async function handleAcademySSO() {
         document.cookie = `sf_gate_session_${trackId}=${sessionToken}; path=/; max-age=86400; SameSite=Lax`;
         document.cookie = `sf_gate_uid=${uid}; path=/; max-age=86400; SameSite=Lax`;
 
-        console.log("[SSO] Identity verified. Redirecting to Track...");
+        void("[SSO] Identity verified. Redirecting to Track...");
         
         // 3. Redirect to the track
         window.location.href = `./${trackId}/`;
 
     } catch (err) {
-        console.error("[SSO] Auth failed:", err);
+        void("[SSO] Auth failed:", err);
     }
 }
 

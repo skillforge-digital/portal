@@ -292,7 +292,7 @@
     };
 
     window.initPage = () => {
-        console.log("[Leaderboard] Initializing Hall of Fame...");
+        void("[Leaderboard] Initializing Hall of Fame...");
         
         // Cleanup previous listeners to prevent memory leaks and duplicate updates
         if (authUnsubscribe) authUnsubscribe();
@@ -422,11 +422,11 @@
                 tbody.innerHTML = '<tr><td colspan="4" class="px-8 py-10 text-center auto-contrast-muted">No trainees found in this unit.</td></tr>';
             }
         }, (err) => {
-            console.error("[Leaderboard] Snapshot error:", err);
+            void("[Leaderboard] Snapshot error:", err);
             tbody.innerHTML = '<tr><td colspan="4" class="px-8 py-10 text-center text-red-400">Registry connection failure.</td></tr>';
         });
       } catch (err) {
-        console.error("[Leaderboard] Load error:", err);
+        void("[Leaderboard] Load error:", err);
         tbody.innerHTML = '<tr><td colspan="4" class="px-8 py-10 text-center text-red-400">Registry connection failure.</td></tr>';
       }
     }
@@ -444,7 +444,7 @@
             await signOut(auth);
             window.location.href = '../../trainee-login/';
         } catch (err) {
-            console.error("Logout error:", err);
+            void("Logout error:", err);
         }
     };
 

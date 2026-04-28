@@ -361,7 +361,7 @@ document.getElementById('vault-file-input').addEventListener('change', async (e)
     }, 3000);
 
   } catch (err) {
-    console.error(err);
+    void(err);
     showVaultError("Archive failed. Portal sync interrupted.");
     text.innerHTML = originalHtml;
     icon.innerHTML = `<i class="fa-solid fa-cloud-arrow-up text-white/20 text-2xl"></i>`;
@@ -396,7 +396,7 @@ window.requestBadge = async () => {
     alert("Mastery Badge Request Transmitted to Specialists.");
     btn.innerText = "Approval Pending";
   } catch (err) {
-    console.error(err);
+    void(err);
     alert("Transmission Failed. Error in Registry Sync.");
     btn.disabled = false;
     btn.innerText = "Request Validation";
@@ -417,7 +417,7 @@ const TELEGRAM_CHANNELS = {
 };
 
 window.initPage = () => {
-    console.log("[Vault] Initializing Registry Archives...");
+    void("[Vault] Initializing Registry Archives...");
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             activeUid = user.uid;
@@ -590,7 +590,7 @@ window.deleteAsset = async (index, fileName) => {
       alert("Asset purged from registry.");
     }
   } catch (err) {
-    console.error(err);
+    void(err);
     alert("Purge failed. Portal sync interrupted.");
   }
 };
