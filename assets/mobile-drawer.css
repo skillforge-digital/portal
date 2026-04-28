@@ -1,0 +1,54 @@
+:root {
+  --sf-drawer-z-overlay: 70;
+  --sf-drawer-z-sidebar: 80;
+  --sf-drawer-z-button: 90;
+}
+
+.sf-mobile-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  z-index: var(--sf-drawer-z-overlay);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+}
+
+html.sf-drawer-open .sf-mobile-overlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.sf-mobile-hamburger {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 10px);
+  left: calc(env(safe-area-inset-left, 0px) + 10px);
+  width: 44px;
+  height: 44px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.9);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--sf-drawer-z-button);
+}
+
+.sf-mobile-hamburger:active {
+  transform: translateY(1px);
+}
+
+.sf-drawer-sidebar {
+  z-index: var(--sf-drawer-z-sidebar);
+}
+
+@media (min-width: 768px) {
+  .sf-mobile-overlay,
+  .sf-mobile-hamburger {
+    display: none !important;
+  }
+}
+
