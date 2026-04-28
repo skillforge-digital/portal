@@ -315,7 +315,7 @@
     });
 
     window.verifyRoleCode = async () => {
-        const codeInput = document.getElementById('role-code-input').value.trim();
+        const codeInput = document.getElementById('role-code-input').value.trim().toUpperCase();
         if (!codeInput) return;
 
         // Master Provisioning Override
@@ -347,7 +347,24 @@
                     document.getElementById('reg-step').classList.remove('hidden');
                 }
             } else {
-                alert("Unauthorized: Invalid ROLE code detected.");
+                const seed = STAFF_SEED_DATA.find(s => (s.code || '').toUpperCase() === codeInput);
+                if (seed) {
+                    await setDoc(doc(db, 'role_codes', seed.code), {
+                        roles: seed.roles,
+                        name: seed.name,
+                        position: seed.position,
+                        used: false,
+                        created_at: serverTimestamp()
+                    }, { merge: true });
+
+                    assignedRoles = seed.roles || [];
+                    assignedCode = seed.code;
+                    document.getElementById('role-badge').innerText = assignedRoles.join(' | ');
+                    document.getElementById('code-step').classList.add('hidden');
+                    document.getElementById('reg-step').classList.remove('hidden');
+                } else {
+                    alert("Unauthorized: Invalid ROLE code detected.");
+                }
             }
         } catch (err) {
             void(err);

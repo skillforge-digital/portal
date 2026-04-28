@@ -223,6 +223,7 @@ tailwind.config = {
 
 <script type="module">
 import { db, auth } from '../assets/firebase-config.js';
+import '../assets/theme-manager.js';
 import { doc, onSnapshot, updateDoc, collection, query, orderBy, limit, getDoc, addDoc, serverTimestamp, where, getDocs, writeBatch } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
 
@@ -494,4 +495,3 @@ window.addEventListener('sf:turbo-render', () => {
 </script>
   </body>
 </html>
-

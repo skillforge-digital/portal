@@ -15,22 +15,20 @@ class ThemeManager {
             performance: false
         };
         this.fonts = [
-            { name: 'Space Grotesk', family: "'Space Grotesk', sans-serif" },
-            { name: 'Cabinet Grotesk', family: "'Cabinet Grotesk', sans-serif" },
-            { name: 'Satoshi', family: "'Satoshi', sans-serif" },
-            { name: 'General Sans', family: "'General Sans', sans-serif" },
-            { name: 'Clash Display', family: "'Clash Display', sans-serif" },
-            { name: 'Instrument Serif', family: "'Instrument Serif', serif" },
-            { name: 'Unbounded', family: "'Unbounded', sans-serif" },
-            { name: 'Plus Jakarta Sans', family: "'Plus Jakarta Sans', sans-serif" },
-            { name: 'Syne', family: "'Syne', sans-serif" },
-            { name: 'Outfit', family: "'Outfit', sans-serif" },
-            { name: 'Lexend', family: "'Lexend', sans-serif" },
-            { name: 'JetBrains Mono', family: "'JetBrains Mono', monospace" },
-            { name: 'Playfair Display', family: "'Playfair Display', serif" },
-            { name: 'Montserrat', family: "'Montserrat', sans-serif" },
-            { name: 'Cinzel', family: "'Cinzel', serif" }
+            { name: 'Space Grotesk', family: "'Space Grotesk', sans-serif", google: true },
+            { name: 'Instrument Serif', family: "'Instrument Serif', serif", google: true },
+            { name: 'Unbounded', family: "'Unbounded', sans-serif", google: true },
+            { name: 'Plus Jakarta Sans', family: "'Plus Jakarta Sans', sans-serif", google: true },
+            { name: 'Syne', family: "'Syne', sans-serif", google: true },
+            { name: 'Outfit', family: "'Outfit', sans-serif", google: true },
+            { name: 'Lexend', family: "'Lexend', sans-serif", google: true },
+            { name: 'JetBrains Mono', family: "'JetBrains Mono', monospace", google: true },
+            { name: 'Playfair Display', family: "'Playfair Display', serif", google: true },
+            { name: 'Montserrat', family: "'Montserrat', sans-serif", google: true },
+            { name: 'Cinzel', family: "'Cinzel', serif", google: true }
         ];
+        this.loadedGoogleFonts = new Set();
+        this.activeUnsub = null;
         
         this.init();
         
@@ -43,10 +41,12 @@ class ThemeManager {
 
         // Event listener for theme updates from Customize page
         window.addEventListener('sf:theme_updated', (/** @type {any} */ e) => {
-            if (e.detail) {
-                this.currentTheme = e.detail;
-                this.applyTheme(e.detail);
-            }
+            if (!e.detail) return;
+            const t = e.detail;
+            this.currentTheme = t;
+            this.applyTheme(t);
+            if (t.fontFamily || t.fontName) this.applyFont(t.fontFamily || t.fontName);
+            if (t.wallpaper !== undefined) this.applyWallpaper(t.wallpaper);
         });
     }
 
@@ -80,20 +80,22 @@ class ThemeManager {
         void('ThemeManager: Syncing with registry using identity:', this.uid);
         
         const syncData = (data) => {
-            if (data.theme) {
-                void('ThemeManager: Applying remote theme:', data.theme.type || 'custom');
-                this.currentTheme = data.theme;
-                this.applyTheme(data.theme);
+            const theme = data.theme || {};
+            if (theme && Object.keys(theme).length) {
+                void('ThemeManager: Applying remote theme:', theme.type || 'custom');
+                this.currentTheme = theme;
+                this.applyTheme(theme);
             } else {
                 void('ThemeManager: No remote theme found, applying default.');
-                this.applyTheme({}); // This triggers the default theme logic
+                this.applyTheme({});
             }
             
-            if (data.fontFamily) {
-                void('ThemeManager: Applying remote font:', data.fontFamily);
-                this.applyFont(data.fontFamily);
+            const remoteFont = theme.fontFamily || data.fontFamily;
+            if (remoteFont) {
+                void('ThemeManager: Applying remote font:', remoteFont);
+                this.applyFont(remoteFont);
             } else {
-                this.applyFont("'Space Grotesk', sans-serif"); // Default font
+                this.applyFont("'Space Grotesk', sans-serif");
             }
 
             if (data.controls || data.isLightMode !== undefined) {
@@ -105,9 +107,12 @@ class ThemeManager {
                 this.applyControls(this.controls);
             }
 
-            if (data.wallpaper) {
+            const remoteWallpaper = theme.wallpaper || data.wallpaper;
+            if (remoteWallpaper) {
                 void('ThemeManager: Applying remote wallpaper');
-                this.applyWallpaper(data.wallpaper);
+                this.applyWallpaper(remoteWallpaper);
+            } else {
+                this.applyWallpaper('');
             }
 
             // Signal that theme sync is complete
@@ -119,25 +124,55 @@ class ThemeManager {
             }
         };
 
-        // Try staff registry first, then trainees
-        onSnapshot(doc(db, 'staffs', this.uid), (snap) => {
-            if (snap.exists()) syncData(snap.data());
-            else {
-                onSnapshot(doc(db, 'trainees', this.uid), (tSnap) => {
-                    if (tSnap.exists()) syncData(tSnap.data());
-                    else {
-                        void('ThemeManager: Registry document missing for identity:', this.uid);
-                        if (window.location.pathname.includes('trainee-dashboard')) {
-                            window.location.href = '../trainee-login/?error=stale_session';
-                        }
-                    }
-                });
+        const sources = [
+            doc(db, 'staffs', this.uid),
+            doc(db, 'directors', this.uid),
+            doc(db, 'hods', this.uid),
+            doc(db, 'specialists', this.uid),
+            doc(db, 'trainees', this.uid)
+        ];
+
+        const start = async () => {
+            if (this.activeUnsub) {
+                this.activeUnsub();
+                this.activeUnsub = null;
             }
-        });
+
+            for (const ref of sources) {
+                const snap = await getDoc(ref).catch(() => null);
+                if (snap && snap.exists()) {
+                    this.activeUnsub = onSnapshot(ref, (s) => {
+                        if (s.exists()) syncData(s.data());
+                    });
+                    return;
+                }
+            }
+
+            void('ThemeManager: Registry document missing for identity:', this.uid);
+            if (window.location.pathname.includes('trainee-dashboard')) {
+                window.location.href = '../trainee-login/?error=stale_session';
+            }
+        };
+
+        void start();
+    }
+
+    ensureGoogleFontLoaded(fontFamily) {
+        const match = this.fonts.find(f => f.family === fontFamily || f.name === fontFamily);
+        if (!match || !match.google) return;
+        if (this.loadedGoogleFonts.has(match.name)) return;
+        this.loadedGoogleFonts.add(match.name);
+        const family = encodeURIComponent(match.name).replace(/%20/g, '+');
+        const href = `https://fonts.googleapis.com/css2?family=${family}:wght@300;400;500;600;700;800;900&display=swap`;
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = href;
+        document.head.appendChild(link);
     }
 
     applyFont(/** @type {any} */ fontFamily) {
         if (!fontFamily) return;
+        this.ensureGoogleFontLoaded(fontFamily);
         document.documentElement.style.setProperty('--font-main', fontFamily);
     }
 
@@ -261,19 +296,23 @@ class ThemeManager {
         try {
             const themeUpdate = { ...this.currentTheme, layout: layoutNum };
             
-            // Determine target collection (Direct doc lookup to avoid ReferenceError if getDoc is shadowed)
-            const staffRef = doc(db, 'staffs', this.uid);
-            const traineeRef = doc(db, 'trainees', this.uid);
-            
-            let userRef = staffRef;
-            try {
-                const staffSnap = await getDoc(staffRef);
-                if (!staffSnap.exists()) {
-                    userRef = traineeRef;
+            const sources = [
+                doc(db, 'staffs', this.uid),
+                doc(db, 'directors', this.uid),
+                doc(db, 'hods', this.uid),
+                doc(db, 'specialists', this.uid),
+                doc(db, 'trainees', this.uid)
+            ];
+
+            let userRef = null;
+            for (const ref of sources) {
+                const snap = await getDoc(ref).catch(() => null);
+                if (snap && snap.exists()) {
+                    userRef = ref;
+                    break;
                 }
-            } catch (e) {
-                userRef = traineeRef;
             }
+            if (!userRef) return false;
 
             await updateDoc(userRef, { theme: themeUpdate });
             this.currentTheme = themeUpdate;
