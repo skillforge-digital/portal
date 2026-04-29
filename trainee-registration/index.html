@@ -534,6 +534,7 @@
 
     const TRACK_CODES = {
       "Forex Synthetics Indices": "SYN",
+      "Forex Synthetic Indices": "SYN",
       "Forex Currency Pairs": "CUR",
       "AI Content Creation": "AIC",
       "Photography & Editing": "PHO",
@@ -637,7 +638,10 @@
 
             void("[Registry] Committing to Portal core...");
             
-            const trackCode = TRACK_CODES[traineeData.track] || 'SFD';
+            const trackCode = TRACK_CODES[traineeData.track];
+            if (!trackCode) {
+                throw new Error('Track not set');
+            }
             const newSFID = `SFID-26-${trackCode}-${String(nextNum).padStart(3, '0')}`;
             const pin = Math.floor(100000 + Math.random() * 900000).toString();
             
