@@ -41,7 +41,7 @@ service cloud.firestore {
     function isDirector() { return hasAnyRole(['Director']) || isLegacyDirector(); }
     function isHOD() { return hasAnyRole(['Director', 'HOD']) || isLegacyDirector() || isLegacyHOD(); }
     function isSpecialist() { return hasAnyRole(['Director', 'HOD', 'Specialist']) || isLegacyDirector() || isLegacyHOD() || isLegacySpecialist(); }
-    function isStaff() { return isAuthenticated() && (exists(/databases/$(database)/documents/staffs/$(getUID())) || isLegacyDirector() || isLegacyHOD() || isLegacySpecialist()); }
+    function isStaff() { return hasAnyRole(['Director', 'HOD', 'Specialist', 'Support Team', 'Digital Marketing', 'Community Manager', 'Staff']) || isLegacyDirector() || isLegacyHOD() || isLegacySpecialist(); }
     
     // Checks if the user is the owner of the document.
     function isOwner(userId) { return isAuthenticated() && getUID() == userId; }
@@ -54,7 +54,8 @@ service cloud.firestore {
     match /trainees/{traineeId} {
       // Robust Read/Write: Allows legacy mock reconciliation and cloud migration.
       // Explicitly allow list operations for leaderboard and directory.
-      allow read, get, list: if true;
+      allow get: if isOwner(traineeId) || isStaff();
+      allow list: if isStaff();
       allow create: if isAuthenticated() && request.auth.uid == traineeId; // Must be authenticated as the trainee
       // Owners can update their profile but cannot manipulate their XP or Level. Only Staff can grant XP.
       allow update: if (isOwner(traineeId) && request.resource.data.get('xp', 0) == resource.data.get('xp', 0)) || isStaff();
@@ -64,7 +65,8 @@ service cloud.firestore {
     // Unified Staff Registry: Stores personnel data and cumulative roles.
     match /staffs/{staffId} {
       // Staff can see each other; public can read for verification.
-      allow read, get, list: if true;
+      allow get: if isOwner(staffId) || isStaff();
+      allow list: if isStaff();
       // Allow self-registration if authenticated; FORCE status to be 'pending' to prevent privilege escalation.
       allow create: if (isAuthenticated() && request.auth.uid == staffId && request.resource.data.status == 'pending') || isDirector();
       allow delete: if isDirector();
@@ -85,15 +87,26 @@ service cloud.firestore {
     // This MUST remain publicly readable to allow auto-auth from the Main Site.
     match /track_access/{pin} {
       allow read: if true;
-      allow create: if true; // Registration creates these
+      allow create: if isAuthenticated() && request.resource.data.uid == request.auth.uid;
       allow update, delete: if isStaff();
     }
 
     // Role Codes: One-time use codes for staff onboarding.
     match /role_codes/{code} {
       // Relaxed rules for development: allow onboarding verification.
-      allow read: if true;
-      allow write: if true; 
+      allow get: if true;
+      allow list: if isStaff();
+      allow create: if isDirector();
+      allow update: if isDirector() ||
+        (isAuthenticated() &&
+         resource.data.used == false &&
+         request.resource.data.used == true &&
+         request.resource.data.usedBy == request.auth.uid &&
+         request.resource.data.status == 'pending' &&
+         request.resource.data.get('name', '') == resource.data.get('name', '') &&
+         request.resource.data.get('position', '') == resource.data.get('position', '') &&
+         request.resource.data.get('roles', []) == resource.data.get('roles', []));
+      allow delete: if isDirector();
     }
 
 // System Config: Current season and global settings.
@@ -127,7 +140,10 @@ service cloud.firestore {
     }
 
     // Password Management & SSO
-    match /password_resets/{id} { allow read, write: if true; }
+    match /password_resets/{id} {
+      allow create: if true;
+      allow read, update, delete: if isStaff();
+    }
     match /academy_audit_logs/{id} { allow read: if isStaff(); allow create: if true; }
     match /gate_audit_logs/{id} { allow read: if isStaff(); allow create: if true; }
 

@@ -398,7 +398,7 @@
 
   <script type="module">
     import { db, auth } from '../assets/firebase-config.js';
-    import { doc, getDoc, setDoc, writeBatch, serverTimestamp, query, collection, where, getDocs } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+    import { doc, getDoc, setDoc, writeBatch, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
     import { createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
@@ -628,31 +628,12 @@
                 avatarUrl = publicUrl;
             }
 
-            void("[Registry] Calculating SFID sequence...");
-            // Pre-transaction read: Check for missing SFID numbers (gap-filling)
-            const traineesQuery = query(
-                collection(db, 'trainees'), 
-                where('track', '==', traineeData.track)
-            );
-            const querySnap = await getDocs(traineesQuery);
-            const existingNumbers = querySnap.docs
-                .map(doc => {
-                    const sfid = doc.data().sfid;
-                    if (!sfid) return null;
-                    const match = sfid.match(/-(\d+)$/);
-                    return match ? parseInt(match[1]) : null;
-                })
-                .filter(num => num !== null)
-                .sort((a, b) => a - b);
+            void("[Registry] Resolving SFID sequence...");
 
-            let nextNum = 1;
-            for (const num of existingNumbers) {
-                if (num === nextNum) {
-                    nextNum++;
-                } else if (num > nextNum) {
-                    break; // Found a gap!
-                }
-            }
+            const counterRef = doc(db, 'seasons', '2026', 'artifacts', 'trainees', 'counters', 'tracks');
+            const counterSnap = await getDoc(counterRef).catch(() => null);
+            const counts = counterSnap && counterSnap.exists() ? counterSnap.data() : {};
+            const nextNum = (counts[traineeData.track] || 0) + 1;
 
             void("[Registry] Committing to Portal core...");
             
@@ -660,10 +641,8 @@
             const newSFID = `SFID-26-${trackCode}-${String(nextNum).padStart(3, '0')}`;
             const pin = Math.floor(100000 + Math.random() * 900000).toString();
             
-            // We use batch instead of runTransaction for robust registration without locking conflicts
             const batch = writeBatch(db);
             
-            const counterRef = doc(db, 'seasons', '2026', 'artifacts', 'trainees', 'counters', 'tracks');
             const traineeRef = doc(db, 'trainees', user.uid);
             const trackAccessRef = doc(db, 'track_access', pin);
             
@@ -678,12 +657,7 @@
                 theme: { layout: parseInt(traineeData.layout) || 1, color: '#f59e0b', secondary: '#040810' }
             }, { merge: true });
             
-            // Read current count
-            const counterSnap = await getDoc(counterRef).catch(()=>null);
-            const currentMax = counterSnap && counterSnap.exists() ? (counterSnap.data()[traineeData.track] || 0) : 0;
-            if (nextNum > currentMax) {
-                batch.set(counterRef, { [traineeData.track]: nextNum }, { merge: true });
-            }
+            batch.set(counterRef, { [traineeData.track]: nextNum }, { merge: true });
             
             batch.set(trackAccessRef, {
                 pin: pin,

@@ -159,10 +159,11 @@
     </div>
 
     <script type="module">
-        import { db } from '../assets/firebase-config.js';
+        import { db, auth } from '../assets/firebase-config.js';
+        import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
         import { doc, getDoc, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 
-        async function verify() {
+        async function verifyWithUser(user) {
             const params = new URLSearchParams(window.location.search);
             const uid = params.get('uid');
             const id = params.get('id'); // Support legacy sfid too
@@ -180,15 +181,18 @@
             try {
                 let personData = null;
                 let personId = uid || id;
+                const viewerUid = user ? user.uid : null;
 
                 // 1. Try Staff Registry
                 if (uid) {
+                    if (!viewerUid) throw new Error('Login required');
                     const staffDoc = await getDoc(doc(db, 'staffs', uid));
                     if (staffDoc.exists()) {
                         personData = staffDoc.data();
                         personData.role = personData.roles ? personData.roles.join(' | ') : 'Personnel';
                     } else {
                         // 2. Try Trainee Registry
+                        if (viewerUid !== uid) throw new Error('Login required');
                         const traineeDoc = await getDoc(doc(db, 'trainees', uid));
                         if (traineeDoc.exists()) {
                             personData = traineeDoc.data();
@@ -196,7 +200,11 @@
                         }
                     }
                 } else if (id) {
-                    // 3. Try Trainee Registry by SFID
+                    if (!viewerUid) throw new Error('Login required');
+                    const viewerStaffDoc = await getDoc(doc(db, 'staffs', viewerUid));
+                    if (!viewerStaffDoc.exists()) throw new Error('Staff access required');
+
+                    // 3. Try Trainee Registry by SFID (staff only)
                     const traineesRef = collection(db, 'trainees');
                     const q = query(traineesRef, where('sfid', '==', id));
                     const querySnapshot = await getDocs(q);
@@ -222,12 +230,18 @@
                 void("Verification error:", err);
                 loadingView.classList.add('hidden');
                 errorView.classList.remove('hidden');
+                if (!auth.currentUser) {
+                    const modal = document.getElementById('auth-modal');
+                    if (modal) modal.classList.remove('hidden');
+                }
             }
 
             if (window.lucide) window.lucide.createIcons();
         }
 
-        verify();
+        onAuthStateChanged(auth, (user) => {
+            verifyWithUser(user);
+        });
     </script>
 </body>
 </html>

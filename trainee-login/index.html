@@ -347,41 +347,7 @@
                 const userCredential = await signInWithEmailAndPassword(auth, emailInput, passwordInput);
                 user = userCredential.user;
             } catch (authErr) {
-                // Step 2: Fallback - Check for Legacy Registry Identity (Mock UID system)
-                if (authErr.code === 'auth/user-not-found' || authErr.code === 'auth/invalid-credential') {
-                    void("[Auth] Cloud session not found. Scanning Legacy Registry for email:", emailInput);
-                    const q = query(collection(db, "trainees"), where("email", "==", emailInput));
-                    const querySnap = await getDocs(q);
-                    
-                    if (!querySnap.empty) {
-                        const legacyData = querySnap.docs[0].data();
-                        // Verify legacy password stored in Firestore
-                        if (legacyData.password === passwordInput) {
-                            void("[Auth] Legacy Registry Verified. Provisioning Cloud Identity...");
-                            // Auto-migrate to Firebase Auth
-                            const newAuthUser = await createUserWithEmailAndPassword(auth, emailInput, passwordInput);
-                            user = newAuthUser.user;
-                            
-                            // Immediately migrate Firestore document to new Cloud UID
-                            await setDoc(doc(db, "trainees", user.uid), {
-                                ...legacyData,
-                                uid: user.uid,
-                                migratedFrom: querySnap.docs[0].id,
-                                lastMigration: serverTimestamp()
-                            });
-                            
-                            // Delete old legacy mock document
-                            await deleteDoc(doc(db, "trainees", querySnap.docs[0].id));
-                            void("[Auth] Migration complete. Portal link established.");
-                        } else {
-                            throw new Error("Access Denied: Legacy password mismatch.");
-                        }
-                    } else {
-                        throw authErr; // No legacy record found, re-throw original auth error
-                    }
-                } else {
-                    throw authErr;
-                }
+                throw authErr;
             }
 
             void("[Auth] Portal core linked. Checking registry for UID:", user.uid);
@@ -404,44 +370,7 @@
                 return;
             }
 
-            // Step 4: Final Reconciliation for Desyncs
-            const q = query(collection(db, "trainees"), where("email", "==", emailInput));
-            const querySnap = await getDocs(q);
-            
-            if (!querySnap.empty) {
-                const legacyDoc = querySnap.docs[0];
-                if (legacyDoc.id !== user.uid) {
-                    void("[Auth] Automatic Migration: Syncing " + legacyDoc.id + " -> " + user.uid);
-                    await setDoc(doc(db, "trainees", user.uid), {
-                        ...legacyDoc.data(),
-                        uid: user.uid,
-                        migratedFrom: legacyDoc.id,
-                        lastMigration: serverTimestamp()
-                    });
-                    await deleteDoc(doc(db, "trainees", legacyDoc.id));
-                    finalizeLogin(user.uid);
-                } else {
-                    finalizeLogin(user.uid);
-                }
-            } else {
-                void("[Auth] Firestore registry completely missing for Auth UID and Email. Auto-provisioning skeleton profile...");
-                
-                const skeletonData = {
-                    uid: user.uid,
-                    email: emailInput,
-                    name: emailInput.split('@')[0] || "Recovered Trainee",
-                    track: "Academy Trainee",
-                    xp: 0,
-                    created_at: serverTimestamp(),
-                    isSkeleton: true,
-                    sfid: "SFID-REC-000",
-                    theme: { layout: 1, color: '#f59e0b', secondary: '#040810' }
-                };
-                
-                await setDoc(doc(db, "trainees", user.uid), skeletonData);
-                void("[Auth] Skeleton profile provisioned. Proceeding to Hub.");
-                finalizeLogin(user.uid);
-            }
+            throw new Error("Profile not found in Trainee Registry. Please register first.");
         } catch (err) {
             void("[Auth] Connection error:", err);
             let userMsg = "Authentication failed. Verify credentials.";

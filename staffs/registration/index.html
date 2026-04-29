@@ -255,14 +255,11 @@
 
   <script type="module">
     import { db, auth } from '../../assets/firebase-config.js';
-    import { doc, getDoc, setDoc, serverTimestamp, writeBatch } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+    import { doc, getDoc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
     import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
-    import { STAFF_SEED_DATA } from '../../assets/staff-seed-data.js';
-
     let assignedRoles = [];
     let assignedCode = '';
 
-    const MASTER_KEY = "SKF-MASTER-PROVISION-2026";
     const ROLE_HIERARCHY = [
         'Director',
         'HOD',
@@ -318,12 +315,6 @@
         const codeInput = document.getElementById('role-code-input').value.trim().toUpperCase();
         if (!codeInput) return;
 
-        // Master Provisioning Override
-        if (codeInput === MASTER_KEY) {
-            provisionStaffCodes();
-            return;
-        }
-
         const btn = document.getElementById('verify-btn');
         btn.disabled = true;
         btn.innerHTML = 'Authorizing...';
@@ -347,24 +338,7 @@
                     document.getElementById('reg-step').classList.remove('hidden');
                 }
             } else {
-                const seed = STAFF_SEED_DATA.find(s => (s.code || '').toUpperCase() === codeInput);
-                if (seed) {
-                    await setDoc(doc(db, 'role_codes', seed.code), {
-                        roles: seed.roles,
-                        name: seed.name,
-                        position: seed.position,
-                        used: false,
-                        created_at: serverTimestamp()
-                    }, { merge: true });
-
-                    assignedRoles = seed.roles || [];
-                    assignedCode = seed.code;
-                    document.getElementById('role-badge').innerText = assignedRoles.join(' | ');
-                    document.getElementById('code-step').classList.add('hidden');
-                    document.getElementById('reg-step').classList.remove('hidden');
-                } else {
-                    alert("Unauthorized: Invalid ROLE code detected.");
-                }
+                alert("Unauthorized: Invalid ROLE code detected.");
             }
         } catch (err) {
             void(err);
@@ -375,45 +349,6 @@
             if (window.lucide) window.lucide.createIcons();
         }
     };
-
-    async function provisionStaffCodes() {
-        const btn = document.getElementById('verify-btn');
-        btn.disabled = true;
-        btn.innerHTML = 'Provisioning Staff Matrix...';
-        
-        try {
-            void("[Registry] Starting atomic provisioning of staff matrix...");
-            const batch = writeBatch(db);
-            let count = 0;
-            
-            for (const staff of STAFF_SEED_DATA) {
-                const ref = doc(db, 'role_codes', staff.code);
-                batch.set(ref, {
-                    roles: staff.roles,
-                    name: staff.name,
-                    position: staff.position,
-                    used: false,
-                    created_at: serverTimestamp()
-                }, { merge: true });
-                count++;
-            }
-            
-            await batch.commit();
-            void(`[Registry] Successfully provisioned ${count} codes.`);
-            alert(`Provisioning Complete: ${count} staff authorization codes initialized in the registry.`);
-        } catch (err) {
-            void("[Registry] Provisioning Failed:", err);
-            if (err.message.includes('permission-denied')) {
-                alert("Provisioning Failed: Access Denied. Please ensure Firestore rules are deployed.");
-            } else {
-                alert("Provisioning Failed: " + err.message + "\n\nTip: Check if the Project ID in firebase-config.js is correct.");
-            }
-        } finally {
-            btn.disabled = false;
-            btn.innerHTML = 'Verify Authorization <img width="24" height="24" src="../../assets/brand-logo.jpg" class="w-6 h-6 object-contain" alt="SkillForge Digital logo">';
-            if (window.lucide) window.lucide.createIcons();
-        }
-    }
 
     document.getElementById('staff-reg-form').onsubmit = async (e) => {
         e.preventDefault();
