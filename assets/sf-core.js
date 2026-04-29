@@ -554,6 +554,7 @@ class SkillForgeCore {
         const snap = await getDoc(doc(this.db, 'trainees', this.uid));
         if (snap.exists()) {
             this.checkBirthday(snap.data());
+            await this.checkTierUpgrade(doc(this.db, 'trainees', this.uid));
         }
     }
 
@@ -612,7 +613,6 @@ class SkillForgeCore {
         const weekKey = `${now_date.getFullYear()}-W${weekNumber}`;
 
         const { trackId } = this.getPathContext();
-        const traineeRef = doc(this.db, 'trainees', this.uid);
         const presenceRef = doc(this.db, 'presence', this.uid);
 
         try {
@@ -640,23 +640,14 @@ class SkillForgeCore {
             await setDoc(presenceRef, batch, { merge: true });
 
             if (minutes >= 1) {
-                const updateData = {
-                    xp: increment(minutes),
-                    totalTimeSpent: increment(elapsed)
-                };
-
                 const snap = await getDoc(presenceRef);
                 if (snap.exists()) {
                     const todayTime = snap.data().dailyStats?.[todayDate]?.timeSpent || 0;
                     const lastCertUpdate = snap.data().lastCertUpdate || "";
                     if (todayTime >= 1800000 && lastCertUpdate !== todayDate) {
-                        updateData.certDays = increment(1);
-                        await updateDoc(presenceRef, { lastCertUpdate: todayDate });
+                        await updateDoc(presenceRef, { certDays: increment(1), lastCertUpdate: todayDate });
                     }
                 }
-
-                await updateDoc(traineeRef, updateData);
-                this.checkTierUpgrade(traineeRef);
             }
         } catch (err) {
             void("[RegistryCore] Pulse Failed:", err);
