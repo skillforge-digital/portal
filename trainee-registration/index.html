@@ -398,7 +398,7 @@
 
   <script type="module">
     import { db, auth } from '../assets/firebase-config.js';
-    import { doc, getDoc, setDoc, runTransaction, serverTimestamp, query, collection, where, getDocs } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+    import { doc, getDoc, setDoc, writeBatch, serverTimestamp, query, collection, where, getDocs } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
     import { createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
@@ -655,45 +655,46 @@
             }
 
             void("[Registry] Committing to Portal core...");
-            const result = await runTransaction(db, async (tx) => {
-                const counterRef = doc(db, 'seasons', '2026', 'artifacts', 'trainees', 'counters', 'tracks');
-                const traineeRef = doc(db, 'trainees', user.uid);
-                const trackCode = TRACK_CODES[traineeData.track] || 'SFD';
-
-                const newSFID = `SFID-26-${trackCode}-${String(nextNum).padStart(3, '0')}`;
-                const pin = Math.floor(100000 + Math.random() * 900000).toString();
-
-                const trackAccessRef = doc(db, 'track_access', pin);
-
-                tx.set(traineeRef, {
-                    ...traineeData,
-                    avatar: avatarUrl,
-                    sfid: newSFID,
-                    pin,
-                    uid: user.uid,
-                    xp: 0,
-                    created_at: serverTimestamp(),
-                    theme: { layout: parseInt(traineeData.layout) || 1, color: '#f59e0b', secondary: '#040810' }
-                }, { merge: true });
-
-                // Also update the global counter if we didn't fill a gap
-                const snap = await tx.get(counterRef);
-                const counts = snap.exists() ? snap.data() : {};
-                const currentMax = counts[traineeData.track] || 0;
-                if (nextNum > currentMax) {
-                    tx.set(counterRef, { [traineeData.track]: nextNum }, { merge: true });
-                }
-
-                tx.set(trackAccessRef, {
-                    pin: pin,
-                    track: traineeData.track,
-                    uid: user.uid,
-                    sfid: newSFID,
-                    created_at: serverTimestamp()
-                });
-
-                return { sfid: newSFID, pin };
+            
+            const trackCode = TRACK_CODES[traineeData.track] || 'SFD';
+            const newSFID = `SFID-26-${trackCode}-${String(nextNum).padStart(3, '0')}`;
+            const pin = Math.floor(100000 + Math.random() * 900000).toString();
+            
+            // We use batch instead of runTransaction for robust registration without locking conflicts
+            const batch = writeBatch(db);
+            
+            const counterRef = doc(db, 'seasons', '2026', 'artifacts', 'trainees', 'counters', 'tracks');
+            const traineeRef = doc(db, 'trainees', user.uid);
+            const trackAccessRef = doc(db, 'track_access', pin);
+            
+            batch.set(traineeRef, {
+                ...traineeData,
+                avatar: avatarUrl,
+                sfid: newSFID,
+                pin,
+                uid: user.uid,
+                xp: 0,
+                created_at: serverTimestamp(),
+                theme: { layout: parseInt(traineeData.layout) || 1, color: '#f59e0b', secondary: '#040810' }
+            }, { merge: true });
+            
+            // Read current count
+            const counterSnap = await getDoc(counterRef).catch(()=>null);
+            const currentMax = counterSnap && counterSnap.exists() ? (counterSnap.data()[traineeData.track] || 0) : 0;
+            if (nextNum > currentMax) {
+                batch.set(counterRef, { [traineeData.track]: nextNum }, { merge: true });
+            }
+            
+            batch.set(trackAccessRef, {
+                pin: pin,
+                track: traineeData.track,
+                uid: user.uid,
+                sfid: newSFID,
+                created_at: serverTimestamp()
             });
+            
+            await batch.commit();
+            const result = { sfid: newSFID, pin };
 
             void("[Registry] Portal link stabilized. Launching Onboarding Center...");
             document.getElementById('final-sfid').innerText = result.sfid;
