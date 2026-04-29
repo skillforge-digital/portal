@@ -1127,7 +1127,7 @@ import { db, auth } from '../assets/firebase-config.js';
 import { ROLES, getCumulativePermissions, hasPermission } from '../assets/rbac-config.js';
 import { DashboardState } from '../assets/dashboard-state.js';
 import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
-import { doc, getDoc, onSnapshot, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+import { doc, getDoc, setDoc, onSnapshot, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 
 let dashboardState = null;
 let activeUid = null;
@@ -1214,9 +1214,36 @@ function startRegistrySync(uid) {
       dashboardState.update(snap.data());
     } else {
       if (!traineeUnsub) {
-        traineeUnsub = onSnapshot(doc(db, 'trainees', uid), (tSnap) => {
+        traineeUnsub = onSnapshot(doc(db, 'trainees', uid), async (tSnap) => {
           if (tSnap.exists()) {
-            dashboardState.update(tSnap.data());
+            let tData = tSnap.data();
+            
+            if (tData.sfid && tData.sfid !== "SFID-REC-000") {
+                try {
+                    let pin = tData.pin;
+                    if (!pin) {
+                        pin = Math.floor(100000 + Math.random() * 900000).toString();
+                        await updateDoc(doc(db, 'trainees', uid), { pin });
+                        tData.pin = pin;
+                    }
+
+                    const accessRef = doc(db, 'track_access', pin);
+                    const accessSnap = await getDoc(accessRef).catch(() => null);
+                    if (!accessSnap || !accessSnap.exists()) {
+                        await setDoc(accessRef, {
+                            pin,
+                            track: tData.track || 'Academy Trainee',
+                            uid,
+                            sfid: tData.sfid,
+                            created_at: serverTimestamp()
+                        }, { merge: true });
+                    }
+                } catch (err) {
+                    void("Track access sync failed:", err);
+                }
+            }
+            
+            dashboardState.update(tData);
           } else {
             void("User not found in any registry.");
             if (!isRedirecting) {
