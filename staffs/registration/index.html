@@ -256,7 +256,7 @@
   <script type="module">
     import { db, auth } from '../../assets/firebase-config.js';
     import { doc, getDoc, setDoc, serverTimestamp, writeBatch } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
-    import { createUserWithEmailAndPassword, updateProfile } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+    import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
     import { STAFF_SEED_DATA } from '../../assets/staff-seed-data.js';
 
     let assignedRoles = [];
@@ -450,9 +450,34 @@
                 handle: socialHandles[i]
             })).filter(s => s.platform && s.handle);
 
-            // 1. Create User in Auth
-            const userCred = await createUserWithEmailAndPassword(auth, email, password);
-            const user = userCred.user;
+            // 1. Create or link Auth user
+            const normalizedEmail = String(email || '').trim().toLowerCase();
+            let user = auth.currentUser;
+            if (user && user.email && String(user.email).toLowerCase() !== normalizedEmail) user = null;
+
+            if (!user) {
+                try {
+                    const userCred = await createUserWithEmailAndPassword(auth, normalizedEmail, password);
+                    user = userCred.user;
+                } catch (e) {
+                    const code = e && e.code ? String(e.code) : '';
+                    const msg = e && e.message ? String(e.message) : '';
+                    const isEmailInUse = code === 'auth/email-already-in-use' || msg.toLowerCase().includes('email-already-in-use');
+                    if (!isEmailInUse) throw e;
+
+                    try {
+                        const existingCred = await signInWithEmailAndPassword(auth, normalizedEmail, password);
+                        user = existingCred.user;
+                    } catch (signErr) {
+                        const sCode = signErr && signErr.code ? String(signErr.code) : '';
+                        if (sCode === 'auth/wrong-password' || sCode === 'auth/invalid-credential') {
+                            throw new Error('This email already has an account. Use the existing password or reset password, then register again with your ROLE code.');
+                        }
+                        throw signErr;
+                    }
+                }
+            }
+            if (!user) throw new Error('Authentication failed. Please retry.');
 
             // 2. Update Auth Profile
             await updateProfile(user, { displayName: name.toUpperCase() });
@@ -469,12 +494,17 @@
             const rand = Math.floor(1000 + Math.random() * 9000);
             const staffSfid = `SF-STF-${year}-${rand}`;
 
+            const existingStaffSnap = await getDoc(doc(db, 'staffs', user.uid));
+            if (existingStaffSnap.exists()) {
+                throw new Error('This account is already registered as staff. Please sign in from the staff login page.');
+            }
+
             // 4. Create Personnel Document
             await setDoc(doc(db, 'staffs', user.uid), {
                 uid: user.uid,
                 sfid: staffSfid,
                 name: name.toUpperCase(),
-                email: email.toLowerCase(),
+                email: normalizedEmail,
                 roles: assignedRoles,
                 primaryRole: highestRole,
                 department: units[0], // Primary unit
