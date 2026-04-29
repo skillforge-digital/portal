@@ -1127,7 +1127,7 @@ import { db, auth } from '../assets/firebase-config.js';
 import { ROLES, getCumulativePermissions, hasPermission } from '../assets/rbac-config.js';
 import { DashboardState } from '../assets/dashboard-state.js';
 import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
-import { doc, getDoc, setDoc, onSnapshot, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+import { doc, getDoc, setDoc, onSnapshot, updateDoc, runTransaction, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 
 let dashboardState = null;
 let activeUid = null;
@@ -1217,8 +1217,43 @@ function startRegistrySync(uid) {
         traineeUnsub = onSnapshot(doc(db, 'trainees', uid), async (tSnap) => {
           if (tSnap.exists()) {
             let tData = tSnap.data();
-            
-            if (tData.sfid && tData.sfid !== "SFID-REC-000") {
+
+            if (tData.track && (!tData.sfid || tData.sfid === 'SFID-REC-000')) {
+                try {
+                    const TRACK_CODES = {
+                      "Forex Synthetics Indices": "SYN",
+                      "Forex Currency Pairs": "CUR",
+                      "AI Content Creation": "AIC",
+                      "Photography & Editing": "PHO",
+                      "Graphic Design": "GRD",
+                      "Digital Marketing": "MKT",
+                      "Mobile Cinematography": "CIN",
+                      "Discord Development": "DIS",
+                      "Web Development": "WEB",
+                      "Cyber Security": "CYB"
+                    };
+                    const trackCode = TRACK_CODES[tData.track] || 'SFD';
+
+                    const counterRef = doc(db, 'seasons', '2026', 'artifacts', 'trainees', 'counters', 'tracks');
+                    const traineeRef = doc(db, 'trainees', uid);
+
+                    const created = await runTransaction(db, async (tx) => {
+                        const counterSnap = await tx.get(counterRef);
+                        const counts = counterSnap.exists() ? counterSnap.data() : {};
+                        const nextNum = (counts[tData.track] || 0) + 1;
+                        const sfid = `SFID-26-${trackCode}-${String(nextNum).padStart(3, '0')}`;
+                        tx.set(counterRef, { [tData.track]: nextNum }, { merge: true });
+                        tx.set(traineeRef, { sfid }, { merge: true });
+                        return { sfid };
+                    });
+
+                    tData.sfid = created.sfid;
+                } catch (err) {
+                    void("SFID sync failed:", err);
+                }
+            }
+
+            if (tData.track) {
                 try {
                     let pin = tData.pin;
                     if (!pin) {
@@ -1234,7 +1269,7 @@ function startRegistrySync(uid) {
                             pin,
                             track: tData.track || 'Academy Trainee',
                             uid,
-                            sfid: tData.sfid,
+                            sfid: tData.sfid || null,
                             created_at: serverTimestamp()
                         }, { merge: true });
                     }
