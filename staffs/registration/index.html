@@ -429,6 +429,11 @@
             return;
         }
 
+        if (!assignedCode || !Array.isArray(assignedRoles) || assignedRoles.length === 0) {
+            alert("Authorization Required: Verify your ROLE code before registering.");
+            return;
+        }
+
         btn.disabled = true;
         btn.innerHTML = 'Onboarding Personnel...';
 
@@ -522,14 +527,23 @@
             await setDoc(doc(db, 'role_codes', assignedCode), { used: true, usedBy: user.uid, status: 'pending' }, { merge: true });
 
             // 5.5 Create Academy Track Access for Staff (Passkey support - Pending)
-            await setDoc(doc(db, 'track_access', assignedCode), {
-                pin: assignedCode,
-                track: 'Staff Access',
-                uid: user.uid,
-                sfid: staffSfid,
-                type: 'staff',
-                status: 'pending'
-            });
+            const trackAccessRef = doc(db, 'track_access', assignedCode);
+            const trackAccessSnap = await getDoc(trackAccessRef).catch(() => null);
+            if (trackAccessSnap && trackAccessSnap.exists()) {
+                const existingAccess = trackAccessSnap.data() || {};
+                if (existingAccess.uid && existingAccess.uid !== user.uid) {
+                    throw new Error('This ROLE code has already been claimed. Please request a new staff code.');
+                }
+            } else {
+                await setDoc(trackAccessRef, {
+                    pin: assignedCode,
+                    track: 'Staff Access',
+                    uid: user.uid,
+                    sfid: staffSfid,
+                    type: 'staff',
+                    status: 'pending'
+                });
+            }
 
             // 6. Success!
             document.getElementById('generated-staff-id').innerText = staffSfid;
