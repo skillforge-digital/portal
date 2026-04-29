@@ -91,9 +91,25 @@
             
             // If a specific track is requested, adjust the base redirect URL
             if (targetTrack) {
+                const trackIdMap = {
+                    'Forex Synthetics Indices': 'forex-synthetics',
+                    'Forex Synthetic Indices': 'forex-synthetics',
+                    'Forex Currency Pairs': 'forex-currency',
+                    'AI Content Creation': 'ai-content-creation',
+                    'Photography & Editing': 'photography-and-editing',
+                    'Graphic Design': 'graphic-design',
+                    'Digital Marketing': 'digital-marketing',
+                    'Mobile Cinematography': 'mobile-cinematography',
+                    'Discord Development': 'discord-development',
+                    'Web Development': 'web-development',
+                    'Cyber Security': 'cyber-security'
+                };
+                const normalizedTarget = targetTrack.toString().trim();
+                const trackId = trackIdMap[normalizedTarget] || normalizedTarget.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
                 // Ensure trailing slash
                 if (!redirectUrl.endsWith('/')) redirectUrl += '/';
-                redirectUrl += targetTrack + '/';
+                redirectUrl += trackId + '/';
             }
 
             if (user) {
