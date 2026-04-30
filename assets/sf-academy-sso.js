@@ -35,8 +35,8 @@ export async function handleAcademySSO() {
         const sessionToken = btoa(`${uid}|${Date.now()}|${trackId}`);
         
         // Set cookies for 24 hours
-        document.cookie = `sf_gate_session_${trackId}=${sessionToken}; path=/; max-age=86400; SameSite=Lax`;
-        document.cookie = `sf_gate_uid=${uid}; path=/; max-age=86400; SameSite=Lax`;
+        document.cookie = `sf_gate_session_${trackId}=${sessionToken}; path=/; max-age=86400; SameSite=Lax; Secure`;
+        document.cookie = `sf_gate_uid=${uid}; path=/; max-age=86400; SameSite=Lax; Secure`;
 
         void("[SSO] Identity verified. Redirecting to Track...");
         
@@ -55,7 +55,7 @@ window.verifyManualPasskey = async (passkey, trackId) => {
         if (accessSnap.exists()) {
             const accessData = accessSnap.data();
             const sessionToken = btoa(`${accessData.uid}|${Date.now()}|${trackId}`);
-            document.cookie = `sf_gate_session_${trackId}=${sessionToken}; path=/; max-age=86400; SameSite=Lax`;
+            document.cookie = `sf_gate_session_${trackId}=${sessionToken}; path=/; max-age=86400; SameSite=Lax; Secure`;
             return { success: true, track: accessData.track };
         }
         return { success: false, error: "Invalid Passkey" };

@@ -82,12 +82,14 @@
 
         // Redirection Logic
         const MAIN_SITE_URL = 'https://skillforgedigital.com.ng/academy/';
+        const GATE_URL = 'https://skillforgedigital.com.ng/academy/gate.html';
 
         onAuthStateChanged(auth, async (user) => {
             const urlParams = new URLSearchParams(window.location.search);
             const targetTrack = urlParams.get('track');
             
             let redirectUrl = MAIN_SITE_URL;
+            let targetTrackId = null;
             
             // If a specific track is requested, adjust the base redirect URL
             if (targetTrack) {
@@ -105,23 +107,18 @@
                     'Cyber Security': 'cyber-security'
                 };
                 const normalizedTarget = targetTrack.toString().trim();
-                const trackId = trackIdMap[normalizedTarget] || normalizedTarget.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-
-                // Ensure trailing slash
-                if (!redirectUrl.endsWith('/')) redirectUrl += '/';
-                redirectUrl += trackId + '/';
+                targetTrackId = trackIdMap[normalizedTarget] || normalizedTarget.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+                redirectUrl = `${GATE_URL}?track=${encodeURIComponent(targetTrackId)}`;
             }
 
             if (user) {
                 try {
                     // Try to get the trainee's PIN to pass to the gate
                     const traineeDoc = await getDoc(doc(db, 'trainees', user.uid));
-                    if (traineeDoc.exists()) {
+                    if (traineeDoc.exists() && targetTrackId) {
                         const data = traineeDoc.data();
                         if (data.pin) {
-                            // Append Passkey for auto-gate verification on main site
-                            const separator = redirectUrl.includes('?') ? '&' : '?';
-                            redirectUrl += `${separator}passkey=${data.pin}`;
+                            redirectUrl += `&passkey=${encodeURIComponent(String(data.pin))}`;
                         }
                     }
                 } catch (err) {

@@ -399,6 +399,7 @@ class SkillForgeCore {
     if (myTrackLink && this.registryState && this.registryState.track) {
       const trackIdMap = {
         'Forex Synthetics Indices': 'forex-synthetics',
+        'Forex Synthetic Indices': 'forex-synthetics',
         'Forex Currency Pairs': 'forex-currency',
         'AI Content Creation': 'ai-content-creation',
         'Photography & Editing': 'photography-and-editing',
@@ -407,13 +408,12 @@ class SkillForgeCore {
         'Mobile Cinematography': 'mobile-cinematography',
         'Discord Development': 'discord-development',
         'Web Development': 'web-development',
-        'Cyber Security': 'cyber-security',
-        'Forex Synthetic Indices': 'forex-synthetics',
-        'Forex Currency Pairs': 'forex-currency'
+        'Cyber Security': 'cyber-security'
       };
-      const trackId = trackIdMap[this.registryState.track] || this.registryState.track.toLowerCase().replace(/\s+/g, '-');
+      const rawTrack = String(this.registryState.track || '').trim();
+      const trackId = trackIdMap[rawTrack] || rawTrack.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
       const passkey = this.registryState.pin || this.registryState.roleCode || '';
-      myTrackLink.href = `https://skillforgedigital.com.ng/academy/gate.html?track=${encodeURIComponent(trackId)}${passkey ? '&passkey=' + passkey : ''}`;
+      myTrackLink.href = `https://skillforgedigital.com.ng/academy/gate.html?track=${encodeURIComponent(trackId)}${passkey ? '&passkey=' + encodeURIComponent(String(passkey)) : ''}`;
       myTrackLink.classList.remove('opacity-30', 'pointer-events-none');
     }
 
