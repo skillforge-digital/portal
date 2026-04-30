@@ -218,10 +218,11 @@
 
     window.retrieveStaffID = async () => {
         const email = prompt("Enter your registered Personnel Email to retrieve your Staff ID:");
-        if (!email) return;
+        const normalizedEmail = String(email || '').trim().toLowerCase();
+        if (!normalizedEmail) return;
 
         try {
-            const q = query(collection(db, 'staffs'), where('email', '==', email.toLowerCase()));
+            const q = query(collection(db, 'staffs'), where('email', '==', normalizedEmail));
             const snap = await getDocs(q);
             if (snap.empty) {
                 alert("Personnel not found in registry.");
@@ -231,7 +232,12 @@
             }
         } catch (err) {
             void(err);
-            alert("Registry link interrupted. Please try again later.");
+            const code = err && err.code ? String(err.code) : '';
+            if (code.includes('permission-denied')) {
+                alert('Registry lookup is restricted. Please contact the Director/Admin to confirm your Staff ID.');
+            } else {
+                alert("Registry link interrupted. Please try again later.");
+            }
         }
     };
 
@@ -322,12 +328,13 @@
         const btn = document.getElementById('login-btn');
         const formData = new FormData(e.target);
         const { email, password } = Object.fromEntries(formData.entries());
+        const normalizedEmail = String(email || '').trim().toLowerCase();
 
         btn.disabled = true;
         btn.innerHTML = 'Authenticating...';
 
         try {
-            const userCred = await signInWithEmailAndPassword(auth, email, password);
+            const userCred = await signInWithEmailAndPassword(auth, normalizedEmail, password);
             const user = userCred.user;
 
             const staffResolved = await resolveStaffIdentity(user.uid);
@@ -363,7 +370,11 @@
             if (isOfflineFirestoreError(err)) {
                 showSessionBanner('Network is unstable. Please check your internet connection and retry.');
             } else {
-                alert("Authentication failed: " + err.message);
+                if (err && (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found')) {
+                    alert('Authentication failed: Invalid email or password. Please re-check the email, or use "Reset Password".');
+                } else {
+                    alert("Authentication failed: " + err.message);
+                }
             }
         } finally {
             btn.disabled = false;
