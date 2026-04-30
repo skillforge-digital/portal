@@ -593,7 +593,7 @@
         const formData = new FormData(e.target);
         traineeData = Object.fromEntries(formData.entries());
         traineeData.name = traineeData.name.toUpperCase();
-        traineeData.email = traineeData.email.trim();
+        traineeData.email = traineeData.email.trim().toLowerCase();
         
         // Remove password from traineeData before storing in Firestore
         const registrationPassword = traineeData.password;
@@ -602,6 +602,14 @@
         // Relaxed Password Policy: Min 6 chars
         if (registrationPassword.length < 6) {
             showRegError("Password Too Short: Must contain at least 6 characters for basic security.");
+            btn.disabled = false; btn.innerHTML = "Start Your Mastery Journey <i data-lucide='arrow-right' class='w-4 h-4'></i>";
+            if (window.lucide) window.lucide.createIcons();
+            return;
+        }
+
+        traineeData.track = String(traineeData.track || '').trim();
+        if (!TRACK_CODES[traineeData.track]) {
+            showRegError("Select a valid skill track to continue.");
             btn.disabled = false; btn.innerHTML = "Start Your Mastery Journey <i data-lucide='arrow-right' class='w-4 h-4'></i>";
             if (window.lucide) window.lucide.createIcons();
             return;
@@ -639,9 +647,6 @@
             void("[Registry] Committing to Portal core...");
             
             const trackCode = TRACK_CODES[traineeData.track];
-            if (!trackCode) {
-                throw new Error('Track not set');
-            }
             const newSFID = `SFID-26-${trackCode}-${String(nextNum).padStart(3, '0')}`;
             const pin = Math.floor(100000 + Math.random() * 900000).toString();
             

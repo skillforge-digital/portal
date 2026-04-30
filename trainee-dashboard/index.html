@@ -1505,7 +1505,7 @@ function updateDynamicUI(data) {
     };
     const trackId = trackIdMap[data.track] || data.track.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     const passkey = data.pin || data.roleCode || '';
-    myTrackLink.href = `https://skillforgedigital.com.ng/academy/gate.html?track=${encodeURIComponent(trackId)}${passkey ? '&passkey=' + passkey : ''}`;
+    myTrackLink.href = `https://skillforgedigital.com.ng/academy/gate.html?track=${encodeURIComponent(trackId)}${passkey ? '&passkey=' + encodeURIComponent(String(passkey)) : ''}`;
     myTrackLink.classList.remove('opacity-30', 'pointer-events-none');
   }
 }
