@@ -8,6 +8,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "postinstall": "node -e \"const fs=require('fs');const p='node_modules/acorn-walk/index.js';if(!fs.existsSync(p)){fs.writeFileSync(p,'module.exports = require(\\\"./dist/walk.js\\\");\\n');}\"",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "audit:security": "npm audit",

@@ -398,12 +398,91 @@
 
   <script type="module">
     import { db, auth } from '/assets/firebase-config.js';
-    import { doc, getDoc, setDoc, writeBatch, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+    import { doc, getDoc, setDoc, writeBatch, serverTimestamp, runTransaction, Timestamp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
     import { createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
     const urlParams = new URLSearchParams(window.location.search);
     const isScholarship = urlParams.get('scholarship') === '1';
+    const LAGOS_TIMEZONE = 'Africa/Lagos';
+
+    function getZonedParts(date, timeZone) {
+        const dtf = new Intl.DateTimeFormat('en-US', {
+            timeZone,
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            weekday: 'short',
+            hour12: false
+        });
+
+        const parts = dtf.formatToParts(date);
+        const out = {};
+        for (const part of parts) out[part.type] = part.value;
+
+        return {
+            year: Number(out.year),
+            month: Number(out.month),
+            day: Number(out.day),
+            hour: Number(out.hour),
+            minute: Number(out.minute),
+            second: Number(out.second),
+            weekday: out.weekday
+        };
+    }
+
+    function getTimeZoneOffsetMs(timeZone, date) {
+        const p = getZonedParts(date, timeZone);
+        const asUtcMs = Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second);
+        return asUtcMs - date.getTime();
+    }
+
+    function zonedDateTimeToUtcMs({ year, month, day, hour, minute, second }, timeZone) {
+        const guessUtcMs = Date.UTC(year, month - 1, day, hour, minute, second);
+        const offsetMs = getTimeZoneOffsetMs(timeZone, new Date(guessUtcMs));
+        return guessUtcMs - offsetMs;
+    }
+
+    function computeNextFriday2359Timestamp(timeZone = LAGOS_TIMEZONE) {
+        const now = new Date();
+        const nowParts = getZonedParts(now, timeZone);
+        const weekdayIndex = {
+            Sun: 0,
+            Mon: 1,
+            Tue: 2,
+            Wed: 3,
+            Thu: 4,
+            Fri: 5,
+            Sat: 6
+        }[nowParts.weekday] ?? 0;
+
+        let daysUntilFriday = (5 - weekdayIndex + 7) % 7;
+        if (daysUntilFriday === 0) {
+            const nowSeconds = nowParts.hour * 3600 + nowParts.minute * 60 + nowParts.second;
+            const closeSeconds = 23 * 3600 + 59 * 60;
+            if (nowSeconds >= closeSeconds) daysUntilFriday = 7;
+        }
+
+        const base = new Date(Date.UTC(nowParts.year, nowParts.month - 1, nowParts.day));
+        base.setUTCDate(base.getUTCDate() + daysUntilFriday);
+
+        const utcMs = zonedDateTimeToUtcMs(
+            {
+                year: base.getUTCFullYear(),
+                month: base.getUTCMonth() + 1,
+                day: base.getUTCDate(),
+                hour: 23,
+                minute: 59,
+                second: 0
+            },
+            timeZone
+        );
+
+        return Timestamp.fromDate(new Date(utcMs));
+    }
 
     const supabaseUrl = 'https://luxubaqztmbcpskyfgdp.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1eHViYXF6dG1iY3Bza3lmZ2RwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDYzNTcsImV4cCI6MjA5MTQyMjM1N30.Kmon8jh22u5KgWWpXf-7cdZ4qxlKXuUbVm6Mh-GHd8Q';
@@ -681,6 +760,46 @@
             });
             
             await batch.commit();
+
+            if (isScholarship) {
+                try {
+                    const scholarshipCampaignRef = doc(db, 'seasons', '2026', 'artifacts', 'registration', 'scholarship');
+                    const defaultClosesAt = computeNextFriday2359Timestamp();
+                    await runTransaction(db, async (transaction) => {
+                        const campaignSnap = await transaction.get(scholarshipCampaignRef);
+                        if (!campaignSnap.exists()) {
+                            transaction.set(
+                                scholarshipCampaignRef,
+                                {
+                                    totalSlots: 50,
+                                    usedSlots: 1,
+                                    closesAt: defaultClosesAt,
+                                    created_at: serverTimestamp(),
+                                    updated_at: serverTimestamp()
+                                },
+                                { merge: true }
+                            );
+                            return;
+                        }
+
+                        const campaign = campaignSnap.data() || {};
+                        const totalSlots = Number.isFinite(campaign.totalSlots) ? campaign.totalSlots : 50;
+                        const usedSlots = Number.isFinite(campaign.usedSlots) ? campaign.usedSlots : 0;
+                        const nextUsedSlots = Math.min(usedSlots + 1, totalSlots);
+
+                        const nextPayload = {
+                            totalSlots,
+                            usedSlots: nextUsedSlots,
+                            updated_at: serverTimestamp()
+                        };
+                        if (!campaign.closesAt) nextPayload.closesAt = defaultClosesAt;
+
+                        transaction.set(scholarshipCampaignRef, nextPayload, { merge: true });
+                    });
+                } catch (err) {
+                    void("[ScholarshipCampaign] Counter update failed:", err);
+                }
+            }
             const result = { sfid: newSFID, pin };
 
             void("[Registry] Portal link stabilized. Launching Onboarding Center...");
