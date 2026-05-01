@@ -404,7 +404,7 @@
 
     const urlParams = new URLSearchParams(window.location.search);
     const isScholarship = urlParams.get('scholarship') === '1';
-    const LAGOS_TIMEZONE = 'Africa/Lagos';
+    const NIGERIA_TIMEZONE = 'Africa/Lagos';
 
     function getZonedParts(date, timeZone) {
         const dtf = new Intl.DateTimeFormat('en-US', {
@@ -446,7 +446,7 @@
         return guessUtcMs - offsetMs;
     }
 
-    function computeNextFriday2359Timestamp(timeZone = LAGOS_TIMEZONE) {
+    function computeNextFriday2359Timestamp(timeZone = NIGERIA_TIMEZONE) {
         const now = new Date();
         const nowParts = getZonedParts(now, timeZone);
         const weekdayIndex = {

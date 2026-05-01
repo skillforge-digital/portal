@@ -24,7 +24,7 @@ Create a scholarship landing page that feels premium (not template-y), is easy t
 ### Campaign Strip
 
 Display:
-- Countdown to a fixed deadline: **Friday 11:59pm Lagos time** (drive via Firestore `closesAt`).
+- Countdown to a fixed deadline: **Friday 11:59pm Nigeria time** (drive via Firestore `closesAt`).
 - Slots remaining: real value from Firestore (`totalSlots - usedSlots`), total slots fixed at **50**.
 
 State rules:
@@ -96,7 +96,7 @@ On successful trainee registration when `scholarship=1`:
 ### Countdown
 
 - Read `closesAt` from the scholarship campaign doc
-- Render “HH:MM:SS” countdown and a short “Closes Friday 11:59pm (Lagos time)” label
+- Render “HH:MM:SS” countdown and a short “Closes Friday 11:59pm (Nigeria time)” label
 - If `closesAt` missing, fallback to hiding the countdown and showing a neutral status label (“Status unavailable”)
 
 ### Share Preview

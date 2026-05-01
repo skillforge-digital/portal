@@ -21,7 +21,7 @@ describe('scholarship campaign helpers', () => {
     expect(isClosed({ closesAtMs: now + 1 }, now)).toBe(false);
   });
 
-  it('computes next Friday 23:59 Lagos time', () => {
+  it('computes next Friday 23:59 Nigeria time', () => {
     const tz = 'Africa/Lagos';
     const now = new Date(Date.UTC(2026, 4, 4, 12, 0, 0));
     const ms = computeNextFriday2359Ms(tz, now);

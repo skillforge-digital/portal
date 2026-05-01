@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Redesign `/scholarship/` to be premium and easy to understand, add a Firestore-backed campaign strip (countdown to Friday 11:59pm Lagos time + real slots remaining out of 50), and increment the slots counter on successful scholarship registration.
+**Goal:** Redesign `/scholarship/` to be premium and easy to understand, add a Firestore-backed campaign strip (countdown to Friday 11:59pm Nigeria time + real slots remaining out of 50), and increment the slots counter on successful scholarship registration.
 
 **Architecture:** Keep UI in `/scholarship/index.html` with small isolated JS in `/assets/scholarship-campaign.js` for reading campaign data + rendering countdown/slots. Use Firestore `seasons/2026/artifacts/registration/scholarship` as the single source of truth. On registration success with `?scholarship=1`, use a Firestore transaction to increment `usedSlots`.
 
@@ -155,7 +155,7 @@ Example structure:
   <div>
     <p class="text-[10px] font-black uppercase tracking-[0.4em] text-white/50">Status</p>
     <p id="campaign-status" class="mt-2 text-white font-black uppercase tracking-widest text-[10px]">Loading…</p>
-    <p class="mt-2 text-white/60 text-xs">Closes Friday 11:59pm (Lagos time)</p>
+    <p class="mt-2 text-white/60 text-xs">Closes Friday 11:59pm (Nigeria time)</p>
   </div>
   <div>
     <p class="text-[10px] font-black uppercase tracking-[0.4em] text-white/50">Countdown</p>
@@ -352,4 +352,3 @@ Expected: PASS.
 cd /workspace/portal
 git push origin main
 ```
-
