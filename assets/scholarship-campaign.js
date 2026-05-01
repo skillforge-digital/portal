@@ -125,10 +125,85 @@ export async function loadScholarshipCampaign({ db, doc, getDoc }, { seasonId = 
   return toCampaignModel(snap.data());
 }
 
+export function computeNextFriday2359Ms(timeZone = 'Africa/Lagos', now = new Date()) {
+  const nowParts = getZonedParts(now, timeZone);
+  const weekdayIndex = {
+    Sun: 0,
+    Mon: 1,
+    Tue: 2,
+    Wed: 3,
+    Thu: 4,
+    Fri: 5,
+    Sat: 6
+  }[nowParts.weekday] ?? 0;
+
+  let daysUntilFriday = (5 - weekdayIndex + 7) % 7;
+  if (daysUntilFriday === 0) {
+    const nowSeconds = nowParts.hour * 3600 + nowParts.minute * 60 + nowParts.second;
+    const closeSeconds = 23 * 3600 + 59 * 60;
+    if (nowSeconds >= closeSeconds) daysUntilFriday = 7;
+  }
+
+  const base = new Date(Date.UTC(nowParts.year, nowParts.month - 1, nowParts.day));
+  base.setUTCDate(base.getUTCDate() + daysUntilFriday);
+
+  return zonedDateTimeToUtcMs(
+    {
+      year: base.getUTCFullYear(),
+      month: base.getUTCMonth() + 1,
+      day: base.getUTCDate(),
+      hour: 23,
+      minute: 59,
+      second: 0
+    },
+    timeZone
+  );
+}
+
 function toMillis(value) {
   if (!value) return 0;
   if (typeof value === 'number') return value;
   if (value instanceof Date) return value.getTime();
   if (typeof value?.toMillis === 'function') return Number(value.toMillis());
   return 0;
+}
+
+function getZonedParts(date, timeZone) {
+  const dtf = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    weekday: 'short',
+    hour12: false
+  });
+
+  const parts = dtf.formatToParts(date);
+  const out = {};
+  for (const part of parts) out[part.type] = part.value;
+
+  return {
+    year: Number(out.year),
+    month: Number(out.month),
+    day: Number(out.day),
+    hour: Number(out.hour),
+    minute: Number(out.minute),
+    second: Number(out.second),
+    weekday: out.weekday
+  };
+}
+
+function getTimeZoneOffsetMs(timeZone, date) {
+  const p = getZonedParts(date, timeZone);
+  const asUtcMs = Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second);
+  return asUtcMs - date.getTime();
+}
+
+function zonedDateTimeToUtcMs({ year, month, day, hour, minute, second }, timeZone) {
+  const guessUtcMs = Date.UTC(year, month - 1, day, hour, minute, second);
+  const offsetMs = getTimeZoneOffsetMs(timeZone, new Date(guessUtcMs));
+  return guessUtcMs - offsetMs;
 }

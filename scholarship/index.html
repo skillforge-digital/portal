@@ -384,19 +384,31 @@
 
   <script type="module">
     import { db } from '/assets/firebase-config.js';
-    import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
-    import { loadScholarshipCampaign, renderCampaignStrip, startCampaignTicker } from '/assets/scholarship-campaign.js';
+    import { doc, onSnapshot } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+    import { computeNextFriday2359Ms, getScholarshipCampaignPath, renderCampaignStrip, startCampaignTicker, toCampaignModel } from '/assets/scholarship-campaign.js';
 
     let campaign = null;
 
     async function initCampaign() {
-      try {
-        campaign = await loadScholarshipCampaign({ db, doc, getDoc });
-      } catch {
-        campaign = null;
-      }
+      const fallback = {
+        totalSlots: 50,
+        usedSlots: 0,
+        closesAtMs: computeNextFriday2359Ms('Africa/Lagos')
+      };
+      campaign = fallback;
 
-      renderCampaignStrip({ campaign });
+      const ref = doc(db, ...getScholarshipCampaignPath('2026'));
+      onSnapshot(
+        ref,
+        (snap) => {
+          campaign = snap.exists() ? toCampaignModel(snap.data()) : fallback;
+        },
+        () => {
+          campaign = fallback;
+        }
+      );
+
+      renderCampaignStrip({ campaign: fallback });
       startCampaignTicker({
         getCampaign: () => campaign,
         render: (c, nowMs) => renderCampaignStrip({ campaign: c, nowMs })
