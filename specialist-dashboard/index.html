@@ -48,7 +48,7 @@
   // Immediate UI Preparation - Hide content until Registry Core is ready
   
 </script>
-<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="/assets/style.css">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="/assets/tailwind.css">
@@ -222,7 +222,7 @@ tailwind.config = {
 </main>
 
 <script type="module">
-import { db, auth } from '../assets/firebase-config.js';
+import { db, auth } from '/assets/firebase-config.js';
 import '../assets/theme-manager.js';
 import { doc, onSnapshot, updateDoc, collection, query, orderBy, limit, getDoc, addDoc, serverTimestamp, where, getDocs, writeBatch } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';

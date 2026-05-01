@@ -66,7 +66,7 @@
       }, 3000);
     })();
   </script>
-  <link rel="stylesheet" href="../assets/style.css">
+  <link rel="stylesheet" href="/assets/style.css">
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -123,7 +123,7 @@
         </a>
         <div class="flex flex-col items-center gap-6 mb-12">
             <div class="w-20 h-20 rounded-3xl bg-black border border-gold/20 flex items-center justify-center shadow-2xl overflow-hidden">
-                <img src="../assets/brand-logo.jpg" alt="SkillForge Digital logo" class="w-full h-full object-cover">
+                <img src="/assets/brand-logo.jpg" alt="SkillForge Digital logo" class="w-full h-full object-cover">
             </div>
             <div class="text-center flex flex-col items-center leading-none">
                 <span class="font-black text-xl md:text-2xl tracking-tighter uppercase text-white">SkillForge</span>
@@ -172,7 +172,7 @@
             </div>
 
             <button type="submit" id="login-btn" class="w-full bg-gold text-navy py-4 md:py-5 rounded-xl md:rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] shadow-2xl hover:bg-white transition-all flex items-center justify-center gap-2">
-                Access Hub <img width="24" height="24" src="../assets/brand-logo.jpg" class="w-6 h-6 object-contain" alt="SkillForge Digital logo">
+                Access Hub <img width="24" height="24" src="/assets/brand-logo.jpg" class="w-6 h-6 object-contain" alt="SkillForge Digital logo">
             </button>
         </form>
         
@@ -219,10 +219,10 @@
   <!-- Firebase SDKs -->
 
   <script type="module">
-    import { db, auth } from '../assets/firebase-config.js';
+    import { db, auth } from '/assets/firebase-config.js';
     import { doc, getDoc, setDoc, deleteDoc, collection, query, where, getDocs, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
     import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
-    import { resolveStaffIdentity, getStaffDashboardPath } from '../assets/staff-identity.js';
+    import { resolveStaffIdentity, getStaffDashboardPath } from '/assets/staff-identity.js';
 
     function isOfflineFirestoreError(err) {
         const msg = (err && err.message ? String(err.message) : '').toLowerCase();
@@ -585,9 +585,9 @@
     });
 </script>
   <script type="module">
-    import { themeManager } from '../assets/theme-manager.js';
+    import { themeManager } from '/assets/theme-manager.js';
   </script>
-  <script type="module" src="../assets/sf-atmosphere-3d.js"></script>
-  <script src="../assets/error-reporter.js"></script>
+  <script type="module" src="/assets/sf-atmosphere-3d.js"></script>
+  <script src="/assets/error-reporter.js"></script>
 </body>
 </html>
