@@ -155,7 +155,7 @@
     import { db, auth } from '../../assets/firebase-config.js';
     import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
     import { collection, query, where, orderBy, limit, getDocs } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
-    import { resolveStaffIdentity, getStaffDashboardPath } from '../../assets/staff-identity.js';
+    import { resolveStaffIdentity, getStaffDashboardPath } from '../../assets/staff-identity.js?v=20260502';
     import { buildWhatsappMessage, buildWhatsappLink, getTelegramLinkForTrack, normalizePhone, TRACK_TELEGRAM_NODES } from '../../assets/registry-utils.js';
 
     const WHATSAPP_ROLES = new Set(['Director', 'HOD', 'Digital Marketing', 'Support Staff']);
@@ -535,4 +535,3 @@
   </script>
 </body>
 </html>
-
