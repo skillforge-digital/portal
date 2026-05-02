@@ -489,9 +489,12 @@
             if (window.staffCore && window.staffCore.profile) {
                 clearInterval(checkCore);
                 const profile = window.staffCore.profile;
-                document.getElementById('user-name').innerText = profile.name || 'SPECIALIST';
-                document.getElementById('user-role').innerText = profile.primaryRole + ' Access';
-                document.getElementById('user-initials').innerText = (profile.name || 'S').charAt(0);
+                const nameEl = document.getElementById('user-name');
+                if (nameEl) nameEl.innerText = profile.name || 'SPECIALIST';
+                const roleEl = document.getElementById('user-role');
+                if (roleEl) roleEl.innerText = profile.primaryRole + ' Access';
+                const initialsEl = document.getElementById('user-initials');
+                if (initialsEl) initialsEl.innerText = (profile.name || 'S').charAt(0);
                 
                 loadNewsTicker();
                 window.showTab('overview');
@@ -533,14 +536,16 @@
     async function initDashboard() {
         // Real-time Trainee Count for assigned track (placeholder logic)
         onSnapshot(collection(db, "trainees"), (snap) => {
-            document.getElementById('trainee-count').innerText = snap.size;
+            const el = document.getElementById('trainee-count');
+            if (el) el.innerText = snap.size;
         });
 
         // Real-time Badge Requests
         onSnapshot(collection(db, "badge_requests"), (snap) => {
             let pending = 0;
             snap.forEach(doc => { if (doc.data().status === 'pending') pending++ });
-            document.getElementById('badge-count').innerText = pending;
+            const el = document.getElementById('badge-count');
+            if (el) el.innerText = pending;
         });
     }
 
