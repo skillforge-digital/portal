@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿/**
+/**
  * SkillForge Digital Error Reporter
  * Captures global errors and provides a way for users to report issues.
  */

@@ -4,6 +4,7 @@
  */
 
 import { ROLES, getCumulativePermissions, hasPermission } from './rbac-config.js';
+import { doc, setDoc } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 
 export class DashboardState {
     constructor(uid, db) {
@@ -57,10 +58,7 @@ export class DashboardState {
      */
     async updatePreferences(prefs) {
         if (!this.uid) return;
-        const userRef = doc(this.db, 'trainees', this.uid); // Base collection
-        // For staff, we might need to check the staffs collection too
-        // In the new unified model, we use 'staffs' for staff and 'trainees' for students
-        // OR we just use a unified 'users' collection.
-        // For now, let's assume we update the collection where the user was found.
+        const userRef = doc(this.db, 'trainees', this.uid);
+        await setDoc(userRef, { preferences: prefs ?? {} }, { merge: true });
     }
 }

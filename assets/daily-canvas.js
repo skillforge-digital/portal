@@ -55,7 +55,7 @@ class DailyCanvas {
           this.customColors = settings.colors;
         }
       }
-    } catch(e) {}
+    } catch(e) { void(e); }
   }
 
   resize() {

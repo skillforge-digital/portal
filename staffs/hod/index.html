@@ -175,6 +175,9 @@
                 <p class="text-[8px] text-purple-400 font-bold uppercase tracking-widest truncate" id="user-role">HOD Access</p>
             </div>
         </div>
+        <a id="switch-role-btn" href="/staffs/role-gateway/" class="hidden w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-purple-400 hover:bg-purple-400/10 transition-all mb-3">
+            <i data-lucide="shuffle" class="w-4 h-4"></i> Switch Role
+        </a>
         <button id="logout-btn" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-red-400/70 hover:text-red-400 hover:bg-red-400/10 transition-all">
             <i data-lucide="log-out" class="w-4 h-4"></i> Sign Out
         </button>
@@ -253,7 +256,7 @@
         case 'design-studio': window.location.href = '/staffs/hod/customize/'; break;
               case 'overview': await renderOverview(content); break;
         case 'announcements': await renderAnnouncements(content); break;
-        case 'trainees': await renderTrainees(content); break;
+        case 'trainees': window.location.href = '/staffs/registry/'; break;
         case 'staff': await renderStaff(content); break;
         case 'logs': await renderLogs(content); break;
         case 'profile': await renderProfile(content); break;
@@ -866,6 +869,11 @@
           document.getElementById('user-name').textContent = name;
           document.getElementById('user-role').textContent = window.staffCore.profile.primaryRole + ' Access';
           document.getElementById('user-initials').textContent = name.charAt(0);
+
+          const switchBtn = document.getElementById('switch-role-btn');
+          if (switchBtn && Array.isArray(window.staffCore.profile.roles) && window.staffCore.profile.roles.length > 1) {
+            switchBtn.classList.remove('hidden');
+          }
           
           loadNewsTicker();
           showTab('overview');

@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; img-src 'self' data: https: blob:; font-src 'self' https: data:; style-src 'self' https: 'unsafe-inline'; script-src 'self' https: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https: wss:;">
+
+  <title>Shared Trainee Registry — SkillForge Digital</title>
+
+  <link rel="stylesheet" href="../../assets/style.css">
+  <link rel="stylesheet" href="/assets/tailwind.css">
+  <script src="/assets/tailwind-runtime-stub.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: '#040810',
+            gold: '#C9A84C',
+            orange: '#E87722'
+          }
+        }
+      }
+    }
+  </script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="/assets/responsive.css">
+  <meta name="robots" content="noindex,nofollow">
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+    body { font-family:'Plus Jakarta Sans',sans-serif; background:#040810; color:#f1f5f9; overflow-x:hidden; min-height: 100dvh; }
+    #sundust-canvas { position:fixed; inset:0; width:100%; height:100dvh; z-index:0; pointer-events:none }
+    .glass { background: rgba(255,255,255,0.02); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
+    .glass-strong { background: rgba(255,255,255,0.05); -webkit-backdrop-filter: blur(30px); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.1); }
+    @keyframes slide-up { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .animate-slide-up { animation: slide-up 0.8s ease-out forwards; }
+    button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid #C9A84C; outline-offset: 2px; }
+    .table-scroll::-webkit-scrollbar { height: 10px; width: 10px; }
+    .table-scroll::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.25); border-radius: 9999px; }
+    .table-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 9999px; }
+  </style>
+
+  <script>window.history.scrollRestoration = "manual"; window.scrollTo(0, 0);</script>
+  <style id="sf-logo-round-style">img[src*="assets/brand-logo.jpg"],img[src*="assets/brand-logo.svg"],img[src*="assets/brand-logo.png"],img[src*="assets/brand-logo.jpeg"]{border-radius:9999px;border:1px solid rgba(201,168,76,0.45);box-shadow:0 0 0 4px rgba(201,168,76,0.10),0 12px 35px rgba(0,0,0,0.55);background:rgba(201,168,76,0.06);padding:4px;box-sizing:content-box}</style>
+</head>
+<body class="min-h-screen px-4 py-16 md:py-20">
+  <canvas id="sundust-canvas"></canvas>
+
+  <div class="relative z-10 max-w-7xl mx-auto space-y-10">
+    <header class="space-y-8 animate-slide-up">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <a aria-label="Back" id="back-link" href="/staffs/" class="inline-flex items-center gap-2 text-gold font-black text-[10px] uppercase tracking-[0.3em] hover:text-white transition-all">
+            <i data-lucide="arrow-left" class="w-3 h-3"></i> Back
+          </a>
+          <a aria-label="Switch role" id="switch-role-link" href="/staffs/role-gateway/" class="hidden md:inline-flex items-center gap-2 text-white/40 hover:text-gold transition-all text-[10px] font-black uppercase tracking-[0.3em]">
+            <i data-lucide="shuffle" class="w-3 h-3"></i> Switch Role
+          </a>
+        </div>
+        <div class="flex items-center gap-3">
+          <div id="profile-badge" class="hidden md:flex items-center gap-3 px-5 py-3 rounded-2xl glass border border-white/10">
+            <div class="w-8 h-8 rounded-xl bg-gold/10 border border-gold/20 flex items-center justify-center text-gold font-black text-[10px]" id="profile-initials">S</div>
+            <div class="leading-tight min-w-0">
+              <p class="text-[10px] font-black text-white uppercase truncate" id="profile-name">Loading...</p>
+              <p class="text-[8px] text-gold font-bold uppercase tracking-widest truncate" id="profile-role">Staff</p>
+            </div>
+          </div>
+          <button type="button" id="logout-btn" class="inline-flex items-center gap-2 text-white/50 hover:text-red-300 transition-all text-[10px] font-black uppercase tracking-[0.3em]">
+            <i data-lucide="log-out" class="w-4 h-4"></i> Logout
+          </button>
+        </div>
+      </div>
+
+      <div class="text-center space-y-3">
+        <div class="w-20 h-20 bg-gold/10 rounded-full flex items-center justify-center mx-auto border border-gold/20 overflow-hidden shadow-2xl">
+          <img width="40" height="40" src="/assets/brand-logo.jpg" class="w-10 h-10 object-contain" alt="SkillForge Digital logo">
+        </div>
+        <p class="text-gold text-xs font-black tracking-[0.5em] uppercase">Staff Registry</p>
+        <h1 class="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter">Shared Trainee Registry</h1>
+        <p class="text-[10px] md:text-xs text-slate-500 font-black uppercase tracking-[0.35em]">Track-filtered lookup with contact actions</p>
+      </div>
+    </header>
+
+    <main class="space-y-8 animate-slide-up" style="animation-delay: 0.1s;">
+      <section class="glass-strong rounded-[40px] p-8 md:p-10 border border-white/10 space-y-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-end">
+          <div class="lg:col-span-4 space-y-2">
+            <label for="track-select" class="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] ml-1">Required Track Filter</label>
+            <select id="track-select" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10 text-white">
+              <option value="" selected disabled>Select a track</option>
+            </select>
+          </div>
+
+          <div class="lg:col-span-5 space-y-2">
+            <label for="search-input" class="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] ml-1">Client-side Search</label>
+            <div class="relative">
+              <input id="search-input" type="search" placeholder="Search name, sfid, email or phone" class="w-full p-4 pr-12 rounded-2xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/20">
+              <div class="absolute right-4 top-1/2 -translate-y-1/2 text-white/25">
+                <i class="fa-solid fa-magnifying-glass"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="lg:col-span-3 flex flex-col sm:flex-row lg:flex-col gap-3">
+            <button type="button" id="export-csv-btn" class="w-full py-4 px-6 rounded-2xl bg-gold/10 border border-gold/20 text-gold font-black uppercase text-[9px] tracking-[0.3em] hover:bg-gold hover:text-navy transition-all inline-flex items-center justify-center gap-2">
+              <i class="fa-solid fa-file-csv"></i> Export CSV
+            </button>
+            <button type="button" id="copy-numbers-btn" class="w-full py-4 px-6 rounded-2xl bg-white/5 border border-white/10 text-white/70 font-black uppercase text-[9px] tracking-[0.3em] hover:bg-white/10 hover:text-white transition-all inline-flex items-center justify-center gap-2">
+              <i class="fa-solid fa-copy"></i> Copy Numbers
+            </button>
+          </div>
+        </div>
+
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div class="space-y-1">
+            <p class="text-[10px] font-black uppercase tracking-widest text-white/40">Results</p>
+            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+              <span id="results-count">0</span> entries
+              <span id="results-track" class="text-white/20"></span>
+            </p>
+          </div>
+          <div id="whatsapp-scope" class="hidden px-5 py-3 rounded-2xl bg-[#25D366]/10 border border-[#25D366]/20 text-[#25D366] text-[9px] font-black uppercase tracking-[0.35em]">
+            WhatsApp onboarding enabled
+          </div>
+        </div>
+
+        <div id="status" class="p-6 rounded-3xl bg-white/5 border border-white/10 text-[10px] text-slate-300 font-black uppercase tracking-widest">
+          Select a track to load trainees.
+        </div>
+
+        <div class="glass rounded-[32px] border border-white/10 overflow-hidden">
+          <div class="table-scroll overflow-x-auto">
+            <table class="min-w-[980px] w-full">
+              <thead class="bg-white/5">
+                <tr class="text-left">
+                  <th class="px-6 py-5 text-[9px] font-black uppercase tracking-[0.4em] text-white/40">Name</th>
+                  <th class="px-6 py-5 text-[9px] font-black uppercase tracking-[0.4em] text-white/40">Track</th>
+                  <th class="px-6 py-5 text-[9px] font-black uppercase tracking-[0.4em] text-white/40">SFID</th>
+                  <th class="px-6 py-5 text-[9px] font-black uppercase tracking-[0.4em] text-white/40">Email</th>
+                  <th class="px-6 py-5 text-[9px] font-black uppercase tracking-[0.4em] text-white/40">WhatsApp</th>
+                  <th class="px-6 py-5 text-[9px] font-black uppercase tracking-[0.4em] text-white/40">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="rows" class="divide-y divide-white/5"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module">
+    import { db, auth } from '../../assets/firebase-config.js';
+    import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+    import { collection, query, where, orderBy, limit, getDocs } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+    import { resolveStaffIdentity, getStaffDashboardPath } from '../../assets/staff-identity.js';
+    import { buildWhatsappMessage, buildWhatsappLink, getTelegramLinkForTrack, normalizePhone, TRACK_TELEGRAM_NODES } from '../../assets/registry-utils.js';
+
+    const WHATSAPP_ROLES = new Set(['Director', 'HOD', 'Digital Marketing', 'Support Staff']);
+    const TRACKS = Object.keys(TRACK_TELEGRAM_NODES);
+
+    let staffUser = null;
+    let staffProfile = null;
+    let trainees = [];
+    let filtered = [];
+    let selectedTrack = '';
+
+    function setStatus(message, tone = 'neutral') {
+      const el = document.getElementById('status');
+      if (!el) return;
+      el.innerText = message;
+      el.classList.remove('border-red-500/30', 'bg-red-500/10', 'text-red-300', 'border-gold/30', 'bg-gold/10', 'text-gold');
+      if (tone === 'error') el.classList.add('border-red-500/30', 'bg-red-500/10', 'text-red-300');
+      if (tone === 'warn') el.classList.add('border-gold/30', 'bg-gold/10', 'text-gold');
+    }
+
+    function getPhone(trainee) {
+      const raw = trainee?.phone || trainee?.whatsapp || trainee?.whatsApp || trainee?.phoneNumber || trainee?.mobile || trainee?.contact || '';
+      return String(raw || '').trim();
+    }
+
+    function escapeHtml(input) {
+      return String(input ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    function setCounts() {
+      const count = document.getElementById('results-count');
+      const track = document.getElementById('results-track');
+      if (count) count.textContent = String(filtered.length);
+      if (track) track.textContent = selectedTrack ? `• ${selectedTrack}` : '';
+    }
+
+    function canWhatsApp(profile) {
+      const roles = Array.isArray(profile?.roles) ? profile.roles : [];
+      return roles.some((r) => WHATSAPP_ROLES.has(r));
+    }
+
+    function renderRows() {
+      const tbody = document.getElementById('rows');
+      if (!tbody) return;
+      const whatsappAllowed = canWhatsApp(staffProfile);
+
+      tbody.innerHTML = filtered.map((t) => {
+        const name = escapeHtml(t.name || t.fullName || t.full_name || 'Unknown');
+        const track = escapeHtml(t.track || '');
+        const sfid = escapeHtml(t.sfid || t.SFID || '');
+        const email = escapeHtml(t.email || '');
+        const phoneRaw = getPhone(t);
+        const phone = escapeHtml(phoneRaw);
+        const hasPhone = Boolean(normalizePhone(phoneRaw));
+
+        const emailCell = email
+          ? `<a href="mailto:${email}" class="text-white hover:text-gold transition-all font-bold text-[10px] uppercase tracking-widest">${email}</a>`
+          : `<span class="text-white/20 text-[10px] font-black uppercase tracking-widest">NONE</span>`;
+
+        const phoneCell = phone
+          ? `<a href="tel:${escapeHtml(normalizePhone(phoneRaw))}" class="text-white hover:text-[#25D366] transition-all font-bold text-[10px] uppercase tracking-widest">${phone}</a>`
+          : `<span class="text-white/20 text-[10px] font-black uppercase tracking-widest">NONE</span>`;
+
+        const action = whatsappAllowed && hasPhone
+          ? `<button type="button" data-action="whatsapp" data-id="${escapeHtml(t.__id)}" class="inline-flex items-center gap-2 px-4 py-3 rounded-2xl bg-[#25D366]/10 border border-[#25D366]/20 text-[#25D366] hover:bg-[#25D366]/20 transition-all text-[9px] font-black uppercase tracking-[0.35em]">
+              <i class="fa-brands fa-whatsapp"></i> DM
+            </button>`
+          : `<span class="text-white/15 text-[10px] font-black uppercase tracking-widest">${whatsappAllowed ? 'NO PHONE' : 'LOCKED'}</span>`;
+
+        return `
+          <tr>
+            <td class="px-6 py-5">
+              <div class="space-y-1">
+                <p class="text-white font-black uppercase tracking-tight">${name}</p>
+                <p class="text-[9px] font-black uppercase tracking-[0.35em] text-white/30">${escapeHtml(t.created_at ? 'RECENT' : '')}</p>
+              </div>
+            </td>
+            <td class="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-white/70">${track}</td>
+            <td class="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-gold/80">${sfid || '<span class="text-white/20">—</span>'}</td>
+            <td class="px-6 py-5">${emailCell}</td>
+            <td class="px-6 py-5">${phoneCell}</td>
+            <td class="px-6 py-5">${action}</td>
+          </tr>
+        `;
+      }).join('');
+
+      tbody.querySelectorAll('button[data-action="whatsapp"]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-id') || '';
+          const trainee = trainees.find((x) => x.__id === id);
+          if (!trainee) return;
+
+          const phone = getPhone(trainee);
+          const telegramLink = getTelegramLinkForTrack(trainee.track);
+          const message = buildWhatsappMessage({
+            name: trainee.name || trainee.fullName || trainee.full_name,
+            track: trainee.track,
+            telegramLink
+          });
+          const url = buildWhatsappLink({ phone: phone, text: message });
+          window.open(url, '_blank', 'noopener');
+        });
+      });
+    }
+
+    function applySearch() {
+      const q = String(document.getElementById('search-input')?.value || '').trim().toLowerCase();
+      if (!q) {
+        filtered = [...trainees];
+      } else {
+        filtered = trainees.filter((t) => {
+          const phone = getPhone(t);
+          return [
+            t.name,
+            t.fullName,
+            t.full_name,
+            t.track,
+            t.email,
+            t.sfid,
+            t.SFID,
+            phone
+          ].some((v) => String(v || '').toLowerCase().includes(q));
+        });
+      }
+      setCounts();
+      renderRows();
+    }
+
+    async function loadTrack(track) {
+      selectedTrack = track;
+      trainees = [];
+      filtered = [];
+      setCounts();
+      renderRows();
+
+      if (!track) {
+        setStatus('Select a track to load trainees.');
+        return;
+      }
+
+      setStatus('Loading trainees from Firestore...');
+      try {
+        const q = query(
+          collection(db, 'trainees'),
+          where('track', '==', track),
+          orderBy('created_at', 'desc'),
+          limit(200)
+        );
+        const snap = await getDocs(q);
+        trainees = snap.docs.map((d) => ({ __id: d.id, ...d.data() }));
+        filtered = [...trainees];
+
+        setCounts();
+        renderRows();
+        setStatus(`Loaded ${trainees.length} trainees. Use search to filter.`);
+      } catch (err) {
+        void(err);
+        setStatus('Unable to load trainees. Please retry or check your network.', 'error');
+      }
+    }
+
+    function csvEscape(value) {
+      const text = String(value ?? '');
+      const needs = /[",\n]/.test(text);
+      const safe = text.replaceAll('"', '""');
+      return needs ? `"${safe}"` : safe;
+    }
+
+    function buildCsv(rows) {
+      const header = ['Name', 'Track', 'SFID', 'Email', 'Phone'];
+      const lines = [
+        header.join(',')
+      ];
+      for (const t of rows) {
+        lines.push([
+          csvEscape(t.name || t.fullName || t.full_name || ''),
+          csvEscape(t.track || ''),
+          csvEscape(t.sfid || t.SFID || ''),
+          csvEscape(t.email || ''),
+          csvEscape(getPhone(t))
+        ].join(','));
+      }
+      return lines.join('\n');
+    }
+
+    function downloadFile(contents, filename, mimeType) {
+      const blob = new Blob([contents], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    async function copyText(text) {
+      const value = String(text || '');
+      try {
+        await navigator.clipboard.writeText(value);
+        return true;
+      } catch (err) {
+        void(err);
+      }
+
+      const el = document.createElement('textarea');
+      el.value = value;
+      el.setAttribute('readonly', 'true');
+      el.style.position = 'fixed';
+      el.style.top = '-9999px';
+      document.body.appendChild(el);
+      el.select();
+      try {
+        document.execCommand('copy');
+        el.remove();
+        return true;
+      } catch (err) {
+        void(err);
+        el.remove();
+        return false;
+      }
+    }
+
+    function getUniqueNumbers(rows) {
+      const seen = new Set();
+      const out = [];
+      for (const t of rows) {
+        const normalized = normalizePhone(getPhone(t));
+        if (!normalized) continue;
+        if (seen.has(normalized)) continue;
+        seen.add(normalized);
+        out.push(normalized);
+      }
+      return out;
+    }
+
+    function updateProfileBadge(profile) {
+      const badge = document.getElementById('profile-badge');
+      const initials = document.getElementById('profile-initials');
+      const name = document.getElementById('profile-name');
+      const role = document.getElementById('profile-role');
+      if (!badge || !initials || !name || !role) return;
+
+      const n = String(profile?.name || '').trim();
+      initials.textContent = n ? n.charAt(0).toUpperCase() : 'S';
+      name.textContent = n || 'Staff';
+      role.textContent = String(profile?.primaryRole || (Array.isArray(profile?.roles) ? profile.roles[0] : '') || 'Staff').toUpperCase();
+      badge.classList.remove('hidden');
+    }
+
+    function hydrateNav(profile) {
+      const backLink = document.getElementById('back-link');
+      if (backLink) backLink.href = getStaffDashboardPath(profile);
+
+      const switchLink = document.getElementById('switch-role-link');
+      const roles = Array.isArray(profile?.roles) ? profile.roles : [];
+      if (switchLink && roles.length > 1) switchLink.classList.remove('hidden');
+
+      const scope = document.getElementById('whatsapp-scope');
+      if (scope && canWhatsApp(profile)) scope.classList.remove('hidden');
+    }
+
+    async function initialize(user) {
+      staffUser = user;
+      if (!user) {
+        window.location.href = '/staffs/login/';
+        return;
+      }
+
+      const resolved = await resolveStaffIdentity(user.uid);
+      if (resolved.offline) {
+        setStatus('Network is unstable. Please check your connection.', 'warn');
+        return;
+      }
+
+      if (!resolved.found || !resolved.profile) {
+        await signOut(auth);
+        window.location.href = '/staffs/login/';
+        return;
+      }
+
+      staffProfile = resolved.profile;
+      hydrateNav(staffProfile);
+      updateProfileBadge(staffProfile);
+      applySearch();
+    }
+
+    TRACKS.sort((a, b) => a.localeCompare(b));
+    const trackSelect = document.getElementById('track-select');
+    for (const track of TRACKS) {
+      const opt = document.createElement('option');
+      opt.value = track;
+      opt.textContent = track;
+      trackSelect.appendChild(opt);
+    }
+
+    trackSelect.addEventListener('change', async () => {
+      const track = String(trackSelect.value || '');
+      await loadTrack(track);
+      applySearch();
+    });
+
+    document.getElementById('search-input')?.addEventListener('input', () => applySearch());
+
+    document.getElementById('export-csv-btn')?.addEventListener('click', () => {
+      if (!selectedTrack) {
+        setStatus('Select a track before exporting.', 'warn');
+        return;
+      }
+      const csv = buildCsv(filtered);
+      const fileName = `skillforge_trainee_registry_${selectedTrack.replaceAll(' ', '_').toLowerCase()}_${Date.now()}.csv`;
+      downloadFile(csv, fileName, 'text/csv;charset=utf-8');
+      setStatus('CSV exported.');
+    });
+
+    document.getElementById('copy-numbers-btn')?.addEventListener('click', async () => {
+      if (!selectedTrack) {
+        setStatus('Select a track before copying numbers.', 'warn');
+        return;
+      }
+      const nums = getUniqueNumbers(filtered);
+      if (!nums.length) {
+        setStatus('No phone numbers found in this list.', 'warn');
+        return;
+      }
+      const ok = await copyText(nums.join('\n'));
+      setStatus(ok ? `Copied ${nums.length} numbers to clipboard.` : 'Unable to copy. Please try again.', ok ? 'neutral' : 'error');
+    });
+
+    document.getElementById('logout-btn')?.addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.href = '/staffs/login/';
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      try {
+        await initialize(user);
+      } catch (err) {
+        void(err);
+        setStatus('Unable to initialize registry. Please refresh.', 'error');
+      }
+    });
+
+    class Sundust {
+      constructor() {
+        this.canvas = document.getElementById('sundust-canvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.particles = [];
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+        this.initParticles();
+        this.animate();
+      }
+      resize(){ this.canvas.width=window.innerWidth; this.canvas.height=window.innerHeight }
+      initParticles(){ for(let i=0;i<45;i++) this.particles.push(this.createParticle()) }
+      createParticle(){ return { x:Math.random()*this.canvas.width,y:Math.random()*this.canvas.height,size:Math.random()*1.4+0.4,alpha:Math.random()*0.3+0.08,vx:(Math.random()-0.5)*0.2,vy:(Math.random()-0.5)*0.2,p:Math.random()*Math.PI*2 } }
+      animate(){
+        this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
+        this.particles.forEach(p=>{
+          p.x+=p.vx; p.y+=p.vy; p.p+=0.01;
+          if(p.x<0)p.x=this.canvas.width; if(p.x>this.canvas.width)p.x=0;
+          if(p.y<0)p.y=this.canvas.height; if(p.y>this.canvas.height)p.y=0;
+          this.ctx.fillStyle=`rgba(201,168,76,${p.alpha+Math.sin(p.p)*0.1})`;
+          this.ctx.beginPath(); this.ctx.arc(p.x,p.y,p.size,0,Math.PI*2); this.ctx.fill();
+        });
+        requestAnimationFrame(()=>this.animate());
+      }
+    }
+    new Sundust();
+    if (window.lucide) window.lucide.createIcons();
+  </script>
+</body>
+</html>
+

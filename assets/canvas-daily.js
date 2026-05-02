@@ -160,7 +160,7 @@ export class DailyAtmosphere {
           ctx.fill();
         }
         break;
-      case 2: // Portal Grid Nodes
+      case 2: { // Portal Grid Nodes
         ctx.strokeStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${isDark ? 0.2 : 0.25})`;
         const step = 80;
         for (let x = 0; x < w; x += step) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
@@ -174,6 +174,7 @@ export class DailyAtmosphere {
           ctx.fill();
         }
         break;
+      }
       case 3: // Deep Space Nebula
         for (let p of this.particles) {
           p.ph += 0.008;
@@ -234,4 +235,3 @@ export class DailyAtmosphere {
 }
 
 window['dailyAtmosphere'] = new DailyAtmosphere();
-

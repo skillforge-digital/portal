@@ -183,6 +183,9 @@
                 <p class="text-[8px] text-gold font-bold uppercase tracking-widest truncate" id="user-role">Director Access</p>
             </div>
         </div>
+        <a id="switch-role-btn" href="/staffs/role-gateway/" class="hidden w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-gold hover:bg-gold/10 transition-all mb-3">
+            <i data-lucide="shuffle" class="w-4 h-4"></i> Switch Role
+        </a>
         <button id="logout-btn" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-red-400/70 hover:text-red-400 hover:bg-red-400/10 transition-all">
             <i data-lucide="log-out" class="w-4 h-4"></i> Sign Out
         </button>
@@ -256,6 +259,11 @@
       document.getElementById('user-name').textContent = staffCommand.userData.name || 'DIRECTOR';
       document.getElementById('user-role').textContent = (staffCommand.userData.roles || []).join(' | ');
       document.getElementById('user-initials').textContent = (staffCommand.userData.name || 'D').charAt(0);
+
+      const switchBtn = document.getElementById('switch-role-btn');
+      if (switchBtn && (staffCommand.userData.roles || []).length > 1) {
+        switchBtn.classList.remove('hidden');
+      }
       
       loadNewsTicker();
       showTab('overview');
@@ -359,7 +367,7 @@
           switch(tab) {
             case 'design-studio': window.location.href = '/staffs/director/customize/'; break;
               case 'overview': await renderOverview(content); break;
-            case 'trainees': await renderTrainees(content); break;
+            case 'trainees': window.location.href = '/staffs/registry/'; break;
             case 'staff': await renderStaff(content); break;
             case 'approvals': await renderApprovals(content); break;
             case 'faults': await renderFaults(content); break;

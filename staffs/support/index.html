@@ -131,7 +131,7 @@
         <p class="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Command Center</p>
         <a aria-label="Action button" href="#" class="nav-link active w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Path Overview
         </a>
-        <a href="#" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+        <a href="/staffs/registry/" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
           <i data-lucide="user-check" class="w-4 h-4"></i> Trainee Registry
         </a>
         <a href="customize/" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
@@ -170,6 +170,9 @@
                 <p class="text-[8px] text-orange font-bold uppercase tracking-widest truncate" id="user-role">Specialist Access</p>
             </div>
         </div>
+        <a id="switch-role-btn" href="/staffs/role-gateway/" class="hidden w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-orange hover:bg-orange/10 transition-all mb-3">
+            <i data-lucide="shuffle" class="w-4 h-4"></i> Switch Role
+        </a>
         <button type="button" onclick="window.staffCore.logout()" aria-label="Sign Out of Support Hub" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-red-400/70 hover:text-red-400 hover:bg-red-400/10 transition-all">
             <i data-lucide="log-out" class="w-4 h-4"></i> Sign Out
         </button>
@@ -492,6 +495,11 @@
                 document.getElementById('user-name').innerText = profile.name || 'SPECIALIST';
                 document.getElementById('user-role').innerText = profile.primaryRole + ' Access';
                 document.getElementById('user-initials').innerText = (profile.name || 'S').charAt(0);
+
+                const switchBtn = document.getElementById('switch-role-btn');
+                if (switchBtn && Array.isArray(profile.roles) && profile.roles.length > 1) {
+                    switchBtn.classList.remove('hidden');
+                }
                 
                 loadNewsTicker();
                 window.showTab('overview');
