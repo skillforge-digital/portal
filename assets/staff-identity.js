@@ -1,5 +1,10 @@
-import { db } from './firebase-config.js';
-import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+const STAFF_DASHBOARD_PATH_BY_ROLE = {
+    Director: '/staffs/director/',
+    HOD: '/staffs/hod/',
+    Specialist: '/staffs/specialist/',
+    'Digital Marketing': '/staffs/marketing/',
+    'Support Staff': '/staffs/support/'
+};
 
 const LEGACY_ROLE_BY_COLLECTION = {
     directors: 'Director',
@@ -8,6 +13,11 @@ const LEGACY_ROLE_BY_COLLECTION = {
 };
 
 export async function resolveStaffIdentity(uid) {
+    const [{ db }, { doc, getDoc }] = await Promise.all([
+        import('./firebase-config.js'),
+        import('https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js')
+    ]);
+
     const refs = [
         { collection: 'staffs', ref: doc(db, 'staffs', uid) },
         { collection: 'directors', ref: doc(db, 'directors', uid) },
@@ -51,12 +61,13 @@ export async function resolveStaffIdentity(uid) {
 
 export function getStaffDashboardPath(profile) {
     const role = profile?.primaryRole || profile?.role || (Array.isArray(profile?.roles) ? profile.roles[0] : undefined);
-    const map = {
-        Director: '/staffs/director/',
-        HOD: '/staffs/hod/',
-        Specialist: '/staffs/specialist/',
-        'Digital Marketing': '/staffs/marketing/',
-        'Support Staff': '/staffs/support/'
-    };
-    return map[role] || '/staffs/';
+    return STAFF_DASHBOARD_PATH_BY_ROLE[role] || '/staffs/';
+}
+
+export function getAllStaffDashboardPaths(profile) {
+    const roles = Array.isArray(profile?.roles) ? profile.roles : [];
+    return roles
+        .filter(Boolean)
+        .map((r) => ({ role: r, path: STAFF_DASHBOARD_PATH_BY_ROLE[r] }))
+        .filter((x) => Boolean(x.path));
 }

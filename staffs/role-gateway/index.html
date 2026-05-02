@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; img-src 'self' data: https: blob:; font-src 'self' https: data:; style-src 'self' https: 'unsafe-inline'; script-src 'self' https: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https: wss:;">
+
+  <title>Role Gateway — SkillForge Digital</title>
+
+  <link rel="stylesheet" href="../../assets/style.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="/assets/tailwind.css">
+  <script src="/assets/tailwind-runtime-stub.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: '#040810',
+            gold: '#C9A84C',
+            orange: '#E87722',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+    body { font-family:'Plus Jakarta Sans',sans-serif; background:#040810; color:#f1f5f9; overflow-x:hidden; min-height: 100dvh; }
+    #sundust-canvas { position:fixed; inset:0; width:100%; height:100dvh; z-index:0; pointer-events:none }
+    .glass { background: rgba(255,255,255,0.02); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
+    button:focus-visible, a:focus-visible { outline: 2px solid #C9A84C; outline-offset: 2px; }
+    @keyframes slide-up { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .animate-slide-up { animation: slide-up 0.8s ease-out forwards; opacity: 0; }
+  </style>
+  <script>window.history.scrollRestoration = "manual"; window.scrollTo(0, 0);</script>
+  <style id="sf-logo-round-style">img[src*="assets/brand-logo.jpg"],img[src*="assets/brand-logo.svg"],img[src*="assets/brand-logo.png"],img[src*="assets/brand-logo.jpeg"]{border-radius:9999px;border:1px solid rgba(201,168,76,0.45);box-shadow:0 0 0 4px rgba(201,168,76,0.10),0 12px 35px rgba(0,0,0,0.55);background:rgba(201,168,76,0.06);padding:4px;box-sizing:content-box}</style>
+  <link rel="stylesheet" href="/assets/responsive.css">
+  <meta name="robots" content="noindex,nofollow">
+</head>
+<body class="min-h-screen py-20 px-4">
+  <canvas id="sundust-canvas"></canvas>
+
+  <div class="relative z-10 max-w-5xl mx-auto space-y-10">
+    <header class="space-y-6 animate-slide-up">
+      <div class="flex items-center justify-between gap-4">
+        <a aria-label="Back to Staff Gateway" href="/staffs/" class="inline-flex items-center gap-2 text-gold font-black text-[10px] uppercase tracking-[0.3em] hover:text-white transition-all">
+          <i data-lucide="arrow-left" class="w-3 h-3"></i> Back to Staff Gateway
+        </a>
+        <button type="button" id="logout-btn" class="inline-flex items-center gap-2 text-white/50 hover:text-red-300 transition-all text-[10px] font-black uppercase tracking-[0.3em]">
+          <i data-lucide="log-out" class="w-4 h-4"></i> Logout
+        </button>
+      </div>
+
+      <div class="text-center space-y-3">
+        <div class="w-20 h-20 bg-gold/10 rounded-full flex items-center justify-center mx-auto border border-gold/20 overflow-hidden shadow-2xl">
+          <img width="40" height="40" src="/assets/brand-logo.jpg" class="w-10 h-10 object-contain" alt="SkillForge Digital logo">
+        </div>
+        <h1 class="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter">Role Gateway</h1>
+        <p class="text-slate-500 text-[10px] md:text-xs font-black uppercase tracking-[0.4em]">Select Your Active Command Role</p>
+        <p id="profile-line" class="text-[10px] text-slate-400 font-black uppercase tracking-widest hidden"></p>
+      </div>
+    </header>
+
+    <main class="animate-slide-up opacity-0" style="animation-delay: 0.2s;">
+      <section class="glass p-10 rounded-[40px] border-white/10 space-y-8">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-black text-white uppercase tracking-tight">Available Dashboards</h2>
+            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Your account has multiple clearances</p>
+          </div>
+          <button type="button" id="continue-last-btn" class="hidden py-4 px-6 rounded-2xl bg-gold text-navy font-black uppercase text-[9px] tracking-[0.3em] hover:bg-white transition-all inline-flex items-center gap-2">
+            Continue Last Role <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <div id="status" class="p-6 rounded-3xl bg-white/5 border border-white/10 text-[10px] text-slate-300 font-black uppercase tracking-widest">
+          Loading roles...
+        </div>
+
+        <div id="roles-grid" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module">
+    import { auth } from '../../assets/firebase-config.js';
+    import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+    import { resolveStaffIdentity, getStaffDashboardPath, getAllStaffDashboardPaths } from '../../assets/staff-identity.js';
+
+    const LAST_ROLE_KEY = 'sf_last_staff_role';
+
+    function setStatus(message, tone = 'neutral') {
+      const el = document.getElementById('status');
+      if (!el) return;
+      el.innerText = message;
+      el.classList.remove('border-gold/20', 'border-red-500/30', 'bg-red-500/10', 'text-red-300');
+      if (tone === 'error') {
+        el.classList.add('border-red-500/30', 'bg-red-500/10', 'text-red-300');
+      } else if (tone === 'warn') {
+        el.classList.add('border-gold/20');
+      }
+    }
+
+    function renderRoles(dashboards, lastRole) {
+      const grid = document.getElementById('roles-grid');
+      if (!grid) return;
+
+      grid.innerHTML = '';
+      const ordered = [...dashboards].sort((a, b) => (a.role === lastRole ? -1 : b.role === lastRole ? 1 : 0));
+
+      for (const entry of ordered) {
+        const isLast = entry.role === lastRole;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = [
+          'glass', 'p-8', 'rounded-[32px]', 'border', 'border-white/5',
+          'hover:border-gold/30', 'hover:bg-gold/5', 'transition-all', 'text-left', 'w-full',
+          isLast ? 'ring-1 ring-gold/30' : ''
+        ].join(' ');
+
+        btn.innerHTML = `
+          <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <div class="flex items-center gap-2">
+                <h3 class="text-xl font-black text-white uppercase truncate">${entry.role}</h3>
+                ${isLast ? '<span class="px-2 py-1 rounded-full bg-gold/10 text-gold text-[8px] font-black uppercase tracking-widest border border-gold/20">Last used</span>' : ''}
+              </div>
+              <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-2">Open dashboard</p>
+            </div>
+            <i data-lucide="arrow-right" class="w-6 h-6 text-slate-500"></i>
+          </div>
+        `;
+
+        btn.addEventListener('click', () => {
+          localStorage.setItem(LAST_ROLE_KEY, entry.role);
+          window.location.href = entry.path;
+        });
+
+        grid.appendChild(btn);
+      }
+
+      grid.classList.remove('hidden');
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    async function initialize(user) {
+      if (!user) {
+        window.location.href = '/staffs/login/';
+        return;
+      }
+
+      const resolved = await resolveStaffIdentity(user.uid);
+      if (resolved.offline) {
+        setStatus('Network is unstable. Please check your internet connection and retry.', 'warn');
+        return;
+      }
+
+      if (!resolved.found || !resolved.profile) {
+        await signOut(auth);
+        window.location.href = '/staffs/login/';
+        return;
+      }
+
+      const dashboards = getAllStaffDashboardPaths(resolved.profile);
+      if (dashboards.length <= 1) {
+        window.location.href = getStaffDashboardPath(resolved.profile);
+        return;
+      }
+
+      const profileLine = document.getElementById('profile-line');
+      if (profileLine) {
+        const name = resolved.profile.name ? String(resolved.profile.name).trim() : '';
+        const email = user.email ? String(user.email).trim() : '';
+        profileLine.innerText = [name, email].filter(Boolean).join(' • ');
+        profileLine.classList.remove('hidden');
+      }
+
+      const lastRole = localStorage.getItem(LAST_ROLE_KEY) || '';
+      const continueBtn = document.getElementById('continue-last-btn');
+      const lastMatch = dashboards.find((d) => d.role === lastRole);
+      if (continueBtn && lastMatch) {
+        continueBtn.classList.remove('hidden');
+        continueBtn.addEventListener('click', () => {
+          localStorage.setItem(LAST_ROLE_KEY, lastMatch.role);
+          window.location.href = lastMatch.path;
+        });
+      }
+
+      setStatus('Select a role to continue.');
+      renderRoles(dashboards, lastRole);
+    }
+
+    document.getElementById('logout-btn')?.addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.href = '/staffs/login/';
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      try {
+        await initialize(user);
+      } catch (err) {
+        void(err);
+        setStatus('Unable to load roles. Please refresh and try again.', 'error');
+      }
+    });
+
+    class Sundust {
+      constructor() {
+        this.canvas = document.getElementById('sundust-canvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.particles = [];
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+        this.initParticles();
+        this.animate();
+      }
+      resize(){ this.canvas.width=window.innerWidth; this.canvas.height=window.innerHeight }
+      initParticles(){ for(let i=0;i<40;i++) this.particles.push(this.createParticle()) }
+      createParticle(){ return { x:Math.random()*this.canvas.width,y:Math.random()*this.canvas.height,size:Math.random()*1.2+0.5,alpha:Math.random()*0.3+0.1,vx:(Math.random()-0.5)*0.2,vy:(Math.random()-0.5)*0.2,p:Math.random()*Math.PI*2 } }
+      animate(){
+        this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
+        this.particles.forEach(p=>{
+          p.x+=p.vx; p.y+=p.vy; p.p+=0.01;
+          if(p.x<0)p.x=this.canvas.width; if(p.x>this.canvas.width)p.x=0;
+          if(p.y<0)p.y=this.canvas.height; if(p.y>this.canvas.height)p.y=0;
+          this.ctx.fillStyle=`rgba(201,168,76,${p.alpha+Math.sin(p.p)*0.1})`;
+          this.ctx.beginPath(); this.ctx.arc(p.x,p.y,p.size,0,Math.PI*2); this.ctx.fill();
+        });
+        requestAnimationFrame(()=>this.animate());
+      }
+    }
+    new Sundust();
+    if (window.lucide) window.lucide.createIcons();
+  </script>
+</body>
+</html>
+

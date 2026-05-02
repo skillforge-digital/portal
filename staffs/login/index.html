@@ -312,7 +312,12 @@
             return;
         }
         if (staffResolved.found && staffResolved.profile) {
-            window.location.href = getStaffDashboardPath(staffResolved.profile);
+            const roles = Array.isArray(staffResolved.profile.roles) ? staffResolved.profile.roles.filter(Boolean) : [];
+            if (roles.length > 1) {
+                window.location.href = '/staffs/role-gateway/';
+            } else {
+                window.location.href = getStaffDashboardPath(staffResolved.profile);
+            }
             return;
         }
 
@@ -363,8 +368,13 @@
             const cookieDomain = window.location.hostname.includes('skillforgedigital.com.ng') ? '.skillforgedigital.com.ng' : window.location.hostname;
             document.cookie = `sf_staff_uid=${user.uid}; path=/; domain=${cookieDomain}; max-age=86400; SameSite=Lax; Secure`;
 
-            const target = getStaffDashboardPath(staffResolved.profile);
-            window.location.href = target;
+            const roles = Array.isArray(staffResolved.profile.roles) ? staffResolved.profile.roles.filter(Boolean) : [];
+            if (roles.length > 1) {
+                window.location.href = '/staffs/role-gateway/';
+            } else {
+                const target = getStaffDashboardPath(staffResolved.profile);
+                window.location.href = target;
+            }
         } catch (err) {
             void(err);
             if (isOfflineFirestoreError(err)) {
