@@ -153,6 +153,9 @@
         <button data-tab="codes" aria-label="Manage Access Codes" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
           <i data-lucide="key" class="w-4 h-4"></i> Access Codes
         </button>
+        <button data-tab="reset-tickets" aria-label="Reset Tickets Inbox" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+          <i data-lucide="ticket" class="w-4 h-4"></i> Reset Tickets
+        </button>
         <button data-tab="audit" aria-label="View Audit Logs" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
           <i data-lucide="scroll-text" class="w-4 h-4"></i> Audit Logs
         </button>
@@ -216,6 +219,7 @@
     import '../../assets/theme-manager.js';
     import { ROLES, PERMISSIONS } from '../../assets/rbac-config.js';
     import { db, auth } from '../../assets/firebase-config.js';
+    import { buildResetWhatsappMessage, buildWhatsappLink, normalizePhone } from '../../assets/registry-utils.js';
     import { 
         collection, query, getDocs, doc, getDoc, setDoc, addDoc, 
         deleteDoc, updateDoc, serverTimestamp, orderBy, onSnapshot, writeBatch, limit, where 
@@ -374,6 +378,7 @@
             case 'announcements': await renderAnnouncements(content); break;
             case 'seasons': await renderSeasons(content); break;
             case 'codes': await renderCodes(content); break;
+            case 'reset-tickets': await renderResetTickets(content); break;
             case 'audit': await renderAudit(content); break;
             case 'profile': await renderProfile(content); break;
             default: await renderOverview(content);
@@ -1393,6 +1398,215 @@
       
       alert(`Authorization Key Generated: ${code}`);
       loadRoleCodes();
+    };
+
+    window.renderResetTickets = async function(container) {
+      if (currentTabUnsub) currentTabUnsub();
+      container.innerHTML = `
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-8">
+          <div>
+            <p class="text-gold text-xs font-black tracking-[0.4em] uppercase">Support Inbox</p>
+            <h1 class="text-4xl md:text-5xl font-black mt-2 uppercase tracking-tighter">Reset Tickets</h1>
+          </div>
+        </header>
+        <div class="glass-strong rounded-[40px] p-8 border border-white/5 overflow-x-auto">
+          <div id="reset-tickets-summary" class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+            <p class="text-[10px] font-black uppercase tracking-widest text-white/50">Loading tickets...</p>
+            <p class="text-[10px] font-black uppercase tracking-widest text-white/30">Newest first • Max 200</p>
+          </div>
+          <table class="w-full text-left min-w-[980px]">
+            <thead class="text-[10px] font-black uppercase text-slate-500 border-b border-white/10">
+              <tr>
+                <th class="pb-4">Account</th>
+                <th class="pb-4">Phone</th>
+                <th class="pb-4">Ticket Code</th>
+                <th class="pb-4">Status</th>
+                <th class="pb-4">Created</th>
+                <th class="pb-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="reset-tickets-body" class="text-sm"></tbody>
+          </table>
+        </div>
+      `;
+
+      const body = container.querySelector('#reset-tickets-body');
+      const summary = container.querySelector('#reset-tickets-summary');
+
+      currentTabUnsub = onSnapshot(
+        query(collection(db, 'password_resets'), orderBy('created_at', 'desc'), limit(200)),
+        (snap) => {
+          const tickets = snap.docs.map(d => ({ id: d.id, ...((d.data() || {})) }));
+          window.__resetTicketsCache = new Map(tickets.map(t => [t.id, t]));
+
+          const counts = tickets.reduce((acc, t) => {
+            const s = String(t.status || 'requested');
+            acc.total += 1;
+            acc[s] = (acc[s] || 0) + 1;
+            return acc;
+          }, { total: 0 });
+
+          if (summary) {
+            const requested = counts.requested || 0;
+            const handled = counts.handled || 0;
+            const closed = counts.closed || 0;
+            summary.innerHTML = `
+              <p class="text-[10px] font-black uppercase tracking-widest text-white/60">
+                Total ${counts.total} • Requested ${requested} • Handled ${handled} • Closed ${closed}
+              </p>
+              <p class="text-[10px] font-black uppercase tracking-widest text-white/30">Newest first • Max 200</p>
+            `;
+          }
+
+          if (!body) return;
+          if (tickets.length === 0) {
+            body.innerHTML = '<tr><td colspan="6" class="py-12 text-center text-white/40 italic uppercase font-bold tracking-widest">No reset tickets yet.</td></tr>';
+            return;
+          }
+
+          body.innerHTML = tickets.map(t => {
+            const email = String(t.email || '').trim();
+            const phone = String(t.phone || '').trim();
+            const normalized = phone ? normalizePhone(phone) : '';
+            const code = String(t.ticketCode || '').trim();
+            const accountType = String(t.accountType || '').trim();
+            const status = String(t.status || 'requested').trim();
+
+            const created = t.created_at?.toDate ? t.created_at.toDate().toLocaleString() : 'N/A';
+            const statusTone = status === 'requested'
+              ? 'bg-orange/10 text-orange border-orange/20'
+              : status === 'handled'
+                ? 'bg-gold/10 text-gold border-gold/20'
+                : status === 'closed'
+                  ? 'bg-green-500/10 text-green-400 border-green-500/20'
+                  : 'bg-white/5 text-white/60 border-white/10';
+
+            const handleDisabled = status === 'handled' || status === 'closed';
+            const closeDisabled = status === 'closed';
+
+            return `
+              <tr class="border-b border-white/5 hover:bg-white/[0.02] transition-colors align-top">
+                <td class="py-5 pr-6">
+                  <div class="space-y-1">
+                    <p class="font-black text-white uppercase text-xs">${email || 'UNKNOWN'}</p>
+                    <p class="text-[9px] text-slate-500 font-bold uppercase tracking-widest">${accountType || 'UNKNOWN'}</p>
+                  </div>
+                </td>
+                <td class="py-5 pr-6">
+                  <div class="space-y-2">
+                    <p class="font-mono text-[11px] text-white/80">${normalized || phone || 'N/A'}</p>
+                    ${normalized ? `<a href="https://wa.me/${normalized}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-gold/80 hover:text-gold">
+                      <i data-lucide="message-circle" class="w-3 h-3"></i> Direct
+                    </a>` : ''}
+                  </div>
+                </td>
+                <td class="py-5 pr-6">
+                  <span class="font-mono font-black text-gold text-lg tracking-[0.2em]">${code || '------'}</span>
+                </td>
+                <td class="py-5 pr-6">
+                  <span class="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border ${statusTone}">${status || 'requested'}</span>
+                </td>
+                <td class="py-5 pr-6">
+                  <p class="text-[10px] text-white/50 font-bold uppercase tracking-widest">${created}</p>
+                </td>
+                <td class="py-5 text-right">
+                  <div class="flex flex-wrap justify-end gap-2">
+                    <button onclick="window.copyResetTicketCode(${JSON.stringify(t.id)}, this)" class="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white/70 text-[9px] font-black uppercase tracking-widest hover:bg-white/10 hover:text-white transition-all">
+                      <i data-lucide="copy" class="w-3 h-3 inline mr-1"></i> Code
+                    </button>
+                    <button onclick="window.copyResetTicketMessage(${JSON.stringify(t.id)}, this)" class="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white/70 text-[9px] font-black uppercase tracking-widest hover:bg-white/10 hover:text-white transition-all">
+                      <i data-lucide="clipboard-copy" class="w-3 h-3 inline mr-1"></i> Message
+                    </button>
+                    <button onclick="window.openResetTicketWhatsapp(${JSON.stringify(t.id)})" class="px-3 py-2 rounded-xl bg-gold/10 border border-gold/20 text-gold text-[9px] font-black uppercase tracking-widest hover:bg-gold hover:text-navy transition-all">
+                      <i data-lucide="message-circle" class="w-3 h-3 inline mr-1"></i> WhatsApp
+                    </button>
+                    <button ${handleDisabled ? 'disabled' : ''} onclick="window.markResetTicketHandled(${JSON.stringify(t.id)})" class="px-3 py-2 rounded-xl ${handleDisabled ? 'bg-white/5 border border-white/10 text-white/20 cursor-not-allowed' : 'bg-orange/10 border border-orange/20 text-orange hover:bg-orange hover:text-navy'} text-[9px] font-black uppercase tracking-widest transition-all">
+                      <i data-lucide="check-circle" class="w-3 h-3 inline mr-1"></i> Handled
+                    </button>
+                    <button ${closeDisabled ? 'disabled' : ''} onclick="window.markResetTicketClosed(${JSON.stringify(t.id)})" class="px-3 py-2 rounded-xl ${closeDisabled ? 'bg-white/5 border border-white/10 text-white/20 cursor-not-allowed' : 'bg-green-500/10 border border-green-500/20 text-green-400 hover:bg-green-500 hover:text-navy'} text-[9px] font-black uppercase tracking-widest transition-all">
+                      <i data-lucide="x-circle" class="w-3 h-3 inline mr-1"></i> Close
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          }).join('');
+
+          if (window.lucide) window.lucide.createIcons();
+        },
+        () => {
+          if (!body) return;
+          body.innerHTML = '<tr><td colspan="6" class="py-12 text-center text-red-400 font-black uppercase tracking-widest">Failed to load reset tickets.</td></tr>';
+        }
+      );
+    };
+
+    window.copyResetTicketCode = (ticketId, btn) => {
+      const t = window.__resetTicketsCache ? window.__resetTicketsCache.get(ticketId) : null;
+      if (!t) return;
+      window.copyToClipboard(String(t.ticketCode || ''), btn);
+    };
+
+    window.copyResetTicketMessage = (ticketId, btn) => {
+      const t = window.__resetTicketsCache ? window.__resetTicketsCache.get(ticketId) : null;
+      if (!t) return;
+      const text = buildResetWhatsappMessage({
+        email: t.email,
+        ticketCode: t.ticketCode,
+        accountType: t.accountType
+      });
+      window.copyToClipboard(text, btn);
+    };
+
+    window.openResetTicketWhatsapp = (ticketId) => {
+      const t = window.__resetTicketsCache ? window.__resetTicketsCache.get(ticketId) : null;
+      if (!t) return;
+      const phone = String(t.phone || '').trim();
+      if (!phone) { alert('Ticket is missing a WhatsApp number.'); return; }
+      const text = buildResetWhatsappMessage({
+        email: t.email,
+        ticketCode: t.ticketCode,
+        accountType: t.accountType
+      });
+      const url = buildWhatsappLink({ phone, text });
+      window.open(url, '_blank', 'noopener');
+    };
+
+    window.markResetTicketHandled = async (ticketId) => {
+      const t = window.__resetTicketsCache ? window.__resetTicketsCache.get(ticketId) : null;
+      if (!t) return;
+      if (!requireArm(`reset-ticket-handled:${ticketId}`, 'Click again to mark this ticket handled.')) return;
+
+      await updateDoc(doc(db, 'password_resets', ticketId), {
+        status: 'handled',
+        handled_at: serverTimestamp(),
+        handled_by: staffCommand.uid,
+        handled_by_name: staffCommand.userData?.name || 'STAFF'
+      });
+
+      await addDoc(collection(db, 'audit_logs'), {
+        type: 'PASSWORD_RESET_TICKET_HANDLED',
+        ticketId,
+        ticketCode: t.ticketCode || null,
+        email: t.email || null,
+        phone: t.phone || null,
+        accountType: t.accountType || null,
+        handled_by: staffCommand.uid,
+        handled_by_name: staffCommand.userData?.name || null,
+        timestamp: serverTimestamp()
+      });
+    };
+
+    window.markResetTicketClosed = async (ticketId) => {
+      const t = window.__resetTicketsCache ? window.__resetTicketsCache.get(ticketId) : null;
+      if (!t) return;
+      if (!requireArm(`reset-ticket-closed:${ticketId}`, 'Click again to close this ticket.')) return;
+
+      const update = { status: 'closed' };
+      if (!t.handled_at) update.handled_at = serverTimestamp();
+      if (!t.handled_by) update.handled_by = staffCommand.uid;
+      if (!t.handled_by_name) update.handled_by_name = staffCommand.userData?.name || 'STAFF';
+      await updateDoc(doc(db, 'password_resets', ticketId), update);
     };
 
     window.renderAudit = async function(container) {
