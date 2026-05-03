@@ -1433,11 +1433,37 @@
       const body = container.querySelector('#reset-tickets-body');
       const summary = container.querySelector('#reset-tickets-summary');
 
-      currentTabUnsub = onSnapshot(
+      const successUnsub = onSnapshot(
+        query(
+          collection(db, 'audit_logs'),
+          where('type', '==', 'PASSWORD_RESET_SUCCESS'),
+          orderBy('timestamp', 'desc'),
+          limit(500)
+        ),
+        (snap) => {
+          const map = new Map();
+          snap.forEach((d0) => {
+            const d = d0.data() || {};
+            const email = String(d.email || '').trim().toLowerCase();
+            if (!email) return;
+            const ts = d.timestamp?.toDate ? d.timestamp.toDate().getTime() : 0;
+            if (!ts) return;
+            const prev = map.get(email) || 0;
+            if (ts > prev) map.set(email, ts);
+          });
+          window.__resetSuccessByEmail = map;
+        },
+        () => {
+          window.__resetSuccessByEmail = new Map();
+        }
+      );
+
+      const ticketsUnsub = onSnapshot(
         query(collection(db, 'password_resets'), orderBy('created_at', 'desc'), limit(200)),
         (snap) => {
           const tickets = snap.docs.map(d => ({ id: d.id, ...((d.data() || {})) }));
           window.__resetTicketsCache = new Map(tickets.map(t => [t.id, t]));
+          const successMap = window.__resetSuccessByEmail instanceof Map ? window.__resetSuccessByEmail : new Map();
 
           const counts = tickets.reduce((acc, t) => {
             const s = String(t.status || 'requested');
@@ -1471,6 +1497,10 @@
             const code = String(t.ticketCode || '').trim();
             const accountType = String(t.accountType || '').trim();
             const status = String(t.status || 'requested').trim();
+            const emailKey = email.toLowerCase();
+            const createdMs = t.created_at?.toDate ? t.created_at.toDate().getTime() : 0;
+            const successMs = successMap.get(emailKey) || 0;
+            const isCompleted = !!(successMs && createdMs && successMs >= createdMs);
 
             const created = t.created_at?.toDate ? t.created_at.toDate().toLocaleString() : 'N/A';
             const statusTone = status === 'requested'
@@ -1504,7 +1534,10 @@
                   <span class="font-mono font-black text-gold text-lg tracking-[0.2em]">${code || '------'}</span>
                 </td>
                 <td class="py-5 pr-6">
-                  <span class="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border ${statusTone}">${status || 'requested'}</span>
+                  <div class="flex flex-col gap-2 items-start">
+                    <span class="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border ${statusTone}">${status || 'requested'}</span>
+                    ${isCompleted ? `<span class="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border bg-green-500/10 text-green-400 border-green-500/20">reset ok</span>` : ''}
+                  </div>
                 </td>
                 <td class="py-5 pr-6">
                   <p class="text-[10px] text-white/50 font-bold uppercase tracking-widest">${created}</p>
@@ -1539,6 +1572,11 @@
           body.innerHTML = '<tr><td colspan="6" class="py-12 text-center text-red-400 font-black uppercase tracking-widest">Failed to load reset tickets.</td></tr>';
         }
       );
+
+      currentTabUnsub = () => {
+        try { ticketsUnsub(); } catch (err) { void(err); }
+        try { successUnsub(); } catch (err) { void(err); }
+      };
     };
 
     window.copyResetTicketCode = (ticketId, btn) => {

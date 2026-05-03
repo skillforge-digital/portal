@@ -506,8 +506,33 @@
       const countEl = document.getElementById('reset-ticket-count');
       const tbody = document.getElementById('reset-tickets-body');
 
+      const successUnsub = onSnapshot(
+        query(
+          collection(db, 'audit_logs'),
+          where('type', '==', 'PASSWORD_RESET_SUCCESS'),
+          orderBy('timestamp', 'desc'),
+          limit(500)
+        ),
+        (snap) => {
+          const map = new Map();
+          snap.forEach((d0) => {
+            const d = d0.data() || {};
+            const email = String(d.email || '').trim().toLowerCase();
+            if (!email) return;
+            const ts = d.timestamp?.toDate ? d.timestamp.toDate().getTime() : 0;
+            if (!ts) return;
+            const prev = map.get(email) || 0;
+            if (ts > prev) map.set(email, ts);
+          });
+          window.__supportResetSuccessByEmail = map;
+        },
+        () => {
+          window.__supportResetSuccessByEmail = new Map();
+        }
+      );
+
       const q = query(collection(db, 'password_resets'), orderBy('created_at', 'desc'), limit(200));
-      currentTabUnsub = onSnapshot(q, (snap) => {
+      const ticketsUnsub = onSnapshot(q, (snap) => {
         if (countEl) countEl.innerText = String(snap.size);
         if (!tbody) return;
 
@@ -515,6 +540,8 @@
           tbody.innerHTML = `<tr><td colspan="7" class="py-16 text-center text-white/40 italic uppercase font-bold tracking-widest">No reset tickets found.</td></tr>`;
           return;
         }
+
+        const successMap = window.__supportResetSuccessByEmail instanceof Map ? window.__supportResetSuccessByEmail : new Map();
 
         tbody.innerHTML = snap.docs.map((doc0) => {
           const d = doc0.data() || {};
@@ -524,6 +551,9 @@
           const accountType = String(d.accountType || '').trim();
           const status = String(d.status || 'requested').trim();
           const createdAt = d.created_at?.toDate ? d.created_at.toDate().toLocaleString() : '';
+          const createdMs = d.created_at?.toDate ? d.created_at.toDate().getTime() : 0;
+          const successMs = successMap.get(email.toLowerCase()) || 0;
+          const isCompleted = !!(successMs && createdMs && successMs >= createdMs);
           const msg = buildResetWhatsappMessage({ email, ticketCode, accountType });
           const waLink = buildWhatsappLink({ phone, text: msg });
 
@@ -547,7 +577,10 @@
                 <span class="px-3 py-1 rounded-full bg-white/5 text-white/70 text-[9px] font-black uppercase tracking-widest border border-white/10">${accountType || 'unknown'}</span>
               </td>
               <td class="py-5 pr-4">
-                <span class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${statusClass}">${status}</span>
+                <div class="flex flex-col gap-2 items-start">
+                  <span class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${statusClass}">${status}</span>
+                  ${isCompleted ? `<span class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border bg-emerald-500/10 text-emerald-300 border-emerald-500/20">reset ok</span>` : ''}
+                </div>
               </td>
               <td class="py-5 pr-4 text-[10px] text-slate-500 font-bold uppercase tracking-widest whitespace-nowrap">${createdAt || '—'}</td>
               <td class="py-5">
@@ -577,6 +610,11 @@
       }, () => {
         if (tbody) tbody.innerHTML = `<tr><td colspan="7" class="py-16 text-center text-red-400 font-bold uppercase tracking-widest">Failed to load reset tickets.</td></tr>`;
       });
+
+      currentTabUnsub = () => {
+        try { ticketsUnsub(); } catch (err) { void(err); }
+        try { successUnsub(); } catch (err) { void(err); }
+      };
 
       if (window.lucide) window.lucide.createIcons();
     };
