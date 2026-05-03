@@ -1,4 +1,5 @@
 export const TRACK_TELEGRAM_NODES = {
+  'Forex Synthetic Indices': 'https://t.me/+KWyN-sKQNMExZjg8',
   'Forex Synthetics Indices': 'https://t.me/+KWyN-sKQNMExZjg8',
   'Forex Currency Pairs': 'https://t.me/+9cAdAp2Pw_FjNmJk',
   'AI Content Creation': 'https://t.me/+I5vUYuIuaMw4N2Rk',

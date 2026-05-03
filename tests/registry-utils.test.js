@@ -10,6 +10,7 @@ describe('registry utils', () => {
 
   it('telegram link resolves by track', () => {
     expect(getTelegramLinkForTrack('Web Development')).toMatch(/^https:\/\/t\.me\//);
+    expect(getTelegramLinkForTrack('Forex Synthetic Indices')).toMatch(/^https:\/\/t\.me\//);
     expect(getTelegramLinkForTrack('Unknown Track')).toBe('https://t.me/skillforgeorg');
   });
 

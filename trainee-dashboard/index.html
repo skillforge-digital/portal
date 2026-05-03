@@ -382,8 +382,12 @@ tailwind.config = {
       </div>
 
       <div class="mt-8 pt-8 border-t border-white/5 space-y-4">
-        <a href="#" target="_blank" rel="noopener" class="telegram-join-target w-full flex items-center justify-between px-6 py-4 rounded-2xl bg-[#229ED9]/10 text-[#229ED9] hover:bg-[#229ED9]/20 transition-all group opacity-20 pointer-events-none">
-          <span class="font-bold text-[10px] uppercase tracking-widest">Join Telegram</span>
+        <a href="#" target="_blank" rel="noopener" class="telegram-track-target w-full flex items-center justify-between px-6 py-4 rounded-2xl bg-[#229ED9]/10 text-[#229ED9] hover:bg-[#229ED9]/20 transition-all group opacity-20 pointer-events-none">
+          <span class="font-bold text-[10px] uppercase tracking-widest">Track Telegram</span>
+          <i class="fa-brands fa-telegram text-lg group-hover:scale-110 transition-transform"></i>
+        </a>
+        <a href="https://t.me/skillforgeorg" target="_blank" rel="noopener" class="telegram-main-target w-full flex items-center justify-between px-6 py-4 rounded-2xl bg-[#229ED9]/10 text-[#229ED9] hover:bg-[#229ED9]/20 transition-all group">
+          <span class="font-bold text-[10px] uppercase tracking-widest">Main Community</span>
           <i class="fa-brands fa-telegram text-lg group-hover:scale-110 transition-transform"></i>
         </a>
         <a href="https://wa.me/2349015185711" target="_blank" rel="noopener" class="w-full flex items-center justify-between px-6 py-4 rounded-2xl bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366]/20 transition-all group">
@@ -1124,6 +1128,7 @@ tailwind.config = {
 <script type="module">
 import { themeManager } from '/assets/theme-manager.js';
 import { db, auth } from '/assets/firebase-config.js';
+import { getTelegramLinkForTrack } from '/assets/registry-utils.js';
 import { ROLES, getCumulativePermissions, hasPermission } from '/assets/rbac-config.js';
 import { DashboardState } from '/assets/dashboard-state.js';
 import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
@@ -1131,19 +1136,6 @@ import { doc, getDoc, setDoc, onSnapshot, updateDoc, runTransaction, serverTimes
 
 let dashboardState = null;
 let activeUid = null;
-
-const TELEGRAM_NODES = {
-  "Forex Synthetics Indices": "https://t.me/skillforge_forex",
-  "Forex Currency Pairs": "https://t.me/skillforge_forex",
-  "AI Content Creation": "https://t.me/skillforge_ai",
-  "Photography & Editing": "https://t.me/skillforge_creative",
-  "Graphic Design": "https://t.me/skillforge_creative",
-  "Digital Marketing": "https://t.me/skillforge_marketing",
-  "Mobile Cinematography": "https://t.me/skillforge_creative",
-  "Discord Development": "https://t.me/skillforge_tech",
-  "Web Development": "https://t.me/skillforge_tech",
-  "Cyber Security": "https://t.me/skillforge_tech"
-};
 
 // Initialize Dashboard State
 onAuthStateChanged(auth, (user) => {
@@ -1480,9 +1472,8 @@ function updateDynamicUI(data) {
   const h_val = Math.floor((totalMs % 86400000) / 3600000);
   document.querySelectorAll('.study-time-target').forEach(el => el.innerText = `${String(d_val).padStart(2, '0')}D ${String(h_val).padStart(2, '0')}H`);
 
-  // Update Telegram Join Link
-  const tgLink = TELEGRAM_NODES[data.track] || 'https://t.me/skillforgeorg';
-  document.querySelectorAll('.telegram-join-target').forEach(el => {
+  const tgLink = getTelegramLinkForTrack(data.track);
+  document.querySelectorAll('.telegram-track-target').forEach(el => {
     el.href = tgLink;
     el.classList.remove('opacity-20', 'pointer-events-none');
   });
