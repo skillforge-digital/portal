@@ -644,8 +644,8 @@ function updateCardUI() {
   // Update QR Code with trainee-specific registration/profile link
   const qrEl = document.getElementById('card-qr-target');
   if (qrEl) {
-    const registryUrl = `https://skillforgedigital.com.ng/trainee-registration/?ref=${traineeData.sfid || 'SFID'}`;
-    qrEl.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(registryUrl)}`;
+    const verifyUrl = `${window.location.origin}/verify/?uid=${encodeURIComponent(activeUid)}`;
+    qrEl.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(verifyUrl)}`;
   }
 }
 
@@ -789,4 +789,3 @@ if (document.readyState === 'loading') {
   <script type="module" src="../../assets/sf-core.js"></script>
   </body>
 </html>
-

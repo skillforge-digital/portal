@@ -182,17 +182,20 @@
                 let personData = null;
                 let personId = uid || id;
                 const viewerUid = user ? user.uid : null;
+                const viewerStaffDoc = viewerUid ? await getDoc(doc(db, 'staffs', viewerUid)).catch(() => null) : null;
+                const isViewerStaff = !!(viewerStaffDoc && viewerStaffDoc.exists());
 
                 // 1. Try Staff Registry
                 if (uid) {
                     if (!viewerUid) throw new Error('Login required');
+                    const isSelf = viewerUid === uid;
+                    if (!isViewerStaff && !isSelf) throw new Error('Staff access required');
                     const staffDoc = await getDoc(doc(db, 'staffs', uid));
                     if (staffDoc.exists()) {
                         personData = staffDoc.data();
                         personData.role = personData.roles ? personData.roles.join(' | ') : 'Personnel';
                     } else {
                         // 2. Try Trainee Registry
-                        if (viewerUid !== uid) throw new Error('Login required');
                         const traineeDoc = await getDoc(doc(db, 'trainees', uid));
                         if (traineeDoc.exists()) {
                             personData = traineeDoc.data();
@@ -201,8 +204,7 @@
                     }
                 } else if (id) {
                     if (!viewerUid) throw new Error('Login required');
-                    const viewerStaffDoc = await getDoc(doc(db, 'staffs', viewerUid));
-                    if (!viewerStaffDoc.exists()) throw new Error('Staff access required');
+                    if (!isViewerStaff) throw new Error('Staff access required');
 
                     // 3. Try Trainee Registry by SFID (staff only)
                     const traineesRef = collection(db, 'trainees');
