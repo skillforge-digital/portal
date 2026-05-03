@@ -41,7 +41,7 @@ service cloud.firestore {
     function isDirector() { return hasAnyRole(['Director']) || isLegacyDirector(); }
     function isHOD() { return hasAnyRole(['Director', 'HOD']) || isLegacyDirector() || isLegacyHOD(); }
     function isSpecialist() { return hasAnyRole(['Director', 'HOD', 'Specialist']) || isLegacyDirector() || isLegacyHOD() || isLegacySpecialist(); }
-    function isStaff() { return hasAnyRole(['Director', 'HOD', 'Specialist', 'Support Team', 'Digital Marketing', 'Community Manager', 'Staff']) || isLegacyDirector() || isLegacyHOD() || isLegacySpecialist(); }
+    function isStaff() { return hasAnyRole(['Director', 'HOD', 'Specialist', 'Support Staff', 'Support Team', 'Digital Marketing', 'Community Manager', 'Staff']) || isLegacyDirector() || isLegacyHOD() || isLegacySpecialist(); }
     
     // Checks if the user is the owner of the document.
     function isOwner(userId) { return isAuthenticated() && getUID() == userId; }
@@ -141,7 +141,16 @@ service cloud.firestore {
 
     // Password Management & SSO
     match /password_resets/{id} {
-      allow create: if true;
+      allow create: if
+        request.resource.data.keys().hasAll(['ticketCode', 'email', 'phone', 'accountType', 'status']) &&
+        request.resource.data.ticketCode is string &&
+        request.resource.data.ticketCode.size() == 6 &&
+        request.resource.data.email is string &&
+        request.resource.data.email.size() > 0 &&
+        request.resource.data.phone is string &&
+        request.resource.data.phone.size() > 0 &&
+        request.resource.data.accountType in ['trainee', 'staff'] &&
+        request.resource.data.status == 'requested';
       allow read, update, delete: if isStaff();
     }
     match /academy_audit_logs/{id} { allow read: if isStaff(); allow create: if true; }
