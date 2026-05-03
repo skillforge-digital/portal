@@ -234,7 +234,7 @@
         <!-- Main Workspace -->
         <div class="glass-strong rounded-[40px] p-10 border border-white/5 min-h-[400px]">
             <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40 mb-8">Recent Path Activity</h2>
-            <div class="flex items-center justify-center h-64 text-white/20 italic">
+            <div id="recent-path-activity" class="flex items-center justify-center h-64 text-white/20 italic">
                 Scanning assigned path activity...
             </div>
         </div>
@@ -439,7 +439,7 @@
 
                 <div class="glass-strong rounded-[40px] p-10 border border-white/5 min-h-[400px] animate-slide-up" style="animation-delay: 0.2s">
                     <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40 mb-8">Recent Path Activity</h2>
-                    <div class="flex items-center justify-center h-64 text-white/20 italic">
+                    <div id="recent-path-activity" class="flex items-center justify-center h-64 text-white/20 italic">
                         Scanning assigned path pulse for activity...
                     </div>
                 </div>
@@ -736,7 +736,8 @@
         if (!window.__specialistDashboardState) {
             window.__specialistDashboardState = {
                 traineeUnsubs: [],
-                badgeUnsub: null
+                badgeUnsub: null,
+                presenceUnsub: null
             };
         }
 
@@ -752,8 +753,20 @@
             state.badgeUnsub = null;
         }
 
+        if (state.presenceUnsub) {
+            try { state.presenceUnsub(); } catch (err) { void(err); }
+            state.presenceUnsub = null;
+        }
+
         const tracks = Array.isArray(myTracksState?.tracks) ? myTracksState.tracks : [];
         const countsByTrack = Object.create(null);
+        const trackSet = new Set(tracks);
+
+        const activityEl = document.getElementById('recent-path-activity');
+        if (activityEl) {
+            activityEl.className = 'flex items-center justify-center h-64 text-white/20 italic';
+            activityEl.innerText = tracks.length ? 'Scanning assigned path activity...' : 'Select your tracks to view trainee activity.';
+        }
 
         setText('trainee-count', 0);
         setText('trainee-count-sub', 0);
@@ -778,6 +791,59 @@
             setText('badge-count', pending);
             setText('badge-count-sub', pending);
         });
+
+        if (tracks.length) {
+            const pq = query(collection(db, 'presence'), orderBy('lastSeen', 'desc'), limit(200));
+            state.presenceUnsub = onSnapshot(
+                pq,
+                (snap) => {
+                    const rows = [];
+                    snap.forEach((d0) => {
+                        const d = d0.data() || {};
+                        const t = d.track ? String(d.track).trim() : '';
+                        if (!t || !trackSet.has(t)) return;
+                        rows.push({ id: d0.id, ...d, __track: t });
+                    });
+
+                    const top = rows.slice(0, 30);
+                    const el = document.getElementById('recent-path-activity');
+                    if (!el) return;
+
+                    if (!top.length) {
+                        el.className = 'flex items-center justify-center h-64 text-white/20 italic';
+                        el.innerText = 'No recent activity for your tracks yet.';
+                        return;
+                    }
+
+                    el.className = 'space-y-4';
+                    el.innerHTML = top.map((r) => {
+                        const name = r.name ? String(r.name) : r.id.slice(0, 8);
+                        const when = r.lastSeen?.toDate?.() ? r.lastSeen.toDate().toLocaleString() : 'N/A';
+                        const score = typeof r.engagementScore === 'number' ? r.engagementScore.toFixed(2) : '—';
+                        return `
+                          <div class="p-5 rounded-3xl bg-white/5 border border-white/10">
+                            <div class="flex items-start justify-between gap-4">
+                              <div class="min-w-0">
+                                <p class="text-[10px] font-black uppercase tracking-widest text-white truncate">${name}</p>
+                                <p class="text-[9px] text-white/40 font-bold uppercase tracking-widest mt-1">${r.__track}</p>
+                              </div>
+                              <div class="text-right shrink-0">
+                                <p class="text-[9px] text-white/40 font-bold uppercase tracking-widest">${when}</p>
+                                <p class="text-[9px] text-orange font-black uppercase tracking-widest mt-1">Score ${score}</p>
+                              </div>
+                            </div>
+                          </div>
+                        `;
+                    }).join('');
+                },
+                () => {
+                    const el = document.getElementById('recent-path-activity');
+                    if (!el) return;
+                    el.className = 'flex items-center justify-center h-64 text-white/20 italic';
+                    el.innerText = 'Unable to load activity.';
+                }
+            );
+        }
     }
 
     // Sundust Background
