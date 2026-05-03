@@ -567,6 +567,7 @@
             if (window.staffCore?.profile) window.staffCore.profile.tracks = selected;
             myTracksState = { tracks: selected, source: 'profile', department: myTracksState.department };
             syncMyTracksBanner();
+            initDashboard();
             window.closeMyTracksModal();
             alert('Tracks updated successfully.');
         } catch (err) {
@@ -727,18 +728,55 @@
     }
 
     async function initDashboard() {
-        // Real-time Trainee Count for assigned track (placeholder logic)
-        onSnapshot(collection(db, "trainees"), (snap) => {
-            const el = document.getElementById('trainee-count');
-            if (el) el.innerText = snap.size;
-        });
+        function setText(id, value) {
+            const el = document.getElementById(id);
+            if (el) el.innerText = String(value);
+        }
 
-        // Real-time Badge Requests
-        onSnapshot(collection(db, "badge_requests"), (snap) => {
+        if (!window.__specialistDashboardState) {
+            window.__specialistDashboardState = {
+                traineeUnsubs: [],
+                badgeUnsub: null
+            };
+        }
+
+        const state = window.__specialistDashboardState;
+
+        for (const unsub of state.traineeUnsubs) {
+            try { unsub(); } catch (err) { void(err); }
+        }
+        state.traineeUnsubs = [];
+
+        if (state.badgeUnsub) {
+            try { state.badgeUnsub(); } catch (err) { void(err); }
+            state.badgeUnsub = null;
+        }
+
+        const tracks = Array.isArray(myTracksState?.tracks) ? myTracksState.tracks : [];
+        const countsByTrack = Object.create(null);
+
+        setText('trainee-count', 0);
+        setText('trainee-count-sub', 0);
+
+        if (tracks.length) {
+            for (const track of tracks) {
+                countsByTrack[track] = 0;
+                const q = query(collection(db, 'trainees'), where('track', '==', track));
+                const unsub = onSnapshot(q, (snap) => {
+                    countsByTrack[track] = snap.size;
+                    const total = Object.values(countsByTrack).reduce((sum, n) => sum + (Number(n) || 0), 0);
+                    setText('trainee-count', total);
+                    setText('trainee-count-sub', total);
+                });
+                state.traineeUnsubs.push(unsub);
+            }
+        }
+
+        state.badgeUnsub = onSnapshot(collection(db, "badge_requests"), (snap) => {
             let pending = 0;
             snap.forEach(doc => { if (doc.data().status === 'pending') pending++ });
-            const el = document.getElementById('badge-count');
-            if (el) el.innerText = pending;
+            setText('badge-count', pending);
+            setText('badge-count-sub', pending);
         });
     }
 
