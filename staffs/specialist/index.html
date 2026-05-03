@@ -196,12 +196,26 @@
                 <h1 class="text-4xl md:text-6xl font-black mt-2 uppercase tracking-tighter">Path Registry</h1>
             </div>
             <div class="flex gap-4">
+                <button id="my-tracks-btn" type="button" onclick="window.openMyTracksModal?.()" class="glass px-6 py-3 rounded-2xl border border-white/5 hover:bg-white/5 transition-all flex items-center gap-3">
+                    <i data-lucide="list-checks" class="w-4 h-4 text-orange"></i>
+                    <span class="text-[10px] font-black uppercase tracking-widest text-white/70">My Tracks</span>
+                </button>
                 <div class="glass px-6 py-3 rounded-2xl border border-white/5">
                     <p class="text-[8px] font-black text-white/30 uppercase tracking-widest">Active Presence</p>
                     <p class="text-xl font-bold text-orange" id="pulse-count">ACTIVE</p>
                 </div>
             </div>
         </header>
+
+        <div id="my-tracks-banner" class="hidden p-5 rounded-3xl border border-orange/20 bg-orange/10 glass-strong flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div class="min-w-0">
+                <p class="text-[9px] font-black uppercase tracking-[0.3em] text-orange">Tracks auto-filled</p>
+                <p id="my-tracks-banner-text" class="text-sm font-bold text-white/80 mt-1">Review and save your assigned tracks.</p>
+            </div>
+            <button type="button" onclick="window.openMyTracksModal?.()" class="px-5 py-3 rounded-2xl bg-orange text-navy font-black text-[10px] uppercase tracking-widest hover:opacity-90 transition-all w-full md:w-auto">
+                Review & Save
+            </button>
+        </div>
 
         <!-- Stats Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -226,6 +240,34 @@
         </div>
     </div>
   </main>
+
+  <div id="my-tracks-modal" class="fixed inset-0 z-[120] hidden items-center justify-center p-6 bg-black/70 backdrop-blur-sm">
+    <div class="w-full max-w-2xl glass-strong rounded-[40px] border border-white/10 p-8 md:p-10">
+      <div class="flex items-start justify-between gap-6">
+        <div class="min-w-0">
+          <p class="text-orange text-[10px] font-black tracking-[0.4em] uppercase">Specialist Settings</p>
+          <h2 class="text-2xl md:text-3xl font-black uppercase tracking-tighter mt-2">My Tracks</h2>
+          <p id="my-tracks-modal-subtitle" class="text-[11px] text-white/50 font-bold uppercase tracking-widest mt-3"></p>
+        </div>
+        <button type="button" onclick="window.closeMyTracksModal?.()" class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all flex items-center justify-center">
+          <i data-lucide="x" class="w-5 h-5 text-white/70"></i>
+        </button>
+      </div>
+
+      <div class="mt-8">
+        <div id="my-tracks-checklist" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+      </div>
+
+      <div class="mt-10 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+        <button type="button" onclick="window.closeMyTracksModal?.()" class="px-6 py-4 rounded-2xl bg-white/5 border border-white/10 text-white/70 font-black text-[10px] uppercase tracking-widest hover:bg-white/10 transition-all">
+          Cancel
+        </button>
+        <button id="my-tracks-save-btn" type="button" onclick="window.saveMyTracks?.()" class="px-6 py-4 rounded-2xl bg-orange text-navy font-black text-[10px] uppercase tracking-widest hover:opacity-90 transition-all">
+          Save Tracks
+        </button>
+      </div>
+    </div>
+  </div>
 
   <script type="module">
     import StaffCore from '../../assets/staff-core.js';
@@ -361,12 +403,26 @@
                         <h1 class="text-4xl md:text-6xl font-black mt-2 uppercase tracking-tighter">Path Registry</h1>
                     </div>
                     <div class="flex gap-4">
+                        <button id="my-tracks-btn-sub" type="button" onclick="window.openMyTracksModal?.()" class="glass px-6 py-3 rounded-2xl border border-white/5 hover:bg-white/5 transition-all flex items-center gap-3">
+                            <i data-lucide="list-checks" class="w-4 h-4 text-orange"></i>
+                            <span class="text-[10px] font-black uppercase tracking-widest text-white/70">My Tracks</span>
+                        </button>
                         <div class="glass px-6 py-3 rounded-2xl border border-white/5">
                             <p class="text-[8px] font-black text-white/30 uppercase tracking-widest">Active Pulse</p>
                             <p class="text-xl font-bold text-orange" id="pulse-count">ACTIVE</p>
                         </div>
                     </div>
                 </header>
+
+                <div id="my-tracks-banner" class="hidden p-5 rounded-3xl border border-orange/20 bg-orange/10 glass-strong flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div class="min-w-0">
+                        <p class="text-[9px] font-black uppercase tracking-[0.3em] text-orange">Tracks auto-filled</p>
+                        <p id="my-tracks-banner-text" class="text-sm font-bold text-white/80 mt-1">Review and save your assigned tracks.</p>
+                    </div>
+                    <button type="button" onclick="window.openMyTracksModal?.()" class="px-5 py-3 rounded-2xl bg-orange text-navy font-black text-[10px] uppercase tracking-widest hover:opacity-90 transition-all w-full md:w-auto">
+                        Review & Save
+                    </button>
+                </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 animate-slide-up" style="animation-delay: 0.1s">
                     <div class="glass p-8 rounded-[40px] border border-white/5">
@@ -389,6 +445,138 @@
                 </div>
             `;
             initDashboard(); // Re-bind counters
+            syncMyTracksBanner();
+            if (window.lucide) window.lucide.createIcons();
+        }
+    };
+
+    const TRACK_OPTIONS = [
+        'Forex Currency Pairs',
+        'Forex Synthetics Indices',
+        'Web Development',
+        'Discord Development',
+        'Cyber Security',
+        'Graphic Design',
+        'Mobile Cinematography',
+        'Photography & Editing',
+        'Digital Marketing',
+        'AI Content Creation'
+    ];
+
+    let myTracksState = {
+        tracks: [],
+        source: 'none',
+        department: null
+    };
+
+    function uniqTracks(list) {
+        return Array.from(new Set((Array.isArray(list) ? list : []).map((t) => String(t || '').trim()).filter(Boolean)));
+    }
+
+    function computeMyTracks(profile) {
+        const fromProfile = uniqTracks(profile?.tracks).filter((t) => TRACK_OPTIONS.includes(t));
+        if (fromProfile.length) return { tracks: fromProfile, source: 'profile', department: profile?.department || null };
+        const dept = profile?.department || null;
+        const derivedRaw = uniqTracks(window.staffCore?.getTrackSpecialists?.(dept));
+        const derived = derivedRaw.filter((t) => TRACK_OPTIONS.includes(t));
+        return { tracks: derived, source: 'derived', department: dept };
+    }
+
+    function syncMyTracksBanner() {
+        const banner = document.getElementById('my-tracks-banner');
+        const text = document.getElementById('my-tracks-banner-text');
+        if (!banner || !text) return;
+        if (myTracksState.source !== 'derived') {
+            banner.classList.add('hidden');
+            return;
+        }
+        const dept = myTracksState.department ? String(myTracksState.department) : 'your department';
+        text.textContent = `Your tracks were auto-filled from ${dept}. Review and save to persist.`;
+        banner.classList.remove('hidden');
+    }
+
+    function buildMyTracksChecklist() {
+        const root = document.getElementById('my-tracks-checklist');
+        if (!root) return;
+        root.innerHTML = TRACK_OPTIONS.map((track) => {
+            const id = `my-track-${track.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+            return `
+                <label for="${id}" class="flex items-start gap-4 p-5 rounded-3xl border border-white/10 bg-white/5 hover:bg-white/10 transition-all cursor-pointer">
+                    <input id="${id}" type="checkbox" value="${track}" class="mt-1 w-5 h-5 accent-orange">
+                    <div class="min-w-0">
+                        <p class="text-sm font-black uppercase tracking-tight text-white/90">${track}</p>
+                        <p class="text-[10px] text-white/40 font-bold uppercase tracking-widest mt-1">Access scope</p>
+                    </div>
+                </label>
+            `;
+        }).join('');
+    }
+
+    function syncMyTracksModal() {
+        const subtitle = document.getElementById('my-tracks-modal-subtitle');
+        if (subtitle) {
+            if (myTracksState.source === 'derived') {
+                const dept = myTracksState.department ? String(myTracksState.department) : 'your department';
+                subtitle.textContent = `Auto-filled from ${dept}.`;
+            } else {
+                subtitle.textContent = 'Select the tracks you manage.';
+            }
+        }
+
+        const selected = new Set(myTracksState.tracks);
+        document.querySelectorAll('#my-tracks-checklist input[type="checkbox"]').forEach((el) => {
+            const input = /** @type {HTMLInputElement} */(el);
+            input.checked = selected.has(String(input.value));
+        });
+    }
+
+    window.openMyTracksModal = () => {
+        const modal = document.getElementById('my-tracks-modal');
+        if (!modal) return;
+        syncMyTracksModal();
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+        if (window.lucide) window.lucide.createIcons();
+    };
+
+    window.closeMyTracksModal = () => {
+        const modal = document.getElementById('my-tracks-modal');
+        if (!modal) return;
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        document.body.style.overflow = '';
+    };
+
+    window.saveMyTracks = async () => {
+        const btn = document.getElementById('my-tracks-save-btn');
+        if (btn) {
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+        }
+
+        try {
+            const selected = Array.from(document.querySelectorAll('#my-tracks-checklist input[type="checkbox"]:checked'))
+                .map((el) => String((/** @type {HTMLInputElement} */(el)).value))
+                .filter(Boolean);
+
+            const uid = window.staffCore?.user?.uid || window.staffCore?.auth?.currentUser?.uid || localStorage.getItem('skillforge_mock_uid');
+            if (!uid) throw new Error('Missing UID');
+
+            await updateDoc(doc(db, 'staffs', uid), { tracks: selected });
+            if (window.staffCore?.profile) window.staffCore.profile.tracks = selected;
+            myTracksState = { tracks: selected, source: 'profile', department: myTracksState.department };
+            syncMyTracksBanner();
+            window.closeMyTracksModal();
+            alert('Tracks updated successfully.');
+        } catch (err) {
+            void(err);
+            alert('Update Failed: Registry link interrupted.');
+        } finally {
+            if (btn) {
+                btn.disabled = false;
+                btn.textContent = 'Save Tracks';
+            }
         }
     };
 
@@ -496,8 +684,13 @@
                 const initialsEl = document.getElementById('user-initials');
                 if (initialsEl) initialsEl.innerText = (profile.name || 'S').charAt(0);
                 
+                buildMyTracksChecklist();
+                myTracksState = computeMyTracks(profile);
+                syncMyTracksBanner();
+
                 loadNewsTicker();
                 window.showTab('overview');
+                if (window.lucide) window.lucide.createIcons();
             }
         }, 100);
     });
