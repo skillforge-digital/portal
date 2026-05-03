@@ -246,8 +246,9 @@
       <div class="flex items-start justify-between gap-6">
         <div class="min-w-0">
           <p class="text-orange text-[10px] font-black tracking-[0.4em] uppercase">Specialist Settings</p>
-          <h2 class="text-2xl md:text-3xl font-black uppercase tracking-tighter mt-2">My Tracks</h2>
+          <h2 class="text-2xl md:text-3xl font-black uppercase tracking-tighter mt-2">Assigned Track</h2>
           <p id="my-tracks-modal-subtitle" class="text-[11px] text-white/50 font-bold uppercase tracking-widest mt-3"></p>
+          <p id="my-tracks-lock-note" class="hidden text-[10px] text-orange/80 font-black uppercase tracking-widest mt-3"></p>
         </div>
         <button type="button" onclick="window.closeMyTracksModal?.()" class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all flex items-center justify-center">
           <i data-lucide="x" class="w-5 h-5 text-white/70"></i>
@@ -263,7 +264,7 @@
           Cancel
         </button>
         <button id="my-tracks-save-btn" type="button" onclick="window.saveMyTracks?.()" class="px-6 py-4 rounded-2xl bg-orange text-navy font-black text-[10px] uppercase tracking-widest hover:opacity-90 transition-all">
-          Save Tracks
+          Confirm Track
         </button>
       </div>
     </div>
@@ -272,6 +273,7 @@
   <script type="module">
     import StaffCore from '../../assets/staff-core.js';
     import '../../assets/theme-manager.js';
+    import { getAssignedTrack } from './specialist-assigned-track.js';
     import { db } from '../../assets/firebase-config.js';
     import { collection, query, getDocs, onSnapshot, doc, getDoc, where, updateDoc, orderBy, limit } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 
@@ -465,8 +467,11 @@
     ];
 
     let myTracksState = {
+        assignedTrack: '',
         tracks: [],
+        locked: false,
         source: 'none',
+        legacyTracksCount: 0,
         department: null
     };
 
@@ -475,25 +480,28 @@
     }
 
     function computeMyTracks(profile) {
-        const fromProfile = uniqTracks(profile?.tracks).filter((t) => TRACK_OPTIONS.includes(t));
-        if (fromProfile.length) return { tracks: fromProfile, source: 'profile', department: profile?.department || null };
         const dept = profile?.department || null;
-        const derivedRaw = uniqTracks(window.staffCore?.getTrackSpecialists?.(dept));
-        const derived = derivedRaw.filter((t) => TRACK_OPTIONS.includes(t));
-        return { tracks: derived, source: 'derived', department: dept };
+        const explicitAssigned = profile?.assignedTrack ? String(profile.assignedTrack).trim() : '';
+        const assignedTrack = getAssignedTrack(profile);
+        const normalizedAssigned = TRACK_OPTIONS.includes(assignedTrack) ? assignedTrack : '';
+        const legacyTracks = uniqTracks(profile?.tracks).filter((t) => TRACK_OPTIONS.includes(t));
+        const locked = Boolean(explicitAssigned);
+
+        return {
+            assignedTrack: normalizedAssigned,
+            tracks: normalizedAssigned ? [normalizedAssigned] : [],
+            locked,
+            source: locked ? 'assignedTrack' : normalizedAssigned ? 'legacy-single' : legacyTracks.length ? 'legacy-multi' : 'none',
+            legacyTracksCount: legacyTracks.length,
+            department: dept
+        };
     }
 
     function syncMyTracksBanner() {
         const banner = document.getElementById('my-tracks-banner');
         const text = document.getElementById('my-tracks-banner-text');
         if (!banner || !text) return;
-        if (myTracksState.source !== 'derived') {
-            banner.classList.add('hidden');
-            return;
-        }
-        const dept = myTracksState.department ? String(myTracksState.department) : 'your department';
-        text.textContent = `Your tracks were auto-filled from ${dept}. Review and save to persist.`;
-        banner.classList.remove('hidden');
+        banner.classList.add('hidden');
     }
 
     function buildMyTracksChecklist() {
@@ -503,7 +511,7 @@
             const id = `my-track-${track.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
             return `
                 <label for="${id}" class="flex items-start gap-4 p-5 rounded-3xl border border-white/10 bg-white/5 hover:bg-white/10 transition-all cursor-pointer">
-                    <input id="${id}" type="checkbox" value="${track}" class="mt-1 w-5 h-5 accent-orange">
+                    <input id="${id}" type="radio" name="assignedTrack" value="${track}" class="mt-1 w-5 h-5 accent-orange">
                     <div class="min-w-0">
                         <p class="text-sm font-black uppercase tracking-tight text-white/90">${track}</p>
                         <p class="text-[10px] text-white/40 font-bold uppercase tracking-widest mt-1">Access scope</p>
@@ -511,24 +519,54 @@
                 </label>
             `;
         }).join('');
+
+        if (!root.dataset.bound) {
+            root.addEventListener('change', () => {
+                syncConfirmButton();
+            });
+            root.dataset.bound = 'true';
+        }
+    }
+
+    function syncConfirmButton() {
+        const btn = document.getElementById('my-tracks-save-btn');
+        if (!btn) return;
+        if (myTracksState.locked) {
+            btn.disabled = true;
+            btn.textContent = 'Locked';
+            return;
+        }
+        const chosen = document.querySelector('#my-tracks-checklist input[name="assignedTrack"]:checked');
+        btn.disabled = !chosen;
+        btn.textContent = 'Confirm Track';
     }
 
     function syncMyTracksModal() {
         const subtitle = document.getElementById('my-tracks-modal-subtitle');
+        const lockNote = document.getElementById('my-tracks-lock-note');
         if (subtitle) {
-            if (myTracksState.source === 'derived') {
-                const dept = myTracksState.department ? String(myTracksState.department) : 'your department';
-                subtitle.textContent = `Auto-filled from ${dept}.`;
+            if (myTracksState.locked) subtitle.textContent = 'Track assignment locked.';
+            else if (myTracksState.legacyTracksCount > 1) subtitle.textContent = 'Multiple tracks detected. Select one to confirm.';
+            else subtitle.textContent = 'Select your assigned track (one-time).';
+        }
+
+        if (lockNote) {
+            if (myTracksState.locked) {
+                lockNote.textContent = 'Contact Director to change.';
+                lockNote.classList.remove('hidden');
             } else {
-                subtitle.textContent = 'Select the tracks you manage.';
+                lockNote.textContent = '';
+                lockNote.classList.add('hidden');
             }
         }
 
-        const selected = new Set(myTracksState.tracks);
-        document.querySelectorAll('#my-tracks-checklist input[type="checkbox"]').forEach((el) => {
+        document.querySelectorAll('#my-tracks-checklist input[name="assignedTrack"]').forEach((el) => {
             const input = /** @type {HTMLInputElement} */(el);
-            input.checked = selected.has(String(input.value));
+            input.checked = myTracksState.assignedTrack && String(input.value) === myTracksState.assignedTrack;
+            input.disabled = myTracksState.locked;
         });
+
+        syncConfirmButton();
     }
 
     window.openMyTracksModal = () => {
@@ -551,15 +589,16 @@
 
     window.saveMyTracks = async () => {
         const btn = document.getElementById('my-tracks-save-btn');
+        if (myTracksState.locked) return;
         if (btn) {
             btn.disabled = true;
             btn.textContent = 'Saving...';
         }
 
         try {
-            const selected = Array.from(document.querySelectorAll('#my-tracks-checklist input[type="checkbox"]:checked'))
-                .map((el) => String((/** @type {HTMLInputElement} */(el)).value))
-                .filter(Boolean);
+            const chosen = document.querySelector('#my-tracks-checklist input[name="assignedTrack"]:checked');
+            const selected = chosen ? String((/** @type {HTMLInputElement} */(chosen)).value).trim() : '';
+            if (!selected) throw new Error('Missing assignedTrack');
 
             const uid = window.staffCore?.user?.uid || window.staffCore?.auth?.currentUser?.uid || localStorage.getItem('skillforge_mock_uid');
             if (!uid) throw new Error('Missing UID');
@@ -567,15 +606,22 @@
             const staffRef = doc(db, 'staffs', uid);
             const staffSnap = await getDoc(staffRef).catch(() => null);
             if (staffSnap && staffSnap.exists()) {
-                await updateDoc(staffRef, { tracks: selected });
+                await updateDoc(staffRef, { assignedTrack: selected });
             } else {
-                await updateDoc(doc(db, 'specialists', uid), { tracks: selected });
+                await updateDoc(doc(db, 'specialists', uid), { assignedTrack: selected });
             }
-            if (window.staffCore?.profile) window.staffCore.profile.tracks = selected;
-            myTracksState = { tracks: selected, source: 'profile', department: myTracksState.department };
+            if (window.staffCore?.profile) window.staffCore.profile.assignedTrack = selected;
+            myTracksState = {
+                assignedTrack: selected,
+                tracks: [selected],
+                locked: true,
+                source: 'assignedTrack',
+                legacyTracksCount: myTracksState.legacyTracksCount,
+                department: myTracksState.department
+            };
             syncMyTracksBanner();
             initDashboard();
-            window.closeMyTracksModal();
+            syncMyTracksModal();
             alert('Tracks updated successfully.');
         } catch (err) {
             void(err);
@@ -583,7 +629,7 @@
         } finally {
             if (btn) {
                 btn.disabled = false;
-                btn.textContent = 'Save Tracks';
+                syncConfirmButton();
             }
         }
     };
@@ -695,6 +741,7 @@
                 buildMyTracksChecklist();
                 myTracksState = computeMyTracks(profile);
                 syncMyTracksBanner();
+                syncMyTracksModal();
 
                 loadNewsTicker();
                 window.showTab('overview');
