@@ -138,6 +138,9 @@
         <button data-tab="staff" aria-label="View Personnel Registry" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
           <i data-lucide="user-check" class="w-4 h-4"></i> Personnel Registry
         </button>
+        <button data-tab="registry-admin" aria-label="Registry Admin" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+          <i data-lucide="shield" class="w-4 h-4"></i> Registry Admin
+        </button>
         <button data-tab="approvals" aria-label="Personnel Approvals" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
           <i data-lucide="clipboard-check" class="w-4 h-4"></i> Personnel Approvals
         </button>
@@ -219,16 +222,24 @@
     import '../../assets/theme-manager.js';
     import { ROLES, PERMISSIONS } from '../../assets/rbac-config.js';
     import { db, auth } from '../../assets/firebase-config.js';
-    import { buildResetWhatsappMessage, buildWhatsappLink, normalizePhone } from '../../assets/registry-utils.js';
+    import { buildResetTicketCode, buildResetWhatsappMessage, buildWhatsappLink, normalizePhone } from '../../assets/registry-utils.js';
     import { 
         collection, query, getDocs, doc, getDoc, setDoc, addDoc, 
-        deleteDoc, updateDoc, serverTimestamp, orderBy, onSnapshot, writeBatch, limit, where 
+        deleteDoc, updateDoc, serverTimestamp, orderBy, onSnapshot, writeBatch, limit, where, Timestamp 
     } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
     import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
 
     // Global state
     let currentTab = 'overview';
     let currentTabUnsub = null;
+    const registryAdminState = {
+      scope: 'trainees',
+      items: [],
+      filtered: [],
+      search: '',
+      selectedId: null,
+      selectedDoc: null
+    };
     const __arm = new Map();
     const __ARM_WINDOW_MS = 5000;
 
@@ -268,6 +279,10 @@
       if (switchBtn && (staffCommand.userData.roles || []).length > 1) {
         switchBtn.classList.remove('hidden');
       }
+
+      const registryAdminBtn = document.querySelector('[data-tab="registry-admin"]');
+      const isDirector = (staffCommand.userData.roles || []).includes('Director') || staffCommand.userData.primaryRole === 'Director';
+      if (registryAdminBtn && !isDirector) registryAdminBtn.classList.add('hidden');
       
       loadNewsTicker();
       showTab('overview');
@@ -373,6 +388,13 @@
               case 'overview': await renderOverview(content); break;
             case 'trainees': window.location.href = '/staffs/registry/'; break;
             case 'staff': await renderStaff(content); break;
+            case 'registry-admin':
+              if (!((staffCommand.userData.roles || []).includes('Director') || staffCommand.userData.primaryRole === 'Director')) {
+                content.innerHTML = `<div class="p-10 glass text-center text-red-400 font-bold uppercase tracking-widest">Access Denied: Director clearance required.</div>`;
+              } else {
+                await renderRegistryAdmin(content);
+              }
+              break;
             case 'approvals': await renderApprovals(content); break;
             case 'faults': await renderFaults(content); break;
             case 'announcements': await renderAnnouncements(content); break;
@@ -1744,6 +1766,586 @@
           <p class="text-[10px] text-slate-400 mt-2 font-mono bg-black/30 p-3 rounded-xl border border-white/5 leading-relaxed">${d.details || ''}</p>
         </div>`;
       }).join('');
+    };
+
+    function escapeHtml(input) {
+      return String(input ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    function getPhoneFromProfile(profile) {
+      const raw = profile?.phone || profile?.whatsapp || profile?.whatsApp || profile?.phoneNumber || profile?.mobile || profile?.contact || '';
+      return String(raw || '').trim();
+    }
+
+    function toJsonText(input) {
+      return JSON.stringify(input ?? {}, (key, value) => {
+        if (value && typeof value.toMillis === 'function' && value?.seconds != null && value?.nanoseconds != null) {
+          return { __type: 'timestamp', ms: value.toMillis() };
+        }
+        return value;
+      }, 2);
+    }
+
+    function parseJsonText(text) {
+      return JSON.parse(text, (key, value) => {
+        if (value && value.__type === 'timestamp' && typeof value.ms === 'number') {
+          return Timestamp.fromMillis(value.ms);
+        }
+        return value;
+      });
+    }
+
+    async function logRegistryAdminAction({ action, accountType, targetId, before, after, meta }) {
+      const actorId = staffCommand.uid;
+      const actorName = staffCommand.userData?.name || null;
+      const payload = {
+        action: String(action || '').trim().toUpperCase(),
+        accountType,
+        targetId,
+        before: before ?? null,
+        after: after ?? null,
+        meta: meta ?? null,
+        actorId,
+        actorName,
+        created_at: serverTimestamp(),
+        page: '/staffs/director/'
+      };
+      await addDoc(collection(db, 'registry_admin_logs'), payload);
+      await addDoc(collection(db, 'audit_logs'), {
+        type: `REGISTRY_ADMIN_${payload.action}`,
+        accountType,
+        targetId,
+        actorId,
+        actorName,
+        before: before ?? null,
+        after: after ?? null,
+        meta: meta ?? null,
+        timestamp: serverTimestamp(),
+        page: '/staffs/director/'
+      });
+    }
+
+    async function fetchRegistryAdminItems(scope) {
+      const coll = scope === 'staff' ? 'staffs' : 'trainees';
+      try {
+        const snap = await getDocs(query(collection(db, coll), orderBy('created_at', 'desc'), limit(200)));
+        return snap.docs.map((d0) => ({ id: d0.id, data: d0.data() || {} }));
+      } catch (err) {
+        const snap = await getDocs(query(collection(db, coll), limit(200)));
+        return snap.docs.map((d0) => ({ id: d0.id, data: d0.data() || {} }));
+      }
+    }
+
+    function computeRegistryAdminFilter(scope, items, search) {
+      const term = String(search || '').trim().toLowerCase();
+      if (!term) return items.slice();
+      return items.filter(({ id, data }) => {
+        const name = String(data?.name || data?.fullName || data?.full_name || '').toLowerCase();
+        const email = String(data?.email || '').toLowerCase();
+        const sfid = String(data?.sfid || data?.SFID || '').toLowerCase();
+        const phone = String(getPhoneFromProfile(data) || '').toLowerCase();
+        const roles = Array.isArray(data?.roles) ? data.roles.join(' ').toLowerCase() : '';
+        const track = String(data?.track || '').toLowerCase();
+        const idMatch = String(id || '').toLowerCase();
+        if (scope === 'staff') {
+          return [name, email, sfid, phone, roles, idMatch].some((v) => v.includes(term));
+        }
+        return [name, email, sfid, phone, track, idMatch].some((v) => v.includes(term));
+      });
+    }
+
+    function renderRegistryAdminRows() {
+      const tbody = document.getElementById('registry-admin-rows');
+      const selectedLabel = document.getElementById('registry-admin-selected');
+      const countEl = document.getElementById('registry-admin-count');
+      const editBtn = document.getElementById('registry-admin-edit-selected');
+      const resetBtn = document.getElementById('registry-admin-reset-selected');
+      const deleteBtn = document.getElementById('registry-admin-delete-selected');
+
+      const items = registryAdminState.filtered;
+      if (countEl) countEl.textContent = String(items.length);
+
+      const selected = registryAdminState.selectedId
+        ? items.find((x) => x.id === registryAdminState.selectedId) || registryAdminState.items.find((x) => x.id === registryAdminState.selectedId)
+        : null;
+
+      if (selectedLabel) {
+        const d = selected?.data || null;
+        const name = d ? (d.name || d.fullName || d.full_name || selected?.id || 'UNKNOWN') : 'NONE';
+        selectedLabel.textContent = String(name || 'NONE');
+      }
+
+      const hasSelection = Boolean(selected);
+      [editBtn, resetBtn, deleteBtn].forEach((b) => {
+        if (!b) return;
+        if (hasSelection) b.removeAttribute('disabled');
+        else b.setAttribute('disabled', 'disabled');
+      });
+
+      if (!tbody) return;
+      if (!items.length) {
+        tbody.innerHTML = `<tr><td colspan="6" class="py-12 text-center text-white/40 italic uppercase font-bold tracking-widest">No results.</td></tr>`;
+        return;
+      }
+
+      const scope = registryAdminState.scope;
+      tbody.innerHTML = items.map(({ id, data }) => {
+        const selectedClass = id === registryAdminState.selectedId ? 'bg-gold/10 border-gold/20' : 'bg-white/[0.02] border-white/5';
+        const name = escapeHtml(data?.name || data?.fullName || data?.full_name || 'Unknown');
+        const email = escapeHtml(data?.email || '');
+        const phoneRaw = getPhoneFromProfile(data);
+        const phone = escapeHtml(phoneRaw || '');
+        const sfid = escapeHtml(data?.sfid || data?.SFID || '');
+        const trackOrRoles = scope === 'staff'
+          ? escapeHtml(Array.isArray(data?.roles) ? data.roles.join(', ') : (data?.primaryRole || ''))
+          : escapeHtml(data?.track || '');
+        const status = escapeHtml(data?.status || 'active');
+        return `
+          <tr class="border-b ${selectedClass} transition-colors cursor-pointer" data-id="${escapeHtml(id)}">
+            <td class="py-4 px-4">
+              <p class="font-black uppercase tracking-tight text-white text-xs">${name}</p>
+              <p class="text-[8px] text-white/30 uppercase tracking-[0.35em]">${escapeHtml(id)}</p>
+            </td>
+            <td class="py-4 px-4 text-[10px] font-black uppercase tracking-widest text-white/70">${email || '<span class="text-white/20">NONE</span>'}</td>
+            <td class="py-4 px-4 text-[10px] font-black uppercase tracking-widest text-white/70">${phone || '<span class="text-white/20">NONE</span>'}</td>
+            <td class="py-4 px-4 font-mono text-[10px] text-gold">${sfid || '<span class="text-white/20">—</span>'}</td>
+            <td class="py-4 px-4 text-[9px] font-black uppercase tracking-widest text-white/60">${trackOrRoles || '<span class="text-white/20">—</span>'}</td>
+            <td class="py-4 px-4">
+              <div class="flex gap-2">
+                <button type="button" data-action="edit" data-id="${escapeHtml(id)}" class="px-4 py-2 rounded-xl bg-white/5 text-[9px] font-black uppercase tracking-widest hover:bg-gold hover:text-navy transition-all">Edit</button>
+                <button type="button" data-action="reset" data-id="${escapeHtml(id)}" class="px-4 py-2 rounded-xl bg-gold/10 border border-gold/20 text-gold text-[9px] font-black uppercase tracking-widest hover:bg-gold hover:text-navy transition-all">Reset</button>
+                <button type="button" data-action="delete" data-id="${escapeHtml(id)}" class="px-4 py-2 rounded-xl bg-white/5 text-[9px] font-black uppercase tracking-widest hover:bg-red-500/20 hover:text-red-400 transition-all">Delete</button>
+              </div>
+              <p class="text-[8px] text-white/20 font-black uppercase tracking-widest mt-2">${status}</p>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      tbody.querySelectorAll('tr[data-id]').forEach((row) => {
+        row.addEventListener('click', (e) => {
+          const id = row.getAttribute('data-id') || '';
+          registryAdminState.selectedId = id;
+          if (e.target && e.target.closest && e.target.closest('button')) return;
+          renderRegistryAdminRows();
+        });
+      });
+
+      tbody.querySelectorAll('button[data-action]').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const id = btn.getAttribute('data-id') || '';
+          const action = btn.getAttribute('data-action') || '';
+          registryAdminState.selectedId = id;
+          renderRegistryAdminRows();
+          if (action === 'edit') window.openRegistryAdminEditor(registryAdminState.scope, id);
+          if (action === 'reset') window.createRegistryAdminResetTicket(registryAdminState.scope, id);
+          if (action === 'delete') window.deleteRegistryAdminProfile(registryAdminState.scope, id);
+        });
+      });
+    }
+
+    async function refreshRegistryAdminList() {
+      const status = document.getElementById('registry-admin-status');
+      if (status) status.textContent = 'Loading registry...';
+      const items = await fetchRegistryAdminItems(registryAdminState.scope);
+      registryAdminState.items = items;
+      registryAdminState.filtered = computeRegistryAdminFilter(registryAdminState.scope, items, registryAdminState.search);
+      if (status) status.textContent = `Loaded ${items.length} profiles (limit 200).`;
+      renderRegistryAdminRows();
+    }
+
+    window.renderRegistryAdmin = async function(container) {
+      container.innerHTML = `
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-8">
+          <div>
+            <p class="text-gold text-xs font-black tracking-[0.4em] uppercase">Director Only</p>
+            <h1 class="text-4xl md:text-5xl font-black mt-2 uppercase tracking-tighter">Registry Admin</h1>
+            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-3">Trainee + Staff management with immutable admin logs</p>
+          </div>
+        </header>
+
+        <div class="glass-strong rounded-[40px] p-8 border border-white/5 space-y-6">
+          <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+            <div class="flex gap-2 p-1.5 glass rounded-[24px] w-fit">
+              <button id="registry-admin-scope-trainees" class="tab-btn ${registryAdminState.scope === 'trainees' ? 'active' : ''}" type="button">Trainees</button>
+              <button id="registry-admin-scope-staff" class="tab-btn ${registryAdminState.scope === 'staff' ? 'active' : ''}" type="button">Staff</button>
+            </div>
+            <div class="w-full lg:max-w-lg space-y-2">
+              <label for="registry-admin-search" class="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] ml-1">Search (client-side)</label>
+              <div class="relative">
+                <input id="registry-admin-search" type="search" value="${escapeHtml(registryAdminState.search)}" placeholder="Search name, uid, sfid, email, phone, track, roles" class="w-full p-4 pr-12 rounded-2xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/20">
+                <div class="absolute right-4 top-1/2 -translate-y-1/2 text-white/25">
+                  <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div class="space-y-1">
+              <p class="text-[10px] font-black uppercase tracking-widest text-white/40">Results</p>
+              <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                <span id="registry-admin-count">0</span> entries • Selected: <span id="registry-admin-selected" class="text-white/60">NONE</span>
+              </p>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button type="button" id="registry-admin-edit-selected" disabled class="px-5 py-3 rounded-2xl bg-white/5 border border-white/10 text-white/70 font-black uppercase text-[9px] tracking-[0.3em] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gold hover:text-navy transition-all">Edit Selected</button>
+              <button type="button" id="registry-admin-reset-selected" disabled class="px-5 py-3 rounded-2xl bg-gold/10 border border-gold/20 text-gold font-black uppercase text-[9px] tracking-[0.3em] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gold hover:text-navy transition-all">Create Reset Ticket</button>
+              <button type="button" id="registry-admin-delete-selected" disabled class="px-5 py-3 rounded-2xl bg-white/5 border border-white/10 text-white/70 font-black uppercase text-[9px] tracking-[0.3em] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-red-500/20 hover:text-red-400 transition-all">Delete Selected</button>
+            </div>
+          </div>
+
+          <div id="registry-admin-status" class="p-6 rounded-3xl bg-white/5 border border-white/10 text-[10px] text-slate-300 font-black uppercase tracking-widest">Loading registry...</div>
+
+          <div class="glass rounded-[32px] border border-white/10 overflow-hidden">
+            <div class="table-scroll overflow-x-auto">
+              <table class="min-w-[1080px] w-full text-left">
+                <thead class="text-[10px] font-black uppercase text-slate-500 border-b border-white/10 bg-white/5">
+                  <tr>
+                    <th class="py-5 px-4">Profile</th>
+                    <th class="py-5 px-4">Email</th>
+                    <th class="py-5 px-4">Phone</th>
+                    <th class="py-5 px-4">SFID</th>
+                    <th class="py-5 px-4">${registryAdminState.scope === 'staff' ? 'Roles / Unit' : 'Track'}</th>
+                    <th class="py-5 px-4">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="registry-admin-rows" class="text-sm"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+
+      const btnTrainees = document.getElementById('registry-admin-scope-trainees');
+      const btnStaff = document.getElementById('registry-admin-scope-staff');
+      const searchInput = document.getElementById('registry-admin-search');
+      const editBtn = document.getElementById('registry-admin-edit-selected');
+      const resetBtn = document.getElementById('registry-admin-reset-selected');
+      const deleteBtn = document.getElementById('registry-admin-delete-selected');
+
+      if (btnTrainees) {
+        btnTrainees.addEventListener('click', async () => {
+          registryAdminState.scope = 'trainees';
+          registryAdminState.selectedId = null;
+          registryAdminState.search = '';
+          await window.renderRegistryAdmin(container);
+        });
+      }
+      if (btnStaff) {
+        btnStaff.addEventListener('click', async () => {
+          registryAdminState.scope = 'staff';
+          registryAdminState.selectedId = null;
+          registryAdminState.search = '';
+          await window.renderRegistryAdmin(container);
+        });
+      }
+      if (searchInput) {
+        searchInput.addEventListener('input', () => {
+          registryAdminState.search = searchInput.value || '';
+          registryAdminState.filtered = computeRegistryAdminFilter(registryAdminState.scope, registryAdminState.items, registryAdminState.search);
+          renderRegistryAdminRows();
+        });
+      }
+
+      if (editBtn) editBtn.addEventListener('click', () => registryAdminState.selectedId && window.openRegistryAdminEditor(registryAdminState.scope, registryAdminState.selectedId));
+      if (resetBtn) resetBtn.addEventListener('click', () => registryAdminState.selectedId && window.createRegistryAdminResetTicket(registryAdminState.scope, registryAdminState.selectedId));
+      if (deleteBtn) deleteBtn.addEventListener('click', () => registryAdminState.selectedId && window.deleteRegistryAdminProfile(registryAdminState.scope, registryAdminState.selectedId));
+
+      await refreshRegistryAdminList();
+      if (window.lucide) window.lucide.createIcons();
+    };
+
+    window.openRegistryAdminEditor = async function(scope, id) {
+      const coll = scope === 'staff' ? 'staffs' : 'trainees';
+      const ref = doc(db, coll, id);
+      const snap = await getDoc(ref);
+      if (!snap.exists()) { alert('Profile not found.'); return; }
+
+      const before = snap.data() || {};
+      registryAdminState.selectedDoc = { id, scope, before };
+
+      const modalId = 'registry-admin-editor-modal';
+      const existing = document.getElementById(modalId);
+      if (existing) existing.remove();
+
+      const commonName = String(before?.name || before?.fullName || before?.full_name || '').trim();
+      const commonEmail = String(before?.email || '').trim();
+      const commonPhone = String(getPhoneFromProfile(before) || '').trim();
+      const commonSfid = String(before?.sfid || before?.SFID || '').trim();
+      const commonTrack = String(before?.track || '').trim();
+      const commonRoles = Array.isArray(before?.roles) ? before.roles.join(', ') : '';
+      const commonStatus = String(before?.status || '').trim();
+
+      const modal = document.createElement('div');
+      modal.id = modalId;
+      modal.className = 'fixed inset-0 z-[350] bg-navy/95 flex items-center justify-center p-6 backdrop-blur-xl';
+      modal.innerHTML = `
+        <div class="glass-strong p-8 md:p-10 rounded-[48px] border border-white/10 w-full max-w-4xl max-h-[92vh] overflow-y-auto custom-scrollbar space-y-8">
+          <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+            <div>
+              <p class="text-[8px] font-black text-gold uppercase tracking-[0.4em]">Registry Admin</p>
+              <h2 class="text-3xl font-black uppercase tracking-tighter">Edit Profile</h2>
+              <p class="text-[10px] text-white/40 font-black uppercase tracking-widest mt-2">${escapeHtml(coll)} • ${escapeHtml(id)}</p>
+            </div>
+            <button type="button" onclick="document.getElementById('${modalId}').remove()" class="p-3 rounded-xl bg-white/5 hover:text-red-400 transition-all" aria-label="Close">
+              <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div class="lg:col-span-5 space-y-5">
+              <div class="space-y-2">
+                <label for="registry-admin-name" class="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] ml-1">Name</label>
+                <input id="registry-admin-name" type="text" value="${escapeHtml(commonName)}" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10 text-white">
+              </div>
+              <div class="space-y-2">
+                <label for="registry-admin-email" class="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] ml-1">Email</label>
+                <input id="registry-admin-email" type="email" value="${escapeHtml(commonEmail)}" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10 text-white">
+              </div>
+              <div class="space-y-2">
+                <label for="registry-admin-phone" class="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] ml-1">Phone / WhatsApp</label>
+                <input id="registry-admin-phone" type="text" value="${escapeHtml(commonPhone)}" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10 text-white">
+              </div>
+              <div class="space-y-2">
+                <label for="registry-admin-sfid" class="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] ml-1">SFID</label>
+                <input id="registry-admin-sfid" type="text" value="${escapeHtml(commonSfid)}" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10 text-white">
+              </div>
+              ${scope === 'staff'
+                ? `
+                  <div class="space-y-2">
+                    <label for="registry-admin-roles" class="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] ml-1">Roles (comma-separated)</label>
+                    <input id="registry-admin-roles" type="text" value="${escapeHtml(commonRoles)}" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10 text-white">
+                  </div>
+                `
+                : `
+                  <div class="space-y-2">
+                    <label for="registry-admin-track" class="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] ml-1">Track</label>
+                    <input id="registry-admin-track" type="text" value="${escapeHtml(commonTrack)}" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10 text-white">
+                  </div>
+                `
+              }
+              <div class="space-y-2">
+                <label for="registry-admin-status-input" class="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] ml-1">Status</label>
+                <input id="registry-admin-status-input" type="text" value="${escapeHtml(commonStatus)}" placeholder="active" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/20">
+              </div>
+              <div class="flex flex-col gap-3 pt-2">
+                <button type="button" id="registry-admin-save-btn" class="w-full py-4 rounded-2xl bg-gold text-navy font-black uppercase tracking-widest text-[10px] hover:bg-white transition-all">Save Changes</button>
+                <button type="button" id="registry-admin-reset-btn" class="w-full py-4 rounded-2xl bg-gold/10 border border-gold/20 text-gold font-black uppercase tracking-widest text-[10px] hover:bg-gold hover:text-navy transition-all">Create Reset Ticket</button>
+                <button type="button" id="registry-admin-delete-btn" class="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-red-300/80 font-black uppercase tracking-widest text-[10px] hover:bg-red-500/15 hover:text-red-300 transition-all">Delete Profile</button>
+              </div>
+              <div id="registry-admin-editor-status" class="hidden p-4 rounded-2xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-white/60"></div>
+            </div>
+            <div class="lg:col-span-7 space-y-3">
+              <div class="flex items-end justify-between gap-4">
+                <div>
+                  <p class="text-[10px] font-black uppercase tracking-widest text-white/40">Raw JSON</p>
+                  <p class="text-[9px] text-slate-500 font-bold uppercase tracking-widest mt-1">Timestamp encoding: {"{__type:'timestamp',ms}"}</p>
+                </div>
+              </div>
+              <textarea id="registry-admin-json" rows="22" class="w-full p-5 rounded-3xl bg-black/30 border border-white/10 text-[11px] font-mono text-white/80 leading-relaxed">${escapeHtml(toJsonText(before))}</textarea>
+              <p class="text-[9px] text-white/25 font-black uppercase tracking-[0.35em]">Save uses updateDoc (merge). Deleted keys are not removed.</p>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      if (window.lucide) window.lucide.createIcons();
+
+      const statusEl = document.getElementById('registry-admin-editor-status');
+      const jsonEl = document.getElementById('registry-admin-json');
+
+      const syncJson = () => {
+        if (!jsonEl) return;
+        let current;
+        try {
+          current = parseJsonText(jsonEl.value);
+        } catch (e) {
+          return;
+        }
+        const nameEl = document.getElementById('registry-admin-name');
+        const emailEl = document.getElementById('registry-admin-email');
+        const phoneEl = document.getElementById('registry-admin-phone');
+        const sfidEl = document.getElementById('registry-admin-sfid');
+        const rolesEl = document.getElementById('registry-admin-roles');
+        const trackEl = document.getElementById('registry-admin-track');
+        const statusField = document.getElementById('registry-admin-status-input');
+        if (nameEl) current.name = nameEl.value.trim();
+        if (emailEl) current.email = emailEl.value.trim().toLowerCase();
+        if (phoneEl) current.phone = phoneEl.value.trim();
+        if (sfidEl) current.sfid = sfidEl.value.trim();
+        if (trackEl && scope !== 'staff') current.track = trackEl.value.trim();
+        if (rolesEl && scope === 'staff') {
+          const roles = rolesEl.value.split(',').map((r) => r.trim()).filter(Boolean);
+          current.roles = roles;
+        }
+        if (statusField && statusField.value.trim()) current.status = statusField.value.trim();
+        jsonEl.value = toJsonText(current);
+      };
+
+      const inputs = ['registry-admin-name', 'registry-admin-email', 'registry-admin-phone', 'registry-admin-sfid', 'registry-admin-roles', 'registry-admin-track', 'registry-admin-status-input'];
+      inputs.forEach((id0) => {
+        const el = document.getElementById(id0);
+        if (!el) return;
+        el.addEventListener('input', () => syncJson());
+      });
+
+      if (jsonEl) {
+        jsonEl.addEventListener('input', () => {
+          try {
+            parseJsonText(jsonEl.value);
+            jsonEl.classList.remove('border-red-500/30');
+          } catch (e) {
+            jsonEl.classList.add('border-red-500/30');
+          }
+        });
+      }
+
+      const saveBtn = document.getElementById('registry-admin-save-btn');
+      const resetBtn = document.getElementById('registry-admin-reset-btn');
+      const deleteBtn = document.getElementById('registry-admin-delete-btn');
+
+      const setEditorStatus = (msg, tone = 'neutral') => {
+        if (!statusEl) return;
+        statusEl.classList.remove('hidden', 'border-red-500/30', 'bg-red-500/10', 'text-red-300', 'border-gold/30', 'bg-gold/10', 'text-gold');
+        statusEl.textContent = msg;
+        if (tone === 'error') statusEl.classList.add('border-red-500/30', 'bg-red-500/10', 'text-red-300');
+        if (tone === 'warn') statusEl.classList.add('border-gold/30', 'bg-gold/10', 'text-gold');
+      };
+
+      if (saveBtn) {
+        saveBtn.addEventListener('click', async () => {
+          if (!jsonEl) return;
+          let payload;
+          try {
+            payload = parseJsonText(jsonEl.value);
+          } catch (e) {
+            setEditorStatus('Invalid JSON. Fix syntax before saving.', 'error');
+            return;
+          }
+          saveBtn.setAttribute('disabled', 'disabled');
+          saveBtn.textContent = 'Saving...';
+          try {
+            await updateDoc(ref, payload);
+            const afterSnap = await getDoc(ref);
+            const after = afterSnap.exists() ? (afterSnap.data() || {}) : payload;
+            await logRegistryAdminAction({
+              action: 'PROFILE_UPDATED',
+              accountType: scope === 'staff' ? 'staff' : 'trainee',
+              targetId: id,
+              before,
+              after
+            });
+            setEditorStatus('Saved successfully.', 'warn');
+            registryAdminState.selectedDoc.before = after;
+            jsonEl.value = toJsonText(after);
+            await refreshRegistryAdminList();
+          } catch (err) {
+            setEditorStatus(`Save failed: ${err.message}`, 'error');
+          } finally {
+            saveBtn.removeAttribute('disabled');
+            saveBtn.textContent = 'Save Changes';
+          }
+        });
+      }
+
+      if (resetBtn) {
+        resetBtn.addEventListener('click', async () => {
+          await window.createRegistryAdminResetTicket(scope, id);
+        });
+      }
+
+      if (deleteBtn) {
+        deleteBtn.addEventListener('click', async () => {
+          await window.deleteRegistryAdminProfile(scope, id);
+          if (document.getElementById(modalId)) document.getElementById(modalId).remove();
+        });
+      }
+    };
+
+    window.deleteRegistryAdminProfile = async function(scope, id) {
+      const coll = scope === 'staff' ? 'staffs' : 'trainees';
+      if (!requireArm(`registry-admin-delete:${coll}:${id}`, 'Click Delete again to confirm permanent purge.')) return;
+
+      const ref = doc(db, coll, id);
+      const snap = await getDoc(ref);
+      const before = snap.exists() ? (snap.data() || {}) : null;
+
+      await deleteDoc(ref);
+      await logRegistryAdminAction({
+        action: 'PROFILE_DELETED',
+        accountType: scope === 'staff' ? 'staff' : 'trainee',
+        targetId: id,
+        before,
+        after: null
+      });
+
+      if (registryAdminState.selectedId === id) registryAdminState.selectedId = null;
+      await refreshRegistryAdminList();
+      alert('Profile deleted.');
+    };
+
+    window.createRegistryAdminResetTicket = async function(scope, id) {
+      const coll = scope === 'staff' ? 'staffs' : 'trainees';
+      const ref = doc(db, coll, id);
+      const snap = await getDoc(ref);
+      if (!snap.exists()) { alert('Profile not found.'); return; }
+      const profile = snap.data() || {};
+      const email = String(profile.email || '').trim().toLowerCase();
+      const rawPhone = getPhoneFromProfile(profile);
+      const phone = normalizePhone(rawPhone);
+      if (!email) { alert('Profile is missing an email.'); return; }
+      if (!/^\d{10,15}$/.test(phone)) { alert('Profile is missing a valid phone / WhatsApp number.'); return; }
+
+      const ticketCode = buildResetTicketCode();
+      const accountType = scope === 'staff' ? 'staff' : 'trainee';
+      const ticketPayload = {
+        ticketCode,
+        email,
+        phone,
+        accountType,
+        status: 'requested',
+        created_at: serverTimestamp()
+      };
+      await addDoc(collection(db, 'password_resets'), ticketPayload);
+
+      await addDoc(collection(db, 'audit_logs'), {
+        type: 'PASSWORD_RESET_TICKET_REQUESTED',
+        email,
+        phone,
+        accountType,
+        ticketCode,
+        timestamp: serverTimestamp(),
+        origin: 'registry_admin',
+        origin_target_id: id,
+        origin_target_collection: coll
+      });
+
+      await logRegistryAdminAction({
+        action: 'RESET_TICKET_CREATED',
+        accountType,
+        targetId: id,
+        before: profile,
+        after: ticketPayload
+      });
+
+      const text = buildResetWhatsappMessage({ email, ticketCode, accountType });
+      const url = buildWhatsappLink({ phone, text });
+      const opened = window.open(url, '_blank', 'noopener');
+      if (!opened) {
+        try {
+          await navigator.clipboard.writeText(text);
+          alert(`Reset ticket created: ${ticketCode}\nWhatsApp message copied to clipboard.`);
+        } catch (e) {
+          alert(`Reset ticket created: ${ticketCode}\nUnable to open WhatsApp automatically.`);
+        }
+      }
     };
 
     // Trainee Actions
