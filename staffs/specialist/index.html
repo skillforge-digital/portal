@@ -452,6 +452,7 @@
 
     const TRACK_OPTIONS = [
         'Forex Currency Pairs',
+        'Forex Synthetic Indices',
         'Forex Synthetics Indices',
         'Web Development',
         'Discord Development',
@@ -563,7 +564,13 @@
             const uid = window.staffCore?.user?.uid || window.staffCore?.auth?.currentUser?.uid || localStorage.getItem('skillforge_mock_uid');
             if (!uid) throw new Error('Missing UID');
 
-            await updateDoc(doc(db, 'staffs', uid), { tracks: selected });
+            const staffRef = doc(db, 'staffs', uid);
+            const staffSnap = await getDoc(staffRef).catch(() => null);
+            if (staffSnap && staffSnap.exists()) {
+                await updateDoc(staffRef, { tracks: selected });
+            } else {
+                await updateDoc(doc(db, 'specialists', uid), { tracks: selected });
+            }
             if (window.staffCore?.profile) window.staffCore.profile.tracks = selected;
             myTracksState = { tracks: selected, source: 'profile', department: myTracksState.department };
             syncMyTracksBanner();
