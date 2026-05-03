@@ -44,3 +44,25 @@ export function buildWhatsappLink({ phone, text }) {
   const t = encodeURIComponent(String(text || ''));
   return `https://wa.me/${p}?text=${t}`;
 }
+
+export function buildResetTicketCode() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+export function buildResetWhatsappMessage({ email, ticketCode, accountType }) {
+  const safeEmail = String(email || '').trim().toLowerCase();
+  const safeCode = String(ticketCode || '').trim();
+  const kind = String(accountType || '').trim().toUpperCase();
+  return [
+    'SkillForge Password Reset Ticket',
+    '',
+    `Account Type: ${kind || 'UNKNOWN'}`,
+    `Email: ${safeEmail || 'UNKNOWN'}`,
+    `Ticket Code: ${safeCode || '------'}`,
+    '',
+    'If you already received the reset email, open it and reset your password.',
+    'If you did not receive it, check spam/promotions then request again.',
+    '',
+    'Support: please confirm the email and advise the user to use the reset email link.'
+  ].join('\n');
+}
