@@ -137,6 +137,9 @@
         <a href="customize/" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
           <i data-lucide="palette" class="w-4 h-4"></i> Design Studio
         </a>
+        <button onclick="showTab('reset-tickets')" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+          <i data-lucide="key" class="w-4 h-4"></i> Reset Tickets
+        </button>
         <button onclick="showTab('logs')" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
           <i data-lucide="scroll-text" class="w-4 h-4"></i> Activity Logs
         </button>
@@ -233,10 +236,69 @@
   <script type="module">
     import StaffCore from '../../assets/staff-core.js';
     import '../../assets/theme-manager.js';
+    import { buildResetWhatsappMessage, buildWhatsappLink } from '../../assets/registry-utils.js';
     import { db } from '../../assets/firebase-config.js';
-    import { collection, query, getDocs, onSnapshot, doc, getDoc, where, updateDoc, orderBy, limit } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+    import { collection, query, getDocs, onSnapshot, doc, getDoc, where, updateDoc, orderBy, limit, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 
     
+    let currentTabUnsub = null;
+
+    window.copyToClipboard = async (text) => {
+      const value = String(text ?? '');
+      try {
+        await navigator.clipboard.writeText(value);
+      } catch (err) {
+        void(err);
+        const el = document.createElement('textarea');
+        el.value = value;
+        el.style.position = 'fixed';
+        el.style.opacity = '0';
+        document.body.appendChild(el);
+        el.focus();
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+      }
+    };
+
+    window.markResetTicketHandled = async (ticketId) => {
+      const profile = window.staffCore?.profile || {};
+      const uid = window.staffCore?.uid;
+      if (!uid) { alert('Missing staff session. Please re-login.'); return; }
+
+      const ticketRef = doc(db, 'password_resets', ticketId);
+      const snap = await getDoc(ticketRef).catch(() => null);
+      if (!snap || !snap.exists()) { alert('Ticket not found.'); return; }
+      const t = snap.data() || {};
+
+      await updateDoc(ticketRef, {
+        status: 'handled',
+        handled_at: serverTimestamp(),
+        handled_by: uid,
+        handled_by_name: profile.name || '',
+        handled_by_role: profile.primaryRole || ''
+      });
+
+      await addDoc(collection(db, 'audit_logs'), {
+        type: 'PASSWORD_RESET_TICKET_HANDLED',
+        ticketId,
+        ticketCode: t.ticketCode || '',
+        email: t.email || '',
+        handled_by: uid,
+        timestamp: serverTimestamp()
+      });
+    };
+
+    window.markResetTicketClosed = async (ticketId) => {
+      const uid = window.staffCore?.uid;
+      if (!uid) { alert('Missing staff session. Please re-login.'); return; }
+      await updateDoc(doc(db, 'password_resets', ticketId), {
+        status: 'closed',
+        closed_at: serverTimestamp(),
+        closed_by: uid
+      });
+    };
+
     window.toggleControl = async (feature) => {
       const uid = auth.currentUser ? auth.currentUser.uid : localStorage.getItem('skillforge_mock_uid');
       if (!uid) return;
@@ -276,6 +338,8 @@
     };
 
     window.showTab = async (tab) => {
+        if (currentTabUnsub) { currentTabUnsub(); currentTabUnsub = null; }
+
         // Role Switcher Logic
         if (window.staffCore && window.staffCore.profile && window.staffCore.profile.roles && window.staffCore.profile.roles.length > 1) {
             const switcher = document.getElementById('role-switcher');
@@ -324,6 +388,8 @@
             `;
             if (window.lucide) window.lucide.createIcons();
             await window.setSupportLogMode('unit');
+        } else if (tab === 'reset-tickets') {
+            await window.renderResetTickets(content);
         } else if (tab === 'profile') {
             content.innerHTML = `
                 <div class="max-w-4xl mx-auto animate-slide-up">
@@ -393,6 +459,126 @@
             `;
             initDashboard(); // Re-bind counters
         }
+    };
+
+    window.renderResetTickets = async (container) => {
+      container.innerHTML = `
+        <div class="max-w-7xl mx-auto animate-slide-up space-y-10">
+          <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+            <div>
+              <p class="text-orange text-xs font-black tracking-[0.4em] uppercase">Support Inbox</p>
+              <h1 class="text-4xl md:text-6xl font-black mt-2 uppercase tracking-tighter">Reset Tickets</h1>
+              <p class="text-[10px] text-slate-500 uppercase tracking-widest mt-3 leading-relaxed">Monitor password reset tickets and respond via WhatsApp.</p>
+            </div>
+            <div class="glass px-6 py-3 rounded-2xl border border-white/5">
+              <p class="text-[8px] font-black text-white/30 uppercase tracking-widest">Queue</p>
+              <p class="text-xl font-bold text-orange" id="reset-ticket-count">0</p>
+            </div>
+          </header>
+
+          <div class="glass-strong rounded-[40px] p-8 border border-white/5 overflow-x-auto">
+            <table class="w-full text-left">
+              <thead class="text-[10px] font-black uppercase text-slate-500 border-b border-white/10">
+                <tr>
+                  <th class="pb-4">Email</th>
+                  <th class="pb-4">Phone</th>
+                  <th class="pb-4">Code</th>
+                  <th class="pb-4">Type</th>
+                  <th class="pb-4">Status</th>
+                  <th class="pb-4">Created</th>
+                  <th class="pb-4">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="reset-tickets-body" class="text-sm">
+                <tr>
+                  <td colspan="7" class="py-16 text-center text-white/40 italic">
+                    <div class="flex items-center justify-center h-24">
+                      <div class="w-10 h-10 border-4 border-orange/20 border-t-orange rounded-full animate-spin"></div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+
+      const countEl = document.getElementById('reset-ticket-count');
+      const tbody = document.getElementById('reset-tickets-body');
+
+      const q = query(collection(db, 'password_resets'), orderBy('created_at', 'desc'), limit(200));
+      currentTabUnsub = onSnapshot(q, (snap) => {
+        if (countEl) countEl.innerText = String(snap.size);
+        if (!tbody) return;
+
+        if (snap.empty) {
+          tbody.innerHTML = `<tr><td colspan="7" class="py-16 text-center text-white/40 italic uppercase font-bold tracking-widest">No reset tickets found.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = snap.docs.map((doc0) => {
+          const d = doc0.data() || {};
+          const email = String(d.email || '').trim();
+          const phone = String(d.phone || '').trim();
+          const ticketCode = String(d.ticketCode || '').trim();
+          const accountType = String(d.accountType || '').trim();
+          const status = String(d.status || 'requested').trim();
+          const createdAt = d.created_at?.toDate ? d.created_at.toDate().toLocaleString() : '';
+          const msg = buildResetWhatsappMessage({ email, ticketCode, accountType });
+          const waLink = buildWhatsappLink({ phone, text: msg });
+
+          const statusClass = status === 'handled'
+            ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20'
+            : status === 'closed'
+              ? 'bg-slate-500/10 text-slate-300 border-slate-500/20'
+              : 'bg-orange/10 text-orange border-orange/20';
+
+          const disableHandled = status !== 'requested';
+          const disableClosed = status === 'closed';
+
+          return `
+            <tr class="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+              <td class="py-5 pr-4">
+                <p class="font-black text-white uppercase tracking-tight">${email || '—'}</p>
+              </td>
+              <td class="py-5 pr-4 font-mono text-[11px] text-slate-300">${phone || '—'}</td>
+              <td class="py-5 pr-4 font-mono text-[11px] text-orange">${ticketCode || '—'}</td>
+              <td class="py-5 pr-4">
+                <span class="px-3 py-1 rounded-full bg-white/5 text-white/70 text-[9px] font-black uppercase tracking-widest border border-white/10">${accountType || 'unknown'}</span>
+              </td>
+              <td class="py-5 pr-4">
+                <span class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${statusClass}">${status}</span>
+              </td>
+              <td class="py-5 pr-4 text-[10px] text-slate-500 font-bold uppercase tracking-widest whitespace-nowrap">${createdAt || '—'}</td>
+              <td class="py-5">
+                <div class="flex gap-2">
+                  <button aria-label="Copy ticket code" onclick='window.copyToClipboard(${JSON.stringify(ticketCode)})' class="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center hover:bg-orange/20 hover:text-orange transition-all">
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                  </button>
+                  <button aria-label="Copy WhatsApp message" onclick='window.copyToClipboard(${JSON.stringify(msg)})' class="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center hover:bg-orange/20 hover:text-orange transition-all">
+                    <i data-lucide="clipboard" class="w-4 h-4"></i>
+                  </button>
+                  <a aria-label="Open WhatsApp chat" href="${waLink}" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-xl bg-orange/10 text-orange flex items-center justify-center hover:bg-orange hover:text-navy transition-all">
+                    <i data-lucide="message-circle" class="w-4 h-4"></i>
+                  </a>
+                  <button aria-label="Mark ticket handled" onclick="window.markResetTicketHandled('${doc0.id}')" ${disableHandled ? 'disabled' : ''} class="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center hover:bg-emerald-500/20 hover:text-emerald-300 transition-all disabled:opacity-40 disabled:pointer-events-none">
+                    <i data-lucide="check" class="w-4 h-4"></i>
+                  </button>
+                  <button aria-label="Mark ticket closed" onclick="window.markResetTicketClosed('${doc0.id}')" ${disableClosed ? 'disabled' : ''} class="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center hover:bg-slate-500/20 hover:text-slate-300 transition-all disabled:opacity-40 disabled:pointer-events-none">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        if (window.lucide) window.lucide.createIcons();
+      }, () => {
+        if (tbody) tbody.innerHTML = `<tr><td colspan="7" class="py-16 text-center text-red-400 font-bold uppercase tracking-widest">Failed to load reset tickets.</td></tr>`;
+      });
+
+      if (window.lucide) window.lucide.createIcons();
     };
 
     window.setSupportLogMode = async (mode) => {
