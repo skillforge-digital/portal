@@ -141,6 +141,9 @@
         <button data-tab="registry-admin" aria-label="Registry Admin" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
           <i data-lucide="shield" class="w-4 h-4"></i> Registry Admin
         </button>
+        <button data-tab="registry-logs" aria-label="Registry Logs" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+          <i data-lucide="file-text" class="w-4 h-4"></i> Registry Logs
+        </button>
         <button data-tab="approvals" aria-label="Personnel Approvals" class="nav-btn w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
           <i data-lucide="clipboard-check" class="w-4 h-4"></i> Personnel Approvals
         </button>
@@ -281,8 +284,10 @@
       }
 
       const registryAdminBtn = document.querySelector('[data-tab="registry-admin"]');
+      const registryLogsBtn = document.querySelector('[data-tab="registry-logs"]');
       const isDirector = (staffCommand.userData.roles || []).includes('Director') || staffCommand.userData.primaryRole === 'Director';
       if (registryAdminBtn && !isDirector) registryAdminBtn.classList.add('hidden');
+      if (registryLogsBtn && !isDirector) registryLogsBtn.classList.add('hidden');
       
       loadNewsTicker();
       showTab('overview');
@@ -393,6 +398,13 @@
                 content.innerHTML = `<div class="p-10 glass text-center text-red-400 font-bold uppercase tracking-widest">Access Denied: Director clearance required.</div>`;
               } else {
                 await renderRegistryAdmin(content);
+              }
+              break;
+            case 'registry-logs':
+              if (!((staffCommand.userData.roles || []).includes('Director') || staffCommand.userData.primaryRole === 'Director')) {
+                content.innerHTML = `<div class="p-10 glass text-center text-red-400 font-bold uppercase tracking-widest">Access Denied: Director clearance required.</div>`;
+              } else {
+                await renderRegistryLogs(content);
               }
               break;
             case 'approvals': await renderApprovals(content); break;
@@ -1800,18 +1812,189 @@
       });
     }
 
+    const registryLogsState = {
+      items: [],
+      filterAction: '',
+      filterCollection: ''
+    };
+
+    function normalizeRegistryLogCollection(entry) {
+      const direct = entry?.collection || entry?.targetCollection || entry?.target_collection;
+      if (direct) return String(direct);
+      const meta = entry?.meta || null;
+      if (meta && typeof meta === 'object') {
+        const metaColl = meta.collection || meta.targetCollection || meta.origin_target_collection;
+        if (metaColl) return String(metaColl);
+      }
+      const accountType = String(entry?.accountType || '').toLowerCase();
+      if (accountType === 'staff') return 'staffs';
+      if (accountType === 'trainee') return 'trainees';
+      return '';
+    }
+
+    function normalizeRegistryLogTimestamp(entry) {
+      return entry?.timestamp || entry?.created_at || entry?.createdAt || entry?.createdAtUtc || null;
+    }
+
+    function renderRegistryLogsRows(rows) {
+      return rows.map((d0) => {
+        const action = escapeHtml(d0.action || 'EVENT');
+        const actor = escapeHtml(d0.actorName || d0.actorId || 'System');
+        const targetId = escapeHtml(d0.targetId || '');
+        const collectionName = escapeHtml(normalizeRegistryLogCollection(d0) || '—');
+        const stamp = normalizeRegistryLogTimestamp(d0);
+        const stampText = stamp?.toDate ? stamp.toDate().toLocaleString() : 'N/A';
+        const beforeText = escapeHtml(toJsonText(d0.before ?? null));
+        const afterText = escapeHtml(toJsonText(d0.after ?? null));
+        const metaText = escapeHtml(toJsonText(d0.meta ?? null));
+
+        return `
+          <div class="glass rounded-[32px] border border-white/10 p-6 space-y-4">
+            <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+              <div class="space-y-2">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="px-3 py-1 rounded-full bg-gold/10 text-gold text-[7px] font-black uppercase tracking-widest border border-gold/20">${action}</span>
+                  <span class="px-3 py-1 rounded-full bg-white/5 text-white/60 text-[7px] font-black uppercase tracking-widest border border-white/10">${collectionName}</span>
+                </div>
+                <p class="text-sm font-black uppercase tracking-tight text-white">${actor}${targetId ? `<span class="text-white/30"> •</span> <span class="text-white/50">${targetId}</span>` : ''}</p>
+              </div>
+              <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">${escapeHtml(stampText)}</p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              <details class="bg-black/30 border border-white/10 rounded-2xl p-4">
+                <summary class="cursor-pointer text-[9px] font-black uppercase tracking-[0.35em] text-white/60">Before</summary>
+                <pre class="mt-4 text-[11px] font-mono text-white/70 whitespace-pre-wrap break-words leading-relaxed">${beforeText}</pre>
+              </details>
+              <details class="bg-black/30 border border-white/10 rounded-2xl p-4">
+                <summary class="cursor-pointer text-[9px] font-black uppercase tracking-[0.35em] text-white/60">After</summary>
+                <pre class="mt-4 text-[11px] font-mono text-white/70 whitespace-pre-wrap break-words leading-relaxed">${afterText}</pre>
+              </details>
+              <details class="bg-black/30 border border-white/10 rounded-2xl p-4">
+                <summary class="cursor-pointer text-[9px] font-black uppercase tracking-[0.35em] text-white/60">Meta</summary>
+                <pre class="mt-4 text-[11px] font-mono text-white/70 whitespace-pre-wrap break-words leading-relaxed">${metaText}</pre>
+              </details>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderRegistryLogsFilterOptions() {
+      const actionSel = document.getElementById('registry-logs-filter-action');
+      const collectionSel = document.getElementById('registry-logs-filter-collection');
+      const actionVal = registryLogsState.filterAction;
+      const collectionVal = registryLogsState.filterCollection;
+      const actionValues = Array.from(new Set(registryLogsState.items.map((x) => String(x.action || '').trim()).filter(Boolean))).sort();
+      const collectionValues = Array.from(new Set(registryLogsState.items.map((x) => normalizeRegistryLogCollection(x)).filter(Boolean))).sort();
+
+      if (actionSel) {
+        actionSel.innerHTML = ['<option value="">All actions</option>', ...actionValues.map((v) => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`)].join('');
+        actionSel.value = actionVal;
+      }
+      if (collectionSel) {
+        collectionSel.innerHTML = ['<option value="">All collections</option>', ...collectionValues.map((v) => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`)].join('');
+        collectionSel.value = collectionVal;
+      }
+    }
+
+    function renderRegistryLogsList() {
+      const list = document.getElementById('registry-logs-list');
+      const status = document.getElementById('registry-logs-status');
+      if (!list) return;
+      const filtered = registryLogsState.items.filter((x) => {
+        const okAction = registryLogsState.filterAction ? String(x.action || '') === registryLogsState.filterAction : true;
+        const coll = normalizeRegistryLogCollection(x);
+        const okCollection = registryLogsState.filterCollection ? String(coll || '') === registryLogsState.filterCollection : true;
+        return okAction && okCollection;
+      });
+
+      if (status) status.textContent = `${filtered.length} entries shown • ${registryLogsState.items.length} loaded`;
+
+      if (!filtered.length) {
+        list.innerHTML = '<p class="text-center text-white/40 py-16 italic uppercase font-bold tracking-widest">No matching registry log entries.</p>';
+        return;
+      }
+
+      list.innerHTML = renderRegistryLogsRows(filtered);
+    }
+
+    window.renderRegistryLogs = async function(container) {
+      container.innerHTML = `
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-8">
+          <div>
+            <p class="text-gold text-xs font-black tracking-[0.4em] uppercase">Director Only</p>
+            <h1 class="text-4xl md:text-5xl font-black mt-2 uppercase tracking-tighter">Registry Logs</h1>
+            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-3">Latest admin actions (limit 500). Filter by action or collection.</p>
+          </div>
+        </header>
+
+        <div class="glass-strong rounded-[40px] p-8 border border-white/5 space-y-6">
+          <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+            <div class="flex flex-wrap items-end gap-4">
+              <div class="space-y-2">
+                <label for="registry-logs-filter-action" class="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] ml-1">Action</label>
+                <select id="registry-logs-filter-action" class="bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-[10px] font-black uppercase tracking-widest text-white/70 min-w-[240px]"></select>
+              </div>
+              <div class="space-y-2">
+                <label for="registry-logs-filter-collection" class="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] ml-1">Collection</label>
+                <select id="registry-logs-filter-collection" class="bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-[10px] font-black uppercase tracking-widest text-white/70 min-w-[240px]"></select>
+              </div>
+            </div>
+            <div id="registry-logs-status" class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Loading...</div>
+          </div>
+          <div id="registry-logs-list" class="space-y-4"></div>
+        </div>
+      `;
+
+      const actionSel = document.getElementById('registry-logs-filter-action');
+      const collectionSel = document.getElementById('registry-logs-filter-collection');
+
+      const setFilters = () => {
+        registryLogsState.filterAction = actionSel ? actionSel.value : '';
+        registryLogsState.filterCollection = collectionSel ? collectionSel.value : '';
+        renderRegistryLogsList();
+      };
+
+      if (actionSel) actionSel.addEventListener('change', setFilters);
+      if (collectionSel) collectionSel.addEventListener('change', setFilters);
+
+      const list = document.getElementById('registry-logs-list');
+      if (list) list.innerHTML = '<div class="flex items-center justify-center h-48"><div class="w-10 h-10 border-4 border-gold/20 border-t-gold rounded-full animate-spin"></div></div>';
+
+      const q = query(
+        collection(db, 'registry_admin_logs'),
+        orderBy('timestamp', 'desc'),
+        limit(500)
+      );
+
+      currentTabUnsub = onSnapshot(q, (snap) => {
+        registryLogsState.items = snap.docs.map((doc0) => ({ id: doc0.id, ...(doc0.data() || {}) }));
+        renderRegistryLogsFilterOptions();
+        renderRegistryLogsList();
+      }, (err) => {
+        if (list) list.innerHTML = `<div class="p-10 glass text-center text-red-400 font-bold uppercase tracking-widest">Failed to load logs: ${escapeHtml(err.message)}</div>`;
+      });
+
+      renderRegistryLogsFilterOptions();
+      renderRegistryLogsList();
+    };
+
     async function logRegistryAdminAction({ action, accountType, targetId, before, after, meta }) {
       const actorId = staffCommand.uid;
       const actorName = staffCommand.userData?.name || null;
+      const normalizedAccount = String(accountType || '').toLowerCase();
+      const collectionName = normalizedAccount === 'staff' ? 'staffs' : (normalizedAccount === 'trainee' ? 'trainees' : null);
       const payload = {
         action: String(action || '').trim().toUpperCase(),
         accountType,
+        collection: collectionName,
         targetId,
         before: before ?? null,
         after: after ?? null,
         meta: meta ?? null,
         actorId,
         actorName,
+        timestamp: serverTimestamp(),
         created_at: serverTimestamp(),
         page: '/staffs/director/'
       };
@@ -1819,6 +2002,7 @@
       await addDoc(collection(db, 'audit_logs'), {
         type: `REGISTRY_ADMIN_${payload.action}`,
         accountType,
+        collection: collectionName,
         targetId,
         actorId,
         actorName,
