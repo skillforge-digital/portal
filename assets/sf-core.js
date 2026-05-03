@@ -12,6 +12,28 @@ import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/f
 import { doc, getDoc, setDoc, updateDoc, increment, serverTimestamp, addDoc, collection } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 import { SystemDebugger } from './system-debugger.js';
 
+export function buildPresencePatch({ registryState, engagementScore, durationSeconds }) {
+    const track = registryState?.track ? String(registryState.track).trim() : '';
+    const name = registryState?.name ? String(registryState.name).trim() : '';
+
+    const patch = {
+        lastSeen: serverTimestamp()
+    };
+
+    if (typeof engagementScore === 'number' && Number.isFinite(engagementScore)) {
+        patch.engagementScore = engagementScore;
+    }
+
+    if (typeof durationSeconds === 'number' && Number.isFinite(durationSeconds) && durationSeconds > 0) {
+        patch.totalActiveSeconds = increment(durationSeconds);
+    }
+
+    if (track) patch.track = track;
+    if (name) patch.name = name;
+
+    return patch;
+}
+
 class SkillForgeCore {
     constructor() {
         if (/** @type {any} */(window)._sfCore) return;
@@ -252,11 +274,11 @@ class SkillForgeCore {
         const score = this.calculateSatisfactionScore();
 
         const metricsRef = doc(this.db, 'presence', this.uid);
-        await setDoc(metricsRef, {
-            lastSeen: serverTimestamp(),
+        await setDoc(metricsRef, buildPresencePatch({
+            registryState: this.registryState,
             engagementScore: score,
-            totalActiveSeconds: increment(duration)
-        }, { merge: true });
+            durationSeconds: duration
+        }), { merge: true });
 
         // Reset local counters for next window
         this.engagement.startTime = Date.now();
@@ -637,7 +659,10 @@ class SkillForgeCore {
                 server_lastActive: serverTimestamp()
             };
 
-            await setDoc(presenceRef, batch, { merge: true });
+            await setDoc(presenceRef, {
+                ...batch,
+                ...buildPresencePatch({ registryState: this.registryState })
+            }, { merge: true });
 
             if (minutes >= 1) {
                 const snap = await getDoc(presenceRef);
