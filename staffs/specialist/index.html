@@ -482,16 +482,27 @@
     function computeMyTracks(profile) {
         const dept = profile?.department || null;
         const explicitAssigned = profile?.assignedTrack ? String(profile.assignedTrack).trim() : '';
-        const assignedTrack = getAssignedTrack(profile);
-        const normalizedAssigned = TRACK_OPTIONS.includes(assignedTrack) ? assignedTrack : '';
+        const assignedFromProfile = getAssignedTrack(profile);
         const legacyTracks = uniqTracks(profile?.tracks).filter((t) => TRACK_OPTIONS.includes(t));
+        const derivedTracks = uniqTracks(window.staffCore?.getTrackSpecialists?.(dept)).filter((t) => TRACK_OPTIONS.includes(t));
+        const derivedDefault = derivedTracks.length ? derivedTracks[0] : '';
+        const resolvedAssigned = assignedFromProfile || derivedDefault;
+        const normalizedAssigned = TRACK_OPTIONS.includes(resolvedAssigned) ? resolvedAssigned : '';
         const locked = Boolean(explicitAssigned);
 
         return {
             assignedTrack: normalizedAssigned,
             tracks: normalizedAssigned ? [normalizedAssigned] : [],
             locked,
-            source: locked ? 'assignedTrack' : normalizedAssigned ? 'legacy-single' : legacyTracks.length ? 'legacy-multi' : 'none',
+            source: locked
+              ? 'assignedTrack'
+              : assignedFromProfile
+                ? 'legacy-single'
+                : normalizedAssigned
+                  ? 'derived-default'
+                  : legacyTracks.length
+                    ? 'legacy-multi'
+                    : 'none',
             legacyTracksCount: legacyTracks.length,
             department: dept
         };
@@ -812,31 +823,32 @@
             state.presenceUnsub = null;
         }
 
-        const tracks = Array.isArray(myTracksState?.tracks) ? myTracksState.tracks : [];
-        const countsByTrack = Object.create(null);
-        const trackSet = new Set(tracks);
+        const profile = window.staffCore?.profile || null;
+        const dept = profile?.department || null;
+        const explicitAssigned = profile?.assignedTrack ? String(profile.assignedTrack).trim() : '';
+        const singleFromTracks = getAssignedTrack(profile);
+        const derivedTracks = uniqTracks(window.staffCore?.getTrackSpecialists?.(dept)).filter((t) => TRACK_OPTIONS.includes(t));
+        const derivedDefault = derivedTracks.length ? derivedTracks[0] : '';
+        const assignedTrackRaw = explicitAssigned || singleFromTracks || derivedDefault;
+        const assignedTrack = TRACK_OPTIONS.includes(assignedTrackRaw) ? assignedTrackRaw : '';
 
         const activityEl = document.getElementById('recent-path-activity');
         if (activityEl) {
             activityEl.className = 'flex items-center justify-center h-64 text-white/20 italic';
-            activityEl.innerText = tracks.length ? 'Scanning assigned path activity...' : 'Select your tracks to view trainee activity.';
+            activityEl.innerText = assignedTrack ? 'Scanning assigned path activity...' : 'Select your assigned track to view trainee activity.';
         }
 
         setText('trainee-count', 0);
         setText('trainee-count-sub', 0);
 
-        if (tracks.length) {
-            for (const track of tracks) {
-                countsByTrack[track] = 0;
-                const q = query(collection(db, 'trainees'), where('track', '==', track));
-                const unsub = onSnapshot(q, (snap) => {
-                    countsByTrack[track] = snap.size;
-                    const total = Object.values(countsByTrack).reduce((sum, n) => sum + (Number(n) || 0), 0);
-                    setText('trainee-count', total);
-                    setText('trainee-count-sub', total);
-                });
-                state.traineeUnsubs.push(unsub);
-            }
+        if (assignedTrack) {
+            const tq = query(collection(db, 'trainees'), where('track', '==', assignedTrack));
+            const unsub = onSnapshot(tq, (snap) => {
+                const total = snap.size;
+                setText('trainee-count', total);
+                setText('trainee-count-sub', total);
+            });
+            state.traineeUnsubs.push(unsub);
         }
 
         state.badgeUnsub = onSnapshot(collection(db, "badge_requests"), (snap) => {
@@ -846,7 +858,7 @@
             setText('badge-count-sub', pending);
         });
 
-        if (tracks.length) {
+        if (assignedTrack) {
             const pq = query(collection(db, 'presence'), orderBy('lastSeen', 'desc'), limit(200));
             state.presenceUnsub = onSnapshot(
                 pq,
@@ -855,7 +867,7 @@
                     snap.forEach((d0) => {
                         const d = d0.data() || {};
                         const t = d.track ? String(d.track).trim() : '';
-                        if (!t || !trackSet.has(t)) return;
+                        if (!t || t !== assignedTrack) return;
                         rows.push({ id: d0.id, ...d, __track: t });
                     });
 
