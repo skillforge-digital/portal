@@ -204,7 +204,8 @@
   </main>
 
   <script type="module">
-    import { db } from '../../assets/firebase-config.js';
+    import StaffCore from '../../assets/staff-core.js';
+    import { db, auth } from '../../assets/firebase-config.js';
     import '../../assets/theme-manager.js';
     import { collection, query, getDocs, doc, getDoc, addDoc, deleteDoc, serverTimestamp, orderBy, limit } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
     import { logStaffActivity } from '../../assets/staff-activity.js';

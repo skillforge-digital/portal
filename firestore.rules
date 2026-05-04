@@ -41,7 +41,7 @@ service cloud.firestore {
     function isDirector() { return hasAnyRole(['Director']) || isLegacyDirector(); }
     function isHOD() { return hasAnyRole(['Director', 'HOD']) || isLegacyDirector() || isLegacyHOD(); }
     function isSpecialist() { return hasAnyRole(['Director', 'HOD', 'Specialist']) || isLegacyDirector() || isLegacyHOD() || isLegacySpecialist(); }
-    function isStaff() { return hasAnyRole(['Director', 'HOD', 'Specialist', 'Support Staff', 'Support Team', 'Digital Marketing', 'Community Manager', 'Staff']) || isLegacyDirector() || isLegacyHOD() || isLegacySpecialist(); }
+    function isStaff() { return hasAnyRole(['Director', 'HOD', 'Specialist', 'Support Staff', 'Support Team', 'Support Staff / Team', 'Digital Marketing', 'Community Manager', 'Staff']) || isLegacyDirector() || isLegacyHOD() || isLegacySpecialist(); }
     
     // Checks if the user is the owner of the document.
     function isOwner(userId) { return isAuthenticated() && getUID() == userId; }

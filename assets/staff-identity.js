@@ -6,6 +6,21 @@ const STAFF_DASHBOARD_PATH_BY_ROLE = {
     'Support Staff': '/staffs/support/'
 };
 
+const ROLE_ALIASES = {
+    'Support Team': 'Support Staff',
+    'Support Staff / Team': 'Support Staff'
+};
+
+function normalizeRole(role) {
+    const raw = String(role || '').trim();
+    return ROLE_ALIASES[raw] || raw;
+}
+
+function normalizeRoles(rolesRaw) {
+    const roles = Array.isArray(rolesRaw) ? rolesRaw : [rolesRaw].filter(Boolean);
+    return roles.map(normalizeRole).filter(Boolean);
+}
+
 const LEGACY_ROLE_BY_COLLECTION = {
     directors: 'Director',
     hods: 'HOD',
@@ -39,9 +54,10 @@ export async function resolveStaffIdentity(uid) {
         const legacyRole = LEGACY_ROLE_BY_COLLECTION[entry.collection];
 
         const rolesRaw = data.roles ?? (data.primaryRole ? [data.primaryRole] : (data.role ? [data.role] : (legacyRole ? [legacyRole] : [])));
-        const roles = Array.isArray(rolesRaw) ? rolesRaw : [rolesRaw].filter(Boolean);
+        const roles = normalizeRoles(rolesRaw);
 
-        const primaryRole = data.primaryRole || data.role || legacyRole || roles[0] || 'Staff';
+        const primaryRoleRaw = data.primaryRole || data.role || legacyRole || roles[0] || 'Staff';
+        const primaryRole = normalizeRole(primaryRoleRaw) || roles[0] || 'Staff';
         const status = entry.collection === 'staffs' ? (data.status || 'unknown') : (data.status || 'active');
 
         return {
@@ -60,7 +76,8 @@ export async function resolveStaffIdentity(uid) {
 }
 
 export function getStaffDashboardPath(profile) {
-    const role = profile?.primaryRole || profile?.role || (Array.isArray(profile?.roles) ? profile.roles[0] : undefined);
+    const roleRaw = profile?.primaryRole || profile?.role || (Array.isArray(profile?.roles) ? profile.roles[0] : undefined);
+    const role = normalizeRole(roleRaw);
     return STAFF_DASHBOARD_PATH_BY_ROLE[role] || '/staffs/';
 }
 
@@ -68,6 +85,9 @@ export function getAllStaffDashboardPaths(profile) {
     const roles = Array.isArray(profile?.roles) ? profile.roles : [];
     return roles
         .filter(Boolean)
-        .map((r) => ({ role: r, path: STAFF_DASHBOARD_PATH_BY_ROLE[r] }))
+        .map((r) => {
+            const normalized = normalizeRole(r);
+            return { role: normalized, path: STAFF_DASHBOARD_PATH_BY_ROLE[normalized] };
+        })
         .filter((x) => Boolean(x.path));
 }

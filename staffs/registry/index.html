@@ -424,6 +424,33 @@
       if (scope && canWhatsApp(profile)) scope.classList.remove('hidden');
     }
 
+    function getAssignedTrack(profile) {
+      const raw = String(profile?.assignedTrack || profile?.track || '').trim();
+      return raw;
+    }
+
+    async function applySpecialistTrackLock(profile) {
+      const role = String(profile?.primaryRole || '').trim();
+      const trackSelect = document.getElementById('track-select');
+      if (!trackSelect) return;
+
+      if (role !== 'Specialist') {
+        trackSelect.disabled = false;
+        return;
+      }
+
+      const assigned = getAssignedTrack(profile);
+      if (!assigned) {
+        trackSelect.disabled = true;
+        setStatus('Assigned track is required for Specialist access. Contact Director to assign your track.', 'warn');
+        return;
+      }
+
+      trackSelect.value = assigned;
+      trackSelect.disabled = true;
+      await loadTrack(assigned);
+    }
+
     async function initialize(user) {
       staffUser = user;
       if (!user) {
@@ -446,6 +473,7 @@
       staffProfile = resolved.profile;
       hydrateNav(staffProfile);
       updateProfileBadge(staffProfile);
+      await applySpecialistTrackLock(staffProfile);
       applySearch();
     }
 
