@@ -238,6 +238,7 @@
     import '../../assets/theme-manager.js';
     import { buildResetWhatsappMessage, buildWhatsappLink } from '../../assets/registry-utils.js';
     import { db, auth } from '../../assets/firebase-config.js';
+    import { createOrGetStaffGatePasskey } from '../../assets/staff-gate-passkey.js';
     import { collection, query, getDocs, onSnapshot, doc, getDoc, where, updateDoc, orderBy, limit, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 
     
@@ -258,6 +259,36 @@
         el.select();
         document.execCommand('copy');
         document.body.removeChild(el);
+      }
+    };
+
+    window.getMyAccessCode = async () => {
+      const uid = auth.currentUser ? auth.currentUser.uid : localStorage.getItem('skillforge_mock_uid');
+      if (!uid) return;
+
+      const btn = document.getElementById('staff-gate-btn');
+      const pinEl = document.getElementById('staff-gate-pin');
+      const hasPin = window.staffCore?.profile?.pin && /^\d{6}$/.test(String(window.staffCore.profile.pin));
+      if (hasPin && !confirm('Regenerate your Academy Access Code? Your old code will stop working.')) return;
+
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = hasPin ? 'Regenerating...' : 'Generating...';
+      }
+
+      try {
+        const sfid = window.staffCore?.profile?.sfid || '';
+        const res = await createOrGetStaffGatePasskey({ uid, sfid, force: hasPin });
+        if (window.staffCore?.profile) window.staffCore.profile.pin = res.pin;
+        if (pinEl) pinEl.textContent = res.pin;
+        if (btn) btn.textContent = 'Regenerate';
+        alert('Academy Access Code ready.');
+      } catch (err) {
+        void(err);
+        if (btn) btn.textContent = hasPin ? 'Regenerate' : 'Get Access Code';
+        alert(err && err.message ? err.message : 'Generation failed.');
+      } finally {
+        if (btn) btn.disabled = false;
       }
     };
 
@@ -413,8 +444,22 @@
                                 <p class="text-lg font-black text-white tracking-[0.2em]">${profile.sfid || 'PENDING'}</p>
                             </div>
                             <div class="p-4 rounded-2xl bg-white/5 border border-white/5">
-                                <p class="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Access Passkey</p>
-                                <p class="text-lg font-black text-orange tracking-[0.2em]">${profile.roleCode || 'XXXXXX'}</p>
+                                <p class="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Registration ROLE Code</p>
+                                <p class="text-lg font-black text-orange tracking-[0.2em]">${profile.roleCode || '—'}</p>
+                            </div>
+                            <div class="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-3">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div>
+                                        <p class="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Academy Access Code</p>
+                                        <p id="staff-gate-pin" class="text-lg font-black text-orange tracking-[0.2em]">${profile.pin || 'Not Generated'}</p>
+                                    </div>
+                                    <button id="staff-gate-btn" onclick="getMyAccessCode()" class="px-4 py-2 rounded-xl bg-orange/10 border border-orange/20 text-orange text-[9px] font-black uppercase tracking-widest hover:bg-orange hover:text-navy transition-all whitespace-nowrap">${profile.pin ? 'Regenerate' : 'Get Access Code'}</button>
+                                </div>
+                                <p class="text-[9px] text-white/30 font-bold uppercase tracking-widest">Use this code on the Academy gate to access all tracks.</p>
+                            </div>
+                            <div class="p-4 rounded-2xl bg-white/5 border border-white/5">
+                                <p class="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Registered</p>
+                                <p class="text-sm font-black text-white/70 uppercase tracking-widest">${profile.created_at?.toDate ? profile.created_at.toDate().toLocaleDateString() : 'N/A'}</p>
                             </div>
                         </div>
                     </div>

@@ -255,7 +255,7 @@
 
   <script type="module">
     import { db, auth } from '../../assets/firebase-config.js';
-    import { doc, getDoc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+    import { doc, getDoc, setDoc, serverTimestamp, runTransaction } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
     import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
     let assignedRoles = [];
     let assignedCode = '';
@@ -450,6 +450,7 @@
                 department: units[0], // Primary unit
                 departments: units, // All assigned units
                 roleCode: assignedCode,
+                pin: '',
                 social: socialMatrix[0] || { platform: 'Other', handle: '@none' }, // Legacy single support
                 socialMatrix: socialMatrix, // New multi-handle support
                 created_at: serverTimestamp(),
@@ -458,27 +459,14 @@
                 theme: { layout: 1, color: '#f59e0b', secondary: '#040810' }
             });
 
-            // 5. Mark code as used
-            await setDoc(doc(db, 'role_codes', assignedCode), { used: true, usedBy: user.uid, status: 'pending' }, { merge: true });
-
-            // 5.5 Create Academy Track Access for Staff (Passkey support - Pending)
-            const trackAccessRef = doc(db, 'track_access', assignedCode);
-            const trackAccessSnap = await getDoc(trackAccessRef).catch(() => null);
-            if (trackAccessSnap && trackAccessSnap.exists()) {
-                const existingAccess = trackAccessSnap.data() || {};
-                if (existingAccess.uid && existingAccess.uid !== user.uid) {
-                    throw new Error('This ROLE code has already been claimed. Please request a new staff code.');
-                }
-            } else {
-                await setDoc(trackAccessRef, {
-                    pin: assignedCode,
-                    track: 'Staff Access',
-                    uid: user.uid,
-                    sfid: staffSfid,
-                    type: 'staff',
-                    status: 'pending'
-                });
-            }
+            await runTransaction(db, async (tx) => {
+                const codeRef = doc(db, 'role_codes', assignedCode);
+                const codeSnap = await tx.get(codeRef);
+                if (!codeSnap.exists()) throw new Error('ROLE code validation failed. Request a new code.');
+                const freshCode = codeSnap.data() || {};
+                if (freshCode.used) throw new Error('This ROLE code has already been claimed. Request a new code.');
+                tx.update(codeRef, { used: true, usedBy: user.uid, status: 'pending' });
+            });
 
             // 6. Success!
             document.getElementById('generated-staff-id').innerText = staffSfid;
@@ -488,7 +476,7 @@
             // Update success message to reflect pending status
             const successSubtext = document.querySelector('#success-step p.text-slate-400');
             if (successSubtext) {
-                successSubtext.innerHTML = 'Welcome to the SkillForge Command Registry. Your application is <b>PENDING APPROVAL</b> from the Director. You will be notified once your clearance is activated.';
+                successSubtext.innerHTML = 'Welcome to the SkillForge Command Registry. Your application is <b>PENDING APPROVAL</b> from the Director. After approval, sign in and click <b>GET ACCESS CODE</b> in your staff profile to unlock all Academy tracks.';
             }
         } catch (err) {
             void(err);

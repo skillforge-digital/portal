@@ -226,11 +226,26 @@
     import { ROLES, PERMISSIONS } from '../../assets/rbac-config.js';
     import { db, auth } from '../../assets/firebase-config.js';
     import { buildResetTicketCode, buildResetWhatsappMessage, buildWhatsappLink, normalizePhone } from '../../assets/registry-utils.js';
+    import { buildStaffRoleCode } from '../../assets/staff-role-code-engine.js';
+    import { createOrGetStaffGatePasskey } from '../../assets/staff-gate-passkey.js';
     import { 
         collection, query, getDocs, doc, getDoc, setDoc, addDoc, 
         deleteDoc, updateDoc, serverTimestamp, orderBy, onSnapshot, writeBatch, limit, where, Timestamp 
     } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
     import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+
+    const TRACK_OPTIONS = [
+      'Forex Currency Pairs',
+      'Forex Synthetic Indices',
+      'Web Development',
+      'Discord Development',
+      'Cyber Security',
+      'Graphic Design',
+      'Mobile Cinematography',
+      'Photography & Editing',
+      'Digital Marketing',
+      'AI Content Creation'
+    ];
 
     // Global state
     let currentTab = 'overview';
@@ -262,6 +277,36 @@
       const value = prompt(promptText || 'Type APPROVE to continue');
       return (value || '').trim().toUpperCase() === (requiredWord || 'APPROVE');
     }
+
+    window.getMyAccessCode = async () => {
+      const uid = auth.currentUser ? auth.currentUser.uid : localStorage.getItem('skillforge_mock_uid');
+      if (!uid) return;
+
+      const btn = document.getElementById('staff-gate-btn');
+      const pinEl = document.getElementById('staff-gate-pin');
+      const hasPin = staffCommand?.userData?.pin && /^\d{6}$/.test(String(staffCommand.userData.pin));
+      if (hasPin && !confirm('Regenerate your Academy Access Code? Your old code will stop working.')) return;
+
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = hasPin ? 'Regenerating...' : 'Generating...';
+      }
+
+      try {
+        const sfid = staffCommand?.userData?.sfid || '';
+        const res = await createOrGetStaffGatePasskey({ uid, sfid, force: hasPin });
+        if (staffCommand?.userData) staffCommand.userData.pin = res.pin;
+        if (pinEl) pinEl.textContent = res.pin;
+        if (btn) btn.textContent = 'Regenerate';
+        alert('Academy Access Code ready.');
+      } catch (err) {
+        void(err);
+        if (btn) btn.textContent = hasPin ? 'Regenerate' : 'Get Access Code';
+        alert(err && err.message ? err.message : 'Generation failed.');
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    };
 
     onAuthStateChanged(auth, async (user) => {
       if (!user) { window.location.href = '../login/'; return; }
@@ -448,8 +493,22 @@
                             <p class="text-lg font-black text-white tracking-[0.2em]">${profile.sfid || 'PENDING'}</p>
                         </div>
                         <div class="p-4 rounded-2xl bg-white/5 border border-white/5">
-                            <p class="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Master Passkey</p>
-                            <p class="text-lg font-black text-gold tracking-[0.2em]">${profile.roleCode || 'XXXXXX'}</p>
+                            <p class="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Registration ROLE Code</p>
+                            <p class="text-lg font-black text-gold tracking-[0.2em]">${profile.roleCode || '—'}</p>
+                        </div>
+                        <div class="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-3">
+                            <div class="flex items-start justify-between gap-4">
+                                <div>
+                                    <p class="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Academy Access Code</p>
+                                    <p id="staff-gate-pin" class="text-lg font-black text-gold tracking-[0.2em]">${profile.pin || 'Not Generated'}</p>
+                                </div>
+                                <button id="staff-gate-btn" type="button" onclick="getMyAccessCode()" class="px-4 py-2 rounded-xl bg-gold/10 border border-gold/20 text-gold text-[9px] font-black uppercase tracking-widest hover:bg-gold hover:text-navy transition-all whitespace-nowrap">${profile.pin ? 'Regenerate' : 'Get Access Code'}</button>
+                            </div>
+                            <p class="text-[9px] text-white/30 font-bold uppercase tracking-widest">Use this code on the Academy gate to access all tracks.</p>
+                        </div>
+                        <div class="p-4 rounded-2xl bg-white/5 border border-white/5">
+                            <p class="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Registered</p>
+                            <p class="text-sm font-black text-white/70 uppercase tracking-widest">${profile.created_at?.toDate ? profile.created_at.toDate().toLocaleDateString() : 'N/A'}</p>
                         </div>
                     </div>
                 </div>
@@ -781,20 +840,22 @@
         </header>
 
         <div class="glass-strong rounded-[40px] p-8 border border-white/5 overflow-x-auto">
-          <table class="w-full text-left">
+          <table class="w-full text-left min-w-[980px]">
             <thead class="text-[10px] font-black uppercase text-slate-500 border-b border-white/10">
               <tr>
                 <th class="pb-4">Profile</th>
                 <th class="pb-4">SFID</th>
                 <th class="pb-4">Track</th>
                 <th class="pb-4">XP/Tier</th>
+                <th class="pb-4">Registered</th>
                 <th class="pb-4">Actions</th>
               </tr>
             </thead>
             <tbody class="text-sm">
-              ${snap.empty ? '<tr><td colspan="5" class="py-12 text-center text-white/40 italic">No trainees found.</td></tr>' : ''}
+              ${snap.empty ? '<tr><td colspan="6" class="py-12 text-center text-white/40 italic">No trainees found.</td></tr>' : ''}
               ${snap.docs.map(doc => {
                 const d = doc.data();
+                const created = d.created_at?.toDate ? d.created_at.toDate().toLocaleDateString() : 'N/A';
                 return `<tr class="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
                   <td class="py-4">
                     <div class="flex items-center gap-3">
@@ -816,6 +877,7 @@
                     <p class="text-[10px] font-black">${d.xp || 0} XP</p>
                     <p class="text-[8px] text-gold/60 uppercase tracking-widest">${d.tier || 'Novice'}</p>
                   </td>
+                  <td class="py-4 text-[9px] font-black uppercase tracking-widest text-white/40">${created}</td>
                   <td class="py-4">
                     <div class="flex gap-2">
                         <button aria-label="Action button" onclick="viewTrainee('${doc.id}')" class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center hover:bg-gold/20 hover:text-gold transition-all"><i data-lucide="eye" class="w-4 h-4"></i></button>
@@ -843,12 +905,14 @@
         </header>
 
         <div class="glass-strong rounded-[40px] p-8 border border-white/5 overflow-x-auto">
-          <table class="w-full text-left">
+          <table class="w-full text-left min-w-[980px]">
             <thead class="text-[10px] font-black uppercase text-slate-500 border-b border-white/10">
               <tr>
                 <th class="pb-4">Personnel</th>
                 <th class="pb-4">Roles (Cumulative)</th>
                 <th class="pb-4">Primary Unit</th>
+                <th class="pb-4">Registered</th>
+                <th class="pb-4">Specialist Track</th>
                 <th class="pb-4">Actions</th>
               </tr>
             </thead>
@@ -856,6 +920,9 @@
               ${snap.docs.map(doc => {
                 const d = doc.data();
                 const roles = d.roles || [];
+                const created = d.created_at?.toDate ? d.created_at.toDate().toLocaleDateString() : 'N/A';
+                const isSpecialist = Array.isArray(roles) && roles.includes('Specialist');
+                const assignedTrack = d.assignedTrack ? String(d.assignedTrack) : '';
                 return `<tr class="border-b border-white/5">
                   <td class="py-4">
                     <div class="flex items-center gap-2">
@@ -869,6 +936,13 @@
                     </div>
                   </td>
                   <td class="py-4"><span class="px-3 py-1 rounded-full bg-gold/10 text-gold text-[8px] font-black uppercase tracking-widest">${d.primaryRole || 'Staff'}</span></td>
+                  <td class="py-4 text-[9px] font-black uppercase tracking-widest text-white/40">${created}</td>
+                  <td class="py-4">
+                    <div class="flex items-center gap-2">
+                      <span class="px-3 py-1 rounded-full border text-[8px] font-black uppercase tracking-widest ${assignedTrack ? 'bg-orange/10 text-orange border-orange/20' : 'bg-white/5 text-white/30 border-white/10'}">${assignedTrack || (isSpecialist ? 'Unassigned' : '—')}</span>
+                      ${isSpecialist ? `<button onclick="openSpecialistTrackEditor('${doc.id}')" class="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white/60 text-[9px] font-black uppercase tracking-widest hover:bg-orange hover:text-navy transition-all">Edit</button>` : ''}
+                    </div>
+                  </td>
                   <td class="py-4">
                     <div class="flex gap-2">
                         <button onclick="manageUserRoles('${doc.id}')" class="px-4 py-2 rounded-xl bg-white/5 text-[9px] font-black uppercase tracking-widest hover:bg-gold hover:text-navy transition-all">Roles</button>
@@ -971,6 +1045,63 @@
             await window.manageUserRoles(uid); // Re-open with new state
         } else {
             alert(res.error);
+        }
+    }
+
+    window.openSpecialistTrackEditor = async function(uid) {
+        const snap = await getDoc(doc(db, 'staffs', uid)).catch(() => null);
+        if (!snap || !snap.exists()) return;
+        const d = snap.data() || {};
+        const roles = Array.isArray(d.roles) ? d.roles : [];
+        if (!roles.includes('Specialist')) return;
+
+        const current = d.assignedTrack ? String(d.assignedTrack) : '';
+        const modal = document.createElement('div');
+        modal.id = 'spec-track-modal';
+        modal.className = 'fixed inset-0 z-[300] bg-navy/90 flex items-center justify-center p-6 backdrop-blur-xl';
+        modal.innerHTML = `
+            <div class="glass-strong p-10 rounded-[48px] border border-white/10 max-w-lg w-full space-y-8">
+                <div class="flex justify-between items-start gap-6">
+                    <div>
+                        <p class="text-[8px] font-black text-orange uppercase tracking-[0.4em]">Specialist Tracks</p>
+                        <h2 class="text-3xl font-black uppercase tracking-tighter">Update Track</h2>
+                        <p class="text-[10px] text-white/40 font-bold uppercase tracking-widest mt-2">${d.name || 'Specialist'}</p>
+                    </div>
+                    <button aria-label="Action button" onclick="document.getElementById('spec-track-modal').remove()" class="p-3 rounded-xl bg-white/5 hover:text-red-400"><i data-lucide="x" class="w-6 h-6"></i></button>
+                </div>
+                <div class="space-y-3">
+                    <label for="spec-track-select" class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Assigned Track</label>
+                    <select id="spec-track-select" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl font-bold uppercase text-xs">
+                        <option value="">UNASSIGNED</option>
+                        ${TRACK_OPTIONS.map(t => `<option value="${t.replace(/"/g, '&quot;')}" ${t === current ? 'selected' : ''}>${t}</option>`).join('')}
+                    </select>
+                    <p class="text-[9px] text-white/30 font-bold uppercase tracking-widest">If set, specialist track selection becomes locked on their end.</p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <button onclick="commitSpecialistTrack('${uid}')" class="w-full py-5 rounded-2xl bg-orange text-navy-950 font-black uppercase text-[10px] tracking-[0.3em] hover:bg-white transition-all">Save</button>
+                    <button onclick="document.getElementById('spec-track-modal').remove()" class="w-full py-5 rounded-2xl bg-white/5 border border-white/10 font-black uppercase text-[10px] tracking-[0.3em] text-white/60 hover:bg-white/10 transition-all">Cancel</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        if (window.lucide) window.lucide.createIcons();
+    }
+
+    window.commitSpecialistTrack = async function(uid) {
+        const modal = document.getElementById('spec-track-modal');
+        const select = document.getElementById('spec-track-select');
+        const value = select ? String(select.value || '').trim() : '';
+
+        if (!requireArm(`spec-track:${uid}`, 'Click SAVE again to confirm track update.')) return;
+
+        try {
+            await updateDoc(doc(db, 'staffs', uid), { assignedTrack: value });
+            if (modal) modal.remove();
+            await window.renderStaff(document.getElementById('tab-content'));
+            alert('Track updated.');
+        } catch (err) {
+            void(err);
+            alert('Update Failed: Registry link interrupted.');
         }
     }
 
@@ -1281,9 +1412,6 @@
             // 2. Update Role Code status
             if (data.roleCode) {
                 await setDoc(doc(db, "role_codes", data.roleCode), { status: 'active' }, { merge: true });
-                
-                // 3. Update Track Access status
-                await setDoc(doc(db, "track_access", data.roleCode), { status: 'active' }, { merge: true });
             }
             
             alert("Personnel clearance activated successfully.");
@@ -1302,7 +1430,6 @@
                 if (data.roleCode) {
                     // Reset role code to unused
                     await setDoc(doc(db, "role_codes", data.roleCode), { used: false, usedBy: null, status: 'available' }, { merge: true });
-                    await deleteDoc(doc(db, "track_access", data.roleCode));
                 }
             }
             await deleteDoc(staffRef);
@@ -1372,17 +1499,45 @@
         <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-8">
           <div>
             <p class="text-gold text-xs font-black tracking-[0.4em] uppercase">Access Control</p>
-            <h1 class="text-4xl md:text-5xl font-black mt-2 uppercase tracking-tighter">ROLE Codes</h1>
+            <h1 class="text-4xl md:text-5xl font-black mt-2 uppercase tracking-tighter">Staff ROLE Codes</h1>
           </div>
           <button onclick="generateRoleCode()" class="bg-gold text-navy-950 px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-white transition-all shadow-4K">
-            <i data-lucide="plus" class="w-4 h-4 inline mr-2"></i> Generate Key
+            <i data-lucide="plus" class="w-4 h-4 inline mr-2"></i> Generate Code
           </button>
         </header>
 
         <div class="glass-strong rounded-[40px] p-8 border border-white/5">
-          <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40 mb-8">Registry Authorization Keys</h2>
+          <h2 class="text-[11px] font-black uppercase tracking-[0.5em] text-white/40 mb-8">Registration Authorization Codes</h2>
           <div id="codes-list" class="space-y-4">
             <div class="flex items-center justify-center py-12"><div class="w-8 h-8 border-2 border-gold/20 border-t-gold rounded-full animate-spin"></div></div>
+          </div>
+        </div>
+
+        <div id="role-code-modal" class="hidden fixed inset-0 z-[300] bg-navy/95 items-center justify-center p-6 backdrop-blur-xl">
+          <div class="glass-strong p-10 rounded-[48px] border border-white/10 max-w-xl w-full space-y-8 max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <div class="flex justify-between items-start gap-6">
+              <div>
+                <p class="text-[8px] font-black text-gold uppercase tracking-[0.4em]">Staff Onboarding</p>
+                <h2 class="text-3xl font-black uppercase tracking-tighter">Generate ROLE Code</h2>
+                <p class="text-[10px] text-white/40 font-bold uppercase tracking-widest mt-2">Select cumulative roles for the new staff member.</p>
+              </div>
+              <button aria-label="Action button" onclick="closeRoleCodeModal()" class="p-3 rounded-xl bg-white/5 hover:text-red-400"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            <div id="role-code-role-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button onclick="commitRoleCode()" class="w-full py-5 rounded-2xl bg-gold text-navy-950 font-black uppercase text-[10px] tracking-[0.3em] hover:bg-white transition-all">Generate</button>
+              <button onclick="closeRoleCodeModal()" class="w-full py-5 rounded-2xl bg-white/5 border border-white/10 font-black uppercase text-[10px] tracking-[0.3em] text-white/60 hover:bg-white/10 transition-all">Cancel</button>
+            </div>
+            <div id="role-code-output" class="hidden p-6 rounded-3xl bg-black/30 border border-white/10">
+              <p class="text-[9px] text-white/40 font-bold uppercase tracking-widest mb-3">Generated Code</p>
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <p id="role-code-output-value" class="font-mono font-black text-2xl text-gold tracking-widest">SKF-XXXX-000</p>
+                <button onclick="copyGeneratedRoleCode()" class="px-5 py-3 rounded-2xl bg-gold/10 border border-gold/20 text-gold text-[9px] font-black uppercase tracking-widest hover:bg-gold hover:text-navy transition-all">
+                  <i data-lucide="copy" class="w-4 h-4 inline mr-2"></i> Copy
+                </button>
+              </div>
+              <p class="text-[9px] text-white/30 font-bold uppercase tracking-widest mt-4">Share this code with the staff member to register.</p>
+            </div>
           </div>
         </div>
       `;
@@ -1399,39 +1554,139 @@
         return;
       }
       
-      container.innerHTML = snap.docs.map(doc => {
-        const d = doc.data();
-        return `<div class="p-6 rounded-3xl bg-white/5 border border-white/10 flex justify-between items-center group">
-          <div>
-            <p class="font-mono font-black text-xl text-gold group-hover:scale-105 transition-transform origin-left">${doc.id}</p>
-            <p class="text-[9px] text-slate-500 mt-1 font-bold uppercase tracking-widest">Unit Grant: ${(d.roles || []).join(' | ')}</p>
+      const docs = snap.docs.slice().sort((a, b) => {
+        const at = a.data()?.createdAt?.toMillis ? a.data().createdAt.toMillis() : 0;
+        const bt = b.data()?.createdAt?.toMillis ? b.data().createdAt.toMillis() : 0;
+        return bt - at;
+      });
+
+      container.innerHTML = docs.map(doc => {
+        const d = doc.data() || {};
+        const created = d.createdAt?.toDate ? d.createdAt.toDate().toLocaleString() : 'N/A';
+        const statusTone = d.used ? 'bg-red-500/10 text-red-400 border-red-500/20' : 'bg-green-500/10 text-green-400 border-green-500/20';
+        return `<div class="p-6 rounded-3xl bg-white/5 border border-white/10 flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+          <div class="min-w-0">
+            <p class="font-mono font-black text-xl text-gold tracking-widest break-all">${doc.id}</p>
+            <p class="text-[9px] text-slate-500 mt-1 font-bold uppercase tracking-widest">Roles: ${(d.roles || []).join(' | ') || '—'}</p>
+            <p class="text-[9px] text-white/20 mt-2 font-bold uppercase tracking-widest">Created: ${created}</p>
           </div>
-          <span class="px-4 py-2 rounded-xl ${d.used ? 'bg-red-500/10 text-red-400' : 'bg-green-500/10 text-green-400'} text-[8px] font-black uppercase tracking-widest border ${d.used ? 'border-red-500/20' : 'border-green-500/20'}">
-            ${d.used ? 'Claimed' : 'Available'}
-          </span>
+          <div class="flex items-center gap-2 justify-end">
+            <button onclick="copyText(${JSON.stringify(doc.id)})" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white/60 text-[9px] font-black uppercase tracking-widest hover:bg-white/10 hover:text-white transition-all">
+              <i data-lucide="copy" class="w-3 h-3 inline mr-1"></i> Copy
+            </button>
+            ${d.used ? '' : `<button onclick="revokeRoleCode(${JSON.stringify(doc.id)})" class="px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-[9px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all">Revoke</button>`}
+            <span class="px-4 py-2 rounded-xl border ${statusTone} text-[8px] font-black uppercase tracking-widest">${d.used ? 'Claimed' : 'Available'}</span>
+          </div>
         </div>`;
       }).join('');
+      if (window.lucide) window.lucide.createIcons();
     }
 
     window.generateRoleCode = async function() {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-      let code = 'SKF-';
-      for (let i = 0; i < 6; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
-      
-      const rolesInput = prompt('Enter unit roles (comma-separated):\nDirector, HOD, Specialist, Digital Marketing, Support Team');
-      if (!rolesInput) return;
-      
-      const roleList = rolesInput.split(',').map(r => r.trim()).filter(r => r);
-      
-      await setDoc(doc(db, 'role_codes', code), {
-        roles: roleList,
-        used: false,
-        createdBy: staffCommand.userData.name,
-        createdAt: serverTimestamp()
-      });
-      
-      alert(`Authorization Key Generated: ${code}`);
-      loadRoleCodes();
+      const modal = document.getElementById('role-code-modal');
+      const grid = document.getElementById('role-code-role-grid');
+      const output = document.getElementById('role-code-output');
+      if (!modal || !grid || !output) return;
+
+      output.classList.add('hidden');
+
+      const rolesDoc = await getDoc(doc(db, 'system', 'roles')).catch(() => null);
+      const dynamicRoles = rolesDoc && rolesDoc.exists() ? (rolesDoc.data().roles || []) : [];
+      const standardRoles = Object.values(ROLES).filter(r => r !== ROLES.TRAINEE);
+      const roleOptions = [...new Set([...standardRoles, ...dynamicRoles])];
+
+      grid.innerHTML = roleOptions.map(r => {
+        const id = `role-code-role-${String(r).toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+        return `
+          <label for="${id}" class="flex items-center justify-between gap-3 p-4 rounded-2xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all">
+            <span class="text-[10px] font-black uppercase tracking-widest text-white/80">${r}</span>
+            <input id="${id}" type="checkbox" value="${String(r).replace(/"/g, '&quot;')}" class="w-4 h-4 accent-gold">
+          </label>
+        `;
+      }).join('');
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.body.style.overflow = 'hidden';
+      if (window.lucide) window.lucide.createIcons();
+    };
+
+    window.closeRoleCodeModal = () => {
+      const modal = document.getElementById('role-code-modal');
+      if (!modal) return;
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.style.overflow = '';
+    };
+
+    window.copyText = async (text) => {
+      try {
+        await navigator.clipboard.writeText(String(text || ''));
+        alert('Copied.');
+      } catch {
+        alert('Copy failed.');
+      }
+    };
+
+    window.copyGeneratedRoleCode = async () => {
+      const el = document.getElementById('role-code-output-value');
+      if (!el) return;
+      await window.copyText(el.textContent);
+    };
+
+    window.revokeRoleCode = async (code) => {
+      const value = String(code || '').trim();
+      if (!value) return;
+      if (!requireArm(`revoke-role-code:${value}`, 'Click REVOKE again to confirm.')) return;
+      try {
+        await deleteDoc(doc(db, 'role_codes', value));
+        await loadRoleCodes();
+        alert('Code revoked.');
+      } catch (err) {
+        void(err);
+        alert('Operation failed.');
+      }
+    };
+
+    window.commitRoleCode = async () => {
+      const modal = document.getElementById('role-code-modal');
+      const output = document.getElementById('role-code-output');
+      const valueEl = document.getElementById('role-code-output-value');
+      const inputs = Array.from(document.querySelectorAll('#role-code-role-grid input[type="checkbox"]:checked'));
+      const roles = inputs.map(i => String(i.value || '').trim()).filter(Boolean);
+      if (roles.length === 0) {
+        alert('Select at least one role.');
+        return;
+      }
+
+      try {
+        let code = '';
+        let rolesNorm = roles;
+        for (let i = 0; i < 8; i++) {
+          const built = buildStaffRoleCode(rolesNorm);
+          code = built.code;
+          rolesNorm = built.roles;
+          const exists = await getDoc(doc(db, 'role_codes', code));
+          if (!exists.exists()) break;
+          code = '';
+        }
+        if (!code) throw new Error('Code collision');
+
+        await setDoc(doc(db, 'role_codes', code), {
+          roles: rolesNorm,
+          used: false,
+          createdBy: staffCommand.userData.name,
+          createdAt: serverTimestamp()
+        });
+
+        if (valueEl) valueEl.textContent = code;
+        if (output) output.classList.remove('hidden');
+        await loadRoleCodes();
+        if (modal && window.lucide) window.lucide.createIcons();
+      } catch (err) {
+        void(err);
+        alert('Generation failed.');
+      }
     };
 
     window.renderResetTickets = async function(container) {

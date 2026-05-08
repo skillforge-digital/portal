@@ -10,6 +10,6 @@ describe('staff registration guards', () => {
 
   test('avoids forbidden update of track_access by checking existence first', () => {
     const html = readFileSync(path.resolve(process.cwd(), 'staffs/registration/index.html'), 'utf8');
-    expect(html).toMatch(/getDoc\s*\(\s*trackAccessRef\s*\)/);
+    expect(html).toMatch(/runTransaction\s*\(\s*db\s*,/);
   });
 });
