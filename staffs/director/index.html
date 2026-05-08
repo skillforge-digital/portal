@@ -1308,14 +1308,7 @@
             // 2. Update Role Code status
             if (data.roleCode) {
                 const code = String(data.roleCode || '').trim();
-                const refs = [doc(db, "staffAccessCodes", code), doc(db, "role_codes", code)];
-                for (const r of refs) {
-                    const s = await getDoc(r).catch(() => null);
-                    if (s && s.exists()) {
-                        await setDoc(r, { status: 'active' }, { merge: true });
-                        break;
-                    }
-                }
+                await setDoc(doc(db, "role_codes", code), { status: 'active' }, { merge: true });
                 
                 // 3. Update Track Access status
                 await setDoc(doc(db, "track_access", data.roleCode), { status: 'active' }, { merge: true });
@@ -1337,14 +1330,7 @@
                 if (data.roleCode) {
                     // Reset role code to unused
                     const code = String(data.roleCode || '').trim();
-                    const refs = [doc(db, "staffAccessCodes", code), doc(db, "role_codes", code)];
-                    for (const r of refs) {
-                        const s = await getDoc(r).catch(() => null);
-                        if (s && s.exists()) {
-                            await setDoc(r, { used: false, usedBy: null, usedAt: null, status: 'available' }, { merge: true });
-                            break;
-                        }
-                    }
+                    await setDoc(doc(db, "role_codes", code), { used: false, usedBy: null, usedAt: null, status: 'available' }, { merge: true });
                     await deleteDoc(doc(db, "track_access", data.roleCode));
                 }
             }
@@ -1433,7 +1419,7 @@
     }
 
     async function loadRoleCodes() {
-      const snap = await getDocs(query(collection(db, 'staffAccessCodes'), orderBy('createdAt', 'desc'), limit(200)));
+      const snap = await getDocs(query(collection(db, 'role_codes'), orderBy('createdAt', 'desc'), limit(200)));
       const container = document.getElementById('codes-list');
       if (!container) return;
       
@@ -1480,7 +1466,7 @@
       
       const roleList = rolesInput.split(',').map(r => r.trim()).filter(r => r);
       
-      await setDoc(doc(db, 'staffAccessCodes', code), {
+      await setDoc(doc(db, 'role_codes', code), {
         roles: roleList,
         used: false,
         usedBy: null,
@@ -1497,7 +1483,7 @@
     window.deleteAccessCode = async function(code) {
       if (!requireArm(`delete-access-code:${code}`, 'Click Delete again to confirm key purge.')) return;
       try {
-        await deleteDoc(doc(db, 'staffAccessCodes', String(code || '').trim()));
+        await deleteDoc(doc(db, 'role_codes', String(code || '').trim()));
         await loadRoleCodes();
       } catch (err) {
         alert(`Operation Failed: ${err.message}`);

@@ -91,8 +91,8 @@ service cloud.firestore {
       allow update, delete: if isStaff();
     }
 
-    // Role Codes: One-time use codes for staff onboarding.
-    match /staffAccessCodes/{code} {
+    match /role_codes/{code} {
+      // Relaxed rules for development: allow onboarding verification.
       allow get: if true;
       allow list: if isDirector();
       allow create: if isDirector();
@@ -101,23 +101,7 @@ service cloud.firestore {
          resource.data.used == false &&
          request.resource.data.used == true &&
          request.resource.data.usedBy == request.auth.uid &&
-         request.resource.data.get('roles', []) == resource.data.get('roles', []));
-      allow delete: if isDirector();
-    }
-
-    match /role_codes/{code} {
-      // Relaxed rules for development: allow onboarding verification.
-      allow get: if true;
-      allow list: if isStaff();
-      allow create: if isDirector();
-      allow update: if isDirector() ||
-        (isAuthenticated() &&
-         resource.data.used == false &&
-         request.resource.data.used == true &&
-         request.resource.data.usedBy == request.auth.uid &&
          request.resource.data.status == 'pending' &&
-         request.resource.data.get('name', '') == resource.data.get('name', '') &&
-         request.resource.data.get('position', '') == resource.data.get('position', '') &&
          request.resource.data.get('roles', []) == resource.data.get('roles', []));
       allow delete: if isDirector();
     }

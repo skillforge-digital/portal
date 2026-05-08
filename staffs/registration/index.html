@@ -259,7 +259,6 @@
     import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
     let assignedRoles = [];
     let assignedCode = '';
-    let assignedCodeSource = 'staffAccessCodes';
 
     const ROLE_HIERARCHY = [
         'Director',
@@ -321,20 +320,15 @@
         btn.innerHTML = 'Authorizing...';
 
         try {
-            const primaryRef = doc(db, 'staffAccessCodes', codeInput);
-            const primarySnap = await getDoc(primaryRef);
-            const legacyRef = doc(db, 'role_codes', codeInput);
-            const legacySnap = primarySnap.exists() ? null : await getDoc(legacyRef);
+            const codeRef = doc(db, 'role_codes', codeInput);
+            const codeSnap = await getDoc(codeRef);
 
-            const snap = primarySnap.exists() ? primarySnap : legacySnap;
-            const source = primarySnap.exists() ? 'staffAccessCodes' : (legacySnap && legacySnap.exists() ? 'role_codes' : '');
-
-            if (!snap || !snap.exists()) {
+            if (!codeSnap.exists()) {
                 alert("Unauthorized: Invalid access key detected.");
                 return;
             }
 
-            const data = snap.data();
+            const data = codeSnap.data();
             if (data.used) {
                 alert("Authorization Stale: This code has already been claimed.");
                 return;
@@ -342,7 +336,6 @@
 
             assignedRoles = data.roles || [];
             assignedCode = codeInput;
-            assignedCodeSource = source || 'staffAccessCodes';
 
             document.getElementById('role-badge').innerText = assignedRoles.join(' | ');
             document.getElementById('code-step').classList.add('hidden');
@@ -442,7 +435,7 @@
             const staffSfid = `SF-STF-${year}-${rand}`;
 
             const staffRef = doc(db, 'staffs', user.uid);
-            const codeRef = doc(db, assignedCodeSource || 'staffAccessCodes', assignedCode);
+            const codeRef = doc(db, 'role_codes', assignedCode);
 
             await runTransaction(db, async (tx) => {
                 const [existingStaffSnap, codeSnap] = await Promise.all([tx.get(staffRef), tx.get(codeRef)]);

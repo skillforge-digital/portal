@@ -277,15 +277,28 @@ tailwind.config = {
 </main>
 
 <script type="module">
-import { db, auth, storage } from '../../../assets/firebase-config.js';
+import { db, auth } from '../../../assets/firebase-config.js';
 import { doc, updateDoc, getDoc } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
-import { ref as storageRef, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-storage.js';
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 import { logStaffActivity } from '../../../assets/staff-activity.js';
+
+const supabaseUrl = 'https://luxubaqztmbcpskyfgdp.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1eHViYXF6dG1iY3Bza3lmZ2RwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDYzNTcsImV4cCI6MjA5MTQyMjM1N30.Kmon8jh22u5KgWWpXf-7cdZ4qxlKXuUbVm6Mh-GHd8Q';
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 let hodUid = null;
 let currentDesign = { type: 'solid-pair', primary: '#040810', secondary: '#a855f7', fontFamily: 'Space Grotesk' };
 let pendingFile = null;
+
+function optimizeImageUrl(url) {
+  const raw = String(url || '').trim();
+  if (!raw) return '';
+  if (raw.includes('supabase.co')) {
+    return `https://res.cloudinary.com/db8pknwmz/image/fetch/f_auto,q_auto,w_2560/${encodeURIComponent(raw)}`;
+  }
+  return raw;
+}
 
 const dualColors = [
   { p: '#040810', s: '#a855f7' }, { p: '#070d1a', s: '#c084fc' }, { p: '#0c1829', s: '#d8b4fe' },
@@ -555,11 +568,11 @@ window.saveDesign = async () => {
   try {
     if (pendingFile) {
       btn.innerText = "Uploading Wallpaper...";
-      const safeName = String(pendingFile.name || 'wallpaper').replace(/[^\w.\-]+/g, '_').slice(0, 80);
-      const path = `wallpapers/${hodUid}/${Date.now()}_${safeName}`;
-      const r = storageRef(storage, path);
-      await uploadBytes(r, pendingFile, { contentType: pendingFile.type || 'image/jpeg' });
-      currentDesign.wallpaper = await getDownloadURL(r);
+      const fileName = `wallpapers/${hodUid}_${Date.now()}.jpg`;
+      const { error } = await supabase.storage.from('avatars').upload(fileName, pendingFile);
+      if (error) throw error;
+      const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(fileName);
+      currentDesign.wallpaper = optimizeImageUrl(publicUrl);
       currentDesign.type = 'wallpaper';
       pendingFile = null;
     }
