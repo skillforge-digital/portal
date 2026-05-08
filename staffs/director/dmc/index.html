@@ -361,7 +361,7 @@
                   </div>
                   <div class="card-meta-item">
                     <p class="card-meta-label">Joined</p>
-                    <p class="card-meta-value">${p.created_at ? new Date(p.created_at).toLocaleDateString() : 'N/A'}</p>
+                    <p class="card-meta-value">${p.created_at?.toDate ? p.created_at.toDate().toLocaleDateString() : 'N/A'}</p>
                   </div>
                 </div>
                 

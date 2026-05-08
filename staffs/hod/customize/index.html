@@ -277,9 +277,10 @@ tailwind.config = {
 </main>
 
 <script type="module">
-import { db, auth } from '../../../assets/firebase-config.js';
+import { db, auth, storage } from '../../../assets/firebase-config.js';
 import { doc, updateDoc, getDoc } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-storage.js';
 import { logStaffActivity } from '../../../assets/staff-activity.js';
 
 let hodUid = null;
@@ -360,13 +361,17 @@ onAuthStateChanged(auth, async (user) => {
   try {
     if (user) {
       hodUid = user.uid;
-      const hodDoc = await getDoc(doc(db, 'hods', hodUid)).catch(() => null);
-      if (!hodDoc) {
+      const [staffDoc, hodDoc] = await Promise.all([
+        getDoc(doc(db, 'staffs', hodUid)).catch(() => null),
+        getDoc(doc(db, 'hods', hodUid)).catch(() => null)
+      ]);
+      if (!staffDoc || !hodDoc) {
         showNetworkFault();
         return;
       }
-      if (hodDoc.exists()) {
-        const data = hodDoc.data();
+      const active = staffDoc.exists() ? staffDoc : hodDoc;
+      if (active.exists()) {
+        const data = active.data();
         document.getElementById('user-name').innerText = data.name || 'HOD';
         document.getElementById('user-role').innerText = 'HOD Access';
         document.getElementById('user-initials').innerText = (data.name || 'H').charAt(0).toUpperCase();
@@ -548,6 +553,17 @@ window.saveDesign = async () => {
   if (btn.disabled || !hodUid) return;
   btn.disabled = true; btn.innerText = "Saving Atmosphere Matrix...";
   try {
+    if (pendingFile) {
+      btn.innerText = "Uploading Wallpaper...";
+      const safeName = String(pendingFile.name || 'wallpaper').replace(/[^\w.\-]+/g, '_').slice(0, 80);
+      const path = `wallpapers/${hodUid}/${Date.now()}_${safeName}`;
+      const r = storageRef(storage, path);
+      await uploadBytes(r, pendingFile, { contentType: pendingFile.type || 'image/jpeg' });
+      currentDesign.wallpaper = await getDownloadURL(r);
+      currentDesign.type = 'wallpaper';
+      pendingFile = null;
+    }
+
     const finalTheme = {
       type: currentDesign.type || 'solid-pair',
       primary: currentDesign.primary || currentDesign.c1 || '#040810',
@@ -558,7 +574,13 @@ window.saveDesign = async () => {
       fontFamily: currentDesign.fontFamily || 'Space Grotesk',
       fontName: currentDesign.fontName || 'Space Grotesk'
     };
-    await updateDoc(doc(db, 'hods', hodUid), { theme: finalTheme });
+    const staffRef = doc(db, 'staffs', hodUid);
+    const hodRef = doc(db, 'hods', hodUid);
+    const [staffSnap, hodSnap] = await Promise.all([getDoc(staffRef).catch(() => null), getDoc(hodRef).catch(() => null)]);
+    const writes = [];
+    if (staffSnap && staffSnap.exists()) writes.push(updateDoc(staffRef, { theme: finalTheme }));
+    if (hodSnap && hodSnap.exists()) writes.push(updateDoc(hodRef, { theme: finalTheme }));
+    await Promise.all(writes);
     await logStaffActivity({ action: 'THEME_COMMIT', details: 'Theme commit', scope: 'global' });
     btn.innerText = "Atmosphere Saved";
     setTimeout(() => { btn.innerText = "Save Atmosphere Matrix"; btn.disabled = false; }, 2000);

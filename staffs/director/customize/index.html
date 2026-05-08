@@ -277,14 +277,16 @@ tailwind.config = {
 </main>
 
 <script type="module">
-import { db, auth } from '../../../assets/firebase-config.js';
+import { db, auth, storage } from '../../../assets/firebase-config.js';
 import { doc, updateDoc, getDoc } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-storage.js';
 import { logStaffActivity } from '../../../assets/staff-activity.js';
 
 let directorUid = null;
 let currentDesign = { type: 'solid-pair', primary: '#040810', secondary: '#C9A84C', fontFamily: 'Space Grotesk' };
 let pendingFile = null;
+let pendingUploadUrl = '';
 
 const dualColors = [
   { p: '#040810', s: '#C9A84C' }, { p: '#070d1a', s: '#fbbf24' }, { p: '#0c1829', s: '#fcd34d' },
@@ -552,6 +554,18 @@ window.saveDesign = async () => {
   if (btn.disabled || !directorUid) return;
   btn.disabled = true; btn.innerText = "Saving Atmosphere Matrix...";
   try {
+    if (pendingFile) {
+      btn.innerText = "Uploading Wallpaper...";
+      const safeName = String(pendingFile.name || 'wallpaper').replace(/[^\w.\-]+/g, '_').slice(0, 80);
+      const path = `wallpapers/${directorUid}/${Date.now()}_${safeName}`;
+      const r = storageRef(storage, path);
+      await uploadBytes(r, pendingFile, { contentType: pendingFile.type || 'image/jpeg' });
+      pendingUploadUrl = await getDownloadURL(r);
+      currentDesign.wallpaper = pendingUploadUrl;
+      currentDesign.type = 'wallpaper';
+      pendingFile = null;
+    }
+
     const finalTheme = {
       type: currentDesign.type || 'solid-pair',
       primary: currentDesign.primary || currentDesign.c1 || '#040810',
@@ -562,7 +576,12 @@ window.saveDesign = async () => {
       fontFamily: currentDesign.fontFamily || 'Space Grotesk',
       fontName: currentDesign.fontName || 'Space Grotesk'
     };
-    await updateDoc(doc(db, 'directors', directorUid), { theme: finalTheme });
+    const writes = [updateDoc(doc(db, 'directors', directorUid), { theme: finalTheme })];
+    const staffRef = doc(db, 'staffs', directorUid);
+    const staffSnap = await getDoc(staffRef).catch(() => null);
+    if (staffSnap && staffSnap.exists()) writes.push(updateDoc(staffRef, { theme: finalTheme }));
+
+    await Promise.all(writes);
     await logStaffActivity({ action: 'THEME_COMMIT', details: 'Theme commit', scope: 'global' });
     btn.innerText = "Atmosphere Saved";
     setTimeout(() => { btn.innerText = "Save Atmosphere Matrix"; btn.disabled = false; }, 2000);

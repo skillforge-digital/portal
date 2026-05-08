@@ -92,6 +92,19 @@ service cloud.firestore {
     }
 
     // Role Codes: One-time use codes for staff onboarding.
+    match /staffAccessCodes/{code} {
+      allow get: if true;
+      allow list: if isDirector();
+      allow create: if isDirector();
+      allow update: if isDirector() ||
+        (isAuthenticated() &&
+         resource.data.used == false &&
+         request.resource.data.used == true &&
+         request.resource.data.usedBy == request.auth.uid &&
+         request.resource.data.get('roles', []) == resource.data.get('roles', []));
+      allow delete: if isDirector();
+    }
+
     match /role_codes/{code} {
       // Relaxed rules for development: allow onboarding verification.
       allow get: if true;

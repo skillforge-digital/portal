@@ -538,6 +538,7 @@ tailwind.config = {
             <div class="mt-4 flex justify-between items-center"><span class="text-white/30 text-[8px] font-black uppercase tracking-widest">Logins</span><span class="text-xs font-bold text-gold-400 logins-target">0</span></div>
             <div class="mt-2 flex justify-between items-center"><span class="text-white/30 text-[8px] font-black uppercase tracking-widest">Gender</span><span class="text-[9px] font-bold text-white/60 uppercase gender-target">Unset</span></div>
             <div class="mt-2 flex justify-between items-center"><span class="text-white/30 text-[8px] font-black uppercase tracking-widest">SFID</span><span class="text-[9px] font-mono font-bold text-white/60 sfid-display-target truncate">SFID-26-XXX</span></div>
+            <div class="mt-2 flex justify-between items-center"><span class="text-white/30 text-[8px] font-black uppercase tracking-widest">Registered</span><span class="text-[9px] font-bold text-white/60 uppercase tracking-widest registered-date-target truncate">N/A</span></div>
             <div class="mt-6 pin-reveal cursor-pointer rounded-2xl bg-white/5 p-4 border border-white/5 text-center"><p class="text-white/30 text-[8px] uppercase tracking-widest mb-1">Access Key</p><span class="access-pin-target text-2xl font-bold tracking-[0.3em] pin-blur text-gold-300">0000</span></div>
           </div>
         </div>
@@ -1321,6 +1322,8 @@ function updateUI(data, permissions) {
    document.querySelectorAll('.profile-name-target').forEach(el => el.innerText = data.name || 'User');
    document.querySelectorAll('.sfid-display-target').forEach(el => el.innerText = data.sfid || 'SFID-PENDING');
    document.querySelectorAll('.passkey-target').forEach(el => el.innerText = data.pin || data.roleCode || 'XXXXXX');
+   const createdText = data.created_at?.toDate ? data.created_at.toDate().toLocaleString() : (data.created_at ? new Date(data.created_at).toLocaleString() : 'N/A');
+   document.querySelectorAll('.registered-date-target').forEach(el => el.innerText = createdText || 'N/A');
    
    // Update Role Badges
    const roleDisplay = (data.roles || ['Trainee']).join(' | ');
@@ -1404,6 +1407,8 @@ function updateDynamicUI(data) {
   // Roles/Track display
   const roleDisplay = (data.roles && data.roles.length > 0) ? data.roles.join(' | ') : (data.track || 'Academy Trainee');
   document.querySelectorAll('.profile-track-target').forEach(el => el.innerText = roleDisplay);
+  const createdText = data.created_at?.toDate ? data.created_at.toDate().toLocaleString() : (data.created_at ? new Date(data.created_at).toLocaleString() : 'N/A');
+  document.querySelectorAll('.registered-date-target').forEach(el => el.innerText = createdText || 'N/A');
   
   
     // Profile Avatar

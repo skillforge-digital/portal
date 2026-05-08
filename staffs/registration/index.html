@@ -255,10 +255,11 @@
 
   <script type="module">
     import { db, auth } from '../../assets/firebase-config.js';
-    import { doc, getDoc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
+    import { doc, getDoc, setDoc, serverTimestamp, runTransaction } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
     import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
     let assignedRoles = [];
     let assignedCode = '';
+    let assignedCodeSource = 'staffAccessCodes';
 
     const ROLE_HIERARCHY = [
         'Director',
@@ -320,26 +321,32 @@
         btn.innerHTML = 'Authorizing...';
 
         try {
-            const codeRef = doc(db, 'role_codes', codeInput);
-            const codeSnap = await getDoc(codeRef);
+            const primaryRef = doc(db, 'staffAccessCodes', codeInput);
+            const primarySnap = await getDoc(primaryRef);
+            const legacyRef = doc(db, 'role_codes', codeInput);
+            const legacySnap = primarySnap.exists() ? null : await getDoc(legacyRef);
 
-            if (codeSnap.exists()) {
-                const data = codeSnap.data();
-                if (data.used) {
-                    alert("Authorization Stale: This code has already been claimed.");
-                } else {
-                    assignedRoles = data.roles || [];
-                    assignedCode = codeInput;
-                    
-                    // Show assigned roles in badge
-                    document.getElementById('role-badge').innerText = assignedRoles.join(' | ');
-                    
-                    document.getElementById('code-step').classList.add('hidden');
-                    document.getElementById('reg-step').classList.remove('hidden');
-                }
-            } else {
-                alert("Unauthorized: Invalid ROLE code detected.");
+            const snap = primarySnap.exists() ? primarySnap : legacySnap;
+            const source = primarySnap.exists() ? 'staffAccessCodes' : (legacySnap && legacySnap.exists() ? 'role_codes' : '');
+
+            if (!snap || !snap.exists()) {
+                alert("Unauthorized: Invalid access key detected.");
+                return;
             }
+
+            const data = snap.data();
+            if (data.used) {
+                alert("Authorization Stale: This code has already been claimed.");
+                return;
+            }
+
+            assignedRoles = data.roles || [];
+            assignedCode = codeInput;
+            assignedCodeSource = source || 'staffAccessCodes';
+
+            document.getElementById('role-badge').innerText = assignedRoles.join(' | ');
+            document.getElementById('code-step').classList.add('hidden');
+            document.getElementById('reg-step').classList.remove('hidden');
         } catch (err) {
             void(err);
             alert("Connection error. Command registry unreachable.");
@@ -365,7 +372,7 @@
         }
 
         if (!assignedCode || !Array.isArray(assignedRoles) || assignedRoles.length === 0) {
-            alert("Authorization Required: Verify your ROLE code before registering.");
+            alert("Authorization Required: Verify your access key before registering.");
             return;
         }
 
@@ -434,32 +441,42 @@
             const rand = Math.floor(1000 + Math.random() * 9000);
             const staffSfid = `SF-STF-${year}-${rand}`;
 
-            const existingStaffSnap = await getDoc(doc(db, 'staffs', user.uid));
-            if (existingStaffSnap.exists()) {
-                throw new Error('This account is already registered as staff. Please sign in from the staff login page.');
-            }
+            const staffRef = doc(db, 'staffs', user.uid);
+            const codeRef = doc(db, assignedCodeSource || 'staffAccessCodes', assignedCode);
 
-            // 4. Create Personnel Document
-            await setDoc(doc(db, 'staffs', user.uid), {
-                uid: user.uid,
-                sfid: staffSfid,
-                name: name.toUpperCase(),
-                email: normalizedEmail,
-                roles: assignedRoles,
-                primaryRole: highestRole,
-                department: units[0], // Primary unit
-                departments: units, // All assigned units
-                roleCode: assignedCode,
-                social: socialMatrix[0] || { platform: 'Other', handle: '@none' }, // Legacy single support
-                socialMatrix: socialMatrix, // New multi-handle support
-                created_at: serverTimestamp(),
-                lastLogin: serverTimestamp(),
-                status: 'pending', // Requires Director Approval
-                theme: { layout: 1, color: '#f59e0b', secondary: '#040810' }
+            await runTransaction(db, async (tx) => {
+                const [existingStaffSnap, codeSnap] = await Promise.all([tx.get(staffRef), tx.get(codeRef)]);
+                if (existingStaffSnap.exists()) {
+                    throw new Error('This account is already registered as staff. Please sign in from the staff login page.');
+                }
+                if (!codeSnap.exists()) {
+                    throw new Error('Access key not found. Please request a new staff access key.');
+                }
+                const codeData = codeSnap.data() || {};
+                if (codeData.used) {
+                    throw new Error('This access key has already been claimed. Please request a new staff access key.');
+                }
+
+                tx.set(staffRef, {
+                    uid: user.uid,
+                    sfid: staffSfid,
+                    name: name.toUpperCase(),
+                    email: normalizedEmail,
+                    roles: assignedRoles,
+                    primaryRole: highestRole,
+                    department: units[0],
+                    departments: units,
+                    roleCode: assignedCode,
+                    social: socialMatrix[0] || { platform: 'Other', handle: '@none' },
+                    socialMatrix: socialMatrix,
+                    created_at: serverTimestamp(),
+                    lastLogin: serverTimestamp(),
+                    status: 'pending',
+                    theme: { layout: 1, color: '#f59e0b', secondary: '#040810' }
+                });
+
+                tx.set(codeRef, { used: true, usedBy: user.uid, usedAt: serverTimestamp(), status: 'pending' }, { merge: true });
             });
-
-            // 5. Mark code as used
-            await setDoc(doc(db, 'role_codes', assignedCode), { used: true, usedBy: user.uid, status: 'pending' }, { merge: true });
 
             // 5.5 Create Academy Track Access for Staff (Passkey support - Pending)
             const trackAccessRef = doc(db, 'track_access', assignedCode);
@@ -467,7 +484,7 @@
             if (trackAccessSnap && trackAccessSnap.exists()) {
                 const existingAccess = trackAccessSnap.data() || {};
                 if (existingAccess.uid && existingAccess.uid !== user.uid) {
-                    throw new Error('This ROLE code has already been claimed. Please request a new staff code.');
+                    throw new Error('This access key has already been claimed. Please request a new staff access key.');
                 }
             } else {
                 await setDoc(trackAccessRef, {

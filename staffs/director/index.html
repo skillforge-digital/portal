@@ -245,6 +245,20 @@
     };
     const __arm = new Map();
     const __ARM_WINDOW_MS = 5000;
+    const ASSIGNED_TRACK_OPTIONS = [
+      'Forex Currency Pairs',
+      'Forex Synthetics Indices',
+      'Web Development',
+      'Discord Development',
+      'Cyber Security',
+      'Graphic Design',
+      'Mobile Cinematography',
+      'Photography & Editing',
+      'Digital Marketing',
+      'AI Content Creation',
+      'Global Support',
+      'Community Management'
+    ];
 
     function requireArm(key, firstClickMessage) {
       const now = Date.now();
@@ -256,6 +270,15 @@
       __arm.set(key, now);
       alert(firstClickMessage || 'Click again to confirm.');
       return false;
+    }
+
+    function formatRegistryDate(ts) {
+      if (!ts) return 'N/A';
+      if (ts?.toDate) return ts.toDate().toLocaleString();
+      if (typeof ts === 'number') return new Date(ts).toLocaleString();
+      const asDate = new Date(ts);
+      if (!Number.isNaN(asDate.getTime())) return asDate.toLocaleString();
+      return 'N/A';
     }
 
     function requireTypedConfirm(promptText, requiredWord) {
@@ -788,11 +811,12 @@
                 <th class="pb-4">SFID</th>
                 <th class="pb-4">Track</th>
                 <th class="pb-4">XP/Tier</th>
+                <th class="pb-4">Registered</th>
                 <th class="pb-4">Actions</th>
               </tr>
             </thead>
             <tbody class="text-sm">
-              ${snap.empty ? '<tr><td colspan="5" class="py-12 text-center text-white/40 italic">No trainees found.</td></tr>' : ''}
+              ${snap.empty ? '<tr><td colspan="6" class="py-12 text-center text-white/40 italic">No trainees found.</td></tr>' : ''}
               ${snap.docs.map(doc => {
                 const d = doc.data();
                 return `<tr class="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
@@ -816,6 +840,7 @@
                     <p class="text-[10px] font-black">${d.xp || 0} XP</p>
                     <p class="text-[8px] text-gold/60 uppercase tracking-widest">${d.tier || 'Novice'}</p>
                   </td>
+                  <td class="py-4 text-[9px] font-black text-white/50 uppercase tracking-widest">${formatRegistryDate(d.created_at)}</td>
                   <td class="py-4">
                     <div class="flex gap-2">
                         <button aria-label="Action button" onclick="viewTrainee('${doc.id}')" class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center hover:bg-gold/20 hover:text-gold transition-all"><i data-lucide="eye" class="w-4 h-4"></i></button>
@@ -849,6 +874,7 @@
                 <th class="pb-4">Personnel</th>
                 <th class="pb-4">Roles (Cumulative)</th>
                 <th class="pb-4">Primary Unit</th>
+                <th class="pb-4">Registered</th>
                 <th class="pb-4">Actions</th>
               </tr>
             </thead>
@@ -869,6 +895,7 @@
                     </div>
                   </td>
                   <td class="py-4"><span class="px-3 py-1 rounded-full bg-gold/10 text-gold text-[8px] font-black uppercase tracking-widest">${d.primaryRole || 'Staff'}</span></td>
+                  <td class="py-4 text-[9px] font-black text-white/50 uppercase tracking-widest">${formatRegistryDate(d.created_at)}</td>
                   <td class="py-4">
                     <div class="flex gap-2">
                         <button onclick="manageUserRoles('${doc.id}')" class="px-4 py-2 rounded-xl bg-white/5 text-[9px] font-black uppercase tracking-widest hover:bg-gold hover:text-navy transition-all">Roles</button>
@@ -1280,7 +1307,15 @@
             
             // 2. Update Role Code status
             if (data.roleCode) {
-                await setDoc(doc(db, "role_codes", data.roleCode), { status: 'active' }, { merge: true });
+                const code = String(data.roleCode || '').trim();
+                const refs = [doc(db, "staffAccessCodes", code), doc(db, "role_codes", code)];
+                for (const r of refs) {
+                    const s = await getDoc(r).catch(() => null);
+                    if (s && s.exists()) {
+                        await setDoc(r, { status: 'active' }, { merge: true });
+                        break;
+                    }
+                }
                 
                 // 3. Update Track Access status
                 await setDoc(doc(db, "track_access", data.roleCode), { status: 'active' }, { merge: true });
@@ -1301,7 +1336,15 @@
                 const data = staffSnap.data();
                 if (data.roleCode) {
                     // Reset role code to unused
-                    await setDoc(doc(db, "role_codes", data.roleCode), { used: false, usedBy: null, status: 'available' }, { merge: true });
+                    const code = String(data.roleCode || '').trim();
+                    const refs = [doc(db, "staffAccessCodes", code), doc(db, "role_codes", code)];
+                    for (const r of refs) {
+                        const s = await getDoc(r).catch(() => null);
+                        if (s && s.exists()) {
+                            await setDoc(r, { used: false, usedBy: null, usedAt: null, status: 'available' }, { merge: true });
+                            break;
+                        }
+                    }
                     await deleteDoc(doc(db, "track_access", data.roleCode));
                 }
             }
@@ -1372,7 +1415,7 @@
         <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-8">
           <div>
             <p class="text-gold text-xs font-black tracking-[0.4em] uppercase">Access Control</p>
-            <h1 class="text-4xl md:text-5xl font-black mt-2 uppercase tracking-tighter">ROLE Codes</h1>
+            <h1 class="text-4xl md:text-5xl font-black mt-2 uppercase tracking-tighter">Staff Access Keys</h1>
           </div>
           <button onclick="generateRoleCode()" class="bg-gold text-navy-950 px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-white transition-all shadow-4K">
             <i data-lucide="plus" class="w-4 h-4 inline mr-2"></i> Generate Key
@@ -1390,7 +1433,7 @@
     }
 
     async function loadRoleCodes() {
-      const snap = await getDocs(collection(db, 'role_codes'));
+      const snap = await getDocs(query(collection(db, 'staffAccessCodes'), orderBy('createdAt', 'desc'), limit(200)));
       const container = document.getElementById('codes-list');
       if (!container) return;
       
@@ -1399,39 +1442,66 @@
         return;
       }
       
-      container.innerHTML = snap.docs.map(doc => {
-        const d = doc.data();
-        return `<div class="p-6 rounded-3xl bg-white/5 border border-white/10 flex justify-between items-center group">
-          <div>
-            <p class="font-mono font-black text-xl text-gold group-hover:scale-105 transition-transform origin-left">${doc.id}</p>
-            <p class="text-[9px] text-slate-500 mt-1 font-bold uppercase tracking-widest">Unit Grant: ${(d.roles || []).join(' | ')}</p>
+      container.innerHTML = snap.docs.map(doc0 => {
+        const d = doc0.data() || {};
+        const statusTone = d.used ? 'bg-red-500/10 text-red-400 border-red-500/20' : 'bg-green-500/10 text-green-400 border-green-500/20';
+        const statusText = d.used ? 'Claimed' : 'Available';
+        const createdText = formatRegistryDate(d.createdAt);
+        const usedText = formatRegistryDate(d.usedAt);
+        return `<div class="p-6 rounded-3xl bg-white/5 border border-white/10 flex flex-col md:flex-row md:items-center md:justify-between gap-6 group">
+          <div class="space-y-2">
+            <p class="font-mono font-black text-xl text-gold group-hover:scale-105 transition-transform origin-left">${doc0.id}</p>
+            <p class="text-[9px] text-slate-500 font-bold uppercase tracking-widest">Roles: ${(d.roles || []).join(' | ') || '—'}</p>
+            <p class="text-[8px] text-white/25 font-black uppercase tracking-widest">Created: ${escapeHtml(createdText)}${d.used ? ` • Used: ${escapeHtml(usedText)}` : ''}</p>
           </div>
-          <span class="px-4 py-2 rounded-xl ${d.used ? 'bg-red-500/10 text-red-400' : 'bg-green-500/10 text-green-400'} text-[8px] font-black uppercase tracking-widest border ${d.used ? 'border-red-500/20' : 'border-green-500/20'}">
-            ${d.used ? 'Claimed' : 'Available'}
-          </span>
+          <div class="flex items-center gap-3">
+            <span class="px-4 py-2 rounded-xl ${statusTone} text-[8px] font-black uppercase tracking-widest border">${statusText}</span>
+            <button aria-label="Action button" onclick="copyToClipboard('${doc0.id}', this)" class="p-2 rounded-xl bg-white/5 border border-white/10 text-white/60 hover:text-gold hover:border-gold/20 transition-all"><i data-lucide="copy" class="w-4 h-4"></i></button>
+            <button aria-label="Action button" onclick="deleteAccessCode('${doc0.id}')" class="p-2 rounded-xl bg-white/5 border border-white/10 text-white/60 hover:text-red-400 hover:border-red-500/20 transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+          </div>
         </div>`;
       }).join('');
+      if (window.lucide) window.lucide.createIcons();
     }
 
     window.generateRoleCode = async function() {
       const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-      let code = 'SKF-';
-      for (let i = 0; i < 6; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
+      const rand = (len) => {
+        const out = [];
+        const buf = new Uint32Array(len);
+        crypto.getRandomValues(buf);
+        for (let i = 0; i < len; i++) out.push(chars[buf[i] % chars.length]);
+        return out.join('');
+      };
+      const code = `SKF-${rand(8)}`;
       
       const rolesInput = prompt('Enter unit roles (comma-separated):\nDirector, HOD, Specialist, Digital Marketing, Support Team');
       if (!rolesInput) return;
       
       const roleList = rolesInput.split(',').map(r => r.trim()).filter(r => r);
       
-      await setDoc(doc(db, 'role_codes', code), {
+      await setDoc(doc(db, 'staffAccessCodes', code), {
         roles: roleList,
         used: false,
+        usedBy: null,
+        usedAt: null,
         createdBy: staffCommand.userData.name,
+        createdByUid: staffCommand.userData.uid || null,
         createdAt: serverTimestamp()
       });
       
       alert(`Authorization Key Generated: ${code}`);
       loadRoleCodes();
+    };
+
+    window.deleteAccessCode = async function(code) {
+      if (!requireArm(`delete-access-code:${code}`, 'Click Delete again to confirm key purge.')) return;
+      try {
+        await deleteDoc(doc(db, 'staffAccessCodes', String(code || '').trim()));
+        await loadRoleCodes();
+      } catch (err) {
+        alert(`Operation Failed: ${err.message}`);
+      }
     };
 
     window.renderResetTickets = async function(container) {
@@ -2265,6 +2335,7 @@
       const commonSfid = String(before?.sfid || before?.SFID || '').trim();
       const commonTrack = String(before?.track || '').trim();
       const commonRoles = Array.isArray(before?.roles) ? before.roles.join(', ') : '';
+      const commonAssignedTrack = String(before?.assignedTrack || ((Array.isArray(before?.tracks) && before.tracks.length === 1) ? before.tracks[0] : '') || '').trim();
       const commonStatus = String(before?.status || '').trim();
 
       const modal = document.createElement('div');
@@ -2306,6 +2377,13 @@
                   <div class="space-y-2">
                     <label for="registry-admin-roles" class="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] ml-1">Roles (comma-separated)</label>
                     <input id="registry-admin-roles" type="text" value="${escapeHtml(commonRoles)}" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10 text-white">
+                  </div>
+                  <div class="space-y-2">
+                    <label for="registry-admin-assigned-track" class="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] ml-1">Assigned Track (Specialist)</label>
+                    <select id="registry-admin-assigned-track" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10 text-white">
+                      <option value="">UNASSIGNED</option>
+                      ${ASSIGNED_TRACK_OPTIONS.map((t) => `<option value="${escapeHtml(t)}" ${t === commonAssignedTrack ? 'selected' : ''}>${escapeHtml(t)}</option>`).join('')}
+                    </select>
                   </div>
                 `
                 : `
@@ -2359,6 +2437,7 @@
         const sfidEl = document.getElementById('registry-admin-sfid');
         const rolesEl = document.getElementById('registry-admin-roles');
         const trackEl = document.getElementById('registry-admin-track');
+        const assignedTrackEl = document.getElementById('registry-admin-assigned-track');
         const statusField = document.getElementById('registry-admin-status-input');
         if (nameEl) current.name = nameEl.value.trim();
         if (emailEl) current.email = emailEl.value.trim().toLowerCase();
@@ -2369,11 +2448,16 @@
           const roles = rolesEl.value.split(',').map((r) => r.trim()).filter(Boolean);
           current.roles = roles;
         }
+        if (assignedTrackEl && scope === 'staff') {
+          const t = assignedTrackEl.value.trim();
+          current.assignedTrack = t;
+          if (t) current.tracks = [t];
+        }
         if (statusField && statusField.value.trim()) current.status = statusField.value.trim();
         jsonEl.value = toJsonText(current);
       };
 
-      const inputs = ['registry-admin-name', 'registry-admin-email', 'registry-admin-phone', 'registry-admin-sfid', 'registry-admin-roles', 'registry-admin-track', 'registry-admin-status-input'];
+      const inputs = ['registry-admin-name', 'registry-admin-email', 'registry-admin-phone', 'registry-admin-sfid', 'registry-admin-roles', 'registry-admin-track', 'registry-admin-assigned-track', 'registry-admin-status-input'];
       inputs.forEach((id0) => {
         const el = document.getElementById(id0);
         if (!el) return;

@@ -381,6 +381,10 @@
                             <p class="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Personnel ID</p>
                             <p class="text-lg font-black text-white tracking-[0.2em]">${profile.sfid || 'PENDING'}</p>
                         </div>
+                        <div class="p-4 rounded-2xl bg-white/5 border border-white/5">
+                            <p class="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Registered</p>
+                            <p class="text-[10px] font-black text-white/70 uppercase tracking-widest">${profile.created_at?.toDate ? profile.created_at.toDate().toLocaleString() : 'N/A'}</p>
+                        </div>
                     </div>
                 </div>
 
