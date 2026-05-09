@@ -281,10 +281,17 @@ import { db, auth } from '../../../assets/firebase-config.js';
 import { doc, updateDoc, getDoc } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
 import { logStaffActivity } from '../../../assets/staff-activity.js';
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
 let directorUid = null;
+let profileRef = null;
 let currentDesign = { type: 'solid-pair', primary: '#040810', secondary: '#C9A84C', fontFamily: 'Space Grotesk' };
 let pendingFile = null;
+
+const supabaseUrl = 'https://luxubaqztmbcpskyfgdp.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1eHViYXF6dG1iY3Bza3lmZ2RwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDYzNTcsImV4cCI6MjA5MTQyMjM1N30.Kmon8jh22u5KgWWpXf-7cdZ4qxlKXuUbVm6Mh-GHd8Q';
+const supabase = createClient(supabaseUrl, supabaseKey);
+const cloudinaryFetch = (url) => `https://res.cloudinary.com/db8pknwmz/image/fetch/f_auto,q_auto,w_2000/${encodeURIComponent(String(url || ''))}`;
 
 const dualColors = [
   { p: '#040810', s: '#C9A84C' }, { p: '#070d1a', s: '#fbbf24' }, { p: '#0c1829', s: '#fcd34d' },
@@ -360,15 +367,23 @@ onAuthStateChanged(auth, async (user) => {
   try {
     if (user) {
       directorUid = user.uid;
-      const directorDoc = await getDoc(doc(db, 'directors', directorUid)).catch(() => null);
-      if (!directorDoc) {
+      const staffRef = doc(db, 'staffs', directorUid);
+      const directorRef = doc(db, 'directors', directorUid);
+      const [staffDoc, directorDoc] = await Promise.all([
+        getDoc(staffRef).catch(() => null),
+        getDoc(directorRef).catch(() => null)
+      ]);
+      if (!staffDoc || !directorDoc) {
         showNetworkFault();
         return;
       }
-      if (directorDoc.exists()) {
-        const data = directorDoc.data();
+
+      const snap = staffDoc.exists() ? staffDoc : directorDoc;
+      profileRef = staffDoc.exists() ? staffRef : directorRef;
+      if (snap.exists()) {
+        const data = snap.data();
         document.getElementById('user-name').innerText = data.name || 'Director';
-        document.getElementById('user-role').innerText = 'Director Access';
+        document.getElementById('user-role').innerText = data.primaryRole || 'Director';
         document.getElementById('user-initials').innerText = (data.name || 'D').charAt(0).toUpperCase();
         if (data.theme) currentDesign = { ...currentDesign, ...data.theme };
         applyControlUI({ canvasDaily: localStorage.getItem('sf_canvas_enabled') !== 'false' });
@@ -552,6 +567,17 @@ window.saveDesign = async () => {
   if (btn.disabled || !directorUid) return;
   btn.disabled = true; btn.innerText = "Saving Atmosphere Matrix...";
   try {
+    if (pendingFile) {
+      btn.innerText = "Uploading Atmosphere...";
+      const fileName = `wallpapers/${directorUid}_${Date.now()}.jpg`;
+      const { error } = await supabase.storage.from('avatars').upload(fileName, pendingFile);
+      if (error) throw error;
+      const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(fileName);
+      currentDesign.wallpaper = cloudinaryFetch(publicUrl);
+      currentDesign.type = 'wallpaper';
+      pendingFile = null;
+    }
+
     const finalTheme = {
       type: currentDesign.type || 'solid-pair',
       primary: currentDesign.primary || currentDesign.c1 || '#040810',
@@ -562,8 +588,9 @@ window.saveDesign = async () => {
       fontFamily: currentDesign.fontFamily || 'Space Grotesk',
       fontName: currentDesign.fontName || 'Space Grotesk'
     };
-    await updateDoc(doc(db, 'directors', directorUid), { theme: finalTheme });
+    await updateDoc(profileRef || doc(db, 'directors', directorUid), { theme: finalTheme });
     await logStaffActivity({ action: 'THEME_COMMIT', details: 'Theme commit', scope: 'global' });
+    window.dispatchEvent(new CustomEvent('sf:theme_updated', { detail: finalTheme }));
     btn.innerText = "Atmosphere Saved";
     setTimeout(() => { btn.innerText = "Save Atmosphere Matrix"; btn.disabled = false; }, 2000);
     alert("Atmosphere Saved. Your command center matrix is now active.");
