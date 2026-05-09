@@ -275,18 +275,19 @@
       }
 
       // Sync user info
+      const myRoles = normalizeRoles(staffCommand.userData);
       document.getElementById('user-name').textContent = staffCommand.userData.name || 'DIRECTOR';
-      document.getElementById('user-role').textContent = (staffCommand.userData.roles || []).join(' | ');
+      document.getElementById('user-role').textContent = myRoles.join(' | ');
       document.getElementById('user-initials').textContent = (staffCommand.userData.name || 'D').charAt(0);
 
       const switchBtn = document.getElementById('switch-role-btn');
-      if (switchBtn && (staffCommand.userData.roles || []).length > 1) {
+      if (switchBtn && myRoles.length > 1) {
         switchBtn.classList.remove('hidden');
       }
 
       const registryAdminBtn = document.querySelector('[data-tab="registry-admin"]');
       const registryLogsBtn = document.querySelector('[data-tab="registry-logs"]');
-      const isDirector = (staffCommand.userData.roles || []).includes('Director') || staffCommand.userData.primaryRole === 'Director';
+      const isDirector = myRoles.includes('Director') || staffCommand.userData.primaryRole === 'Director';
       if (registryAdminBtn && !isDirector) registryAdminBtn.classList.add('hidden');
       if (registryLogsBtn && !isDirector) registryLogsBtn.classList.add('hidden');
       
@@ -314,11 +315,14 @@
         } else {
           snap.forEach(doc => {
             const d = doc.data();
-            messages.push(d.message || d.title || "New Announcement");
+            const title = String(d?.title || '').trim();
+            const body = String(d?.message || d?.content || '').trim();
+            const text = body ? (title && title !== body ? `${title}: ${body}` : body) : (title || 'New Announcement');
+            messages.push(text);
           });
         }
 
-        ticker.innerHTML = messages.map(m => `<span class="text-[9px] font-bold text-white/60 uppercase tracking-widest flex items-center gap-4"><div class="w-1 h-1 rounded-full bg-gold"></div> ${m}</span>`).join('');
+        ticker.innerHTML = messages.map(m => `<span class="text-[9px] font-bold text-white/60 uppercase tracking-widest flex items-center gap-4"><div class="w-1 h-1 rounded-full bg-gold"></div> ${escapeHtml(m)}</span>`).join('');
         ticker.innerHTML += ticker.innerHTML;
       } catch (err) {
         void("[Dashboard] News Ticker failed to load registry data.");
@@ -860,8 +864,8 @@
             <tbody class="text-sm">
               ${snap.docs.map(doc => {
                 const d = doc.data();
-                const roles = d.roles || [];
-                const isSpecialist = roles.includes('Specialist') || d.primaryRole === 'Specialist';
+                const roles = normalizeRoles(d);
+                const isSpecialist = roles.includes('Specialist') || d.primaryRole === 'Specialist' || d.role === 'Specialist';
                 const created = d.created_at?.toDate ? d.created_at.toDate().toLocaleDateString() : 'N/A';
                 return `<tr class="border-b border-white/5">
                   <td class="py-4">
@@ -896,7 +900,7 @@
         const snap = await getDoc(doc(db, 'staffs', uid));
         if (!snap.exists()) return;
         const d = snap.data();
-        const currentRoles = d.roles || [];
+        const currentRoles = normalizeRoles(d);
         
         // Fetch dynamic roles
         const rolesDoc = await getDoc(doc(db, 'system', 'roles'));
@@ -1895,6 +1899,25 @@
         .replaceAll('>', '&gt;')
         .replaceAll('"', '&quot;')
         .replaceAll("'", '&#039;');
+    }
+
+    function normalizeRoles(data) {
+      const roles = data?.roles;
+      const out = [];
+      if (Array.isArray(roles)) {
+        roles.forEach((r) => {
+          const v = String(r || '').trim();
+          if (v) out.push(v);
+        });
+      } else if (typeof roles === 'string') {
+        roles.split(',').forEach((r) => {
+          const v = String(r || '').trim();
+          if (v) out.push(v);
+        });
+      }
+      const legacy = typeof data?.role === 'string' ? String(data.role || '').trim() : '';
+      if (legacy) out.push(legacy);
+      return [...new Set(out)];
     }
 
     function getPhoneFromProfile(profile) {

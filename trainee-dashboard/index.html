@@ -1706,6 +1706,12 @@ function applyThemeState(theme) {
 async function loadNewsTicker() {
   const ticker = document.getElementById('news-ticker-content');
   if (!ticker) return;
+  const esc = (input) => String(input ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
 
   try {
     const q = query(collection(db, 'announcements'), orderBy('timestamp', 'desc'), limit(5));
@@ -1723,11 +1729,14 @@ async function loadNewsTicker() {
     } else {
       snap.forEach(doc => {
         const d = doc.data();
-        messages.push(d.message || d.title || "New Announcement");
+      const title = String(d?.title || '').trim();
+      const body = String(d?.message || d?.content || '').trim();
+      const text = body ? (title && title !== body ? `${title}: ${body}` : body) : (title || 'New Announcement');
+      messages.push(text);
       });
     }
 
-    ticker.innerHTML = messages.map(m => `<span class="text-[9px] font-bold text-white/60 uppercase tracking-widest flex items-center gap-4"><div class="w-1 h-1 rounded-full bg-gold-500"></div> ${m}</span>`).join('');
+    ticker.innerHTML = messages.map(m => `<span class="text-[9px] font-bold text-white/60 uppercase tracking-widest flex items-center gap-4"><div class="w-1 h-1 rounded-full bg-gold-500"></div> ${esc(m)}</span>`).join('');
     
     // Duplicate messages to create continuous scroll effect
     ticker.innerHTML += ticker.innerHTML;
