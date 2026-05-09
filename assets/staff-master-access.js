@@ -2,16 +2,16 @@ import { auth, db } from './firebase-config.js';
 import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 import { resolveStaffIdentity } from './staff-identity.js';
 import { PassCodeEngine } from './pass-code-engine.js';
- 
+
 function getUid() {
   return auth.currentUser?.uid || localStorage.getItem('skillforge_mock_uid') || null;
 }
- 
+
 function normalizePin(value) {
   const pin = String(value || '').trim();
   return /^\d{6}$/.test(pin) ? pin : '';
 }
- 
+
 async function writeProfilePin(uid, pin) {
   const refs = [
     doc(db, 'staffs', uid),
@@ -19,7 +19,7 @@ async function writeProfilePin(uid, pin) {
     doc(db, 'hods', uid),
     doc(db, 'specialists', uid)
   ];
- 
+
   for (const ref of refs) {
     const snap = await getDoc(ref).catch(() => null);
     if (snap && snap.exists()) {
@@ -33,12 +33,12 @@ async function writeProfilePin(uid, pin) {
     }
   }
 }
- 
+
 async function ensureTrackAccessPin(uid, sfid, pin) {
   const ref = doc(db, 'track_access', pin);
   const snap = await getDoc(ref);
   if (snap.exists()) return;
- 
+
   await setDoc(ref, {
     pin,
     track: 'Staff Access',
@@ -49,20 +49,20 @@ async function ensureTrackAccessPin(uid, sfid, pin) {
     created_at: serverTimestamp()
   }, { merge: true });
 }
- 
+
 export async function getOrCreateStaffAccessCode() {
   const uid = getUid();
   if (!uid) throw new Error('Identity missing. Please sign in again.');
- 
+
   const resolved = await resolveStaffIdentity(uid);
   if (!resolved.found || !resolved.profile) throw new Error('Staff profile missing. Please sign in again.');
- 
+
   const existing = normalizePin(resolved.profile.staffAccessCode || resolved.profile.pin);
   if (existing) {
     await ensureTrackAccessPin(uid, resolved.profile.sfid, existing);
     return existing;
   }
- 
+
   let pin = '';
   for (let attempt = 0; attempt < 10; attempt++) {
     const candidate = PassCodeEngine.generate();
@@ -73,16 +73,16 @@ export async function getOrCreateStaffAccessCode() {
     }
   }
   if (!pin) throw new Error('Unable to generate a unique access code. Retry.');
- 
+
   await ensureTrackAccessPin(uid, resolved.profile.sfid, pin);
   await writeProfilePin(uid, pin);
   return pin;
 }
- 
+
 function closeModal() {
   document.getElementById('staff-access-code-modal')?.remove();
 }
- 
+
 function showModal(pin) {
   closeModal();
   const modal = document.createElement('div');
@@ -95,11 +95,11 @@ function showModal(pin) {
         <h2 class="text-2xl font-black uppercase tracking-tighter">Access Code</h2>
         <p class="text-[10px] text-white/40 uppercase tracking-widest mt-2">Universal unlock</p>
       </div>
- 
+
       <div class="p-6 rounded-3xl bg-white/5 border border-white/10">
         <p class="font-mono font-black text-4xl tracking-[0.2em] text-gold select-all">${pin}</p>
       </div>
- 
+
       <div class="flex flex-col gap-3">
         <button id="staff-access-copy" class="w-full py-4 rounded-2xl bg-gold text-navy-950 text-[10px] font-black uppercase tracking-widest hover:bg-white transition-all">
           Copy Code
@@ -126,7 +126,7 @@ function showModal(pin) {
   });
   if (window.lucide) window.lucide.createIcons();
 }
- 
+
 async function handleClick(btn) {
   if (!btn) return;
   const original = btn.innerHTML;
@@ -143,14 +143,14 @@ async function handleClick(btn) {
     if (window.lucide) window.lucide.createIcons();
   }
 }
- 
+
 export function installStaffAccessCodeButton(options = {}) {
   const existing = document.getElementById('staff-access-code-btn');
   if (existing) return;
   const path = window.location.pathname || '';
   if (!path.includes('/staffs/')) return;
   if (path.includes('/staffs/login') || path.includes('/staffs/registration') || path.includes('/staffs/role-gateway')) return;
- 
+
   const btn = document.createElement('button');
   btn.id = 'staff-access-code-btn';
   btn.type = 'button';
@@ -160,9 +160,10 @@ export function installStaffAccessCodeButton(options = {}) {
   document.body.appendChild(btn);
   if (window.lucide) window.lucide.createIcons();
 }
- 
+
 if (!window.__sf_staff_access_code_installed) {
   window.__sf_staff_access_code_installed = true;
   window.addEventListener('DOMContentLoaded', () => installStaffAccessCodeButton());
   window.addEventListener('sf:turbo-render', () => installStaffAccessCodeButton());
 }
+
