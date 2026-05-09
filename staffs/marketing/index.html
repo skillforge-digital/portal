@@ -233,7 +233,8 @@
   <script type="module">
     import StaffCore from '../../assets/staff-core.js';
     import '../../assets/theme-manager.js';
-    import { db } from '../../assets/firebase-config.js';
+    import '../../assets/staff-master-access.js';
+    import { db, auth } from '../../assets/firebase-config.js';
     import { collection, query, getDocs, onSnapshot, doc, getDoc, where, updateDoc, orderBy, limit } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 
     
