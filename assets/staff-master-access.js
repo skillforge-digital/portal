@@ -95,8 +95,18 @@ function showModal(pin) {
   const modal = document.createElement('div');
   modal.id = 'staff-access-code-modal';
   modal.className = 'fixed inset-0 z-[350] bg-navy/90 flex items-center justify-center p-6 backdrop-blur-xl';
+  modal.style.position = 'fixed';
+  modal.style.inset = '0';
+  modal.style.zIndex = '2147482000';
+  modal.style.pointerEvents = 'auto';
+  modal.style.display = 'flex';
+  modal.style.alignItems = 'center';
+  modal.style.justifyContent = 'center';
+  modal.style.padding = '24px';
+  modal.style.background = 'rgba(4, 12, 25, 0.9)';
+  modal.style.backdropFilter = 'blur(18px)';
   modal.innerHTML = `
-    <div class="glass-strong p-10 rounded-[48px] border border-white/10 max-w-sm w-full text-center space-y-8">
+    <div class="glass-strong p-10 rounded-[48px] border border-white/10 max-w-sm w-full text-center space-y-8" style="pointer-events: auto; position: relative; z-index: 2147482001;">
       <div>
         <p class="text-[8px] font-black text-gold uppercase tracking-[0.4em]">Main Site Gate</p>
         <h2 class="text-2xl font-black uppercase tracking-tighter">Access Code</h2>
@@ -108,16 +118,20 @@ function showModal(pin) {
       </div>
 
       <div class="flex flex-col gap-3">
-        <button id="staff-access-copy" class="w-full py-4 rounded-2xl bg-gold text-navy-950 text-[10px] font-black uppercase tracking-widest hover:bg-white transition-all">
+        <button id="staff-access-copy" class="w-full py-4 rounded-2xl bg-gold text-navy-950 text-[10px] font-black uppercase tracking-widest hover:bg-white transition-all" style="pointer-events: auto;">
           Copy Code
         </button>
-        <button onclick="document.getElementById('staff-access-code-modal')?.remove()" class="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all">
+        <button id="staff-access-dismiss" class="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all" style="pointer-events: auto;">
           Dismiss
         </button>
       </div>
     </div>
   `;
   document.body.appendChild(modal);
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
+  modal.querySelector('#staff-access-dismiss')?.addEventListener('click', () => closeModal());
   modal.querySelector('#staff-access-copy')?.addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText(pin);
@@ -166,7 +180,8 @@ export function installStaffAccessCodeButton(options = {}) {
   btn.id = 'staff-access-code-btn';
   btn.type = 'button';
   btn.className = options.className || 'fixed bottom-6 right-6 z-[200] bg-gold text-navy-950 px-5 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-4K hover:bg-white transition-all flex items-center gap-2';
-  btn.style.zIndex = String(options.zIndex || 10001);
+  btn.style.position = 'fixed';
+  btn.style.zIndex = String(options.zIndex || 2147482500);
   btn.style.right = 'calc(env(safe-area-inset-right, 0px) + 24px)';
   btn.style.bottom = 'calc(env(safe-area-inset-bottom, 0px) + 24px)';
   btn.style.pointerEvents = 'auto';
@@ -179,6 +194,33 @@ export function installStaffAccessCodeButton(options = {}) {
 
 if (!window.__sf_staff_access_code_installed) {
   window.__sf_staff_access_code_installed = true;
-  window.addEventListener('DOMContentLoaded', () => installStaffAccessCodeButton());
-  window.addEventListener('sf:turbo-render', () => installStaffAccessCodeButton());
+  const installRouteWatcher = () => {
+    if (window.__sf_staff_access_code_route_watcher_installed) return;
+    window.__sf_staff_access_code_route_watcher_installed = true;
+    let lastPath = window.location.pathname || '';
+    const onRouteChange = () => {
+      const nextPath = window.location.pathname || '';
+      if (nextPath === lastPath) return;
+      lastPath = nextPath;
+      closeModal();
+      installStaffAccessCodeButton();
+    };
+    window.addEventListener('popstate', onRouteChange);
+    for (const method of ['pushState', 'replaceState']) {
+      const original = history[method];
+      if (typeof original !== 'function') continue;
+      history[method] = function (...args) {
+        const result = original.apply(this, args);
+        setTimeout(onRouteChange, 0);
+        return result;
+      };
+    }
+  };
+  const boot = () => {
+    installRouteWatcher();
+    installStaffAccessCodeButton();
+  };
+  if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', boot);
+  else boot();
+  window.addEventListener('sf:turbo-render', boot);
 }
