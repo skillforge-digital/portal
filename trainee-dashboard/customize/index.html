@@ -499,7 +499,7 @@ const supabaseUrl = 'https://luxubaqztmbcpskyfgdp.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1eHViYXF6dG1iY3Bza3lmZ2RwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDYzNTcsImV4cCI6MjA5MTQyMjM1N30.Kmon8jh22u5KgWWpXf-7cdZ4qxlKXuUbVm6Mh-GHd8Q';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-let currentDesign = { type: 'solid-pair', primary: '#040810', secondary: '#f59e0b', fontFamily: 'Space Grotesk' };
+let currentDesign = { type: 'solid-pair', primary: '#040810', secondary: '#f59e0b', fontFamily: "'Space Grotesk', sans-serif", fontName: 'Space Grotesk' };
 let pendingFile = null;
 
 const dualColors = [
@@ -642,13 +642,18 @@ async function init() {
   if (fGrid) {
     fGrid.innerHTML = '';
     themeManager.fonts.forEach(f => {
+      if (themeManager.ensureGoogleFontLoaded) themeManager.ensureGoogleFontLoaded(f.family || f.name);
       const card = document.createElement('div');
       card.className = 'font-card';
       card.setAttribute('role', 'button');
       card.setAttribute('tabindex', '0');
       card.setAttribute('aria-label', `Font: ${f.name}`);
       card.style.fontFamily = f.family;
-      card.innerHTML = `<p class="text-[8px] font-black uppercase tracking-widest text-white/30 mb-2">${f.name}</p><p class="text-xl font-bold">SkillForge</p>`;
+      card.innerHTML = `
+        <p class="text-[10px] font-black uppercase tracking-[0.35em] text-white/40 mb-3">${f.name}</p>
+        <p class="text-3xl font-black tracking-tight leading-none">Aa Bb Cc</p>
+        <p class="text-[12px] font-semibold text-white/70 mt-2">SkillForge Design Studio</p>
+      `;
       const select = () => {
           currentDesign.fontFamily = f.family;
           currentDesign.fontName = f.name;
@@ -673,11 +678,14 @@ async function init() {
         currentDesign.type = 'wallpaper';
         const reader = new FileReader();
         reader.onload = (ev) => {
+          const dataUrl = ev.target?.result ? String(ev.target.result) : '';
+          if (dataUrl) currentDesign.wallpaper = dataUrl;
           const box = document.getElementById('preview-box');
           if (box) {
-            box.style.background = `url(${ev.target.result})`;
+            box.style.background = `url(${dataUrl})`;
             box.style.backgroundSize = 'cover';
           }
+          updatePreview();
         };
         reader.readAsDataURL(file);
       }
@@ -782,6 +790,7 @@ function updatePreview() {
     
     if (currentDesign.fontFamily) {
       text.style.fontFamily = currentDesign.fontFamily;
+      document.documentElement.style.setProperty('--font-main', currentDesign.fontFamily);
       // Mark active font
       document.querySelectorAll('.font-card').forEach(card => {
           if (card.style.fontFamily.includes(currentDesign.fontFamily)) {
@@ -889,8 +898,8 @@ window.saveDesign = async () => {
       c1: themeToSave.c1 || themeToSave.primary || '#040810',
       c2: themeToSave.c2 || themeToSave.secondary || '#f59e0b',
       wallpaper: themeToSave.wallpaper || '',
-      fontFamily: themeToSave.fontFamily || 'Space Grotesk',
-      fontName: themeToSave.fontName || 'Modern Grotesk'
+      fontFamily: themeToSave.fontFamily || "'Space Grotesk', sans-serif",
+      fontName: themeToSave.fontName || 'Space Grotesk'
     };
 
     // Determine target collection
@@ -930,8 +939,8 @@ window.restoreDefaults = async () => {
     type: 'solid-pair',
     primary: '#040810',
     secondary: '#f59e0b',
-    fontFamily: 'Space Grotesk',
-    fontName: 'Modern Grotesk',
+    fontFamily: "'Space Grotesk', sans-serif",
+    fontName: 'Space Grotesk',
     wallpaper: ''
   };
   
@@ -949,6 +958,15 @@ window.addEventListener('sf:turbo-render', () => {
 });
 
 init();
+
+window.setWallpaper = (url) => {
+  const nextUrl = String(url || '').trim();
+  if (!nextUrl) return;
+  pendingFile = null;
+  currentDesign.type = 'wallpaper';
+  currentDesign.wallpaper = nextUrl;
+  updatePreview();
+};
 
 let pendingAvatar = null;
 

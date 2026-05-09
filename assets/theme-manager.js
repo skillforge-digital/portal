@@ -16,6 +16,8 @@ class ThemeManager {
         };
         this.fonts = [
             { name: 'Space Grotesk', family: "'Space Grotesk', sans-serif", google: true },
+            { name: 'Inter', family: "'Inter', sans-serif", google: true },
+            { name: 'Caveat', family: "'Caveat', cursive", google: true },
             { name: 'Instrument Serif', family: "'Instrument Serif', serif", google: true },
             { name: 'Unbounded', family: "'Unbounded', sans-serif", google: true },
             { name: 'Plus Jakarta Sans', family: "'Plus Jakarta Sans', sans-serif", google: true },
