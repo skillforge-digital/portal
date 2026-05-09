@@ -7,6 +7,13 @@ function getUid() {
   return auth.currentUser?.uid || localStorage.getItem('skillforge_mock_uid') || null;
 }
 
+function shouldInstallOnPath(pathname) {
+  const path = String(pathname || '');
+  if (!path.includes('/staffs/')) return false;
+  if (path.includes('/staffs/login') || path.includes('/staffs/registration') || path.includes('/staffs/role-gateway')) return false;
+  return true;
+}
+
 function normalizePin(value) {
   const pin = String(value || '').trim();
   return /^\d{6}$/.test(pin) ? pin : '';
@@ -145,16 +152,25 @@ async function handleClick(btn) {
 }
 
 export function installStaffAccessCodeButton(options = {}) {
-  const existing = document.getElementById('staff-access-code-btn');
-  if (existing) return;
   const path = window.location.pathname || '';
-  if (!path.includes('/staffs/')) return;
-  if (path.includes('/staffs/login') || path.includes('/staffs/registration') || path.includes('/staffs/role-gateway')) return;
+  const shouldInstall = shouldInstallOnPath(path);
+  const existing = document.getElementById('staff-access-code-btn');
+  if (!shouldInstall) {
+    existing?.remove();
+    closeModal();
+    return;
+  }
+  if (existing) return;
 
   const btn = document.createElement('button');
   btn.id = 'staff-access-code-btn';
   btn.type = 'button';
   btn.className = options.className || 'fixed bottom-6 right-6 z-[200] bg-gold text-navy-950 px-5 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-4K hover:bg-white transition-all flex items-center gap-2';
+  btn.style.zIndex = String(options.zIndex || 10001);
+  btn.style.right = 'calc(env(safe-area-inset-right, 0px) + 24px)';
+  btn.style.bottom = 'calc(env(safe-area-inset-bottom, 0px) + 24px)';
+  btn.style.pointerEvents = 'auto';
+  btn.style.touchAction = 'manipulation';
   btn.innerHTML = `<i data-lucide="key" class="w-4 h-4"></i> Get Access Code`;
   btn.addEventListener('click', () => void handleClick(btn));
   document.body.appendChild(btn);
@@ -166,4 +182,3 @@ if (!window.__sf_staff_access_code_installed) {
   window.addEventListener('DOMContentLoaded', () => installStaffAccessCodeButton());
   window.addEventListener('sf:turbo-render', () => installStaffAccessCodeButton());
 }
-
