@@ -1,6 +1,7 @@
 import { db, auth } from './firebase-config.js';
 import { doc, updateDoc, onSnapshot, getDoc } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
+import { DESIGN_STUDIO_FONTS } from './design-studio-presets.js';
 
 class ThemeManager {
     constructor() {
@@ -14,21 +15,11 @@ class ThemeManager {
             light: false,
             performance: false
         };
-        this.fonts = [
-            { name: 'Space Grotesk', family: "'Space Grotesk', sans-serif", google: true },
-            { name: 'Inter', family: "'Inter', sans-serif", google: true },
-            { name: 'Caveat', family: "'Caveat', cursive", google: true },
-            { name: 'Instrument Serif', family: "'Instrument Serif', serif", google: true },
-            { name: 'Unbounded', family: "'Unbounded', sans-serif", google: true },
-            { name: 'Plus Jakarta Sans', family: "'Plus Jakarta Sans', sans-serif", google: true },
-            { name: 'Syne', family: "'Syne', sans-serif", google: true },
-            { name: 'Outfit', family: "'Outfit', sans-serif", google: true },
-            { name: 'Lexend', family: "'Lexend', sans-serif", google: true },
-            { name: 'JetBrains Mono', family: "'JetBrains Mono', monospace", google: true },
-            { name: 'Playfair Display', family: "'Playfair Display', serif", google: true },
-            { name: 'Montserrat', family: "'Montserrat', sans-serif", google: true },
-            { name: 'Cinzel', family: "'Cinzel', serif", google: true }
-        ];
+        this.fonts = (Array.isArray(DESIGN_STUDIO_FONTS) ? DESIGN_STUDIO_FONTS : []).map((f) => ({
+            name: f.name,
+            family: f.family,
+            google: true
+        }));
         this.loadedGoogleFonts = new Set();
         this.activeUnsub = null;
         
