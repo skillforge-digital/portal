@@ -2,7 +2,7 @@
  * SkillForge Staff Core (v2.0.0)
  * Comprehensive Role-Based Access Control (RBAC) Middleware
  */
-
+ 
 // @ts-ignore
 import { db, auth } from './firebase-config.js';
 // @ts-ignore
@@ -10,7 +10,7 @@ import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/f
 // @ts-ignore
 import { doc, getDoc, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 import { logStaffActivity } from './staff-activity.js';
-
+ 
 class StaffCore {
     constructor() {
         this.db = db;
@@ -55,13 +55,13 @@ class StaffCore {
         // Hide content until authorized
         
     }
-
+ 
     static async start() {
         const core = new StaffCore();
         await core.init();
         return core;
     }
-
+ 
     async init() {
         return new Promise((resolve) => {
             /** @param {any} user */
@@ -91,7 +91,7 @@ class StaffCore {
                         this.profile = specialistDoc.data();
                         this.profile.roles = this.profile.roles || ['Specialist'];
                     }
-
+ 
                     if (this.profile) {
                         // Ensure roles is always an array
                         if (typeof this.profile.roles === 'string') {
@@ -114,7 +114,7 @@ class StaffCore {
                             }
                             return;
                         }
-
+ 
                         this.verifyAccess();
                         this.revealContent();
                         resolve(undefined);
@@ -129,7 +129,7 @@ class StaffCore {
             });
         });
     }
-
+ 
     verifyAccess() {
         const path = window.location.pathname;
         
@@ -142,7 +142,7 @@ class StaffCore {
             '/staffs/marketing/': ['Director', 'HOD', 'Digital Marketing'],
             '/staffs/support/': ['Director', 'HOD', 'Support Staff']
         };
-
+ 
         const requiredRoles = Object.keys(accessMap).find(p => path.includes(p));
         
         if (requiredRoles) {
@@ -162,11 +162,11 @@ class StaffCore {
             }
         }
     }
-
+ 
     revealContent() {
         
     }
-
+ 
     redirectLogin() {
         if (!window.location.pathname.includes('/staffs/login/') && 
             !window.location.pathname.includes('/staffs/registration/')) {
@@ -175,14 +175,14 @@ class StaffCore {
             this.revealContent();
         }
     }
-
+ 
     async logout() {
         await this.auth.signOut();
         window.location.href = '/staffs/login/';
     }
-
+ 
     // ==================== PERMISSION CHECKS ====================
-
+ 
     /**
      * Check if user can edit announcements for a specific scope
      * @param {string} scope - 'global', 'trainees', 'specialists', 'staffs', 'marketing', 'support', 'hod'
@@ -205,7 +205,7 @@ class StaffCore {
         // Other roles cannot edit announcements
         return false;
     }
-
+ 
     /**
      * Check if user can manage seasons (initialize, archive, restore)
      */
@@ -213,7 +213,7 @@ class StaffCore {
         if (!this.profile) return false;
         return this.profile.primaryRole === 'Director';
     }
-
+ 
     /**
      * Check if user can wipe/clear registration data
      */
@@ -221,7 +221,7 @@ class StaffCore {
         if (!this.profile) return false;
         return this.profile.primaryRole === 'Director';
     }
-
+ 
     /**
      * Check if user can restore wiped data
      */
@@ -229,7 +229,7 @@ class StaffCore {
         if (!this.profile) return false;
         return this.profile.primaryRole === 'Director';
     }
-
+ 
     /**
      * Check if user can manage staff (add/remove roles)
      */
@@ -237,7 +237,7 @@ class StaffCore {
         if (!this.profile) return false;
         return this.profile.primaryRole === 'Director';
     }
-
+ 
     /**
      * Check if user can view trainee registry
      */
@@ -245,7 +245,7 @@ class StaffCore {
         if (!this.profile) return false;
         return this.profile.roles.length > 0; // All staff can view trainees
     }
-
+ 
     /**
      * Check if user can edit trainee data
      */
@@ -253,7 +253,7 @@ class StaffCore {
         if (!this.profile) return false;
         return ['Director', 'HOD', 'Specialist'].includes(this.profile.primaryRole);
     }
-
+ 
     /**
      * Check if user has access to specific dashboard scope
      * @param {string} dashboardType
@@ -272,9 +272,9 @@ class StaffCore {
         
         return accessMap[dashboardType]?.includes(this.profile.primaryRole) || false;
     }
-
+ 
     // ==================== AUDIT LOGGING ====================
-
+ 
     /**
      * Log an action to the audit trail
      * @param {string} action - The action performed
@@ -293,7 +293,7 @@ class StaffCore {
             void('[StaffCore] Audit log failed:', err);
         }
     }
-
+ 
     /**
      * Log an announcement edit
      * @param {string} announcementId
@@ -309,7 +309,7 @@ class StaffCore {
             newContent: newContent?.substring(0, 100)
         });
     }
-
+ 
     /**
      * Log season initialization
      * @param {string} seasonName
@@ -322,7 +322,7 @@ class StaffCore {
             type: 'REGISTRATION_WIPE'
         });
     }
-
+ 
     /**
      * Log data restoration
      * @param {string} seasonName
@@ -334,9 +334,9 @@ class StaffCore {
             recordCount
         });
     }
-
+ 
     // ==================== SEASON MANAGEMENT ====================
-
+ 
     /**
      * Validate season name format
      * Valid formats: "2026 Season", "2026 Volume 2", "2027 Q1"
@@ -363,7 +363,7 @@ class StaffCore {
         
         return { valid: true, year, suffix: match[2] };
     }
-
+ 
     /**
      * Get current active season
      */
@@ -379,7 +379,7 @@ class StaffCore {
             return null;
         }
     }
-
+ 
     /**
      * Get the HOD's assigned department
      */
@@ -388,14 +388,14 @@ class StaffCore {
         // HODs have a department field in their profile
         return this.profile.department || null;
     }
-
+ 
     /**
      * Get all departments
      */
     getDepartments() {
         return this.DEPARTMENTS;
     }
-
+ 
     /**
      * Check if a staff belongs to HOD's department
      * @param {object} staffData
@@ -406,7 +406,7 @@ class StaffCore {
         // Staff have a department field
         return staffData.department === department;
     }
-
+ 
     /**
      * Get track specialists for a given department
      * @param {string} department
@@ -415,7 +415,7 @@ class StaffCore {
         const dept = this.DEPARTMENTS[department];
         return dept ? dept.tracks : [];
     }
-
+ 
     /**
      * Check if user has Universal Track Clearance (UTC)
      * Marketing staff have UTC to bypass gate restrictions
@@ -424,8 +424,12 @@ class StaffCore {
         if (!this.profile) return false;
         const role = this.profile.primaryRole;
         return role === 'Digital Marketing' || role === 'Director';
+        if (role === 'Director' || role === 'Digital Marketing') return true;
+        if (this.profile.universalTrackAccess) return true;
+        const pin = String(this.profile.staffAccessCode || this.profile.pin || '').trim();
+        return /^\d{6}$/.test(pin);
     }
-
+ 
     /**
      * Check if user can view trainee for a specific track
      * Specialists can only see trainees in their assigned tracks
@@ -439,6 +443,7 @@ class StaffCore {
         
         // Marketing can see all (UTC)
         if (this.profile.primaryRole === 'Digital Marketing') return true;
+        if (this.hasUniversalTrackClearance()) return true;
         
         // Specialists can only see their specific tracks
         if (this.profile.primaryRole === 'Specialist') {
@@ -449,12 +454,12 @@ class StaffCore {
         return false;
     }
 }
-
+ 
 // Initialize global engine with singleton guard
 if (!window['staffCore']) {
     StaffCore.start().then((core) => {
         window['staffCore'] = core;
     });
 }
-
+ 
 export default StaffCore;
