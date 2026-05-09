@@ -785,16 +785,61 @@
           </div>
         </header>
 
-        <div class="glass-strong rounded-[40px] p-8 border border-white/5 overflow-x-auto">
-          <table class="w-full text-left">
+        <div class="md:hidden space-y-4">
+          ${snap.empty ? '<div class="p-8 glass-strong rounded-[28px] border border-white/10 text-center text-white/40 italic uppercase font-bold tracking-widest">No trainees found.</div>' : ''}
+          ${snap.docs.map(doc => {
+            const d = doc.data();
+            const created = d.created_at?.toDate ? d.created_at.toDate().toLocaleDateString() : 'N/A';
+            const name = escapeHtml(d.name || 'Anonymous');
+            const email = escapeHtml(d.email || 'NO_EMAIL');
+            const track = escapeHtml(d.track || 'Unassigned');
+            const sfid = escapeHtml(d.sfid || 'PENDING');
+            const xp = escapeHtml(String(d.xp || 0));
+            const tier = escapeHtml(d.tier || 'Novice');
+            return `
+              <div class="glass-strong rounded-[28px] border border-white/10 p-6">
+                <div class="flex items-start justify-between gap-4">
+                  <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-11 h-11 rounded-2xl bg-white/5 border border-white/10 overflow-hidden flex-shrink-0">
+                      <img loading="lazy" src="${d.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + doc.id}" class="w-full h-full object-cover" alt="SkillForge Interface Element">
+                    </div>
+                    <div class="min-w-0">
+                      <div class="flex items-center gap-2">
+                        <p class="font-black text-white uppercase tracking-tight truncate">${name}</p>
+                        ${d.sfid ? `<span class="px-2 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-500 text-[8px] font-black uppercase tracking-widest">Verified</span>` : ''}
+                      </div>
+                      <p class="text-[9px] text-white/40 uppercase tracking-widest mt-1 truncate">${email}</p>
+                    </div>
+                  </div>
+                  <span class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest text-white/60 flex-shrink-0">${escapeHtml(created)}</span>
+                </div>
+
+                <div class="mt-5 flex flex-wrap gap-2">
+                  <span class="px-3 py-1 rounded-full bg-gold/10 border border-gold/20 text-[9px] font-black uppercase tracking-widest text-gold">${sfid}</span>
+                  <span class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest text-white/70">${track}</span>
+                  <span class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest text-white/50">${xp} XP • ${tier}</span>
+                </div>
+
+                <div class="mt-6 grid grid-cols-1 gap-3">
+                  <button type="button" onclick="viewTrainee('${doc.id}')" class="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-[0.3em] hover:bg-white/10 transition-all">View</button>
+                  <button type="button" onclick="generateVerificationQR('${doc.id}', '${(d.name || 'Anonymous').replace(/'/g, "\\'")}')" class="w-full py-4 rounded-2xl bg-gold/10 border border-gold/20 text-gold text-[10px] font-black uppercase tracking-[0.3em] hover:bg-gold hover:text-navy transition-all">QR</button>
+                  <button type="button" onclick="deleteTrainee('${doc.id}')" class="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-[0.3em] hover:bg-red-500/20 hover:text-red-400 transition-all">Delete</button>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+
+        <div class="hidden md:block glass-strong rounded-[40px] p-8 border border-white/5 overflow-hidden">
+          <table class="w-full text-left table-fixed">
             <thead class="text-[10px] font-black uppercase text-slate-500 border-b border-white/10">
               <tr>
-                <th class="pb-4">Profile</th>
-                <th class="pb-4">SFID</th>
-                <th class="pb-4">Track</th>
-                <th class="pb-4">XP/Tier</th>
-                <th class="pb-4">Registered</th>
-                <th class="pb-4">Actions</th>
+                <th class="pb-4 w-[340px]">Profile</th>
+                <th class="pb-4 w-[150px]">SFID</th>
+                <th class="pb-4 w-[220px]">Track</th>
+                <th class="pb-4 w-[160px]">XP/Tier</th>
+                <th class="pb-4 w-[150px]">Registered</th>
+                <th class="pb-4 w-[180px]">Actions</th>
               </tr>
             </thead>
             <tbody class="text-sm">
@@ -803,27 +848,27 @@
                 const d = doc.data();
                 const created = d.created_at?.toDate ? d.created_at.toDate().toLocaleDateString() : 'N/A';
                 return `<tr class="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                  <td class="py-4">
-                    <div class="flex items-center gap-3">
-                      <div class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 overflow-hidden">
+                  <td class="py-4 pr-4">
+                    <div class="flex items-center gap-3 min-w-0">
+                      <div class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 overflow-hidden flex-shrink-0">
                         <img loading="lazy" src="${d.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + doc.id}" class="w-full h-full object-cover" alt="SkillForge Interface Element">
                       </div>
-                      <div>
+                      <div class="min-w-0">
                         <div class="flex items-center gap-2">
-                          <p class="font-black text-white uppercase text-xs">${d.name || 'Anonymous'}</p>
-                          ${d.sfid ? `<span class="px-1.5 py-0.5 rounded-md bg-green-500/20 border border-green-500/30 text-green-500 text-[6px] font-black uppercase tracking-widest">Verified</span>` : ''}
+                          <p class="font-black text-white uppercase text-xs truncate">${escapeHtml(d.name || 'Anonymous')}</p>
+                          ${d.sfid ? `<span class="px-1.5 py-0.5 rounded-md bg-green-500/20 border border-green-500/30 text-green-500 text-[6px] font-black uppercase tracking-widest flex-shrink-0">Verified</span>` : ''}
                         </div>
-                        <p class="text-[8px] text-slate-500 uppercase">${d.email || 'NO_EMAIL'}</p>
+                        <p class="text-[8px] text-slate-500 uppercase truncate">${escapeHtml(d.email || 'NO_EMAIL')}</p>
                       </div>
                     </div>
                   </td>
-                  <td class="py-4 font-mono text-[10px] text-gold">${d.sfid || 'PENDING'}</td>
-                  <td class="py-4 uppercase text-[9px] font-black text-slate-300">${d.track || 'Unassigned'}</td>
+                  <td class="py-4 font-mono text-[10px] text-gold">${escapeHtml(d.sfid || 'PENDING')}</td>
+                  <td class="py-4 uppercase text-[9px] font-black text-slate-300">${escapeHtml(d.track || 'Unassigned')}</td>
                   <td class="py-4">
-                    <p class="text-[10px] font-black">${d.xp || 0} XP</p>
-                    <p class="text-[8px] text-gold/60 uppercase tracking-widest">${d.tier || 'Novice'}</p>
+                    <p class="text-[10px] font-black">${escapeHtml(String(d.xp || 0))} XP</p>
+                    <p class="text-[8px] text-gold/60 uppercase tracking-widest">${escapeHtml(d.tier || 'Novice')}</p>
                   </td>
-                  <td class="py-4"><span class="text-[9px] text-white/50 font-bold uppercase tracking-widest">${created}</span></td>
+                  <td class="py-4"><span class="text-[9px] text-white/50 font-bold uppercase tracking-widest">${escapeHtml(created)}</span></td>
                   <td class="py-4">
                     <div class="flex gap-2">
                         <button aria-label="Action button" onclick="viewTrainee('${doc.id}')" class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center hover:bg-gold/20 hover:text-gold transition-all"><i data-lucide="eye" class="w-4 h-4"></i></button>
@@ -850,15 +895,53 @@
           </div>
         </header>
 
-        <div class="glass-strong rounded-[40px] p-8 border border-white/5 overflow-x-auto">
-          <table class="w-full text-left">
+        <div class="md:hidden space-y-4">
+          ${snap.docs.map(doc => {
+            const d = doc.data();
+            const roles = normalizeRoles(d);
+            const isSpecialist = roles.includes('Specialist') || d.primaryRole === 'Specialist' || d.role === 'Specialist';
+            const created = d.created_at?.toDate ? d.created_at.toDate().toLocaleDateString() : 'N/A';
+            const name = escapeHtml(d.name || 'Unknown');
+            const roleLabel = escapeHtml(d.primaryRole || 'Staff');
+            return `
+              <div class="glass-strong rounded-[28px] border border-white/10 p-6">
+                <div class="flex items-start justify-between gap-4">
+                  <div class="min-w-0">
+                    <div class="flex items-center gap-2">
+                      <p class="font-black text-white uppercase tracking-tight truncate">${name}</p>
+                      ${d.sfid ? `<span class="px-2 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-500 text-[8px] font-black uppercase tracking-widest">Verified</span>` : ''}
+                    </div>
+                    <div class="flex flex-wrap gap-2 mt-3">
+                      <span class="px-3 py-1 rounded-full bg-gold/10 border border-gold/20 text-gold text-[9px] font-black uppercase tracking-widest">${roleLabel}</span>
+                      <span class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/60 text-[9px] font-black uppercase tracking-widest">${escapeHtml(created)}</span>
+                    </div>
+                  </div>
+                  <button aria-label="Action button" onclick="generateVerificationQR('${doc.id}', '${(d.name || 'Unknown').replace(/'/g, "\\'")}')" class="w-10 h-10 rounded-2xl bg-gold/10 text-gold flex items-center justify-center hover:bg-gold hover:text-navy transition-all flex-shrink-0"><i data-lucide="qr-code" class="w-5 h-5"></i></button>
+                </div>
+
+                <div class="mt-5 flex flex-wrap gap-2">
+                  ${roles.slice(0, 6).map(r => `<span class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[8px] font-black uppercase tracking-widest text-slate-300">${escapeHtml(r)}</span>`).join('')}
+                  ${roles.length > 6 ? `<span class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[8px] font-black uppercase tracking-widest text-white/40">+${roles.length - 6}</span>` : ''}
+                </div>
+
+                <div class="mt-6 grid grid-cols-1 gap-3">
+                  <button onclick="manageUserRoles('${doc.id}')" class="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-[0.3em] hover:bg-gold hover:text-navy transition-all">Manage Roles</button>
+                  ${isSpecialist ? `<button onclick="editSpecialistTrack('${doc.id}')" class="w-full py-4 rounded-2xl bg-gold/10 border border-gold/20 text-gold text-[10px] font-black uppercase tracking-[0.3em] hover:bg-gold hover:text-navy transition-all">Change Track</button>` : ''}
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+
+        <div class="hidden md:block glass-strong rounded-[40px] p-8 border border-white/5 overflow-hidden">
+          <table class="w-full text-left table-fixed">
             <thead class="text-[10px] font-black uppercase text-slate-500 border-b border-white/10">
               <tr>
-                <th class="pb-4">Personnel</th>
+                <th class="pb-4 w-[240px]">Personnel</th>
                 <th class="pb-4">Roles (Cumulative)</th>
-                <th class="pb-4">Primary Unit</th>
-                <th class="pb-4">Registered</th>
-                <th class="pb-4">Actions</th>
+                <th class="pb-4 w-[170px]">Primary Unit</th>
+                <th class="pb-4 w-[140px]">Registered</th>
+                <th class="pb-4 w-[250px]">Actions</th>
               </tr>
             </thead>
             <tbody class="text-sm">
@@ -868,21 +951,21 @@
                 const isSpecialist = roles.includes('Specialist') || d.primaryRole === 'Specialist' || d.role === 'Specialist';
                 const created = d.created_at?.toDate ? d.created_at.toDate().toLocaleDateString() : 'N/A';
                 return `<tr class="border-b border-white/5">
-                  <td class="py-4">
-                    <div class="flex items-center gap-2">
-                      <p class="font-black text-white uppercase text-xs">${d.name || 'Unknown'}</p>
-                      ${d.sfid ? `<span class="px-1.5 py-0.5 rounded-md bg-green-500/20 border border-green-500/30 text-green-500 text-[6px] font-black uppercase tracking-widest">Verified</span>` : ''}
+                  <td class="py-4 pr-4">
+                    <div class="flex items-center gap-2 min-w-0">
+                      <p class="font-black text-white uppercase text-xs truncate">${escapeHtml(d.name || 'Unknown')}</p>
+                      ${d.sfid ? `<span class="px-1.5 py-0.5 rounded-md bg-green-500/20 border border-green-500/30 text-green-500 text-[6px] font-black uppercase tracking-widest flex-shrink-0">Verified</span>` : ''}
                     </div>
                   </td>
                   <td class="py-4">
                     <div class="flex flex-wrap gap-1">
-                        ${roles.map(r => `<span class="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-[7px] font-black uppercase tracking-widest text-slate-400">${r}</span>`).join('')}
+                        ${roles.map(r => `<span class="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-[7px] font-black uppercase tracking-widest text-slate-400">${escapeHtml(r)}</span>`).join('')}
                     </div>
                   </td>
-                  <td class="py-4"><span class="px-3 py-1 rounded-full bg-gold/10 text-gold text-[8px] font-black uppercase tracking-widest">${d.primaryRole || 'Staff'}</span></td>
-                  <td class="py-4"><span class="text-[9px] text-white/50 font-bold uppercase tracking-widest">${created}</span></td>
+                  <td class="py-4"><span class="px-3 py-1 rounded-full bg-gold/10 text-gold text-[8px] font-black uppercase tracking-widest">${escapeHtml(d.primaryRole || 'Staff')}</span></td>
+                  <td class="py-4"><span class="text-[9px] text-white/50 font-bold uppercase tracking-widest">${escapeHtml(created)}</span></td>
                   <td class="py-4">
-                    <div class="flex gap-2">
+                    <div class="flex gap-2 flex-wrap justify-end md:justify-start">
                         <button onclick="manageUserRoles('${doc.id}')" class="px-4 py-2 rounded-xl bg-white/5 text-[9px] font-black uppercase tracking-widest hover:bg-gold hover:text-navy transition-all">Roles</button>
                         ${isSpecialist ? `<button onclick="editSpecialistTrack('${doc.id}')" class="px-4 py-2 rounded-xl bg-white/5 text-[9px] font-black uppercase tracking-widest hover:bg-gold hover:text-navy transition-all">Track</button>` : ''}
                         <button aria-label="Action button" onclick="generateVerificationQR('${doc.id}', '${(d.name || 'Unknown').replace(/'/g, "\\'")}')" class="w-8 h-8 rounded-lg bg-gold/10 text-gold flex items-center justify-center hover:bg-gold hover:text-navy transition-all"><i data-lucide="qr-code" class="w-4 h-4"></i></button>
@@ -1030,36 +1113,44 @@
           }).join('')}
         </div>
 
-        <div id="announcement-modal" class="hidden fixed inset-0 z-[200] bg-navy/95 flex items-center justify-center p-6 backdrop-blur-xl">
-          <div class="glass-strong p-10 rounded-[48px] border border-white/10 max-w-xl w-full space-y-8">
-            <div class="flex justify-between items-center">
-              <div>
+        <div id="announcement-modal" class="hidden fixed inset-0 z-[300] flex items-end md:items-center justify-center p-4 md:p-8">
+          <div class="absolute inset-0 bg-navy/80 backdrop-blur-xl"></div>
+          <div class="relative w-full max-w-2xl glass-strong border border-white/10 rounded-[32px] md:rounded-[48px] overflow-hidden">
+            <div class="px-6 md:px-10 py-6 md:py-8 border-b border-white/10 flex items-start justify-between gap-4">
+              <div class="min-w-0">
                 <p class="text-[8px] font-black text-gold uppercase tracking-[0.4em]">System Broadcast</p>
-                <h2 class="text-3xl font-black uppercase tracking-tighter">Post Global Announcement</h2>
+                <h2 class="text-2xl md:text-3xl font-black uppercase tracking-tighter mt-2">New Announcement</h2>
+                <p class="text-[10px] text-white/40 uppercase tracking-widest mt-2">Visible in the top ticker across selected dashboards</p>
               </div>
-              <button aria-label="Action button" onclick="closeAnnouncementModal()" class="p-3 rounded-xl bg-white/5 hover:text-red-400"><i data-lucide="x" class="w-6 h-6"></i></button>
+              <button aria-label="Action button" onclick="closeAnnouncementModal()" class="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 hover:text-red-300 transition-all flex-shrink-0"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <div class="space-y-5">
-              <div>
-                <label for="ann-title" class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Broadcast Title</label>
-                <input type="text" id="ann-title" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl mt-2 font-bold uppercase tracking-tight" placeholder="SYSTEM UPDATE 0.4.1" aria-label="SYSTEM UPDATE 0.4.1">
+
+            <div class="px-6 md:px-10 py-6 md:py-8 space-y-5 max-h-[70vh] overflow-y-auto custom-scrollbar">
+              <div id="ann-error" class="hidden p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-300 text-[10px] font-black uppercase tracking-[0.3em]"></div>
+              <div class="grid grid-cols-1 gap-5">
+                <div>
+                  <label for="ann-title" class="text-[10px] font-black text-white/50 uppercase tracking-widest ml-1">Title</label>
+                  <input type="text" id="ann-title" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl mt-2 font-black uppercase tracking-tight text-sm focus:outline-none focus:ring-2 focus:ring-gold/30" placeholder="SYSTEM UPDATE" aria-label="Announcement title">
+                </div>
+                <div>
+                  <label for="ann-content" class="text-[10px] font-black text-white/50 uppercase tracking-widest ml-1">Message</label>
+                  <textarea id="ann-content" rows="7" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl mt-2 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-gold/30" placeholder="Type the announcement message..."></textarea>
+                </div>
+                <div>
+                  <label for="ann-target" class="text-[10px] font-black text-white/50 uppercase tracking-widest ml-1">Audience</label>
+                  <select id="ann-target" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl mt-2 font-black uppercase text-xs focus:outline-none focus:ring-2 focus:ring-gold/30">
+                    <option value="Global">Global (All Personnel)</option>
+                    <option value="Trainees">Trainees Only</option>
+                    <option value="Staffs">Personnel Only</option>
+                    <option value="Specialists">Specialists Unit Only</option>
+                  </select>
+                </div>
               </div>
-              <div>
-                <label for="ann-content" class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Core Message</label>
-                <textarea id="ann-content" rows="6" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl mt-2 text-sm leading-relaxed" placeholder="Type your message to the academy..."></textarea>
-              </div>
-              <div>
-                <label for="ann-target" class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Target Registry</label>
-                <select id="ann-target" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl mt-2 font-bold uppercase text-xs">
-                  <option value="Global">Global (All Personnel)</option>
-                  <option value="Trainees">Trainees Only</option>
-                  <option value="Staffs">Personnel Only</option>
-                  <option value="Specialists">Specialists Unit Only</option>
-                </select>
-              </div>
-              <button onclick="postAnnouncement()" class="w-full py-6 bg-gold text-navy-950 rounded-[24px] font-black uppercase text-[11px] tracking-[0.3em] hover:bg-white transition-all shadow-4K">
-                Initiate Global Broadcast
-              </button>
+            </div>
+
+            <div class="px-6 md:px-10 py-5 border-t border-white/10 flex flex-col sm:flex-row gap-3">
+              <button type="button" onclick="closeAnnouncementModal()" class="flex-1 py-4 rounded-2xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-[0.3em] hover:bg-white/10 transition-all">Cancel</button>
+              <button id="ann-submit-btn" type="button" onclick="postAnnouncement()" class="flex-1 py-4 rounded-2xl bg-gold text-navy-950 text-[10px] font-black uppercase tracking-[0.3em] hover:bg-white transition-all shadow-4K">Broadcast</button>
             </div>
           </div>
         </div>
@@ -1067,19 +1158,46 @@
     }
 
     window.postAnnouncement = async function() {
-        const title = document.getElementById('ann-title').value;
-        const content = document.getElementById('ann-content').value;
-        const target = document.getElementById('ann-target').value;
-        
-        if (!title || !content) return;
-        
+        const title = String(document.getElementById('ann-title')?.value || '').trim();
+        const content = String(document.getElementById('ann-content')?.value || '').trim();
+        const target = String(document.getElementById('ann-target')?.value || 'Global').trim() || 'Global';
+        const errEl = document.getElementById('ann-error');
+        const btn = document.getElementById('ann-submit-btn');
+
+        if (errEl) {
+          errEl.classList.add('hidden');
+          errEl.textContent = '';
+        }
+
+        if (!title || !content) {
+          if (errEl) {
+            errEl.textContent = 'Title and message are required.';
+            errEl.classList.remove('hidden');
+          }
+          return;
+        }
+
+        if (btn) {
+          btn.disabled = true;
+          btn.textContent = 'Broadcasting...';
+        }
+
         const res = await staffCommand.broadcastAnnouncement(title, content, target);
         if (res.success) {
-            alert("Broadcast synchronized.");
             closeAnnouncementModal();
             window.showTab('announcements');
         } else {
-            alert(res.error);
+            if (errEl) {
+              errEl.textContent = String(res.error || 'Broadcast failed.');
+              errEl.classList.remove('hidden');
+            } else {
+              alert(res.error);
+            }
+        }
+
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = 'Broadcast';
         }
     };
 
@@ -1555,28 +1673,34 @@
             <h1 class="text-4xl md:text-5xl font-black mt-2 uppercase tracking-tighter">Reset Tickets</h1>
           </div>
         </header>
-        <div class="glass-strong rounded-[40px] p-8 border border-white/5 overflow-x-auto">
-          <div id="reset-tickets-summary" class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+        <div class="glass-strong rounded-[40px] p-8 border border-white/5 space-y-6">
+          <div id="reset-tickets-summary" class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <p class="text-[10px] font-black uppercase tracking-widest text-white/50">Loading tickets...</p>
             <p class="text-[10px] font-black uppercase tracking-widest text-white/30">Newest first • Max 200</p>
           </div>
-          <table class="w-full text-left min-w-[980px]">
-            <thead class="text-[10px] font-black uppercase text-slate-500 border-b border-white/10">
-              <tr>
-                <th class="pb-4">Account</th>
-                <th class="pb-4">Phone</th>
-                <th class="pb-4">Ticket Code</th>
-                <th class="pb-4">Status</th>
-                <th class="pb-4">Created</th>
-                <th class="pb-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="reset-tickets-body" class="text-sm"></tbody>
-          </table>
+
+          <div id="reset-tickets-cards" class="md:hidden space-y-4"></div>
+
+          <div class="hidden md:block overflow-hidden">
+            <table class="w-full text-left table-fixed">
+              <thead class="text-[10px] font-black uppercase text-slate-500 border-b border-white/10">
+                <tr>
+                  <th class="pb-4 w-[260px]">Account</th>
+                  <th class="pb-4 w-[220px]">Phone</th>
+                  <th class="pb-4 w-[200px]">Ticket Code</th>
+                  <th class="pb-4 w-[180px]">Status</th>
+                  <th class="pb-4 w-[180px]">Created</th>
+                  <th class="pb-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="reset-tickets-body" class="text-sm"></tbody>
+            </table>
+          </div>
         </div>
       `;
 
       const body = container.querySelector('#reset-tickets-body');
+      const cards = container.querySelector('#reset-tickets-cards');
       const summary = container.querySelector('#reset-tickets-summary');
 
       const successUnsub = onSnapshot(
@@ -1630,9 +1754,10 @@
             `;
           }
 
-          if (!body) return;
+          if (!body || !cards) return;
           if (tickets.length === 0) {
             body.innerHTML = '<tr><td colspan="6" class="py-12 text-center text-white/40 italic uppercase font-bold tracking-widest">No reset tickets yet.</td></tr>';
+            cards.innerHTML = '<div class="p-8 glass-strong rounded-[28px] border border-white/10 text-center text-white/40 italic uppercase font-bold tracking-widest">No reset tickets yet.</div>';
             return;
           }
 
@@ -1711,11 +1836,90 @@
             `;
           }).join('');
 
+          cards.innerHTML = tickets.map((t) => {
+            const email = String(t.email || '').trim();
+            const phone = String(t.phone || '').trim();
+            const normalized = phone ? normalizePhone(phone) : '';
+            const code = String(t.ticketCode || '').trim();
+            const accountType = String(t.accountType || '').trim();
+            const status = String(t.status || 'requested').trim();
+            const emailKey = email.toLowerCase();
+            const createdMs = t.created_at?.toDate ? t.created_at.toDate().getTime() : 0;
+            const successMs = successMap.get(emailKey) || 0;
+            const isCompleted = !!(successMs && createdMs && successMs >= createdMs);
+            const created = t.created_at?.toDate ? t.created_at.toDate().toLocaleString() : 'N/A';
+
+            const statusTone = status === 'requested'
+              ? 'bg-orange/10 text-orange border-orange/20'
+              : status === 'handled'
+                ? 'bg-gold/10 text-gold border-gold/20'
+                : status === 'closed'
+                  ? 'bg-green-500/10 text-green-400 border-green-500/20'
+                  : 'bg-white/5 text-white/60 border-white/10';
+
+            const handleDisabled = status === 'handled' || status === 'closed';
+            const closeDisabled = status === 'closed';
+            const safeId = JSON.stringify(t.id);
+
+            return `
+              <div class="glass-strong rounded-[28px] border border-white/10 p-6">
+                <div class="flex items-start justify-between gap-4">
+                  <div class="min-w-0">
+                    <p class="font-black text-white uppercase text-sm truncate">${escapeHtml(email || 'UNKNOWN')}</p>
+                    <p class="text-[9px] text-slate-500 font-bold uppercase tracking-widest mt-1">${escapeHtml(accountType || 'UNKNOWN')}</p>
+                  </div>
+                  <div class="flex flex-col items-end gap-2 flex-shrink-0">
+                    <span class="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border ${statusTone}">${escapeHtml(status || 'requested')}</span>
+                    ${isCompleted ? `<span class="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border bg-green-500/10 text-green-400 border-green-500/20">reset ok</span>` : ''}
+                  </div>
+                </div>
+
+                <div class="mt-5 rounded-2xl bg-black/30 border border-white/5 px-5 py-4">
+                  <p class="text-[9px] font-black uppercase tracking-[0.35em] text-white/30">Ticket Code</p>
+                  <p class="mt-2 font-mono font-black text-gold text-xl tracking-[0.22em]">${escapeHtml(code || '------')}</p>
+                </div>
+
+                <div class="mt-4 grid grid-cols-1 gap-3">
+                  <div class="rounded-2xl bg-white/5 border border-white/10 px-4 py-3">
+                    <p class="text-[9px] font-black uppercase tracking-[0.35em] text-white/30">Phone</p>
+                    <p class="mt-2 font-mono text-[11px] text-white/80 break-all">${escapeHtml(normalized || phone || 'N/A')}</p>
+                    ${normalized ? `<a href="https://wa.me/${escapeHtml(normalized)}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 mt-2 text-[9px] font-black uppercase tracking-widest text-gold/80 hover:text-gold">
+                      <i data-lucide="message-circle" class="w-3 h-3"></i> Direct
+                    </a>` : ''}
+                  </div>
+                  <div class="rounded-2xl bg-white/5 border border-white/10 px-4 py-3">
+                    <p class="text-[9px] font-black uppercase tracking-[0.35em] text-white/30">Created</p>
+                    <p class="mt-2 text-[10px] text-white/50 font-bold uppercase tracking-widest">${escapeHtml(created)}</p>
+                  </div>
+                </div>
+
+                <div class="mt-5 grid grid-cols-1 gap-3">
+                  <button onclick="window.copyResetTicketCode(${safeId}, this)" class="w-full px-4 py-4 rounded-2xl bg-white/5 border border-white/10 text-white/70 text-[10px] font-black uppercase tracking-[0.3em] hover:bg-white/10 hover:text-white transition-all">
+                    <i data-lucide="copy" class="w-4 h-4 inline mr-2"></i> Copy Code
+                  </button>
+                  <button onclick="window.copyResetTicketMessage(${safeId}, this)" class="w-full px-4 py-4 rounded-2xl bg-white/5 border border-white/10 text-white/70 text-[10px] font-black uppercase tracking-[0.3em] hover:bg-white/10 hover:text-white transition-all">
+                    <i data-lucide="clipboard-copy" class="w-4 h-4 inline mr-2"></i> Copy Message
+                  </button>
+                  <button onclick="window.openResetTicketWhatsapp(${safeId})" class="w-full px-4 py-4 rounded-2xl bg-gold/10 border border-gold/20 text-gold text-[10px] font-black uppercase tracking-[0.3em] hover:bg-gold hover:text-navy transition-all">
+                    <i data-lucide="message-circle" class="w-4 h-4 inline mr-2"></i> Open WhatsApp
+                  </button>
+                  <button ${handleDisabled ? 'disabled' : ''} onclick="window.markResetTicketHandled(${safeId})" class="w-full px-4 py-4 rounded-2xl ${handleDisabled ? 'bg-white/5 border border-white/10 text-white/20 cursor-not-allowed' : 'bg-orange/10 border border-orange/20 text-orange hover:bg-orange hover:text-navy'} text-[10px] font-black uppercase tracking-[0.3em] transition-all">
+                    <i data-lucide="check-circle" class="w-4 h-4 inline mr-2"></i> Mark Handled
+                  </button>
+                  <button ${closeDisabled ? 'disabled' : ''} onclick="window.markResetTicketClosed(${safeId})" class="w-full px-4 py-4 rounded-2xl ${closeDisabled ? 'bg-white/5 border border-white/10 text-white/20 cursor-not-allowed' : 'bg-green-500/10 border border-green-500/20 text-green-400 hover:bg-green-500 hover:text-navy'} text-[10px] font-black uppercase tracking-[0.3em] transition-all">
+                    <i data-lucide="x-circle" class="w-4 h-4 inline mr-2"></i> Close Ticket
+                  </button>
+                </div>
+              </div>
+            `;
+          }).join('');
+
           if (window.lucide) window.lucide.createIcons();
         },
         () => {
-          if (!body) return;
+          if (!body || !cards) return;
           body.innerHTML = '<tr><td colspan="6" class="py-12 text-center text-red-400 font-black uppercase tracking-widest">Failed to load reset tickets.</td></tr>';
+          cards.innerHTML = '<div class="p-8 glass-strong rounded-[28px] border border-red-500/20 text-center text-red-400 font-black uppercase tracking-widest">Failed to load reset tickets.</div>';
         }
       );
 
@@ -2176,6 +2380,7 @@
 
     function renderRegistryAdminRows() {
       const tbody = document.getElementById('registry-admin-rows');
+      const cards = document.getElementById('registry-admin-cards');
       const selectedLabel = document.getElementById('registry-admin-selected');
       const countEl = document.getElementById('registry-admin-count');
       const editBtn = document.getElementById('registry-admin-edit-selected');
@@ -2202,9 +2407,10 @@
         else b.setAttribute('disabled', 'disabled');
       });
 
-      if (!tbody) return;
+      if (!tbody || !cards) return;
       if (!items.length) {
         tbody.innerHTML = `<tr><td colspan="6" class="py-12 text-center text-white/40 italic uppercase font-bold tracking-widest">No results.</td></tr>`;
+        cards.innerHTML = `<div class="p-8 glass-strong rounded-[28px] border border-white/10 text-center text-white/40 italic uppercase font-bold tracking-widest">No results.</div>`;
         return;
       }
 
@@ -2242,6 +2448,52 @@
         `;
       }).join('');
 
+      cards.innerHTML = items.map(({ id, data }) => {
+        const isSelected = id === registryAdminState.selectedId;
+        const selectedClass = isSelected ? 'border-gold/30 bg-gold/5' : 'border-white/10 bg-white/[0.02]';
+        const name = escapeHtml(data?.name || data?.fullName || data?.full_name || 'Unknown');
+        const email = escapeHtml(data?.email || '');
+        const phoneRaw = getPhoneFromProfile(data);
+        const phone = escapeHtml(phoneRaw || '');
+        const sfid = escapeHtml(data?.sfid || data?.SFID || '');
+        const trackOrRoles = scope === 'staff'
+          ? escapeHtml(Array.isArray(data?.roles) ? data.roles.join(', ') : (data?.primaryRole || ''))
+          : escapeHtml(data?.track || '');
+        const status = escapeHtml(data?.status || 'active');
+        return `
+          <div class="glass-strong rounded-[28px] border ${selectedClass} p-6 cursor-pointer transition-colors" data-id="${escapeHtml(id)}">
+            <div class="flex items-start justify-between gap-4">
+              <div class="min-w-0">
+                <p class="font-black uppercase tracking-tight text-white text-sm truncate">${name}</p>
+                <p class="text-[8px] text-white/30 uppercase tracking-[0.35em] mt-1 break-all">${escapeHtml(id)}</p>
+              </div>
+              <span class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest text-white/50 flex-shrink-0">${status}</span>
+            </div>
+
+            <div class="mt-4 grid grid-cols-1 gap-3">
+              <div class="rounded-2xl bg-white/5 border border-white/10 px-4 py-3">
+                <p class="text-[9px] font-black uppercase tracking-[0.35em] text-white/30">Email</p>
+                <p class="mt-2 text-[10px] font-black uppercase tracking-widest text-white/70 break-all">${email || 'NONE'}</p>
+              </div>
+              <div class="rounded-2xl bg-white/5 border border-white/10 px-4 py-3">
+                <p class="text-[9px] font-black uppercase tracking-[0.35em] text-white/30">Phone</p>
+                <p class="mt-2 text-[10px] font-black uppercase tracking-widest text-white/70 break-all">${phone || 'NONE'}</p>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <span class="px-3 py-1 rounded-full bg-gold/10 border border-gold/20 text-[9px] font-black uppercase tracking-widest text-gold">${sfid || '—'}</span>
+                <span class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest text-white/60">${trackOrRoles || '—'}</span>
+              </div>
+            </div>
+
+            <div class="mt-5 grid grid-cols-1 gap-3">
+              <button type="button" data-action="edit" data-id="${escapeHtml(id)}" class="w-full px-4 py-4 rounded-2xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-[0.3em] hover:bg-gold hover:text-navy transition-all">Edit</button>
+              <button type="button" data-action="reset" data-id="${escapeHtml(id)}" class="w-full px-4 py-4 rounded-2xl bg-gold/10 border border-gold/20 text-gold text-[10px] font-black uppercase tracking-[0.3em] hover:bg-gold hover:text-navy transition-all">Reset Ticket</button>
+              <button type="button" data-action="delete" data-id="${escapeHtml(id)}" class="w-full px-4 py-4 rounded-2xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-[0.3em] hover:bg-red-500/20 hover:text-red-400 transition-all">Delete</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
       tbody.querySelectorAll('tr[data-id]').forEach((row) => {
         row.addEventListener('click', (e) => {
           const id = row.getAttribute('data-id') || '';
@@ -2251,7 +2503,16 @@
         });
       });
 
-      tbody.querySelectorAll('button[data-action]').forEach((btn) => {
+      cards.querySelectorAll('[data-id]').forEach((card) => {
+        card.addEventListener('click', (e) => {
+          const id = card.getAttribute('data-id') || '';
+          registryAdminState.selectedId = id;
+          if (e.target && e.target.closest && e.target.closest('button')) return;
+          renderRegistryAdminRows();
+        });
+      });
+
+      document.querySelectorAll('#registry-admin-rows button[data-action], #registry-admin-cards button[data-action]').forEach((btn) => {
         btn.addEventListener('click', (e) => {
           e.stopPropagation();
           const id = btn.getAttribute('data-id') || '';
@@ -2318,22 +2579,22 @@
 
           <div id="registry-admin-status" class="p-6 rounded-3xl bg-white/5 border border-white/10 text-[10px] text-slate-300 font-black uppercase tracking-widest">Loading registry...</div>
 
-          <div class="glass rounded-[32px] border border-white/10 overflow-hidden">
-            <div class="table-scroll overflow-x-auto">
-              <table class="min-w-[1080px] w-full text-left">
-                <thead class="text-[10px] font-black uppercase text-slate-500 border-b border-white/10 bg-white/5">
-                  <tr>
-                    <th class="py-5 px-4">Profile</th>
-                    <th class="py-5 px-4">Email</th>
-                    <th class="py-5 px-4">Phone</th>
-                    <th class="py-5 px-4">SFID</th>
-                    <th class="py-5 px-4">${registryAdminState.scope === 'staff' ? 'Roles / Unit' : 'Track'}</th>
-                    <th class="py-5 px-4">Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="registry-admin-rows" class="text-sm"></tbody>
-              </table>
-            </div>
+          <div id="registry-admin-cards" class="md:hidden space-y-4"></div>
+
+          <div class="hidden md:block glass rounded-[32px] border border-white/10 overflow-hidden">
+            <table class="w-full text-left table-fixed">
+              <thead class="text-[10px] font-black uppercase text-slate-500 border-b border-white/10 bg-white/5">
+                <tr>
+                  <th class="py-5 px-4 w-[260px]">Profile</th>
+                  <th class="py-5 px-4">Email</th>
+                  <th class="py-5 px-4 w-[200px]">Phone</th>
+                  <th class="py-5 px-4 w-[150px]">SFID</th>
+                  <th class="py-5 px-4 w-[240px]">${registryAdminState.scope === 'staff' ? 'Roles / Unit' : 'Track'}</th>
+                  <th class="py-5 px-4 w-[280px]">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="registry-admin-rows" class="text-sm"></tbody>
+            </table>
           </div>
         </div>
       `;
@@ -2775,11 +3036,39 @@
     };
 
     window.closeAnnouncementModal = function() {
-      document.getElementById('announcement-modal').classList.add('hidden');
+      const modal = document.getElementById('announcement-modal');
+      if (modal) modal.classList.add('hidden');
+      const title = document.getElementById('ann-title');
+      const content = document.getElementById('ann-content');
+      const target = document.getElementById('ann-target');
+      const errEl = document.getElementById('ann-error');
+      const btn = document.getElementById('ann-submit-btn');
+      if (title) title.value = '';
+      if (content) content.value = '';
+      if (target) target.value = 'Global';
+      if (errEl) {
+        errEl.classList.add('hidden');
+        errEl.textContent = '';
+      }
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = 'Broadcast';
+      }
     };
     
     window.showNewAnnouncementModal = function() {
-      document.getElementById('announcement-modal').classList.remove('hidden');
+      const modal = document.getElementById('announcement-modal');
+      if (!modal) return;
+      modal.classList.remove('hidden');
+      if (!modal.dataset.bound) {
+        modal.dataset.bound = '1';
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) closeAnnouncementModal();
+        });
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') closeAnnouncementModal();
+        });
+      }
     };
 
     // --- BACKGROUND ---

@@ -130,22 +130,22 @@
           Select a track to load trainees.
         </div>
 
-        <div class="glass rounded-[32px] border border-white/10 overflow-hidden">
-          <div class="table-scroll overflow-x-auto">
-            <table class="min-w-[980px] w-full">
-              <thead class="bg-white/5">
-                <tr class="text-left">
-                  <th class="px-6 py-5 text-[9px] font-black uppercase tracking-[0.4em] text-white/40">Name</th>
-                  <th class="px-6 py-5 text-[9px] font-black uppercase tracking-[0.4em] text-white/40">Track</th>
-                  <th class="px-6 py-5 text-[9px] font-black uppercase tracking-[0.4em] text-white/40">SFID</th>
-                  <th class="px-6 py-5 text-[9px] font-black uppercase tracking-[0.4em] text-white/40">Email</th>
-                  <th class="px-6 py-5 text-[9px] font-black uppercase tracking-[0.4em] text-white/40">WhatsApp</th>
-                  <th class="px-6 py-5 text-[9px] font-black uppercase tracking-[0.4em] text-white/40">Actions</th>
-                </tr>
-              </thead>
-              <tbody id="rows" class="divide-y divide-white/5"></tbody>
-            </table>
-          </div>
+        <div id="cards" class="md:hidden space-y-4"></div>
+
+        <div class="hidden md:block glass rounded-[32px] border border-white/10 overflow-hidden">
+          <table class="w-full table-fixed">
+            <thead class="bg-white/5">
+              <tr class="text-left">
+                <th class="px-6 py-5 text-[9px] font-black uppercase tracking-[0.4em] text-white/40 w-[260px]">Name</th>
+                <th class="px-6 py-5 text-[9px] font-black uppercase tracking-[0.4em] text-white/40 w-[180px]">Track</th>
+                <th class="px-6 py-5 text-[9px] font-black uppercase tracking-[0.4em] text-white/40 w-[150px]">SFID</th>
+                <th class="px-6 py-5 text-[9px] font-black uppercase tracking-[0.4em] text-white/40">Email</th>
+                <th class="px-6 py-5 text-[9px] font-black uppercase tracking-[0.4em] text-white/40 w-[190px]">WhatsApp</th>
+                <th class="px-6 py-5 text-[9px] font-black uppercase tracking-[0.4em] text-white/40 w-[160px]">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="rows" class="divide-y divide-white/5"></tbody>
+          </table>
         </div>
       </section>
     </main>
@@ -205,10 +205,11 @@
 
     function renderRows() {
       const tbody = document.getElementById('rows');
-      if (!tbody) return;
+      const cards = document.getElementById('cards');
+      if (!tbody || !cards) return;
       const whatsappAllowed = canWhatsApp(staffProfile);
 
-      tbody.innerHTML = filtered.map((t) => {
+      const tableHtml = filtered.map((t) => {
         const name = escapeHtml(t.name || t.fullName || t.full_name || 'Unknown');
         const track = escapeHtml(t.track || '');
         const sfid = escapeHtml(t.sfid || t.SFID || '');
@@ -247,8 +248,61 @@
           </tr>
         `;
       }).join('');
+      tbody.innerHTML = tableHtml;
 
-      tbody.querySelectorAll('button[data-action="whatsapp"]').forEach((btn) => {
+      cards.innerHTML = filtered.map((t) => {
+        const name = escapeHtml(t.name || t.fullName || t.full_name || 'Unknown');
+        const track = escapeHtml(t.track || '');
+        const sfid = escapeHtml(t.sfid || t.SFID || '');
+        const email = escapeHtml(t.email || '');
+        const phoneRaw = getPhone(t);
+        const phone = escapeHtml(phoneRaw);
+        const normalizedPhone = normalizePhone(phoneRaw);
+        const hasPhone = Boolean(normalizedPhone);
+
+        const action = whatsappAllowed && hasPhone
+          ? `<button type="button" data-action="whatsapp" data-id="${escapeHtml(t.__id)}" class="inline-flex items-center justify-center gap-2 px-4 py-4 rounded-2xl bg-[#25D366]/10 border border-[#25D366]/20 text-[#25D366] hover:bg-[#25D366]/20 transition-all text-[10px] font-black uppercase tracking-[0.3em] w-full">
+              <i class="fa-brands fa-whatsapp"></i> WhatsApp DM
+            </button>`
+          : `<div class="px-4 py-4 rounded-2xl bg-white/5 border border-white/10 text-white/30 text-[10px] font-black uppercase tracking-[0.3em] text-center w-full">${whatsappAllowed ? 'No Phone' : 'Locked'}</div>`;
+
+        const emailLink = email
+          ? `<a href="mailto:${email}" class="text-white/70 hover:text-gold transition-all font-black text-[10px] uppercase tracking-widest break-all">${email}</a>`
+          : `<span class="text-white/20 text-[10px] font-black uppercase tracking-widest">NONE</span>`;
+
+        const phoneLink = phone && normalizedPhone
+          ? `<a href="tel:${escapeHtml(normalizedPhone)}" class="text-white/70 hover:text-[#25D366] transition-all font-black text-[10px] uppercase tracking-widest break-all">${phone}</a>`
+          : `<span class="text-white/20 text-[10px] font-black uppercase tracking-widest">NONE</span>`;
+
+        return `
+          <div class="glass-strong rounded-[28px] border border-white/10 p-6">
+            <div class="flex items-start justify-between gap-4">
+              <div class="min-w-0">
+                <p class="text-white font-black uppercase tracking-tight truncate">${name}</p>
+                <div class="flex flex-wrap items-center gap-2 mt-2">
+                  <span class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest text-white/70">${track || 'Unassigned'}</span>
+                  <span class="px-3 py-1 rounded-full bg-gold/10 border border-gold/20 text-[9px] font-black uppercase tracking-widest text-gold">${sfid || '—'}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-5 grid grid-cols-1 gap-3">
+              <div class="rounded-2xl bg-white/5 border border-white/10 px-4 py-3">
+                <p class="text-[9px] font-black uppercase tracking-[0.35em] text-white/30">Email</p>
+                <div class="mt-2">${emailLink}</div>
+              </div>
+              <div class="rounded-2xl bg-white/5 border border-white/10 px-4 py-3">
+                <p class="text-[9px] font-black uppercase tracking-[0.35em] text-white/30">WhatsApp</p>
+                <div class="mt-2">${phoneLink}</div>
+              </div>
+            </div>
+
+            <div class="mt-5">${action}</div>
+          </div>
+        `;
+      }).join('');
+
+      document.querySelectorAll('#rows button[data-action="whatsapp"], #cards button[data-action="whatsapp"]').forEach((btn) => {
         btn.addEventListener('click', () => {
           const id = btn.getAttribute('data-id') || '';
           const trainee = trainees.find((x) => x.__id === id);
