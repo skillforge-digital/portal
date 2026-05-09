@@ -98,6 +98,7 @@ function showModal(pin) {
   modal.style.position = 'fixed';
   modal.style.inset = '0';
   modal.style.zIndex = '2147482000';
+  modal.style.pointerEvents = 'auto';
   modal.style.display = 'flex';
   modal.style.alignItems = 'center';
   modal.style.justifyContent = 'center';
@@ -105,7 +106,7 @@ function showModal(pin) {
   modal.style.background = 'rgba(4, 12, 25, 0.9)';
   modal.style.backdropFilter = 'blur(18px)';
   modal.innerHTML = `
-    <div class="glass-strong p-10 rounded-[48px] border border-white/10 max-w-sm w-full text-center space-y-8">
+    <div class="glass-strong p-10 rounded-[48px] border border-white/10 max-w-sm w-full text-center space-y-8" style="pointer-events: auto; position: relative; z-index: 2147482001;">
       <div>
         <p class="text-[8px] font-black text-gold uppercase tracking-[0.4em]">Main Site Gate</p>
         <h2 class="text-2xl font-black uppercase tracking-tighter">Access Code</h2>
@@ -117,16 +118,20 @@ function showModal(pin) {
       </div>
 
       <div class="flex flex-col gap-3">
-        <button id="staff-access-copy" class="w-full py-4 rounded-2xl bg-gold text-navy-950 text-[10px] font-black uppercase tracking-widest hover:bg-white transition-all">
+        <button id="staff-access-copy" class="w-full py-4 rounded-2xl bg-gold text-navy-950 text-[10px] font-black uppercase tracking-widest hover:bg-white transition-all" style="pointer-events: auto;">
           Copy Code
         </button>
-        <button onclick="document.getElementById('staff-access-code-modal')?.remove()" class="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all">
+        <button id="staff-access-dismiss" class="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all" style="pointer-events: auto;">
           Dismiss
         </button>
       </div>
     </div>
   `;
   document.body.appendChild(modal);
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
+  modal.querySelector('#staff-access-dismiss')?.addEventListener('click', () => closeModal());
   modal.querySelector('#staff-access-copy')?.addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText(pin);
