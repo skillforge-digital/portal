@@ -88,6 +88,11 @@ export async function getOrCreateStaffAccessCode() {
 
 function closeModal() {
   document.getElementById('staff-access-code-modal')?.remove();
+  const handler = window.__sf_staff_access_code_esc_handler;
+  if (typeof handler === 'function') {
+    window.removeEventListener('keydown', handler, true);
+  }
+  window.__sf_staff_access_code_esc_handler = null;
 }
 
 function showModal(pin) {
@@ -99,6 +104,7 @@ function showModal(pin) {
   modal.style.inset = '0';
   modal.style.zIndex = '2147482000';
   modal.style.pointerEvents = 'auto';
+  modal.style.touchAction = 'manipulation';
   modal.style.display = 'flex';
   modal.style.alignItems = 'center';
   modal.style.justifyContent = 'center';
@@ -127,11 +133,15 @@ function showModal(pin) {
       </div>
     </div>
   `;
-  document.body.appendChild(modal);
+  (document.documentElement || document.body).appendChild(modal);
   modal.addEventListener('click', (e) => {
     if (e.target === modal) closeModal();
   });
   modal.querySelector('#staff-access-dismiss')?.addEventListener('click', () => closeModal());
+  window.__sf_staff_access_code_esc_handler = (e) => {
+    if (e?.key === 'Escape') closeModal();
+  };
+  window.addEventListener('keydown', window.__sf_staff_access_code_esc_handler, true);
   modal.querySelector('#staff-access-copy')?.addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText(pin);
@@ -188,7 +198,7 @@ export function installStaffAccessCodeButton(options = {}) {
   btn.style.touchAction = 'manipulation';
   btn.innerHTML = `<i data-lucide="key" class="w-4 h-4"></i> Get Access Code`;
   btn.addEventListener('click', () => void handleClick(btn));
-  document.body.appendChild(btn);
+  (document.documentElement || document.body).appendChild(btn);
   if (window.lucide) window.lucide.createIcons();
 }
 
