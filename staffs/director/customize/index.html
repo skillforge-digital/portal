@@ -358,7 +358,7 @@ function renderWallpaperUI() {
     sw.setAttribute('tabindex', '0');
     sw.setAttribute('aria-label', `Apply wallpaper ${idx + 1} — ${w.categoryName}`);
     sw.dataset.url = w.url;
-    sw.style.backgroundImage = `url(${w.url})`;
+    sw.style.backgroundImage = `url(${w.thumb || w.url})`;
     const select = () => { pendingFile = null; currentDesign.wallpaper = w.url; currentDesign.type = 'wallpaper'; updatePreview(); };
     sw.onclick = select;
     sw.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(); } };

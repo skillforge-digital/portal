@@ -301,11 +301,13 @@ import { doc, onSnapshot, updateDoc, getDoc } from 'https://www.gstatic.com/fire
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
 import { logStaffActivity } from '../../../assets/staff-activity.js';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+import { DESIGN_STUDIO_FONTS, DESIGN_STUDIO_WALLPAPER_CATEGORIES, getDesignStudioWallpapers, preloadDesignStudioFonts } from '../../../assets/design-studio-presets.js';
  
 let specialistUid = null;
 let profileRef = null;
 let currentDesign = { type: 'solid-pair', primary: '#040810', secondary: '#ea580c', fontFamily: 'Space Grotesk' };
 let pendingFile = null;
+let activeWallpaperCategory = 'dark';
  
 const supabaseUrl = 'https://luxubaqztmbcpskyfgdp.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1eHViYXF6dG1iY3Bza3lmZ2RwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDYzNTcsImV4cCI6MjA5MTQyMjM1N30.Kmon8jh22u5KgWWpXf-7cdZ4qxlKXuUbVm6Mh-GHd8Q';
@@ -342,37 +344,46 @@ const gradients = [
   { c1: '#0e7490', c2: '#0369a1' }, { c1: '#1d4ed8', c2: '#1e40af' }, { c1: '#4338ca', c2: '#3730a3' }
 ];
  
-const fonts = [
-  { name: 'Space Grotesk', family: "'Space Grotesk', sans-serif", desc: 'Modern tech-forward' },
-  { name: 'Instrument Serif', family: "'Instrument Serif', serif", desc: 'Elegant & classic' },
-  { name: 'Unbounded', family: "'Unbounded', sans-serif", desc: 'Bold geometric' },
-  { name: 'Plus Jakarta Sans', family: "'Plus Jakarta Sans', sans-serif", desc: 'Versatile clean' },
-  { name: 'Syne', family: "'Syne', sans-serif", desc: 'Avant-garde edge' },
-  { name: 'Outfit', family: "'Outfit', sans-serif", desc: 'Minimalist modern' },
-  { name: 'Lexend', family: "'Lexend', sans-serif", desc: 'Reading optimized' },
-  { name: 'JetBrains Mono', family: "'JetBrains Mono', monospace", desc: 'Developer vibes' },
-  { name: 'Playfair Display', family: "'Playfair Display', serif", desc: 'Editorial elegance' },
-  { name: 'Montserrat', family: "'Montserrat', sans-serif", desc: 'Urban geometric' },
-  { name: 'Cinzel', family: "'Cinzel', serif", desc: 'Regal authority' }
-];
- 
-const wallpapers = [
-  "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=2574&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1635776062127-d379bfcba9f8?q=80&w=2532&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=2670&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2670&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2658&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=2670&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1506318137071-a8e063b4b477?q=80&w=2670&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?q=80&w=2671&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1477346611705-65d1883cee1e?q=80&w=2670&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=2670&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1439405326854-014607f694d7?q=80&w=2670&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=2670&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=2670&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=2674&auto=format&fit=crop"
-];
+const fonts = (Array.isArray(DESIGN_STUDIO_FONTS) ? DESIGN_STUDIO_FONTS : []).map((f) => ({ name: f.name, family: f.family, desc: f.vibe || '' }));
+
+function renderWallpaperUI() {
+  const wGrid = document.getElementById('wallpaper-grid');
+  if (!wGrid) return;
+  const host = wGrid.parentElement;
+  if (!host) return;
+  let bar = document.getElementById('wallpaper-category-bar');
+  if (!bar) {
+    bar = document.createElement('div');
+    bar.id = 'wallpaper-category-bar';
+    bar.className = 'flex flex-wrap gap-2 items-center mb-5';
+    host.insertBefore(bar, wGrid);
+  }
+  bar.innerHTML = '';
+  const cats = [{ id: 'all', name: 'All' }, ...(Array.isArray(DESIGN_STUDIO_WALLPAPER_CATEGORIES) ? DESIGN_STUDIO_WALLPAPER_CATEGORIES.map((c) => ({ id: c.id, name: c.name })) : [])];
+  cats.forEach((c) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = `px-4 py-2 rounded-full border text-[10px] font-black uppercase tracking-[0.35em] transition-all ${activeWallpaperCategory === c.id ? 'bg-orange-500 text-navy-950 border-orange-300 shadow-lg' : 'bg-white/5 text-white/60 border-white/10 hover:bg-white/10 hover:text-white'}`;
+    b.textContent = c.name;
+    b.onclick = () => { activeWallpaperCategory = c.id; renderWallpaperUI(); };
+    bar.appendChild(b);
+  });
+  wGrid.innerHTML = '';
+  const list = getDesignStudioWallpapers(activeWallpaperCategory);
+  list.forEach((w, idx) => {
+    const sw = document.createElement('div');
+    sw.className = 'wallpaper-swatch';
+    sw.setAttribute('role', 'button');
+    sw.setAttribute('tabindex', '0');
+    sw.setAttribute('aria-label', `Apply wallpaper ${idx + 1} — ${w.categoryName}`);
+    sw.dataset.url = w.url;
+    sw.style.backgroundImage = `url(${w.thumb || w.url})`;
+    const select = () => { pendingFile = null; currentDesign.wallpaper = w.url; currentDesign.type = 'wallpaper'; updatePreview(); };
+    sw.onclick = select;
+    sw.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(); } };
+    wGrid.appendChild(sw);
+  });
+}
  
 function showNetworkFault() {
   const loader = document.getElementById('loading-screen');
@@ -386,8 +397,6 @@ onAuthStateChanged(auth, async (user) => {
   try {
     if (user) {
       specialistUid = user.uid;
-      const specialistDoc = await getDoc(doc(db, 'specialists', specialistUid)).catch(() => null);
-      if (!specialistDoc) {
       const staffRef = doc(db, 'staffs', specialistUid);
       const specialistRef = doc(db, 'specialists', specialistUid);
       const [staffDoc, specialistDoc] = await Promise.all([
@@ -398,15 +407,11 @@ onAuthStateChanged(auth, async (user) => {
         showNetworkFault();
         return;
       }
-      if (specialistDoc.exists()) {
-        const data = specialistDoc.data();
- 
       const snap = staffDoc.exists() ? staffDoc : specialistDoc;
       profileRef = staffDoc.exists() ? staffRef : specialistRef;
       if (snap.exists()) {
         const data = snap.data();
         document.getElementById('user-name').innerText = data.name || 'Specialist';
-        document.getElementById('user-role').innerText = data.track || 'Specialist Access';
         document.getElementById('user-role').innerText = data.primaryRole || (Array.isArray(data.roles) ? data.roles.join(' | ') : 'Specialist');
         document.getElementById('user-initials').innerText = (data.name || 'S').charAt(0).toUpperCase();
         if (data.theme) {
@@ -480,29 +485,11 @@ function init() {
     });
   }
  
-  const wGrid = document.getElementById('wallpaper-grid');
-  if (wGrid) {
-    wallpapers.forEach((w, i) => {
-      const sw = document.createElement('div');
-      sw.className = 'wallpaper-swatch';
-      sw.setAttribute('role', 'button');
-      sw.setAttribute('tabindex', '0');
-      sw.setAttribute('aria-label', `Apply wallpaper atmosphere ${i + 1}`);
-      sw.dataset.url = w;
-      sw.style.backgroundImage = `url(${w})`;
-      const select = () => { 
-        currentDesign.wallpaper = w; 
-        currentDesign.type = 'wallpaper'; 
-        updatePreview(); 
-      };
-      sw.onclick = select;
-      sw.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(); } };
-      wGrid.appendChild(sw);
-    });
-  }
+  renderWallpaperUI();
  
   const fGrid = document.getElementById('font-grid');
   if (fGrid) {
+    preloadDesignStudioFonts();
     fonts.forEach(f => {
       const card = document.createElement('div');
       card.className = 'font-card';
@@ -660,10 +647,8 @@ window.saveDesign = async () => {
       fontName: currentDesign.fontName || 'Space Grotesk'
     };
  
-    await updateDoc(doc(db, 'specialists', specialistUid), { 
-      theme: finalTheme
-    });
     await updateDoc(profileRef || doc(db, 'specialists', specialistUid), { theme: finalTheme });
+    await updateDoc(doc(db, 'staffs', specialistUid), { theme: finalTheme });
     
     await logStaffActivity({ action: 'THEME_COMMIT', details: 'Theme commit', scope: 'global' });
     window.dispatchEvent(new CustomEvent('sf:theme_updated', { detail: finalTheme }));

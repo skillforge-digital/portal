@@ -372,8 +372,14 @@ function renderWallpaperUI() {
   list.forEach((w) => {
     const sw = document.createElement('div');
     sw.className = 'wallpaper-swatch';
-    sw.style.backgroundImage = `url(${w.url})`;
-    sw.onclick = () => { pendingFile = null; currentDesign.wallpaper = w.url; currentDesign.type = 'wallpaper'; updatePreview(); };
+    sw.setAttribute('role', 'button');
+    sw.setAttribute('tabindex', '0');
+    sw.setAttribute('aria-label', `Apply wallpaper — ${w.categoryName}`);
+    sw.dataset.url = w.url;
+    sw.style.backgroundImage = `url(${w.thumb || w.url})`;
+    const select = () => { pendingFile = null; currentDesign.wallpaper = w.url; currentDesign.type = 'wallpaper'; updatePreview(); };
+    sw.onclick = select;
+    sw.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(); } };
     wGrid.appendChild(sw);
   });
 }
@@ -390,17 +396,11 @@ onAuthStateChanged(auth, async (user) => {
   try {
     if (user) {
       specialistUid = user.uid;
-      const specialistDoc = await getDoc(doc(db, 'specialists', specialistUid)).catch(() => null);
-      if (!specialistDoc) {
       const staffDoc = await getDoc(doc(db, 'staffs', specialistUid)).catch(() => null);
       if (!staffDoc) {
         showNetworkFault();
         return;
       }
-      if (specialistDoc.exists()) {
-        const data = specialistDoc.data();
-        document.getElementById('user-name').innerText = data.name || 'Specialist';
-        document.getElementById('user-role').innerText = data.track || 'Specialist Access';
       if (staffDoc.exists()) {
         const data = staffDoc.data();
         document.getElementById('user-name').innerText = data.name || 'Marketing';
@@ -643,9 +643,6 @@ window.saveDesign = async () => {
       fontName: currentDesign.fontName || 'Space Grotesk'
     };
  
-    await updateDoc(doc(db, 'specialists', specialistUid), { 
-      theme: finalTheme
-    });
     await updateDoc(doc(db, 'staffs', specialistUid), { theme: finalTheme });
     
     await logStaffActivity({ action: 'THEME_COMMIT', details: 'Theme commit', scope: 'global' });

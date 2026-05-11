@@ -583,7 +583,8 @@ function renderWallpaperUI() {
       sw.setAttribute('role', 'button');
       sw.setAttribute('tabindex', '0');
       sw.setAttribute('aria-label', `Wallpaper ${idx + 1} — ${w.categoryName}`);
-      sw.style.backgroundImage = `url(${w.url})`;
+      sw.dataset.url = w.url;
+      sw.style.backgroundImage = `url(${w.thumb || w.url})`;
       const select = () => {
         pendingFile = null;
         currentDesign.wallpaper = w.url;
@@ -591,7 +592,7 @@ function renderWallpaperUI() {
         updatePreview();
       };
       sw.onclick = select;
-      sw.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') select(); };
+      sw.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(); } };
       wGrid.appendChild(sw);
     });
   };
@@ -753,7 +754,11 @@ function updatePreview() {
   if (!box || !text || !bar) return;
   
   // Clear all active states
-  document.querySelectorAll('.swatch, .wallpaper-swatch, .font-card').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.swatch, .wallpaper-swatch, .font-card').forEach(el => {
+    el.classList.remove('active');
+    el.setAttribute('aria-selected', 'false');
+  });
+  const esc = (v) => (window.CSS && CSS.escape ? CSS.escape(String(v)) : String(v));
 
   try {
     if (currentDesign.type === 'solid-pair' || currentDesign.type === 'dual') {
@@ -773,6 +778,7 @@ function updatePreview() {
               // Convert hex to rgb for comparison if needed, but usually style.backgroundColor returns rgb
               if (compareColors(pColor, p) && compareColors(sColor, s)) {
                   sw.classList.add('active');
+                  sw.setAttribute('aria-selected', 'true');
               }
           }
       });
@@ -787,6 +793,7 @@ function updatePreview() {
       document.querySelectorAll('#gradient-grid .swatch').forEach(sw => {
           if (compareColors(sw.style.background, grad) || sw.style.background.includes(currentDesign.c1)) {
               sw.classList.add('active');
+              sw.setAttribute('aria-selected', 'true');
           }
       });
     } else if (currentDesign.type === 'wallpaper') {
@@ -797,11 +804,8 @@ function updatePreview() {
       bar.style.backgroundColor = '#f59e0b';
 
       // Mark active wallpaper
-      document.querySelectorAll('.wallpaper-swatch').forEach(sw => {
-          if (sw.style.backgroundImage.includes(wpUrl)) {
-              sw.classList.add('active');
-          }
-      });
+      const active = currentDesign.wallpaper ? document.querySelector(`.wallpaper-swatch[data-url="${esc(currentDesign.wallpaper)}"]`) : null;
+      if (active) { active.classList.add('active'); active.setAttribute('aria-selected', 'true'); }
     }
     
     if (currentDesign.fontFamily) {
@@ -811,6 +815,7 @@ function updatePreview() {
       document.querySelectorAll('.font-card').forEach(card => {
           if (card.style.fontFamily.includes(currentDesign.fontFamily)) {
               card.classList.add('active');
+              card.setAttribute('aria-selected', 'true');
           }
       });
     }

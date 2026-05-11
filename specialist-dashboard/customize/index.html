@@ -348,11 +348,17 @@ function renderWallpaperUI() {
   });
   wGrid.innerHTML = '';
   const list = getDesignStudioWallpapers(activeWallpaperCategory);
-  list.forEach((w) => {
+  list.forEach((w, idx) => {
     const sw = document.createElement('div');
     sw.className = 'wallpaper-swatch';
-    sw.style.backgroundImage = `url(${w.url})`;
-    sw.onclick = () => { pendingFile = null; currentDesign.wallpaper = w.url; currentDesign.type = 'wallpaper'; updatePreview(); };
+    sw.setAttribute('role', 'button');
+    sw.setAttribute('tabindex', '0');
+    sw.setAttribute('aria-label', `Apply wallpaper ${idx + 1} — ${w.categoryName}`);
+    sw.dataset.url = w.url;
+    sw.style.backgroundImage = `url(${w.thumb || w.url})`;
+    const select = () => { pendingFile = null; currentDesign.wallpaper = w.url; currentDesign.type = 'wallpaper'; updatePreview(); };
+    sw.onclick = select;
+    sw.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(); } };
     wGrid.appendChild(sw);
   });
 }
@@ -493,7 +499,11 @@ function updatePreview() {
   
   if (!box || !text || !bar) return;
   
-  document.querySelectorAll('.swatch, .wallpaper-swatch, .font-card').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.swatch, .wallpaper-swatch, .font-card').forEach(el => {
+    el.classList.remove('active');
+    el.setAttribute('aria-selected', 'false');
+  });
+  const esc = (v) => (window.CSS && CSS.escape ? CSS.escape(String(v)) : String(v));
 
   try {
     if (currentDesign.type === 'solid-pair' || currentDesign.type === 'dual') {
@@ -519,6 +529,8 @@ function updatePreview() {
       bar.style.backgroundColor = '#f59e0b';
       document.documentElement.style.setProperty('--accent-color', '#f59e0b');
       document.documentElement.style.setProperty('--accent-color-rgb', '245, 158, 11');
+      const active = currentDesign.wallpaper ? document.querySelector(`.wallpaper-swatch[data-url="${esc(currentDesign.wallpaper)}"]`) : null;
+      if (active) { active.classList.add('active'); active.setAttribute('aria-selected', 'true'); }
     }
     
     if (currentDesign.fontFamily) {
