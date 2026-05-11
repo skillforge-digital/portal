@@ -1,3 +1,5 @@
+import { DESIGN_STUDIO_WALLPAPER_STATIC_MAP } from './design-studio-wallpapers-static.js';
+
 export const DESIGN_STUDIO_FONTS = [
   { name: 'Space Grotesk', family: "'Space Grotesk', sans-serif", tier: 'core', vibe: 'Modern tech-forward' },
   { name: 'Sora', family: "'Sora', sans-serif", tier: 'premium', vibe: 'Sleek futuristic' },
@@ -18,8 +20,6 @@ export const DESIGN_STUDIO_FONTS = [
   { name: 'Playfair Display', family: "'Playfair Display', serif", tier: 'core', vibe: 'Classic prestige' },
   { name: 'Unbounded', family: "'Unbounded', sans-serif", tier: 'core', vibe: 'Geometric power' }
 ];
-
-import { DESIGN_STUDIO_WALLPAPER_STATIC_MAP } from './design-studio-wallpapers-static.js';
 
 const enc = (s) => encodeURIComponent(String(s || '')).replace(/%20/g, '+');
 const img = (prompt, image_size = 'landscape_16_9') => `https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=${enc(prompt)}&image_size=${encodeURIComponent(String(image_size || 'landscape_16_9'))}`;
