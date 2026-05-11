@@ -45,7 +45,9 @@ export async function resolveStaffIdentity(uid) {
         try {
             snap = await getDoc(entry.ref);
         } catch (err) {
-            const offline = !navigator.onLine || (err && typeof err.message === 'string' && err.message.toLowerCase().includes('offline'));
+            const msg = (err && typeof err.message === 'string' ? err.message : '').toLowerCase();
+            const code = (err && typeof err.code === 'string' ? err.code : '').toLowerCase();
+            const offline = !navigator.onLine || msg.includes('client is offline') || msg.includes('offline') || code.includes('unavailable');
             return { found: false, source: 'none', profile: null, offline, error: err };
         }
         if (!snap.exists()) continue;

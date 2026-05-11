@@ -250,7 +250,7 @@
             }
             const staffResolved = await resolveStaffIdentity(user.uid);
             if (staffResolved.offline) {
-                showSessionBanner('Network is unstable. Please check your internet connection and retry.');
+                showSessionBanner('Registry is unreachable. Firestore connection appears blocked by network/firewall/VPN. Please retry on another network or disable VPN/ad-blocker.');
                 return;
             }
             if (staffResolved.found) {
@@ -261,7 +261,7 @@
         } catch (err) {
             void(err);
             if (isOfflineFirestoreError(err)) {
-                showSessionBanner('Network is unstable. Please check your internet connection and retry.');
+                showSessionBanner('Registry is unreachable. Firestore connection appears blocked by network/firewall/VPN. Please retry on another network or disable VPN/ad-blocker.');
             }
         }
     });
@@ -288,7 +288,7 @@
 
         const staffResolved = await resolveStaffIdentity(user.uid);
         if (staffResolved.offline) {
-            showSessionBanner('Network is unstable. Please check your internet connection and retry.');
+            showSessionBanner('Registry is unreachable. Firestore connection appears blocked by network/firewall/VPN. Please retry on another network or disable VPN/ad-blocker.');
             return;
         }
         if (staffResolved.found && staffResolved.profile) {
@@ -385,6 +385,8 @@
                 userMsg = "Registry Locked: Too many failed attempts. Please try again later.";
             } else if (err.code === 'auth/network-request-failed') {
                 userMsg = "Registry Sync Failed: Check your internet connection.";
+            } else if (isOfflineFirestoreError(err)) {
+                userMsg = "Registry Sync Blocked: Firestore is unreachable (network/firewall/VPN). Please retry on another network or disable VPN/ad-blocker.";
             } else if (err.message) {
                 userMsg = "System Error: " + err.message;
             }
