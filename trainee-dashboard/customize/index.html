@@ -151,12 +151,11 @@
     border-radius: 20px; 
     cursor: pointer; 
     border: 3px solid rgba(255,255,255,0.05); 
-    background-size: cover; 
-    background-position: center; 
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
     position: relative;
     overflow: hidden;
     outline: none;
+    background: rgba(255,255,255,0.03);
   }
   .wallpaper-swatch:hover, .wallpaper-swatch:focus-visible { transform: translateY(-8px) scale(1.02); border-color: rgba(255,255,255,0.2); }
   .wallpaper-swatch:focus-visible { box-shadow: 0 0 0 3px var(--accent-color); }
@@ -181,6 +180,59 @@
     align-items: center;
     justify-content: center;
     font-size: 12px;
+  }
+
+  .sf-wp-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(1.02);
+    filter: saturate(1.08) contrast(1.05);
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), filter 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .wallpaper-swatch:hover .sf-wp-img { transform: scale(1.08); filter: saturate(1.12) contrast(1.08); }
+
+  .sf-wp-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 14px;
+    background: linear-gradient(180deg, rgba(4,8,16,0.30) 0%, rgba(4,8,16,0.05) 42%, rgba(4,8,16,0.72) 100%);
+    pointer-events: none;
+  }
+
+  .sf-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 9999px;
+    font-size: 8px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.28em;
+    border: 1px solid rgba(255,255,255,0.10);
+    background: rgba(255,255,255,0.06);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+  }
+
+  .sf-pill-premium { color: #fbbf24; border-color: rgba(245,158,11,0.35); background: rgba(245,158,11,0.10); }
+  .sf-pill-core { color: rgba(255,255,255,0.70); border-color: rgba(255,255,255,0.12); background: rgba(255,255,255,0.05); }
+  .sf-pill-price { color: rgba(255,255,255,0.80); border-color: rgba(255,255,255,0.14); background: rgba(4,8,16,0.35); }
+
+  .sf-wp-cat {
+    font-size: 9px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.34em;
+    color: rgba(241,245,249,0.78);
+    text-shadow: 0 10px 30px rgba(0,0,0,0.65);
   }
 
   .font-card { 
@@ -503,6 +555,65 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 let currentDesign = { type: 'solid-pair', primary: '#040810', secondary: '#f59e0b', fontFamily: "'Space Grotesk', sans-serif", fontName: 'Space Grotesk' };
 let pendingFile = null;
 let activeWallpaperCategory = 'dark';
+let previewWallpaperTimer = null;
+
+const PREMIUM_WALLPAPER_PRICE = '₦2,500';
+const PREMIUM_FONT_PRICE = '₦1,200';
+const isGeneratedAssetUrl = (url) => /coresg-normal\.trae\.ai\/api\/ide\/v1\/text_to_image/i.test(String(url || ''));
+const withRefresh = (url) => {
+  try {
+    const u = new URL(String(url || ''), window.location.origin);
+    u.searchParams.set('sf_refresh', String(Date.now()));
+    return u.toString();
+  } catch {
+    return String(url || '');
+  }
+};
+
+function hydrateGeneratedImage(imgEl, baseUrl) {
+  const url = String(baseUrl || '').trim();
+  if (!imgEl || !url) return;
+  const maxAttempts = isGeneratedAssetUrl(url) ? 8 : 1;
+  const loadOnce = (attempt) => {
+    imgEl.src = attempt === 0 ? url : withRefresh(url);
+  };
+  loadOnce(0);
+  let attempt = 0;
+  const tick = () => {
+    attempt += 1;
+    if (attempt >= maxAttempts) return;
+    loadOnce(attempt);
+    const delay = Math.min(8000, 1100 * attempt);
+    window.setTimeout(tick, delay);
+  };
+  if (maxAttempts > 1) window.setTimeout(tick, 1400);
+  imgEl.onerror = () => {
+    if (attempt < maxAttempts - 1) {
+      attempt += 1;
+      imgEl.src = withRefresh(url);
+    }
+  };
+}
+
+function schedulePreviewWallpaperRefresh(url) {
+  if (previewWallpaperTimer) {
+    window.clearInterval(previewWallpaperTimer);
+    previewWallpaperTimer = null;
+  }
+  if (!isGeneratedAssetUrl(url)) return;
+  const box = document.getElementById('preview-box');
+  if (!box) return;
+  let attempts = 0;
+  previewWallpaperTimer = window.setInterval(() => {
+    attempts += 1;
+    if (attempts > 8) {
+      window.clearInterval(previewWallpaperTimer);
+      previewWallpaperTimer = null;
+      return;
+    }
+    box.style.backgroundImage = `url(${withRefresh(url)})`;
+  }, 1600);
+}
 
 const dualColors = [
   { p: '#040810', s: '#f59e0b' }, // Default Gold
@@ -584,7 +695,20 @@ function renderWallpaperUI() {
       sw.setAttribute('tabindex', '0');
       sw.setAttribute('aria-label', `Wallpaper ${idx + 1} — ${w.categoryName}`);
       sw.dataset.url = w.url;
-      sw.style.backgroundImage = `url(${w.thumb || w.url})`;
+      sw.innerHTML = `
+        <img class="sf-wp-img" alt="" loading="lazy" decoding="async">
+        <div class="sf-wp-overlay">
+          <div class="flex items-center justify-between gap-2">
+            <span class="sf-pill sf-pill-premium">Premium</span>
+            <span class="sf-pill sf-pill-price">${PREMIUM_WALLPAPER_PRICE}</span>
+          </div>
+          <div class="flex items-end justify-between gap-3">
+            <span class="sf-wp-cat">${w.categoryName}</span>
+          </div>
+        </div>
+      `;
+      const imgEl = sw.querySelector('img');
+      hydrateGeneratedImage(imgEl, w.thumb || w.url);
       const select = () => {
         pendingFile = null;
         currentDesign.wallpaper = w.url;
@@ -666,8 +790,18 @@ async function init() {
       card.setAttribute('tabindex', '0');
       card.setAttribute('aria-label', `Font: ${f.name}`);
       card.style.fontFamily = f.family;
+      const tier = String(f.tier || 'core').toLowerCase() === 'premium' ? 'premium' : 'core';
+      const badge = tier === 'premium'
+        ? `<span class="sf-pill sf-pill-premium">Premium</span><span class="sf-pill sf-pill-price">${PREMIUM_FONT_PRICE}</span>`
+        : `<span class="sf-pill sf-pill-core">Core</span>`;
       card.innerHTML = `
-        <p class="text-[10px] font-black uppercase tracking-[0.35em] text-white/40 mb-3">${f.name}</p>
+        <div class="flex items-start justify-between gap-3 mb-4">
+          <div class="min-w-0">
+            <p class="text-[10px] font-black uppercase tracking-[0.35em] text-white/50">${f.name}</p>
+            <p class="text-[9px] font-bold uppercase tracking-[0.26em] text-white/20 mt-2">${String(f.vibe || '').trim()}</p>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">${badge}</div>
+        </div>
         <p class="text-3xl font-black tracking-tight leading-none">Aa Bb Cc</p>
         <p class="text-[12px] font-semibold text-white/70 mt-2">SkillForge Design Studio</p>
       `;
@@ -798,10 +932,12 @@ function updatePreview() {
       });
     } else if (currentDesign.type === 'wallpaper') {
       const wpUrl = currentDesign.wallpaper || '';
-      box.style.background = `url(${wpUrl})`;
+      const previewUrl = isGeneratedAssetUrl(wpUrl) ? withRefresh(wpUrl) : wpUrl;
+      box.style.background = `url(${previewUrl})`;
       box.style.backgroundSize = 'cover';
       box.style.backgroundPosition = 'center';
       bar.style.backgroundColor = '#f59e0b';
+      schedulePreviewWallpaperRefresh(wpUrl);
 
       // Mark active wallpaper
       const active = currentDesign.wallpaper ? document.querySelector(`.wallpaper-swatch[data-url="${esc(currentDesign.wallpaper)}"]`) : null;

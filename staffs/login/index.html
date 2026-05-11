@@ -253,7 +253,7 @@
     function isOfflineFirestoreError(err) {
         const msg = (err && err.message ? String(err.message) : '').toLowerCase();
         const code = (err && err.code ? String(err.code) : '').toLowerCase();
-        return !navigator.onLine || msg.includes('client is offline') || msg.includes('offline') || code.includes('unavailable');
+        return !navigator.onLine || msg.includes('client is offline') || msg.includes('failed to get document') || msg.includes('offline') || code.includes('unavailable');
     }
 
     function showSessionBanner(message) {

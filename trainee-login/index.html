@@ -227,13 +227,14 @@
     function isOfflineFirestoreError(err) {
         const msg = (err && err.message ? String(err.message) : '').toLowerCase();
         const code = (err && err.code ? String(err.code) : '').toLowerCase();
-        return !navigator.onLine || msg.includes('client is offline') || msg.includes('offline') || code.includes('unavailable');
+        return !navigator.onLine || msg.includes('client is offline') || msg.includes('failed to get document') || msg.includes('offline') || code.includes('unavailable');
     }
 
     function showSessionBanner(message) {
         const banner = document.getElementById('session-banner');
         const bannerText = document.getElementById('session-banner-text');
         if (!banner || !bannerText) return;
+        clearLoginError();
         bannerText.innerText = message;
         banner.classList.remove('hidden');
         if (window.lucide) window.lucide.createIcons();
@@ -280,19 +281,26 @@
         const user = auth.currentUser;
         if (!user) return;
 
-        const traineeSnap = await getDoc(doc(db, 'trainees', user.uid)).catch(() => null);
-        if (traineeSnap && traineeSnap.exists()) {
-            window.location.href = '../trainee-dashboard/';
-            return;
-        }
+        try {
+            const traineeSnap = await getDoc(doc(db, 'trainees', user.uid)).catch(() => null);
+            if (traineeSnap && traineeSnap.exists()) {
+                window.location.href = '../trainee-dashboard/';
+                return;
+            }
 
-        const staffResolved = await resolveStaffIdentity(user.uid);
-        if (staffResolved.offline) {
-            showSessionBanner('Network is unstable. Please check your internet connection and retry.');
-            return;
-        }
-        if (staffResolved.found && staffResolved.profile) {
-            window.location.href = getStaffDashboardPath(staffResolved.profile);
+            const staffResolved = await resolveStaffIdentity(user.uid);
+            if (staffResolved.offline) {
+                showSessionBanner('Network is unstable. Please check your internet connection and retry.');
+                return;
+            }
+            if (staffResolved.found && staffResolved.profile) {
+                window.location.href = getStaffDashboardPath(staffResolved.profile);
+            }
+        } catch (err) {
+            void(err);
+            if (isOfflineFirestoreError(err)) {
+                showSessionBanner('Network is unstable. Please check your internet connection and retry.');
+            }
         }
     };
 
@@ -373,6 +381,16 @@
             throw new Error("Profile not found in Trainee Registry. Please register first.");
         } catch (err) {
             void("[Auth] Connection error:", err);
+            if (isOfflineFirestoreError(err) || (err && String(err.code || '').toLowerCase() === 'auth/network-request-failed')) {
+                netEl?.classList.remove('hidden');
+                if (auth.currentUser) {
+                    showSessionBanner('Registry is temporarily unreachable. Please check your internet connection, then tap Continue to resume.');
+                } else {
+                    showLoginError('Registry Sync Failed: Check your internet connection and retry.');
+                }
+                return;
+            }
+
             let userMsg = "Authentication failed. Verify credentials.";
             
             if (err.code === 'auth/user-not-found') {
@@ -493,8 +511,13 @@
             document.getElementById('diag-project').innerText = auth.app.options.projectId;
             
             if (user) {
-                const docSnap = await getDoc(doc(db, "trainees", user.uid));
-                document.getElementById('diag-doc').innerText = docSnap.exists() ? "Linked (Verified)" : "Missing from Registry";
+                try {
+                    const docSnap = await getDoc(doc(db, "trainees", user.uid));
+                    document.getElementById('diag-doc').innerText = docSnap.exists() ? "Linked (Verified)" : "Missing from Registry";
+                } catch (err) {
+                    void(err);
+                    document.getElementById('diag-doc').innerText = isOfflineFirestoreError(err) ? "Offline / Registry Unreachable" : "Error";
+                }
             } else {
                 document.getElementById('diag-doc').innerText = "Requires Login";
             }
