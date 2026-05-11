@@ -573,7 +573,7 @@ const withRefresh = (url) => {
 function hydrateGeneratedImage(imgEl, baseUrl) {
   const url = String(baseUrl || '').trim();
   if (!imgEl || !url) return;
-  const maxAttempts = isGeneratedAssetUrl(url) ? 8 : 1;
+  const maxAttempts = isGeneratedAssetUrl(url) ? 14 : 1;
   const loadOnce = (attempt) => {
     imgEl.src = attempt === 0 ? url : withRefresh(url);
   };
@@ -606,7 +606,7 @@ function schedulePreviewWallpaperRefresh(url) {
   let attempts = 0;
   previewWallpaperTimer = window.setInterval(() => {
     attempts += 1;
-    if (attempts > 8) {
+    if (attempts > 14) {
       window.clearInterval(previewWallpaperTimer);
       previewWallpaperTimer = null;
       return;

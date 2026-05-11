@@ -283,6 +283,7 @@ import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/f
 import { logStaffActivity } from '../../../assets/staff-activity.js';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 import { DESIGN_STUDIO_FONTS, DESIGN_STUDIO_WALLPAPER_CATEGORIES, getDesignStudioWallpapers, preloadDesignStudioFonts } from '../../../assets/design-studio-presets.js';
+import { scheduleBackgroundHydration } from '../../../assets/generated-image.js';
  
 let hodUid = null;
 let profileRef = null;
@@ -358,7 +359,7 @@ function renderWallpaperUI() {
     sw.setAttribute('tabindex', '0');
     sw.setAttribute('aria-label', `Apply wallpaper ${idx + 1} — ${w.categoryName}`);
     sw.dataset.url = w.url;
-    sw.style.backgroundImage = `url(${w.thumb || w.url})`;
+    scheduleBackgroundHydration(sw, w.thumb || w.url, { intervalMs: 1500, maxAttempts: 12 });
     sw.onclick = () => { pendingFile = null; currentDesign.wallpaper = w.url; currentDesign.type = 'wallpaper'; updatePreview(); };
     sw.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); sw.click(); } };
     wGrid.appendChild(sw);
@@ -517,7 +518,8 @@ function updatePreview() {
       const active = document.querySelector(`#gradient-grid .swatch[data-c1="${esc(currentDesign.c1)}"][data-c2="${esc(currentDesign.c2)}"]`);
       if (active) { active.classList.add('active'); active.setAttribute('aria-selected', 'true'); }
     } else if (currentDesign.type === 'wallpaper') {
-      box.style.background = `url(${currentDesign.wallpaper || ''})`;
+      box.style.background = '';
+      scheduleBackgroundHydration(box, currentDesign.wallpaper || '', { intervalMs: 1600, maxAttempts: 14 });
       box.style.backgroundSize = 'cover'; box.style.backgroundPosition = 'center';
       bar.style.backgroundColor = '#a855f7';
       document.documentElement.style.setProperty('--accent-color', '#a855f7');
