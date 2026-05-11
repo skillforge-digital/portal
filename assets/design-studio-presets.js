@@ -19,6 +19,8 @@ export const DESIGN_STUDIO_FONTS = [
   { name: 'Unbounded', family: "'Unbounded', sans-serif", tier: 'core', vibe: 'Geometric power' }
 ];
 
+import { DESIGN_STUDIO_WALLPAPER_STATIC_MAP } from './design-studio-wallpapers-static.js';
+
 const enc = (s) => encodeURIComponent(String(s || '')).replace(/%20/g, '+');
 const img = (prompt, image_size = 'landscape_16_9') => `https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=${enc(prompt)}&image_size=${encodeURIComponent(String(image_size || 'landscape_16_9'))}`;
 
@@ -145,8 +147,8 @@ export function getDesignStudioWallpapers(categoryId) {
       category: c.id,
       categoryName: c.name,
       id: w.id,
-      url: w.url,
-      thumb: w.thumb || w.url
+      url: (DESIGN_STUDIO_WALLPAPER_STATIC_MAP && DESIGN_STUDIO_WALLPAPER_STATIC_MAP[w.id] && DESIGN_STUDIO_WALLPAPER_STATIC_MAP[w.id].url) ? DESIGN_STUDIO_WALLPAPER_STATIC_MAP[w.id].url : w.url,
+      thumb: (DESIGN_STUDIO_WALLPAPER_STATIC_MAP && DESIGN_STUDIO_WALLPAPER_STATIC_MAP[w.id] && DESIGN_STUDIO_WALLPAPER_STATIC_MAP[w.id].thumb) ? DESIGN_STUDIO_WALLPAPER_STATIC_MAP[w.id].thumb : (w.thumb || w.url)
     }))
   );
   if (!target || target === 'all') return list;
