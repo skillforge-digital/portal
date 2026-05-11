@@ -2,6 +2,7 @@ import { db, auth } from './firebase-config.js';
 import { doc, updateDoc, onSnapshot, getDoc } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
 import { DESIGN_STUDIO_FONTS } from './design-studio-presets.js';
+import { scheduleBackgroundHydration } from './generated-image.js';
 
 class ThemeManager {
     constructor() {
@@ -277,7 +278,7 @@ class ThemeManager {
             document.body.style.backgroundImage = '';
             return;
         }
-        document.body.style.backgroundImage = `url('${url}')`;
+        scheduleBackgroundHydration(document.body, url, { intervalMs: 1600, maxAttempts: 14 });
         document.body.style.backgroundSize = 'cover';
         document.body.style.backgroundPosition = 'center';
         document.body.style.backgroundAttachment = 'fixed';

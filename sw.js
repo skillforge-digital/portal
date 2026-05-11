@@ -1,9 +1,9 @@
 /**
- * SkillForge Offline Registry (v1.1.0)
+ * SkillForge Offline Registry (v1.1.1)
  * Service Worker for Offline Access
  */
 
-const CACHE_NAME = 'sf-registry-matrix-v4';
+const CACHE_NAME = 'sf-registry-matrix-v5';
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
@@ -20,6 +20,7 @@ const ASSETS_TO_CACHE = [
     '/assets/webgl-guard.js',
     '/assets/tailwind.css',
     '/assets/theme-manager.js',
+    '/assets/generated-image.js',
     '/assets/error-reporter.js',
     '/assets/firebase-config.js'
 ];
@@ -54,8 +55,17 @@ self.addEventListener('install', (event) => {
                 )
             );
 
-            return Promise.all([cacheInternal, cacheExternal]);
+            return Promise.all([cacheInternal, cacheExternal]).then(() => self.skipWaiting());
         })
+    );
+});
+
+self.addEventListener('activate', (event) => {
+    event.waitUntil(
+        caches.keys().then((keys) => {
+            const keep = new Set([CACHE_NAME]);
+            return Promise.all(keys.map((k) => (keep.has(k) ? null : caches.delete(k))));
+        }).then(() => self.clients.claim())
     );
 });
 
