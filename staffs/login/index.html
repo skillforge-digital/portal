@@ -271,7 +271,7 @@
         try {
             const staffResolved = await resolveStaffIdentity(user.uid);
             if (staffResolved.offline) {
-                showSessionBanner('Network is unstable. Please check your internet connection and retry.');
+                showSessionBanner('Registry is unreachable. Firestore connection appears blocked by network/firewall/VPN. Please retry on another network or disable VPN/ad-blocker.');
                 return;
             }
             if (staffResolved.found) {
@@ -287,7 +287,7 @@
         } catch (err) {
             void(err);
             if (isOfflineFirestoreError(err)) {
-                showSessionBanner('Network is unstable. Please check your internet connection and retry.');
+                showSessionBanner('Registry is unreachable. Firestore connection appears blocked by network/firewall/VPN. Please retry on another network or disable VPN/ad-blocker.');
             }
         }
     });
@@ -308,7 +308,7 @@
 
         const staffResolved = await resolveStaffIdentity(user.uid);
         if (staffResolved.offline) {
-            showSessionBanner('Network is unstable. Please check your internet connection and retry.');
+            showSessionBanner('Registry is unreachable. Firestore connection appears blocked by network/firewall/VPN. Please retry on another network or disable VPN/ad-blocker.');
             return;
         }
         if (staffResolved.found && staffResolved.profile) {
@@ -378,7 +378,7 @@
         } catch (err) {
             void(err);
             if (isOfflineFirestoreError(err)) {
-                showSessionBanner('Network is unstable. Please check your internet connection and retry.');
+                showSessionBanner('Registry is unreachable. Firestore connection appears blocked by network/firewall/VPN. Please retry on another network or disable VPN/ad-blocker.');
             } else {
                 if (err && (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found')) {
                     alert('Authentication failed: Invalid email or password. Please re-check the email, or use "Reset Password".');

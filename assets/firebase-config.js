@@ -34,9 +34,8 @@ try {
 
 setLogLevel('silent');
 
-// Optimized Firestore initialization to bypass aggressive ad-blockers
 const db = initializeFirestore(app, {
-    experimentalForceLongPolling: true,
+    experimentalAutoDetectLongPolling: true,
     useFetchStreams: false
 });
 const auth = getAuth(app);
