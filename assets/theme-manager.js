@@ -101,7 +101,7 @@ class ThemeManager {
                 this.applyControls(this.controls);
             }
 
-            const remoteWallpaper = theme.wallpaper || data.wallpaper;
+            const remoteWallpaper = (data.settings && data.settings.wallpaper) ? data.settings.wallpaper : (theme.wallpaper || data.wallpaper);
             if (remoteWallpaper) {
                 void('ThemeManager: Applying remote wallpaper');
                 this.applyWallpaper(remoteWallpaper);
@@ -276,12 +276,16 @@ class ThemeManager {
     applyWallpaper(/** @type {any} */ url) {
         if (!url) {
             document.body.style.backgroundImage = '';
+            document.documentElement.style.removeProperty('--sf-wallpaper');
             return;
         }
         scheduleBackgroundHydration(document.body, url, { intervalMs: 1600, maxAttempts: 14 });
+        document.documentElement.style.setProperty('--sf-wallpaper', `url("${String(url).replace(/"/g, '\\"')}")`);
         document.body.style.backgroundSize = 'cover';
         document.body.style.backgroundPosition = 'center';
-        document.body.style.backgroundAttachment = 'fixed';
+        const ua = String(navigator.userAgent || '');
+        const isIOS = /iP(hone|od|ad)/i.test(ua);
+        document.body.style.backgroundAttachment = isIOS ? 'scroll' : 'fixed';
         if (!this.controls.light) document.body.classList.remove('light');
     }
 

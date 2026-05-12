@@ -157,6 +157,17 @@
     outline: none;
     background: rgba(255,255,255,0.03);
   }
+  #wallpaper-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+  }
+  @media (max-width: 639px) {
+    #wallpaper-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 379px) {
+    #wallpaper-grid { grid-template-columns: 1fr; }
+  }
   .wallpaper-swatch:hover, .wallpaper-swatch:focus-visible { transform: translateY(-8px) scale(1.02); border-color: rgba(255,255,255,0.2); }
   .wallpaper-swatch:focus-visible { box-shadow: 0 0 0 3px var(--accent-color); }
   .wallpaper-swatch.active { 
@@ -234,6 +245,54 @@
     color: rgba(241,245,249,0.78);
     text-shadow: 0 10px 30px rgba(0,0,0,0.65);
   }
+  .sf-wp-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    background: rgba(0,0,0,0.72);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+  }
+  .sf-wp-modal {
+    width: min(980px, 100%);
+    border-radius: 28px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.10);
+    background: rgba(4,8,16,0.85);
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
+    box-shadow: 0 30px 90px rgba(0,0,0,0.75);
+  }
+  .sf-wp-modal-preview {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: rgba(255,255,255,0.06);
+    background-size: cover;
+    background-position: center;
+  }
+  .sf-wp-modal-actions {
+    display: flex;
+    gap: 10px;
+    padding: 16px;
+  }
+  .sf-wp-btn {
+    flex: 1;
+    border-radius: 18px;
+    padding: 14px 16px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.32em;
+    font-size: 10px;
+    border: 1px solid rgba(255,255,255,0.10);
+    background: rgba(255,255,255,0.06);
+    color: rgba(241,245,249,0.88);
+    transition: transform 160ms ease, background 160ms ease, border-color 160ms ease;
+  }
+  .sf-wp-btn:hover { transform: translateY(-1px); border-color: rgba(255,255,255,0.16); background: rgba(255,255,255,0.10); }
+  .sf-wp-btn-apply { background: #f59e0b; border-color: #fbbf24; color: #040810; }
+  .sf-wp-btn-apply:hover { background: #fbbf24; border-color: #fde68a; }
 
   .font-card { 
     cursor: pointer; 
@@ -546,7 +605,8 @@ import { db, auth } from '../../assets/firebase-config.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js';
 import { doc, updateDoc, getDoc, setDoc, arrayUnion } from 'https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-import { DESIGN_STUDIO_FONTS, DESIGN_STUDIO_WALLPAPER_CATEGORIES, getDesignStudioWallpapers, preloadDesignStudioFonts } from '../../assets/design-studio-presets.js';
+import { DESIGN_STUDIO_FONTS, preloadDesignStudioFonts } from '../../assets/design-studio-presets.js';
+import { WALLPAPER_CATEGORIES, getWallpapers } from '../../assets/wallpaper-library.js';
 
 const supabaseUrl = 'https://luxubaqztmbcpskyfgdp.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1eHViYXF6dG1iY3Bza3lmZ2RwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDYzNTcsImV4cCI6MjA5MTQyMjM1N30.Kmon8jh22u5KgWWpXf-7cdZ4qxlKXuUbVm6Mh-GHd8Q';
@@ -555,64 +615,93 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 let currentDesign = { type: 'solid-pair', primary: '#040810', secondary: '#f59e0b', fontFamily: "'Space Grotesk', sans-serif", fontName: 'Space Grotesk' };
 let pendingFile = null;
 let activeWallpaperCategory = 'dark';
-let previewWallpaperTimer = null;
 
 const PREMIUM_WALLPAPER_PRICE = '₦2,500';
 const PREMIUM_FONT_PRICE = '₦1,200';
-const isGeneratedAssetUrl = (url) => /coresg-normal\.trae\.ai\/api\/ide\/v1\/text_to_image/i.test(String(url || ''));
-const withRefresh = (url) => {
-  try {
-    const u = new URL(String(url || ''), window.location.origin);
-    u.searchParams.set('sf_refresh', String(Date.now()));
-    return u.toString();
-  } catch {
-    return String(url || '');
-  }
-};
 
-function hydrateGeneratedImage(imgEl, baseUrl) {
-  const url = String(baseUrl || '').trim();
-  if (!imgEl || !url) return;
-  const maxAttempts = isGeneratedAssetUrl(url) ? 14 : 1;
-  const loadOnce = (attempt) => {
-    imgEl.src = attempt === 0 ? url : withRefresh(url);
-  };
-  loadOnce(0);
-  let attempt = 0;
-  const tick = () => {
-    attempt += 1;
-    if (attempt >= maxAttempts) return;
-    loadOnce(attempt);
-    const delay = Math.min(8000, 1100 * attempt);
-    window.setTimeout(tick, delay);
-  };
-  if (maxAttempts > 1) window.setTimeout(tick, 1400);
-  imgEl.onerror = () => {
-    if (attempt < maxAttempts - 1) {
-      attempt += 1;
-      imgEl.src = withRefresh(url);
+function openWallpaperPreviewModal(w) {
+  const url = String(w && w.url ? w.url : '').trim();
+  if (!url) return;
+
+  const prior = document.getElementById('sf-wallpaper-modal');
+  if (prior) prior.remove();
+
+  const backdrop = document.createElement('div');
+  backdrop.className = 'sf-wp-modal-backdrop';
+  backdrop.id = 'sf-wallpaper-modal';
+  backdrop.setAttribute('role', 'dialog');
+  backdrop.setAttribute('aria-modal', 'true');
+
+  const modal = document.createElement('div');
+  modal.className = 'sf-wp-modal';
+  modal.onclick = (e) => e.stopPropagation();
+
+  const preview = document.createElement('div');
+  preview.className = 'sf-wp-modal-preview';
+  preview.style.backgroundImage = `url("${url.replace(/"/g, '\\"')}")`;
+
+  const actions = document.createElement('div');
+  actions.className = 'sf-wp-modal-actions';
+
+  const cancel = document.createElement('button');
+  cancel.type = 'button';
+  cancel.className = 'sf-wp-btn';
+  cancel.textContent = 'Cancel';
+  cancel.onclick = () => backdrop.remove();
+
+  const apply = document.createElement('button');
+  apply.type = 'button';
+  apply.className = 'sf-wp-btn sf-wp-btn-apply';
+  apply.textContent = 'Apply';
+  apply.onclick = async () => {
+    apply.disabled = true;
+    try {
+      await applyWallpaperSelection(url);
+      backdrop.remove();
+    } catch (e) {
+      apply.disabled = false;
+      alert('Could not apply wallpaper. Please try again.');
     }
   };
+
+  actions.append(cancel, apply);
+  modal.append(preview, actions);
+  backdrop.appendChild(modal);
+  backdrop.onclick = () => backdrop.remove();
+
+  document.body.appendChild(backdrop);
 }
 
-function schedulePreviewWallpaperRefresh(url) {
-  if (previewWallpaperTimer) {
-    window.clearInterval(previewWallpaperTimer);
-    previewWallpaperTimer = null;
+async function applyWallpaperSelection(url) {
+  const nextUrl = String(url || '').trim();
+  if (!nextUrl) return;
+
+  pendingFile = null;
+  currentDesign.type = 'wallpaper';
+  currentDesign.wallpaper = nextUrl;
+
+  document.body.style.backgroundImage = `url("${nextUrl.replace(/"/g, '\\"')}")`;
+  document.documentElement.style.setProperty('--sf-wallpaper', `url("${nextUrl.replace(/"/g, '\\"')}")`);
+
+  if (window.themeManager && typeof themeManager.applyWallpaper === 'function') {
+    themeManager.applyWallpaper(nextUrl);
   }
-  if (!isGeneratedAssetUrl(url)) return;
-  const box = document.getElementById('preview-box');
-  if (!box) return;
-  let attempts = 0;
-  previewWallpaperTimer = window.setInterval(() => {
-    attempts += 1;
-    if (attempts > 14) {
-      window.clearInterval(previewWallpaperTimer);
-      previewWallpaperTimer = null;
-      return;
-    }
-    box.style.backgroundImage = `url(${withRefresh(url)})`;
-  }, 1600);
+
+  updatePreview();
+  renderWallpaperUI();
+
+  const uid = auth.currentUser ? auth.currentUser.uid : localStorage.getItem('skillforge_mock_uid');
+  if (!uid) return;
+
+  let userRef = doc(db, 'trainees', uid);
+  let snap = await getDoc(userRef).catch(() => null);
+  if (!snap || !snap.exists()) {
+    userRef = doc(db, 'staffs', uid);
+    snap = await getDoc(userRef).catch(() => null);
+  }
+  if (!snap || !snap.exists()) return;
+
+  await updateDoc(userRef, { 'settings.wallpaper': nextUrl, 'theme.wallpaper': nextUrl });
 }
 
 const dualColors = [
@@ -670,7 +759,7 @@ function renderWallpaperUI() {
   const renderBar = () => {
     const bar = ensureBar();
     if (!bar) return;
-    const cats = [{ id: 'all', name: 'All' }, ...(Array.isArray(DESIGN_STUDIO_WALLPAPER_CATEGORIES) ? DESIGN_STUDIO_WALLPAPER_CATEGORIES.map((c) => ({ id: c.id, name: c.name })) : [])];
+    const cats = [{ id: 'all', name: 'All' }, ...(Array.isArray(WALLPAPER_CATEGORIES) ? WALLPAPER_CATEGORIES.map((c) => ({ id: c.id, name: c.name })) : [])];
     bar.innerHTML = '';
     cats.forEach((c) => {
       const b = document.createElement('button');
@@ -687,13 +776,13 @@ function renderWallpaperUI() {
 
   const renderWallpapers = () => {
     wGrid.innerHTML = '';
-    const list = getDesignStudioWallpapers(activeWallpaperCategory);
+    const list = getWallpapers(activeWallpaperCategory);
     list.forEach((w, idx) => {
       const sw = document.createElement('div');
       sw.className = 'wallpaper-swatch';
       sw.setAttribute('role', 'button');
       sw.setAttribute('tabindex', '0');
-      sw.setAttribute('aria-label', `Wallpaper ${idx + 1} — ${w.categoryName}`);
+      sw.setAttribute('aria-label', `Wallpaper ${idx + 1} — ${w.name}`);
       sw.dataset.url = w.url;
       sw.innerHTML = `
         <img class="sf-wp-img" alt="" loading="lazy" decoding="async">
@@ -703,17 +792,14 @@ function renderWallpaperUI() {
             <span class="sf-pill sf-pill-price">${PREMIUM_WALLPAPER_PRICE}</span>
           </div>
           <div class="flex items-end justify-between gap-3">
-            <span class="sf-wp-cat">${w.categoryName}</span>
+            <span class="sf-wp-cat">${w.category}</span>
           </div>
         </div>
       `;
       const imgEl = sw.querySelector('img');
-      hydrateGeneratedImage(imgEl, w.thumb || w.url);
+      if (imgEl) imgEl.src = w.thumb || w.url;
       const select = () => {
-        pendingFile = null;
-        currentDesign.wallpaper = w.url;
-        currentDesign.type = 'wallpaper';
-        updatePreview();
+        openWallpaperPreviewModal(w);
       };
       sw.onclick = select;
       sw.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(); } };
@@ -862,6 +948,10 @@ async function syncWithRegistry() {
     if (snap.exists()) {
       const data = snap.data();
       if (data.theme) currentDesign = { ...currentDesign, ...data.theme };
+      if (data.settings && data.settings.wallpaper) {
+        currentDesign.wallpaper = data.settings.wallpaper;
+        currentDesign.type = 'wallpaper';
+      }
       updatePreview();
       applyControlUI(data.controls || {});
     }
@@ -932,12 +1022,10 @@ function updatePreview() {
       });
     } else if (currentDesign.type === 'wallpaper') {
       const wpUrl = currentDesign.wallpaper || '';
-      const previewUrl = isGeneratedAssetUrl(wpUrl) ? withRefresh(wpUrl) : wpUrl;
-      box.style.background = `url(${previewUrl})`;
+      box.style.background = `url("${wpUrl.replace(/"/g, '\\"')}")`;
       box.style.backgroundSize = 'cover';
       box.style.backgroundPosition = 'center';
       bar.style.backgroundColor = '#f59e0b';
-      schedulePreviewWallpaperRefresh(wpUrl);
 
       // Mark active wallpaper
       const active = currentDesign.wallpaper ? document.querySelector(`.wallpaper-swatch[data-url="${esc(currentDesign.wallpaper)}"]`) : null;
@@ -1119,12 +1207,7 @@ init();
 window.setWallpaper = (url) => {
   const nextUrl = String(url || '').trim();
   if (!nextUrl) return;
-  pendingFile = null;
-  activeWallpaperCategory = 'all';
-  currentDesign.type = 'wallpaper';
-  currentDesign.wallpaper = nextUrl;
-  updatePreview();
-  renderWallpaperUI();
+  openWallpaperPreviewModal({ url: nextUrl, name: 'Wallpaper', category: 'community' });
 };
 
 let pendingAvatar = null;
