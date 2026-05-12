@@ -14,16 +14,22 @@
   overlay.className = 'sf-mobile-overlay';
   overlay.addEventListener('click', () => closeDrawer());
 
-  const button = document.createElement('button');
+  const existingToggle =
+    document.querySelector('[data-sf-drawer-toggle]') ||
+    document.querySelector('button[onclick="toggleSidebar()"]') ||
+    null;
+
+  const button = existingToggle || document.createElement('button');
   button.type = 'button';
-  button.className = 'sf-mobile-hamburger md:hidden';
+  if (!button.classList.contains('sf-mobile-hamburger')) button.classList.add('sf-mobile-hamburger');
+  if (!button.classList.contains('md:hidden')) button.classList.add('md:hidden');
   button.setAttribute('aria-label', 'Open navigation menu');
   button.setAttribute('aria-expanded', 'false');
   const ICON_MENU =
     '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
   const ICON_CLOSE =
     '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
-  button.innerHTML = ICON_MENU;
+  if (!existingToggle) button.innerHTML = ICON_MENU;
 
   function setOpen(isOpen) {
     if (isOpen) {
@@ -59,6 +65,7 @@
   }
 
   button.addEventListener('click', toggleDrawer);
+  window.toggleSidebar = toggleDrawer;
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeDrawer();
   });
@@ -78,5 +85,5 @@
   });
 
   document.body.appendChild(overlay);
-  document.body.appendChild(button);
+  if (!existingToggle) document.body.appendChild(button);
 })();
