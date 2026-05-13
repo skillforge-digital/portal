@@ -1,7 +1,8 @@
 const kw = (s) => encodeURIComponent(String(s || '').trim());
 
-const u = (keyword) => `https://source.unsplash.com/featured/1920x1080/?${kw(keyword)}`;
-const t = (keyword) => `https://source.unsplash.com/400x300/?${kw(keyword)}`;
+const PICSUM_MAP = {'forest,mist':'10','mountain,dawn':'15','waterfall,cinematic':'20','desert,night':'25','aurora,borealis':'30','jungle,canopy':'35','noir,city,night':'40','black,marble,texture':'45','carbon,fiber,texture':'50','obsidian,stone,texture':'55','neon,haze,dark':'60','dark,grid,futuristic':'65','anime,neo tokyo':'70','anime,sakura,night':'71','anime,cyberpunk,street':'72','anime,samurai,moon':'73','anime,mecha':'74','anime,starry sky':'75','minimal,gradient':'80','paper,texture,minimal':'85','minimal,white,desk':'90','matte,black,minimal':'95','minimal,lines':'100','minimal,3d,curve':'101','abstract,fluid':'110','ink,water,abstract':'115','abstract,neon':'120','geometric,abstract':'125','abstract,waves':'130','smoke,abstract':'135','space,nebula':'140','ringed,planet,space':'141','moon,surface,space':'142','astronaut,space':'143','star,trails,night':'144','galaxy,deep space':'145','city,skyline,night':'150','city,rain,street':'155','neon,signs,city':'160','modern,architecture,city':'165','subway,station':'170','night,drive,city':'175','ocean,waves':'180','deep,blue,ocean':'185','tropical,ocean':'190','ocean,sunset':'195','underwater,ocean':'196','coastline,sea':'197'};
+const u = (keyword) => `https://picsum.photos/seed/${PICSUM_MAP[keyword] || Math.abs(keyword.split('').reduce((a,c)=>a+c.charCodeAt(0),0))}/1920/1080`;
+const t = (keyword) => `https://picsum.photos/seed/${PICSUM_MAP[keyword] || Math.abs(keyword.split('').reduce((a,c)=>a+c.charCodeAt(0),0))}/400/300`;
 
 export const WALLPAPER_CATEGORIES = [
   { id: 'nature', name: 'Nature', mood: 'nature' },
@@ -78,4 +79,3 @@ export function getWallpapers(categoryId) {
   if (!target || target === 'all') return list;
   return list.filter((w) => w.category === target);
 }
-
