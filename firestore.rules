@@ -55,7 +55,7 @@ service cloud.firestore {
       // Robust Read/Write: Allows legacy mock reconciliation and cloud migration.
       // Explicitly allow list operations for leaderboard and directory.
       allow get: if isOwner(traineeId) || isStaff();
-      allow list: if isStaff();
+      allow list: if isAuthenticated();
       allow create: if isAuthenticated() && request.auth.uid == traineeId; // Must be authenticated as the trainee
       // Owners can update their profile but cannot manipulate their XP or Level. Only Staff can grant XP.
       allow update: if (isOwner(traineeId) && request.resource.data.get('xp', 0) == resource.data.get('xp', 0)) || isStaff();
@@ -155,6 +155,7 @@ service cloud.firestore {
     }
     match /academy_audit_logs/{id} { allow read: if isStaff(); allow create: if true; }
     match /gate_audit_logs/{id} { allow read: if isStaff(); allow create: if true; }
+    match /academy_sessions/{id} { allow read: if isStaff(); allow create: if isAuthenticated(); allow update, delete: if isStaff(); }
 
     // =========================================================================
     // 4. TELEMETRY & LOGS (Publicly Writable, Restricted Read)
