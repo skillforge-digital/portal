@@ -127,15 +127,7 @@ export async function loadScholarshipCampaign({ db, doc, getDoc }, { seasonId = 
 
 export function computeNextFriday2359Ms(timeZone = 'Africa/Lagos', now = new Date()) {
   const nowParts = getZonedParts(now, timeZone);
-  const weekdayIndex = {
-    Sun: 0,
-    Mon: 1,
-    Tue: 2,
-    Wed: 3,
-    Thu: 4,
-    Fri: 5,
-    Sat: 6
-  }[nowParts.weekday] ?? 0;
+  const weekdayIndex = new Date(Date.UTC(nowParts.year, nowParts.month - 1, nowParts.day)).getUTCDay();
 
   let daysUntilFriday = (5 - weekdayIndex + 7) % 7;
   if (daysUntilFriday === 0) {
@@ -178,6 +170,7 @@ function getZonedParts(date, timeZone) {
     minute: '2-digit',
     second: '2-digit',
     weekday: 'short',
+    hourCycle: 'h23',
     hour12: false
   });
 
