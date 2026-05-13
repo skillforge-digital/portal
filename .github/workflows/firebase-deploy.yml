@@ -34,10 +34,34 @@ jobs:
           EOF
           chmod 600 /tmp/firebase-sa.json
 
+      - name: Validate service account JSON
+        run: |
+          python - <<'PY'
+          import base64, json
+          p = "/tmp/firebase-sa.json"
+          raw = open(p, "rb").read().strip()
+          try:
+            json.loads(raw.decode("utf-8"))
+            print("service account json ok")
+          except Exception:
+            try:
+              dec = base64.b64decode(raw)
+              json.loads(dec.decode("utf-8"))
+              open(p, "wb").write(dec)
+              print("service account json ok (base64-decoded)")
+            except Exception as e:
+              raise SystemExit("invalid FIREBASE_SERVICE_ACCOUNT_SKILLFOGE_ECOSYSTEM secret format") from e
+          PY
+
       - name: Deploy Firestore Rules
         env:
           GOOGLE_APPLICATION_CREDENTIALS: /tmp/firebase-sa.json
         run: npx firebase-tools deploy --only firestore:rules --project skillfoge-ecosystem
+
+      - name: Deploy Firestore Indexes
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: /tmp/firebase-sa.json
+        run: npx firebase-tools deploy --only firestore:indexes --project skillfoge-ecosystem
 
       - name: Deploy Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
