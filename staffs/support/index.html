@@ -137,13 +137,13 @@
         <a href="customize/" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
           <i data-lucide="palette" class="w-4 h-4"></i> Design Studio
         </a>
-        <button onclick="showTab('reset-tickets')" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+        <button onclick="showTab('reset-tickets', event)" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
           <i data-lucide="key" class="w-4 h-4"></i> Reset Tickets
         </button>
-        <button onclick="showTab('logs')" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+        <button onclick="showTab('logs', event)" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
           <i data-lucide="scroll-text" class="w-4 h-4"></i> Activity Logs
         </button>
-        <button onclick="showTab('profile')" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+        <button onclick="showTab('profile', event)" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
           <i data-lucide="user-cog" class="w-4 h-4"></i> Personnel Profile
         </button>
         <a href="#" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
@@ -338,7 +338,7 @@
       } catch (err) { void(err); }
     };
 
-    window.showTab = async (tab) => {
+    window.showTab = async (tab, e) => {
         if (currentTabUnsub) { currentTabUnsub(); currentTabUnsub = null; }
 
         // Role Switcher Logic
@@ -369,7 +369,8 @@
         const profile = window.staffCore.profile;
         
         document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-        if (event && event.target.closest('.nav-link')) event.target.closest('.nav-link').classList.add('active');
+        const _evt = e || (typeof event !== 'undefined' ? event : null);
+        if (_evt && _evt.target && _evt.target.closest('.nav-link')) _evt.target.closest('.nav-link').classList.add('active');
 
         if (tab === 'logs') {
             content.innerHTML = `
@@ -644,7 +645,7 @@
                 <span class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">${d.timestamp?.toDate().toLocaleString() || 'N/A'}</span>
               </div>
               <p class="text-sm text-white font-black uppercase tracking-tight">${d.actorName || 'System'} <span class="text-white/30">•</span> ${d.actorRole || 'Staff'}</p>
-              <p class="text-[10px] text-slate-400 mt-2 font-mono bg-black/30 p-3 rounded-xl border border-white/5 leading-relaxed">${d.details || ''}</p>
+              <p class="text-[10px] text-slate-400 mt-2 bg-black/30 p-3 rounded-xl border border-white/5 leading-relaxed whitespace-pre-wrap break-words">${(function(raw){if(!raw)return'—';if(typeof raw!=='string')return String(raw);try{const p=JSON.parse(raw);if(p&&typeof p==='object'){if(p.before!==undefined||p.after!==undefined){return Object.entries(p.after||{}).map(([k,v])=>k+' → '+JSON.stringify(v)).join(', ')||raw;}return Object.entries(p).map(([k,v])=>k+': '+JSON.stringify(v)).join(' • ');}return raw;}catch(e){return raw;}})(d.details)}</p>
             </div>`;
         }).join('');
     };
