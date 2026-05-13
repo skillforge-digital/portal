@@ -399,6 +399,10 @@
             <h2 class="profile-name-target">Trainee Name</h2>
             <div class="flex items-center gap-4 mt-2">
               <p class="text-gold-400 text-[12px] font-black uppercase tracking-[0.6em] profile-track-target">Academy Track</p>
+              <div id="scholarship-badge" class="hidden px-4 py-1.5 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-400 text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                <i class="fa-solid fa-award"></i>
+                <span>Scholarship</span>
+              </div>
               <span class="gender-target text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full bg-white/10 border border-white/8 backdrop-blur-md">Gender</span>
               <div id="social-badge" class="hidden px-4 py-1.5 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-400 text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
                 <i id="social-icon" class="fa-brands"></i>
@@ -612,6 +616,10 @@ function updateCardUI() {
   const socialBadge = document.getElementById('social-badge');
   const socialIcon = document.getElementById('social-icon');
   const socialHandle = document.getElementById('social-handle-target');
+
+  const scholarshipBadge = document.getElementById('scholarship-badge');
+  if (traineeData.scholarship === true) scholarshipBadge?.classList.remove('hidden');
+  else scholarshipBadge?.classList.add('hidden');
   
   if (traineeData.social && traineeData.social.handle) {
     socialBadge.classList.remove('hidden');

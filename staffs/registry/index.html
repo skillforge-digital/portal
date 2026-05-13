@@ -217,6 +217,9 @@
         const phoneRaw = getPhone(t);
         const phone = escapeHtml(phoneRaw);
         const hasPhone = Boolean(normalizePhone(phoneRaw));
+        const scholarshipTag = t.scholarship === true
+          ? `<p class="text-[9px] font-black uppercase tracking-[0.35em] text-gold-400">SCHOLARSHIP</p>`
+          : '';
 
         const emailCell = email
           ? `<a href="mailto:${email}" class="text-white hover:text-gold transition-all font-bold text-[10px] uppercase tracking-widest">${email}</a>`
@@ -238,6 +241,7 @@
               <div class="space-y-1">
                 <p class="text-white font-black uppercase tracking-tight">${name}</p>
                 <p class="text-[9px] font-black uppercase tracking-[0.35em] text-white/30">${escapeHtml(t.created_at ? 'RECENT' : '')}</p>
+                ${scholarshipTag}
               </div>
             </td>
             <td class="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-white/70">${track}</td>
@@ -259,6 +263,9 @@
         const phone = escapeHtml(phoneRaw);
         const normalizedPhone = normalizePhone(phoneRaw);
         const hasPhone = Boolean(normalizedPhone);
+        const scholarshipChip = t.scholarship === true
+          ? `<span class="px-3 py-1 rounded-full bg-gold-500/10 border border-gold-500/20 text-[9px] font-black uppercase tracking-widest text-gold-400">Scholarship</span>`
+          : '';
 
         const action = whatsappAllowed && hasPhone
           ? `<button type="button" data-action="whatsapp" data-id="${escapeHtml(t.__id)}" class="inline-flex items-center justify-center gap-2 px-4 py-4 rounded-2xl bg-[#25D366]/10 border border-[#25D366]/20 text-[#25D366] hover:bg-[#25D366]/20 transition-all text-[10px] font-black uppercase tracking-[0.3em] w-full">
@@ -281,6 +288,7 @@
                 <p class="text-white font-black uppercase tracking-tight truncate">${name}</p>
                 <div class="flex flex-wrap items-center gap-2 mt-2">
                   <span class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest text-white/70">${track || 'Unassigned'}</span>
+                  ${scholarshipChip}
                   <span class="px-3 py-1 rounded-full bg-gold/10 border border-gold/20 text-[9px] font-black uppercase tracking-widest text-gold">${sfid || '—'}</span>
                 </div>
               </div>

@@ -1315,6 +1315,26 @@ function updateDiagnostics() {
   }
 }
 
+function ensureScholarshipBadges() {
+  document.querySelectorAll('.profile-track-target').forEach((el) => {
+    if (!el || !el.parentElement) return;
+    const next = el.nextElementSibling;
+    if (next && next.classList && next.classList.contains('scholarship-badge-target')) return;
+    const badge = document.createElement('span');
+    badge.className = 'scholarship-badge-target hidden inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-400 text-[9px] font-black uppercase tracking-widest';
+    badge.innerHTML = '<i class="fa-solid fa-award"></i><span>Scholarship</span>';
+    el.insertAdjacentElement('afterend', badge);
+  });
+}
+
+function setScholarshipBadgesVisible(visible) {
+  ensureScholarshipBadges();
+  document.querySelectorAll('.scholarship-badge-target').forEach((el) => {
+    if (!el || !el.classList) return;
+    el.classList.toggle('hidden', !visible);
+  });
+}
+
 function updateUI(data, permissions) {
    // Update Common UI Elements
    document.querySelectorAll('.user-name-target').forEach(el => el.innerText = data.name || 'User');
@@ -1325,6 +1345,7 @@ function updateUI(data, permissions) {
    // Update Role Badges
    const roleDisplay = (data.roles || ['Trainee']).join(' | ');
    document.querySelectorAll('.profile-track-target').forEach(el => el.innerText = roleDisplay);
+   setScholarshipBadgesVisible(data.scholarship === true);
  
    // Update Diagnostics
    updateDiagnostics();
@@ -1404,6 +1425,7 @@ function updateDynamicUI(data) {
   // Roles/Track display
   const roleDisplay = (data.roles && data.roles.length > 0) ? data.roles.join(' | ') : (data.track || 'Academy Trainee');
   document.querySelectorAll('.profile-track-target').forEach(el => el.innerText = roleDisplay);
+  setScholarshipBadgesVisible(data.scholarship === true);
   
   
     // Profile Avatar

@@ -199,7 +199,7 @@
                         const traineeDoc = await getDoc(doc(db, 'trainees', uid));
                         if (traineeDoc.exists()) {
                             personData = traineeDoc.data();
-                            personData.role = `Trainee | ${personData.track || 'Unassigned'}`;
+                            personData.role = `Trainee | ${personData.track || 'Unassigned'}${personData.scholarship === true ? ' | Scholarship' : ''}`;
                         }
                     }
                 } else if (id) {
@@ -213,7 +213,7 @@
                     
                     if (!querySnapshot.empty) {
                         personData = querySnapshot.docs[0].data();
-                        personData.role = `Trainee | ${personData.track || 'Unassigned'}`;
+                        personData.role = `Trainee | ${personData.track || 'Unassigned'}${personData.scholarship === true ? ' | Scholarship' : ''}`;
                     }
                 }
 
