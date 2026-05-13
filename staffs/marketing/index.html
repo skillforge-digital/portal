@@ -420,7 +420,7 @@
                 <span class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">${d.timestamp?.toDate().toLocaleString() || 'N/A'}</span>
               </div>
               <p class="text-sm text-white font-black uppercase tracking-tight">${d.actorName || 'System'} <span class="text-white/30">•</span> ${d.actorRole || 'Staff'}</p>
-              <p class="text-[10px] text-slate-400 mt-2 font-mono bg-black/30 p-3 rounded-xl border border-white/5 leading-relaxed">${d.details || ''}</p>
+              <p class="text-[10px] text-slate-400 mt-2 bg-black/30 p-3 rounded-xl border border-white/5 leading-relaxed whitespace-pre-wrap break-words">${(function(raw){if(!raw)return'—';if(typeof raw!=='string')return String(raw);try{const p=JSON.parse(raw);if(p&&typeof p==='object'){if(p.before!==undefined||p.after!==undefined){return Object.entries(p.after||{}).map(([k,v])=>k+' → '+JSON.stringify(v)).join(', ')||raw;}return Object.entries(p).map(([k,v])=>k+': '+JSON.stringify(v)).join(' • ');}return raw;}catch(e){return raw;}})(d.details)}</p>
             </div>`;
         }).join('');
     };
