@@ -137,10 +137,10 @@
         <a href="customize/" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
           <i data-lucide="palette" class="w-4 h-4"></i> Design Studio
         </a>
-        <button onclick="showTab('logs')" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+        <button onclick="showTab('logs', event)" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
           <i data-lucide="scroll-text" class="w-4 h-4"></i> Activity Logs
         </button>
-        <button onclick="showTab('profile')" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
+        <button onclick="showTab('profile', event)" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
           <i data-lucide="user-cog" class="w-4 h-4"></i> Personnel Profile
         </button>
         <a href="#" class="nav-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-all">
@@ -317,7 +317,7 @@
       } catch (err) { void(err); }
     };
 
-    window.showTab = async (tab) => {
+    window.showTab = async (tab, e) => {
         // Role Switcher Logic
         if (window.staffCore && window.staffCore.profile && window.staffCore.profile.roles && window.staffCore.profile.roles.length > 1) {
             const switcher = document.getElementById('role-switcher');
@@ -346,7 +346,8 @@
         const profile = window.staffCore.profile;
         
         document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-        if (event && event.target.closest('.nav-link')) event.target.closest('.nav-link').classList.add('active');
+        const _evt = e || (typeof event !== 'undefined' ? event : null);
+        if (_evt && _evt.target && _evt.target.closest('.nav-link')) _evt.target.closest('.nav-link').classList.add('active');
 
         if (tab === 'logs') {
             content.innerHTML = `
