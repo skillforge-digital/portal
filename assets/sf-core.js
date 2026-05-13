@@ -151,6 +151,26 @@ class SkillForgeCore {
                 this.pulse();
                 this.channel.postMessage({ type: 'TAB_CLOSING' });
                 this.channel.close();
+                if (this.uid && this.sessionStart) {
+                    const durationMs = Date.now() - this.sessionStart;
+                    const path = window.location.pathname;
+                    const isAcademy = path.includes('/academy/') && !path.endsWith('/academy/') && !path.includes('gate.html');
+                    if (isAcademy && durationMs > 30000) {
+                        const { trackId } = this.getPathContext();
+                        try {
+                            addDoc(collection(this.db, 'academy_sessions'), {
+                                uid: this.uid,
+                                trackId,
+                                path,
+                                startedAt: new Date(this.sessionStart).toISOString(),
+                                endedAt: new Date().toISOString(),
+                                durationMs,
+                                durationMinutes: Math.floor(durationMs / 60000),
+                                timestamp: serverTimestamp()
+                            });
+                        } catch(e) { /* best-effort on unload */ }
+                    }
+                }
             });
         });
     }
@@ -445,7 +465,7 @@ class SkillForgeCore {
             if (staffSnap.exists()) {
                 this.registryState = staffSnap.data();
             } else {
-                void("[PortalCore] Profile missing from Registry. Forcing re-authentication.");
+                console.warn("[PortalCore] Profile missing from Registry. Forcing re-authentication.");
                 // Strictly delete the fake mock uid if it's invalid so they can't get stuck in a loop
                 if (localStorage.getItem('skillforge_mock_uid') === this.uid) {
                     localStorage.removeItem('skillforge_mock_uid');
@@ -527,11 +547,13 @@ class SkillForgeCore {
             await setDoc(trackRef, {
                 lastAcademyAccess: today,
                 academyLoginDays: increment(1),
-                lastUpdated: serverTimestamp()
+                lastUpdated: serverTimestamp(),
+                lastLoginAt: serverTimestamp()
             }, { merge: true });
 
             await updateDoc(traineeRef, {
-                totalLogins: increment(1)
+                totalLogins: increment(1),
+                lastLoginAt: serverTimestamp()
             });
         }
     }
@@ -563,7 +585,7 @@ class SkillForgeCore {
                     });
                 }
             }
-        } catch (err) { void("[RegistryCore] Track Error:", err); }
+        } catch (err) { console.error("[RegistryCore] Track Error:", err); }
     }
 
     async startRegistrySync() {
@@ -673,9 +695,17 @@ class SkillForgeCore {
                         await updateDoc(presenceRef, { certDays: increment(1), lastCertUpdate: todayDate });
                     }
                 }
+                try {
+                    await updateDoc(doc(this.db, 'trainees', this.uid), {
+                        xp: increment(minutes),
+                        lastXpAwardedAt: serverTimestamp()
+                    });
+                } catch (xpErr) {
+                    console.error('[RegistryCore] XP award failed:', xpErr);
+                }
             }
         } catch (err) {
-            void("[RegistryCore] Pulse Failed:", err);
+            console.error("[RegistryCore] Pulse Failed:", err);
         }
     }
 
