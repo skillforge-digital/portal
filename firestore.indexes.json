@@ -49,6 +49,14 @@
       ]
     },
     {
+      "collectionGroup": "audit_logs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "type", "order": "ASCENDING" },
+        { "fieldPath": "timestamp", "order": "DESCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "academy_audit_logs",
       "queryScope": "COLLECTION",
       "fields": [
@@ -86,6 +94,29 @@
       "fields": [
         { "fieldPath": "token_hash", "order": "ASCENDING" },
         { "fieldPath": "used", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "password_resets",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "created_at", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "presence",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "track", "order": "ASCENDING" },
+        { "fieldPath": "lastSeen", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "entries",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        { "fieldPath": "timestamp", "order": "DESCENDING" }
       ]
     }
   ],
