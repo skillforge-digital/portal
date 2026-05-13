@@ -178,11 +178,24 @@ function getZonedParts(date, timeZone) {
   const out = {};
   for (const part of parts) out[part.type] = part.value;
 
+  let year = Number(out.year);
+  let month = Number(out.month);
+  let day = Number(out.day);
+  let hour = Number(out.hour);
+  if (hour === 24) {
+    hour = 0;
+    const carry = new Date(Date.UTC(year, month - 1, day));
+    carry.setUTCDate(carry.getUTCDate() + 1);
+    year = carry.getUTCFullYear();
+    month = carry.getUTCMonth() + 1;
+    day = carry.getUTCDate();
+  }
+
   return {
-    year: Number(out.year),
-    month: Number(out.month),
-    day: Number(out.day),
-    hour: Number(out.hour),
+    year,
+    month,
+    day,
+    hour,
     minute: Number(out.minute),
     second: Number(out.second),
     weekday: out.weekday

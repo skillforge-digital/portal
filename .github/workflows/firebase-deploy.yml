@@ -4,6 +4,9 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+
 concurrency:
   group: firebase-deploy-portal-main
   cancel-in-progress: true
@@ -11,14 +14,18 @@ concurrency:
 jobs:
   test-and-deploy:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
       - name: Install deps
@@ -56,14 +63,14 @@ jobs:
       - name: Deploy Firestore Rules
         env:
           GOOGLE_APPLICATION_CREDENTIALS: /tmp/firebase-sa.json
-        run: npx firebase-tools deploy --only firestore:rules --project skillfoge-ecosystem
+        run: npx --yes firebase-tools@latest deploy --only firestore:rules --project skillfoge-ecosystem --non-interactive
 
       - name: Deploy Firestore Indexes
         env:
           GOOGLE_APPLICATION_CREDENTIALS: /tmp/firebase-sa.json
-        run: npx firebase-tools deploy --only firestore:indexes --project skillfoge-ecosystem
+        run: npx --yes firebase-tools@latest deploy --only firestore:indexes --project skillfoge-ecosystem --non-interactive
 
       - name: Deploy Hosting
         env:
           GOOGLE_APPLICATION_CREDENTIALS: /tmp/firebase-sa.json
-        run: npx firebase-tools deploy --only hosting --project skillfoge-ecosystem --non-interactive
+        run: npx --yes firebase-tools@latest deploy --only hosting --project skillfoge-ecosystem --non-interactive
