@@ -607,6 +607,7 @@ import { doc, updateDoc, getDoc, setDoc, arrayUnion } from 'https://www.gstatic.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 import { DESIGN_STUDIO_FONTS, preloadDesignStudioFonts } from '../../assets/design-studio-presets.js';
 import { WALLPAPER_CATEGORIES, getWallpapers } from '../../assets/wallpaper-library.js';
+import { hydrateImageElement } from '../../assets/generated-image.js';
 
 const supabaseUrl = 'https://luxubaqztmbcpskyfgdp.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1eHViYXF6dG1iY3Bza3lmZ2RwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDYzNTcsImV4cCI6MjA5MTQyMjM1N30.Kmon8jh22u5KgWWpXf-7cdZ4qxlKXuUbVm6Mh-GHd8Q';
@@ -797,7 +798,7 @@ function renderWallpaperUI() {
         </div>
       `;
       const imgEl = sw.querySelector('img');
-      if (imgEl) imgEl.src = w.thumb || w.url;
+      if (imgEl) hydrateImageElement(imgEl, w.thumb || w.url);
       const select = () => {
         openWallpaperPreviewModal(w);
       };
@@ -1108,6 +1109,7 @@ async function loadGlobalWallpapers() {
           </div>
         </div>
       `).join('');
+      grid.querySelectorAll('img').forEach((img) => hydrateImageElement(img, img.getAttribute('src')));
     } else {
        grid.innerHTML = '<p class="text-white/40 text-xs italic col-span-2">No community wallpapers shared yet.</p>';
     }
