@@ -24,7 +24,7 @@ export async function logStaffActivity({ action, details, scope, targetUid, targ
     timestamp: serverTimestamp(),
     action: action || 'UNKNOWN',
     scope: scope || 'global',
-    details: details || '',
+    details: details ? (typeof details === 'object' ? JSON.stringify(details) : String(details)) : '',
     actorUid: uid,
     actorName,
     actorRole,
